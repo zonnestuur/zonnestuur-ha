@@ -372,7 +372,7 @@ html, body { overscroll-behavior-y: none; }
   .soc-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-3); }
   .bplan { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 26px; margin: 14px 0 4px; }
   .bplan i { border-radius: 4px; background: color-mix(in srgb, var(--batt) 22%, transparent); }
-  .bplan i.charge { background: var(--net); } .bplan i.export { background: var(--save); } .bplan i.save { background: repeating-linear-gradient(45deg, var(--mid) 0 3px, var(--chip) 3px 6px); }
+  .bplan i.charge { background: var(--net); } .bplan i.export { background: var(--save); } .bplan i.save { background: repeating-linear-gradient(45deg, var(--mid) 0 3px, var(--chip) 3px 6px); } .bplan i.idle { background: var(--sun-ink); }
   .bplan i.now { outline: 2px solid var(--ink); outline-offset: 1px; }
   .bkeys { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: var(--ink-3); margin-bottom: 4px; }
   .bkeys i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
@@ -878,6 +878,7 @@ html, body { overscroll-behavior-y: none; }
         <span><i class="sw" style="background:repeating-linear-gradient(45deg,var(--ink-3) 0 2px,var(--chip) 2px 5px)"></i>Door jou ingegrepen</span>
         <span class="bl" hidden><i class="sw" style="background:var(--batt)"></i>Batterij: zelf gebruiken</span>
         <span class="bl" hidden><i class="sw" style="background:var(--net)"></i>Batterij: laden van het net</span>
+        <span class="bl bl-idle" hidden><i class="sw" style="background:var(--sun-ink)"></i>Batterij: zon later opslaan</span>
         <span class="bl" hidden><i class="sw" style="background:var(--mid)"></i>Batterij: vasthouden</span>
       </div>
       <details class="table" id="priceTableWrap"><summary>Toon als tabel</summary><table id="priceTable"></table></details>
@@ -1029,7 +1030,7 @@ let STATUS = null, TODAY = null, MONTH = [], PRICES = null, USAGE = null, USE_P 
 const VERB = { boiler: "verwarmt", ev: "laadt", heatpump: "draait", generic: "draait" };
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 const pct = (v) => nl(v) + "%";
-const BACT = { auto: "zelf gebruiken", save: "vasthouden voor later", charge: "laden van het net", export: "verkopen aan het net", idle: "stand-by" };
+const BACT = { auto: "zelf gebruiken", save: "vasthouden voor later", charge: "laden van het net", export: "verkopen aan het net", idle: "zon later opslaan" };
 
 function nextPlanned(s) {
   // Eerstvolgende geplande stap: uit de prijsplanning (dynamisch) of de zonnigste uren per apparaat
@@ -1378,7 +1379,7 @@ function batteryCard(s, b) {
   const state = b.observing ? (pw > 30 ? `${wie} laadt ${kw(pw)} kW ${s.grid_w != null && s.grid_w > 100 ? "van het net" : sunny ? "van de zon" : ""}`
       : pw < -30 ? (s.grid_w != null && s.grid_w < -100 ? `${wie} levert ${kw(pw)} kW terug aan het net` : `${wie} levert ${kw(pw)} kW aan je huis`) : `${wie} houdt de batterij in rust`)
     : pw > 30 ? (b.action === "charge" ? `Laadt ${kw(pw)} kW van het net` : sunny ? `Laadt ${kw(pw)} kW van de zon` : `Laadt ${kw(pw)} kW`)
-    : pw < -30 ? (b.action === "export" ? `Verkoopt ${kw(pw)} kW aan het net` : `Levert ${kw(pw)} kW aan je huis`) : b.action === "save" ? "Houdt vast" : "Rust";
+    : pw < -30 ? (b.action === "export" ? `Verkoopt ${kw(pw)} kW aan het net` : `Levert ${kw(pw)} kW aan je huis`) : b.action === "save" ? "Houdt vast" : b.action === "idle" ? "Wacht op de middagzon" : "Rust";
   const v = b.value || {}, t = b.today || {};
   const start = b.plan.length ? new Date(b.plan[0].start) : new Date();
   const nowH = Math.floor((Date.now() - start.getTime()) / 3.6e6);
@@ -1409,7 +1410,7 @@ function batteryCard(s, b) {
       <span class="m" style="left:${b.min_soc}%" title="Minimum ${b.min_soc}%"></span>${b.target_soc ? `<span class="t" style="left:${b.target_soc}%" title="Doel ${Math.round(b.target_soc)}%"></span>` : ""}</div>
     <div class="soc-axis"><span>0%</span><span>minimum ${Math.round(b.min_soc)}%</span><span>100%</span></div>
     ${b.plan.length ? `<div class="bplan" role="img" aria-label="Plan van de batterij, komende 24 uur">${cells}</div><div class="strip-axis">${lab}</div>
-    <div class="bkeys"><span><i style="background:color-mix(in srgb, var(--batt) 30%, transparent)"></i>Zelf gebruiken</span>${b.can && b.can.save ? `<span><i style="background:repeating-linear-gradient(45deg, var(--mid) 0 3px, var(--chip) 3px 6px)"></i>Vasthouden</span>` : ""}${b.can && b.can.charge ? `<span><i style="background:var(--net)"></i>Laden van het net</span>` : ""}${b.can && b.can.export ? `<span><i style="background:var(--save)"></i>Verkopen</span>` : ""}</div>` : ""}
+    <div class="bkeys"><span><i style="background:color-mix(in srgb, var(--batt) 30%, transparent)"></i>Zelf gebruiken</span>${b.can && b.can.save ? `<span><i style="background:repeating-linear-gradient(45deg, var(--mid) 0 3px, var(--chip) 3px 6px)"></i>Vasthouden</span>` : ""}${b.can && b.can.charge ? `<span><i style="background:var(--net)"></i>Laden van het net</span>` : ""}${b.can && b.can.export ? `<span><i style="background:var(--save)"></i>Verkopen</span>` : ""}${b.can && b.can.idle ? `<span><i style="background:var(--sun-ink)"></i>Zon later opslaan</span>` : ""}</div>` : ""}
     <div class="facts">${facts.join("")}</div>
     <div class="kv4">
       <div><div class="k">Geladen vandaag</div><div class="v">${nl(t.charged_kwh, 1)} kWh</div></div>
@@ -1840,10 +1841,11 @@ function drawLanes() {
   }
   const bat = (s.batteries || [])[0];
   if (bat && bat.plan && bat.plan.length) {
-    const map = { auto: ["var(--batt)", "zelf gebruiken"], charge: ["var(--net)", "laden van het net"], save: ["var(--mid)", "vasthouden voor later"], export: ["var(--save)", "verkopen aan het net"] };
+    const map = { auto: ["var(--batt)", "zelf gebruiken"], charge: ["var(--net)", "laden van het net"], save: ["var(--mid)", "vasthouden voor later"], export: ["var(--save)", "verkopen aan het net"], idle: ["var(--sun-ink)", "zon later opslaan"] };
     lanes.push({ name: bat.name, kind: "batt", hours: bat.plan.map((p) => ({ i: Math.round((new Date(p.start).getTime() / 1000 - start) / 3600), c: (map[p.action] || map.auto)[0], w: (map[p.action] || map.auto)[1], soc: p.soc })), ready: [] });
   }
   document.querySelectorAll("#priceLegend .bl").forEach((e) => { e.hidden = !lanes.some((l) => l.kind === "batt"); });
+  document.querySelectorAll("#priceLegend .bl-idle").forEach((e) => { e.hidden = !(bat && bat.plan && bat.plan.some((p) => p.action === "idle")); });
   if (!lanes.length) { svg.setAttribute("height", 0); svg.innerHTML = ""; return; }
   const LH = 34, T = 8, H = T + lanes.length * LH + 4;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);

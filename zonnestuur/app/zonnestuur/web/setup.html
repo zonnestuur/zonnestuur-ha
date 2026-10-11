@@ -1013,6 +1013,9 @@ function batteryHtml(b) {
         ${blok("Zomer: vooral eigen zon", `In de zomer vult de zon de batterij meestal vanzelf. Met dit aan laadt Zonnestuur dan alleen van het net als het duidelijk loont, zodat er ruimte blijft voor je eigen zonnestroom.`,
           `<label class="schakel"><input type="checkbox" id="b_season" ${b.season === false ? "" : "checked"}><span></span>Aan (aanbevolen)</label>`)}
 
+        ${blok("Ochtendzon verkopen, later opslaan", `Op zonnige dagen is de batterij vaak al voor de middag vol. Daarna gaat je zonnestroom naar het net, juist als die het minst oplevert (soms moet je er zelfs voor betalen). Met dit aan laat Zonnestuur de batterij 's ochtends even stilstaan als de verwachting zegt dat de middagzon hem toch vol krijgt: de ochtendzon gaat dan naar het net (levert dan meer op) en de batterij staat korter vol, wat hem spaart. Kan met HomeWizard, Marstek, Zendure en Sessy, en met batterijen die je met een vermogen-getal of een stand voor stilstaan stuurt.`,
+          `<label class="schakel"><input type="checkbox" id="b_zl" ${b.zon_later === false ? "" : "checked"}><span></span>Aan (aanbevolen)</label>`)}
+
         ${blok("Slijtage meerekenen", `Elke keer laden en ontladen slijt de batterij een klein beetje. Vul in wat hij kostte en hoe vaak hij volgens de fabrikant geladen kan worden. Dan laadt Zonnestuur alleen van het net als de winst groter is dan de slijtage. Weet je het niet? Laat het leeg.`,
           `<div class="blok-in"><label for="b_buy">Aankoopprijs</label><span class="met-eenheid voor"><i>€</i><input id="b_buy" type="number" step="any" min="0" placeholder="niet ingevuld" value="${esc(b.purchase_eur || "")}"></span></div>
           <div class="blok-in"><label for="b_cyc">Aantal keer vol laden</label><span class="met-eenheid"><input id="b_cyc" type="number" step="100" min="500" value="${esc(b.cycles ?? 6000)}"><i>keer</i></span></div>`)}
@@ -1026,6 +1029,9 @@ function batteryHtml(b) {
         <p class="small muted" style="margin:10px 0 0">Technische instellingen voor wie de batterij aansluit. Bij een merk dat Zonnestuur rechtstreeks kent (HomeWizard, Marstek, Zendure, Victron, Sessy) is hier meestal niets nodig. Vraag het bij twijfel aan <a href="mailto:info@zonnestuur.nl">info@zonnestuur.nl</a>.</p>
         ${blok("Piekgrens tijdens laden", `Voor een capaciteitstarief, zoals in België: je betaalt dan voor je hoogste piek per maand. Zonnestuur laadt de batterij van het net zo dat de totale afname van het huis onder deze grens blijft. In Nederland laat je dit op 0 (uit).`,
           `<div class="blok-in"><label for="b_peak">Piekgrens</label><span class="met-eenheid"><input id="b_peak" type="number" step="100" min="0" value="${esc(b.peak_limit_w ?? 0)}"><i>W</i></span></div>`)}
+        ${blok("Verliezen van de omvormer", `Een thuisbatterij verliest naar verhouding veel als hij weinig vermogen levert (bijvoorbeeld 's nachts 150 W voor de koelkast): de omvormer heeft zelf ook stroom nodig zolang hij werkt. Metingen van HTW Berlin laten zien dat dat per merk erg verschilt. Laat leeg, dan schat Zonnestuur het (0,4% van het vermogen, minstens 5 W). Stand-by: wat de batterij gebruikt als hij niets doet, als de fabrikant of een meting dat vermeldt.`,
+          `<div class="blok-in"><label for="b_dv">Eigen verbruik tijdens laden/ontladen</label><span class="met-eenheid"><input id="b_dv" type="number" step="1" min="0" placeholder="schatten" value="${esc(b.deel_verlies_w || "")}"><i>W</i></span></div>
+          <div class="blok-in"><label for="b_sb">Stand-by-verbruik</label><span class="met-eenheid"><input id="b_sb" type="number" step="1" min="0" placeholder="onbekend" value="${esc(b.standby_w || "")}"><i>W</i></span></div>`)}
         <div id="b_dextra">${blok("Verbinding met de batterij", `Alleen nodig als de batterij niet op de gewone poort luistert. Marstek gebruikt standaard poort 30000 (de lokale API, aan te zetten in de Marstek-app). Victron gebruikt Modbus TCP op poort 502 met unit-id 100 (de GX zelf); zet Modbus TCP aan op de GX onder Instellingen → Services.`,
           `<div class="blok-in" data-dt="marstek victron"><label for="d_port">Poort</label><input id="d_port" type="number" placeholder="standaard" value="${esc(b.direct_port || "")}"></div>
           <div class="blok-in" data-dt="victron"><label for="d_unit">Modbus unit-id</label><input id="d_unit" type="number" value="${esc(b.direct_unit || 100)}"></div>
@@ -1206,6 +1212,7 @@ function readBattery(prev) {
     sturing: $("b_st") ? $("b_st").value : "zonnestuur", leverancier: $("b_lev") ? v("b_lev") : "", vergoeding_entity: $("b_ve") ? v("b_ve") : "",
     zs_maanden: [...document.querySelectorAll("#b_zsm button.on")].map((x) => Number(x.dataset.m)), grid_export: $("b_exp") ? $("b_exp").checked : false,
     max_export_w: Math.max(0, n("b_expw") || 0), script_export: $("s_export") ? v("s_export") : "",
+    zon_later: $("b_zl") ? $("b_zl").checked : true, deel_verlies_w: Math.max(0, n("b_dv") || 0), standby_w: Math.max(0, n("b_sb") || 0),
     purchase_eur: Math.max(0, n("b_buy") || 0), cycles: Math.max(500, n("b_cyc") || 6000), season: $("b_season").checked,
     driver: v("b_drv"), soc_entity: v("b_soc"), power_entity: v("b_pw"), mode_entity: v("b_mode"), mode_map: map,
     charge_power_entity: v("b_cpw"), force_entity: v("b_force"), force_map: fmap, control_switch_entity: v("b_sw"),

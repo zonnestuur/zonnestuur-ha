@@ -59,7 +59,7 @@ html, body { overscroll-behavior-y: none; }
   <nav aria-label="Onderwerpen">
     <a href="#nu">Bovenaan het dashboard</a><a href="#besparing">Besparing: zo rekenen we</a><a href="#tips">Tips</a><a href="#plan">Planning</a>
     <a href="#prijzen">Prijzen per kwartier</a><a href="#apparaten">Apparaten bijsturen</a><a href="#witgoed">Wasmachine en droger</a><a href="#auto">Auto laden</a>
-    <a href="#warmte">Warm water en verwarming</a><a href="#koppelen">Merk koppelen</a><a href="#omvormer">Omvormer</a><a href="#batterij">Thuisbatterij</a><a href="#vergelijken">Leverancier vergelijken</a><a href="#nettarief">Nettarief 2029</a><a href="#logboek">Logboek</a><a href="#contract">Contract vergelijken</a>
+    <a href="#warmte">Warm water en verwarming</a><a href="#koppelen">Merk koppelen</a><a href="#omvormer">Omvormer</a><a href="#batterij">Thuisbatterij</a><a href="#batterij-slim">Batterij: slim sturen</a><a href="#vergelijken">Leverancier vergelijken</a><a href="#nettarief">Nettarief 2029</a><a href="#logboek">Logboek</a><a href="#contract">Contract vergelijken</a>
     <a href="#hub">Huisscherm</a><a href="#widgets">Telefoonwidget</a><a href="#meldingen">Meldingen</a><a href="#privacy">Privacy en veiligheid</a>
   </nav>
   <article>
@@ -138,6 +138,15 @@ html, body { overscroll-behavior-y: none; }
       <p><b>Rechtstreeks</b> stuurt Zonnestuur deze batterijen rechtstreeks, alles binnen je eigen netwerk: <b>HomeWizard Plug-In Battery</b> (koppelen met de knop van de P1-meter), <b>Marstek Venus</b> (lokale API aanzetten in de app), <b>Zendure SolarFlow/Hyper</b> (lokale zenSDK) en <b>Victron</b> met ESS (Modbus TCP op de GX). Kies het merk onder Instellingen &gt; Thuisbatterij &gt; Koppeling en druk op <b>Test verbinding</b>.</p>
       <p><b>Je doel</b> kies je bij Instellingen &gt; Thuisbatterij: <b>slim</b> (eigen zon eerst, handelen als het duidelijk loont), <b>zelfvoorzienend</b> (alleen eigen zon) of <b>maximaal verdienen</b>. Met een dynamisch contract kan hij ook <b>verkopen aan het net</b> als terugleveren tijdelijk veel oplevert, bijvoorbeeld bij een prijspiek op een winteravond. Hij verkoopt alleen wat je zelf niet nodig hebt tot de volgende goedkope uren. Alle instellingen (minimum, reserve, laden van het net, slijtage) kun je zelf aanpassen.</p>
       <p>Het plan houdt rekening met het weer: Zonnestuur leert hoeveel meer stroom jouw huis gebruikt als het kouder is (zie <b>Geleerd</b>) en gebruikt de temperatuurverwachting om het verbruik van vandaag en morgen te schatten.</p>
+    </section>
+    <section id="batterij-slim"><h2>Hoe de batterij slim stuurt</h2>
+      <p>Zonnestuur rekent elk kwartier de komende uren door: prijzen, zonverwachting en je eigen verbruik. Daarbij houdt hij rekening met wat onderzoek naar thuisbatterijen laat zien:</p>
+      <ul>
+        <li><b>Zon later opslaan.</b> Op zonnige dagen is de batterij vaak al voor de middag vol, en gaat de rest van je zonnestroom naar het net juist als die het minst oplevert. Zonnestuur laat de batterij dan 's ochtends even stilstaan: de ochtendzon gaat naar het net (levert dan meer op) en de middagzon vult de batterij alsnog. Hij staat dan ook korter vol, en dat is beter voor de batterij.</li>
+        <li><b>Weinig vermogen is duur.</b> Een batterij die 's nachts 150 W voor de koelkast levert, verliest naar verhouding veel: de omvormer gebruikt zelf ook stroom. Zonnestuur rekent dat mee en kiest daardoor beter wanneer de batterij levert en wanneer hij beter kan wachten op een duur uur.</li>
+        <li><b>Liever iets te veel dan te weinig.</b> Verbruik en zon zijn nooit precies te voorspellen. Te weinig in de batterij kost meer dan te veel, dus Zonnestuur kiest met een iets hoger verbruik en iets minder zon dan verwacht.</li>
+        <li><b>Niet onnodig lang vol.</b> Een batterij veroudert sneller als hij lang helemaal vol staat. Laden van het net gebeurt daarom zo laat als het kan, vlak voor de dure uren.</li>
+      </ul>
     </section>
     <section id="opbrengst"><h2>Jaaroverzicht</h2>
       <p>Op de pagina <a href="opbrengst">Jaaroverzicht</a> zie je per maand wat Zonnestuur opleverde: apparaten op eigen zon en in goedkope uren, de thuisbatterij en het afknijpen van de omvormer bij negatieve prijzen. Ook per apparaat, en hoeveel van de prijs van Pro je al terugverdiende.</p>

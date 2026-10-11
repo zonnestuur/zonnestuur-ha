@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.51.0
+Slimmere thuisbatterij, op basis van wetenschappelijk onderzoek naar thuisbatterijen:
+- Ochtendzon verkopen, later opslaan: is de batterij op een zonnige dag toch al voor de middag vol, dan laat Zonnestuur hem 's ochtends even stilstaan. De ochtendzon levert dan meer op, de middagzon (vaak goedkoop of negatief) vult de batterij, en hij staat korter vol. Aan te zetten in Instellingen > Thuisbatterij.
+- Rekent mee dat een batterij bij weinig vermogen (bijvoorbeeld 's nachts) naar verhouding veel verliest, en eventueel zijn stand-by-verbruik.
+- Kiest voorzichtiger: liever iets te veel dan te weinig in de batterij als verbruik of zon anders uitvalt.
+- Laadt van het net zo laat als het kan: lang helemaal vol staan veroudert de batterij.
+- Uitleg in Hulp > "Batterij: slim sturen".
+
 ## 0.50.2
 - Telefoon: tikken op een uur in de prijsgrafiek toont weer de prijs (werkte op de iPhone niet meer). Boven de grafiek staat nu "Tik op een uur om de prijs te zien".
 
