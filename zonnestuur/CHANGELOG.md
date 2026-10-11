@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.52.1
+- Warmtepompboilers en combi-units (zoals Nilan) die niet melden dat ze opwarmen: Zonnestuur ziet het nu aan de stijgende watertemperatuur. Daardoor telt het verbruik en de besparing van warm water eindelijk mee (stond op 0).
+
 ## 0.52.0
 - Heeft Zonnestuur je minstens € 10 bespaard, dan kun je het met één knop doorvertellen, of ons je ervaring mailen. Wegklikken kan; dan zie je het 60 dagen niet.
 - Lukt het ophalen van de kwartierprijzen even niet, dan probeert Zonnestuur het na een kwartier opnieuw (was zes uur met uurprijzen).
