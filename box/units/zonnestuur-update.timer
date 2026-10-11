@@ -1,11 +1,10 @@
 [Unit]
-Description=Zonnestuur - dagelijks kijken of er een nieuwe versie is
+Description=Zonnestuur - elk uur kijken of er een nieuwe versie is
 
 [Timer]
-OnBootSec=20min
-OnCalendar=*-*-* 02:00
-RandomizedDelaySec=3h
-Persistent=true
+OnBootSec=2min
+OnUnitActiveSec=1h
+RandomizedDelaySec=5min
 
 [Install]
 WantedBy=timers.target

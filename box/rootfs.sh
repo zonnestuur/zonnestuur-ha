@@ -74,10 +74,10 @@ chown -R "$OWNER" "$R/var/lib/zonnestuur" "$R/etc/zonnestuur"
 chmod 750 "$R/var/lib/zonnestuur/net"
 
 # 4. diensten
-for u in zonnestuur.service zonnestuur-update.service zonnestuur-update.timer zonnestuur-net.service; do
+for u in zonnestuur.service zonnestuur-update.service zonnestuur-update.timer zonnestuur-update.path zonnestuur-net.service; do
   install -m 644 "$UNITS/$u" "$R/etc/systemd/system/$u"
 done
-ENABLE="zonnestuur.service zonnestuur-update.timer"
+ENABLE="zonnestuur.service zonnestuur-update.timer zonnestuur-update.path"
 [ "$BOX" = 1 ] && ENABLE="$ENABLE zonnestuur-net.service"
 
 # 4b. Box: de motor (ingebouwde Home Assistant + Matter-server) voor alle koppelingen

@@ -111,6 +111,12 @@ html, body { overscroll-behavior-y: none; }
 
   <section class="card" id="stat"><h2 class="t">Hoe gaat het</h2><div class="checks" id="checks"><p class="small muted"><span class="spin"></span>Controleren…</p></div></section>
 
+  <section class="card" id="upd" hidden><h2 class="t">Updates</h2>
+    <p class="small" id="u_tekst" style="margin:0"></p>
+    <div class="acts" style="margin-top:12px"><button class="btn" type="button" id="u_nu">Nu zoeken en bijwerken</button><span id="u_msg" class="small" role="status"></span></div>
+    <p class="small muted" style="margin:10px 0 0">De Box kijkt zelf elk uur of er een nieuwe versie is.</p>
+  </section>
+
   <section class="card" id="meld"><h2 class="t">Feedback geven</h2>
     <p class="small muted" style="margin:0">Alles wat je hier stuurt, lezen we zelf. Proefhuizen helpen zo Zonnestuur beter te maken.</p>
     <div class="chips" id="soort" role="radiogroup" aria-label="Waar gaat het over?">
@@ -133,7 +139,9 @@ html, body { overscroll-behavior-y: none; }
     <label class="sw"><input type="checkbox" id="auto"><div><b>Stuur fouten automatisch naar Zonnestuur</b>
       <span>Alleen wat er technisch misging en in welke versie, zonder persoonlijke gegevens. Zo kunnen we fouten oplossen voordat je ze merkt.</span></div></label>
     <label class="sw"><input type="checkbox" id="seintje"><div><b>Laat weten dat Zonnestuur draait</b>
-      <span>Een paar keer per dag: installatie-ID, versie, Add-on of Box, proef/Pro/Basis en welke soort apparaten (boiler, auto, …). Geen namen, adressen of meterstanden. Zo weten we hoeveel huizen Zonnestuur gebruiken, en kunnen we je proefperiode verlengen.</span></div></label>
+      <span>Elk uur: installatie-ID, versie, Add-on of Box, proef/Pro/Basis en welke soort apparaten (boiler, auto, …). Geen namen, adressen of meterstanden. Zo weten we hoeveel huizen Zonnestuur gebruiken, en kunnen we je proefperiode verlengen.</span></div></label>
+    <label class="sw"><input type="checkbox" id="meekijk"><div><b>Zonnestuur mag op afstand meekijken</b>
+      <span>Met het seintje gaat mee of de meter en je apparaten werken (namen van je apparaten, geen adressen of meterstanden). Lukt er iets niet, dan kunnen wij één keer het logboek opvragen om het snel op te lossen.</span></div></label>
     <label class="sw"><input type="checkbox" id="test"><div><b>Nieuwe versies als eerste krijgen</b>
       <span>Voor proefhuizen: je krijgt verbeteringen eerder, en meldt zo sneller wat er nog niet goed gaat.</span></div></label>
     <span id="a_msg" class="small" role="status"></span>
@@ -170,19 +178,36 @@ function checks(d) {
   add(true, "Versie", `${d.versie}${d.kanaal === "test" ? " (testkanaal)" : ""}`);
   $("checks").innerHTML = out.join("");
 }
+function wanneer(t) { if (!t) return "nog niet"; const m = Math.round((Date.now() / 1000 - t) / 60); return m < 2 ? "net" : m < 90 ? m + " minuten geleden" : Math.round(m / 60) + " uur geleden"; }
+let U0 = null;
+async function updates() {
+  let u; try { u = await api("api/box/update"); } catch (e) { return; }
+  if (!u.box) return;
+  $("upd").hidden = false;
+  const nieuw = u.available && u.current && u.available !== u.current;
+  $("u_tekst").innerHTML = `Deze Box draait versie <b>${esc(u.current || "?")}</b>. ${nieuw ? `Versie <b>${esc(u.available)}</b> staat klaar.` : "Dat is de nieuwste."}<br><span class="muted">Laatst gekeken: ${wanneer(u.checked_at)}${u.result ? " · " + esc(u.result) : ""}</span>`;
+  if (U0 && u.checked_at !== U0) { $("u_msg").innerHTML = '<span class="ok">Klaar</span>'; $("u_nu").disabled = false; U0 = null; if (/bijgewerkt naar/.test(u.result || "")) setTimeout(() => location.reload(), 4000); }
+}
+$("u_nu").onclick = async () => {
+  $("u_nu").disabled = true; $("u_msg").innerHTML = '<span class="spin"></span>Zoeken… (een update duurt een paar minuten; Zonnestuur start daarna opnieuw)';
+  try { const u = await api("api/box/update"); U0 = u.checked_at || 1; await post("api/box/update", {}); }
+  catch (e) { $("u_msg").innerHTML = `<span class="err">${esc(e.message)}</span>`; $("u_nu").disabled = false; return; }
+  const t = setInterval(async () => { await updates(); if (!U0) clearInterval(t); }, 5000);
+};
+updates();
 let CFG = null;
 async function laad() {
   try { const d = await api("api/diagnose"); checks(d); $("diag").textContent = JSON.stringify(d, null, 1); }
   catch (e) { $("checks").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
-  try { CFG = await api("api/config"); $("auto").checked = CFG.fouten_melden !== false; $("seintje").checked = CFG.seintje !== false; $("test").checked = CFG.kanaal === "test"; } catch (e) {}
+  try { CFG = await api("api/config"); $("auto").checked = CFG.fouten_melden !== false; $("seintje").checked = CFG.seintje !== false; $("meekijk").checked = CFG.meekijken !== false; $("test").checked = CFG.kanaal === "test"; } catch (e) {}
 }
 async function bewaar() {
   if (!CFG) return;
-  CFG.fouten_melden = $("auto").checked; CFG.seintje = $("seintje").checked; CFG.kanaal = $("test").checked ? "test" : "stabiel";
+  CFG.fouten_melden = $("auto").checked; CFG.seintje = $("seintje").checked; CFG.meekijken = $("meekijk").checked; CFG.kanaal = $("test").checked ? "test" : "stabiel";
   try { await post("api/config", CFG); $("a_msg").innerHTML = '<span class="ok">Opgeslagen</span>'; } catch (e) { $("a_msg").innerHTML = `<span class="err">${esc(e.message)}</span>`; }
   setTimeout(() => { $("a_msg").textContent = ""; }, 2500);
 }
-$("auto").onchange = bewaar; $("seintje").onchange = bewaar; $("test").onchange = bewaar;
+$("auto").onchange = bewaar; $("seintje").onchange = bewaar; $("meekijk").onchange = bewaar; $("test").onchange = bewaar;
 const SOORT = {
   probleem: ["Wat gaat er mis?", "Bijv. de boiler ging vanochtend niet aan, terwijl de stroom goedkoop was.", "Beschrijf kort wat er mis is."],
   idee: ["Wat is je idee?", "Bijv. ik zou ook mijn vaatwasser willen laten wachten op de zon.", "Schrijf kort je idee op."],

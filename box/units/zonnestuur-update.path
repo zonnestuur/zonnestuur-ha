@@ -1,0 +1,9 @@
+[Unit]
+Description=Zonnestuur - meteen bijwerken als je in de app op "Nu bijwerken" tikt
+
+[Path]
+PathChanged=/var/lib/zonnestuur/update-nu
+Unit=zonnestuur-update.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.53.3
+- Zonnestuur Box kijkt nu elk uur naar een nieuwe versie (was één keer per nacht), en bij Hulp staat een knop "Nu zoeken en bijwerken".
+- Meekijken op afstand (in de testfase standaard aan, uit te zetten bij Hulp): met het seintje gaat mee of de meter en je apparaten werken. Lukt er iets niet, dan kunnen wij één keer het logboek opvragen om het snel op te lossen.
+
 ## 0.53.2
 - Zonnestuur Box: wat de koppelmotor zelf in je huis ziet (bijv. een P1-meter, Shelly, warmtepomp) staat nu bovenaan bij Koppelen onder "Gevonden in je huis", met één knop om te koppelen. Ook bij het eerste instellen zie je het.
 
