@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.51.1
+- Vergelijken met Tibber (en andere leveranciers): laden wordt nu per kwartier bijgehouden en tegen de kwartierprijs gerekend, net zoals Tibber het in rekening brengt. Ook wat Zonnestuur had gedaan wordt per kwartier uitgerekend.
+- Een laadbeurt loopt nu van je klaar-tijd tot de volgende klaar-tijd. Laden tussen de klaar-tijd en 12:00 viel eerder buiten de vergelijking.
+- De laadgeschiedenis van de afgelopen 10 dagen wordt eenmalig per kwartier opnieuw ingelezen, zodat de vergelijking meteen klopt.
+
 ## 0.51.0
 Slimmere thuisbatterij, op basis van wetenschappelijk onderzoek naar thuisbatterijen:
 - Ochtendzon verkopen, later opslaan: is de batterij op een zonnige dag toch al voor de middag vol, dan laat Zonnestuur hem 's ochtends even stilstaan. De ochtendzon levert dan meer op, de middagzon (vaak goedkoop of negatief) vult de batterij, en hij staat korter vol. Aan te zetten in Instellingen > Thuisbatterij.

@@ -108,7 +108,7 @@ html, body { overscroll-behavior-y: none; }
     <p class="sub">Zonnestuur kijkt mee terwijl je leverancier je batterij of het laden van je auto stuurt. Elke dag speelt hij na wat hij zelf had gedaan, met alleen wat hij op dat moment kon weten, en rekent het verschil uit. Wat je leverancier uitbetaalt, telt mee.</p>
   </section>
   <div id="items" style="display:grid;gap:16px"><section class="card"><p class="empty">Laden…</p></section></div>
-  <p class="muted">Bedragen zijn wat je voor stroom betaalde en terugkreeg, met de prijzen van je contract per uur. Slijtage van de batterij zit er niet in. Hoe langer Zonnestuur meekijkt, hoe betrouwbaarder het advies.</p>
+  <p class="muted">Bedragen zijn wat je voor stroom betaalde en terugkreeg, met de prijzen van je contract per kwartier. Slijtage van de batterij zit er niet in. Hoe langer Zonnestuur meekijkt, hoe betrouwbaarder het advies.</p>
 </main>
 <script>
 
@@ -175,7 +175,7 @@ function card(it) {
     <p class="verdict">${esc(it.tekst)}</p>${cmp}
     ${days.length > 2 ? `<div class="bars" role="img" aria-label="Verschil per dag">${bars}</div><p class="hint">Per dag: groen = Zonnestuur goedkoper, oranje = ${esc(it.wie)} goedkoper.</p>` : ""}
     <h2>Per maand</h2><div class="rows">${rows}</div>
-    ${sessies ? `<h2>Laadbeurten</h2><p class="hint" style="margin-top:4px">Zonnestuur rekent met de gewone prijs van je contract per uur, inclusief energiebelasting en btw. Leveranciers geven soms extra korting, bijvoorbeeld Tibber met Grid Rewards als het net om extra verbruik vraagt. Dat kan Zonnestuur niet zien. Vul daarom bij een laadbeurt in wat de app van ${esc(it.wie)} zegt; dan telt dat bedrag. ${esc(waarStaat(it.wie))}</p><div class="rows">${sessies}</div>` : ""}
+    ${sessies ? `<h2>Laadbeurten</h2><p class="hint" style="margin-top:4px">Zonnestuur rekent met de prijs van je contract per kwartier (zoals Tibber en andere dynamische leveranciers), inclusief energiebelasting en btw. Een laadbeurt loopt van je klaar-tijd tot de volgende klaar-tijd. Leveranciers geven soms extra korting, bijvoorbeeld Tibber met Grid Rewards als het net om extra verbruik vraagt. Dat kan Zonnestuur niet zien. Vul daarom bij een laadbeurt in wat de app van ${esc(it.wie)} zegt; dan telt dat bedrag. ${esc(waarStaat(it.wie))}</p><div class="rows">${sessies}</div>` : ""}
     <h2>Uitbetaald door ${esc(it.wie)}</h2>
     <div class="vg"><span>In</span><select data-vm>${opts}</select><input data-ve inputmode="decimal" placeholder="€ 0,00" aria-label="Bedrag"><button class="btn ghost" data-vs>Opslaan</button></div>
     <p class="hint">${bat ? "Kijk in de app van je leverancier wat de batterij die maand opleverde (bijv. Powerplay of Slim handelen)." : "Voor wat je los terugkreeg en niet al per laadbeurt hebt ingevuld, bijv. een maandvergoeding van Jedlix. " + waarStaat(it.wie)}</p>
