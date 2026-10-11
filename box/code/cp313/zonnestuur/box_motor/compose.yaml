@@ -58,6 +58,16 @@ services:
       - /var/lib/zonnestuur/otbr:/data/thread
       - /etc/localtime:/etc/localtime:ro
 
+  mosquitto:
+    profiles: ["mqtt"]               # MQTT-broker voor Zigbee2MQTT, Tasmota, Shelly en P1-lezers (aan te zetten in de app)
+    image: eclipse-mosquitto:2
+    container_name: zs-mosquitto
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /var/lib/zonnestuur/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - /var/lib/zonnestuur/mosquitto/data:/mosquitto/data
+
   evcc:
     profiles: ["evcc"]
     image: evcc/evcc:latest

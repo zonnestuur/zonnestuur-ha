@@ -1407,6 +1407,8 @@ function batteryCard(s, b) {
   const nx = b.next;
   const facts = [];
   facts.push(`<div class="fact"><i class="dot" style="background:var(--batt)"></i><span><b>Nu: ${b.observing ? esc(b.leverancier || "je leverancier") + " stuurt" : esc(BACT[b.action] || b.action)}</b>${b.reason && b.reason !== BACT[b.action] ? ` · ${esc(b.reason)}` : ""}</span></div>`);
+  const gm = b.gemeten || {};
+  if (gm.cap || gm.eff) facts.push(`<div class="fact"><i class="dot" style="background:var(--ink-3)"></i><span>Gemeten: ${gm.cap ? `<b>± ${nl(gm.cap, 1)} kWh</b> bruikbaar (op papier ${nl(b.capacity_kwh, 1)})` : ""}${gm.cap && gm.eff ? " · " : ""}${gm.eff ? `rendement <b>${Math.round(gm.eff * 100)}%</b>` : ""}. Zonnestuur plant daarmee.</span></div>`);
   if (nx && !(nx.action === b.action && b.plan[0] && b.plan[0].action === nx.action))
     facts.push(`<div class="fact"><i class="dot" style="background:var(--net)"></i><span>${b.observing ? "Zonnestuur zou straks om" : "Straks om"} <b>${esc(nx.start)}</b>: ${esc(BACT[nx.action])}${nx.action === "charge" ? ` tot <b>${Math.round(nx.soc)}%</b>` : ""}${nx.why ? ` · ${esc(nx.why)}` : ""}</span></div>`);
   else if (!nx) facts.push(`<div class="fact"><i class="dot" style="background:var(--ink-3)"></i><span>${b.observing ? "Zonnestuur zou de komende uren gewoon zelf gebruiken" : "Komende uren gewoon zelf gebruiken"}: laden of vasthouden levert nu te weinig op.</span></div>`);
@@ -2483,7 +2485,7 @@ function drawCoach() {
       : `<div class="window" style="background:var(--chip)"><div><b>Vandaag geen groot zonnevenster verwacht</b><span>Zonnestuur vult aan in de goedkoopste uren waar nodig.</span></div></div>`) : "";
   const tips = C.tips || [];
   const tipHtml = (t) => `<div class="tip-item"><div class="tip-h"><b>${esc(t.title)}</b>${t.eur_year > 0 ? `<span class="gain">± € ${nl(t.eur_year)} per jaar</span>` : ""}</div>
-      <p>${esc(t.text)}</p><details><summary>Zo doe je het</summary><ol>${t.how.map((h) => `<li>${esc(h)}</li>`).join("")}</ol></details></div>`;
+      <p>${esc(t.text)}</p>${(t.how || t.steps || []).length ? `<details><summary>Zo doe je het</summary><ol>${(t.how || t.steps).map((h) => `<li>${esc(h)}</li>`).join("")}</ol></details>` : ""}</div>`;
   body.innerHTML = `<div class="coach-grid"><div>${left}</div><div>${win}
       <div class="eyebrow" style="margin:4px 0 8px">Tips voor jouw huis</div>
       ${tips.length ? tips.slice(0, 4).map(tipHtml).join("") : `<p class="small muted">Geen tips: je haalt al het meeste uit je zon.</p>`}

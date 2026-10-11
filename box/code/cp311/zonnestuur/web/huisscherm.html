@@ -121,6 +121,13 @@ html, body { overscroll-behavior-y: none; }
   input[type="range"] { padding: 0; accent-color: var(--sun); height: 32px; background: none; border: 0; }
   .prev { margin-top: 12px; border-radius: 16px; overflow: hidden; background: #000; position: relative; aspect-ratio: 1024 / 600; }
   .prev iframe { position: absolute; left: 0; top: 0; width: 1024px; height: 600px; border: 0; transform-origin: 0 0; pointer-events: none; }
+  .kleur { display: flex; gap: 8px; padding: 4px 0; }
+  .kleur button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; background: var(--c); cursor: pointer; box-shadow: inset 0 0 0 3px var(--card-solid); }
+  .kleur button.on { border-color: var(--ink); }
+  .tl { display: grid; gap: 6px; }
+  .tl > div { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--card-solid); border: 1px solid var(--line); font-size: 14px; }
+  .tl > div b { flex: 1; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tl button { font: inherit; font-size: 13px; border: 0; background: var(--chip); color: var(--ink); border-radius: 999px; padding: 5px 10px; cursor: pointer; }
   .sub { font-size: 15px; font-weight: 650; margin: 20px 0 4px; }
   .acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; align-items: center; }
   .dev.sel { border-color: var(--sun); }
@@ -163,6 +170,25 @@ html, body { overscroll-behavior-y: none; }
         <div class="field"><label for="e_van">Van</label><input id="e_van" type="time" value="06:30"></div>
         <div class="field"><label for="e_tot">Tot</label><input id="e_tot" type="time" value="23:00"></div>
       </div>
+      <div class="sub">Jouw stijl</div>
+      <div class="row" style="align-items:flex-end">
+        <div class="field" style="flex:0 0 auto"><label>Kleur</label><div class="kleur" id="s_accent" role="group" aria-label="Kleur"></div><span class="hint">Zie je als de stroom goedkoop is</span></div>
+        <div class="field" style="flex:0 0 auto"><label>Achtergrond</label><div class="seg" role="group" aria-label="Achtergrond" id="s_thema"><button type="button" data-v="donker">Donker</button><button type="button" data-v="licht">Licht</button></div></div>
+        <div class="field" style="flex:0 0 auto"><label>Tekst</label><div class="seg" role="group" aria-label="Tekstgrootte" id="s_tekst"><button type="button" data-v="normaal">Normaal</button><button type="button" data-v="groot">Groot</button><button type="button" data-v="extra">Extra groot</button></div></div>
+      </div>
+      <label class="small" style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" id="s_groet"> Begroeting bovenin (Goedemorgen, Goedemiddag …)</label>
+      <div class="field" id="s_wiev" style="margin-top:8px"><label for="s_wie">Naam in de begroeting (mag leeg)</label><input id="s_wie" maxlength="24" placeholder="Bijv. familie Jansen"></div>
+      <div class="row" style="margin-top:10px">
+        <div class="field"><label for="s_nvan">Nachtstand vanaf</label><input id="s_nvan" type="time"></div>
+        <div class="field"><label for="s_ntot">Nachtstand tot</label><input id="s_ntot" type="time"></div>
+      </div>
+      <p class="hint" style="margin:-8px 0 10px">'s Nachts alleen een rustige klok en wanneer het goedkoop is. Laat leeg als je dat niet wilt.</p>
+      <label>Eigen tegels (maximaal 4)</label>
+      <div id="s_tegels" class="tl"></div>
+      <div class="row" id="s_tegeladd" style="margin-top:6px"><div class="field" style="flex:2 1 260px;margin:0"><select id="s_tegel" aria-label="Tegel toevoegen"></select></div></div>
+      <p class="hint" style="margin:6px 0 10px">Bijvoorbeeld de temperatuur buiten, de luchtvochtigheid of een lamp.</p>
+      <label>Volgorde onderaan</label>
+      <div id="s_volg" class="tl" style="margin-top:6px"></div>
       <div class="prev" id="prevBox" aria-label="Voorbeeld van het scherm"><iframe id="prev" title="Voorbeeld van het scherm" tabindex="-1"></iframe></div>
       <p class="hint" style="margin-top:6px">Voorbeeld met je stroomprijzen. Weer, afval, agenda en witgoed zie je op het scherm zelf.</p>
     </div>
@@ -314,6 +340,10 @@ function open(s) {
   ED = Object.assign({ scherm: true, van: "", tot: "", blokken: {}, nieuws: [], radio: {} }, s);
   ED.radio = Object.assign({ naam: "", url: "", aan: "", uit: "", dagen: DAGEN.map((d) => d[0]), volume: 20, knop: true }, ED.radio || {});
   BLOKKEN.forEach(([k]) => { if (ED.blokken[k] == null) ED.blokken[k] = true; });
+  ED.stijl = Object.assign({ accent: "groen", thema: "donker", tekst: "normaal", nacht_van: "", nacht_tot: "", begroeting: false, wie: "", tegels: [], volgorde: ["info", "prijs", "nieuws"] }, ED.stijl || {});
+  ED.stijl.tegels = (ED.stijl.tegels || []).slice(); ED.stijl.volgorde = (ED.stijl.volgorde || []).slice();
+  for (const k of ["info", "prijs", "nieuws"]) if (!ED.stijl.volgorde.includes(k)) ED.stijl.volgorde.push(k);
+  stijl();
   if (!s.id && !ED.nieuws.length) ED.nieuws = (OV.nieuws || []).slice(0, 2).map((n) => n.entity);
   $("edTitle").textContent = s.id ? `${s.naam} aanpassen` : `${s.naam} instellen`;
   $("e_naam").value = ED.naam;
@@ -392,6 +422,34 @@ $("e_zenders").onclick = (e) => {
 $("e_urlok").onclick = () => { const u = $("e_url").value.trim(); if (!/^https?:\/\//.test(u)) { $("e_msg").innerHTML = '<span class="err">Een streamadres begint met http:// of https://</span>'; return; }
   ED.radio.url = u; ED.radio.naam = $("e_znaam").value.trim() || "Eigen zender"; gekozen(); };
 
+// ---- jouw stijl
+const KLEUREN = [["groen", "#3ee08f", "Groen"], ["blauw", "#5b9dff", "Blauw"], ["oranje", "#ff9a3c", "Oranje"], ["paars", "#b18cff", "Paars"], ["roze", "#ff7ab8", "Roze"]];
+const DELEN = { info: "Tegels (weer, afval, apparaten)", prijs: "Prijsbalk per uur", nieuws: "Nieuws" };
+function stijl() {
+  const st = ED.stijl;
+  $("s_accent").innerHTML = KLEUREN.map(([k, c, n]) => `<button type="button" data-v="${k}" style="--c:${c}" class="${st.accent === k ? "on" : ""}" aria-label="${n}" aria-pressed="${st.accent === k}" title="${n}"></button>`).join("");
+  for (const id of ["s_thema", "s_tekst"]) for (const b of $(id).children) b.classList.toggle("on", b.dataset.v === st[id === "s_thema" ? "thema" : "tekst"]);
+  $("s_groet").checked = st.begroeting; $("s_wiev").hidden = !st.begroeting; $("s_wie").value = st.wie || "";
+  $("s_nvan").value = st.nacht_van || ""; $("s_ntot").value = st.nacht_tot || "";
+  const kand = OV.tegels || [], naam = (e) => (kand.find((x) => x.entity === e) || {}).naam || e;
+  $("s_tegels").innerHTML = st.tegels.map((t, i) => `<div><b>${esc(t.naam || naam(t.entity))}</b><button type="button" data-weg="${i}">Weg</button></div>`).join("");
+  $("s_tegeladd").hidden = st.tegels.length >= 4 || !kand.length;
+  $("s_tegel").innerHTML = `<option value="">${kand.length ? "Tegel toevoegen…" : "Geen metingen gevonden"}</option>` + kand.filter((x) => !st.tegels.some((t) => t.entity === x.entity))
+    .map((x) => `<option value="${esc(x.entity)}">${esc(x.naam)}${x.eenheid ? " (" + esc(x.eenheid) + ")" : ""}</option>`).join("");
+  $("s_volg").innerHTML = st.volgorde.map((k, i) => `<div><b>${DELEN[k]}</b>${i ? `<button type="button" data-op="${i}" aria-label="Omhoog">▲ Omhoog</button>` : ""}</div>`).join("");
+}
+$("s_accent").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; ED.stijl.accent = b.dataset.v; stijl(); draw(); };
+$("s_thema").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; ED.stijl.thema = b.dataset.v; stijl(); draw(); };
+$("s_tekst").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; ED.stijl.tekst = b.dataset.v; stijl(); draw(); };
+$("s_groet").onchange = () => { ED.stijl.begroeting = $("s_groet").checked; stijl(); draw(); };
+$("s_wie").oninput = () => { ED.stijl.wie = $("s_wie").value; draw(); };
+$("s_nvan").onchange = () => { ED.stijl.nacht_van = $("s_nvan").value; };
+$("s_ntot").onchange = () => { ED.stijl.nacht_tot = $("s_ntot").value; };
+$("s_tegel").onchange = () => { const v = $("s_tegel").value; if (v && ED.stijl.tegels.length < 4) ED.stijl.tegels.push({ entity: v, naam: "" }); stijl(); draw(); };
+$("s_tegels").onclick = (e) => { const b = e.target.closest("[data-weg]"); if (!b) return; ED.stijl.tegels.splice(+b.dataset.weg, 1); stijl(); draw(); };
+$("s_volg").onclick = (e) => { const b = e.target.closest("[data-op]"); if (!b) return; const i = +b.dataset.op, v = ED.stijl.volgorde;
+  [v[i - 1], v[i]] = [v[i], v[i - 1]]; stijl(); draw(); };
+
 // ---- voorbeeld (de echte kaart, in een venster van 1024×600)
 async function preview() {
   if (!ED || !ED.scherm) return;
@@ -414,8 +472,13 @@ function draw() {
   if (!c || !c.setConfig) return;
   const b = ED.blokken, cfg = { licht: true, radio_knop: ED.radio.knop !== false, radio_entity: "input_text.voorbeeld", radio_stream: ED.radio.url || undefined, radio_name: ED.radio.naam || undefined };
   for (const k of ["afval", "weer", "witgoed", "agenda", "besparing", "prijs", "auto"]) if (!b[k]) cfg[k] = false;
+  const st = ED.stijl || {}, tg = {};
+  Object.assign(cfg, { accent: st.accent, thema: st.thema, tekst: st.tekst, begroeting: st.begroeting, wie: st.wie, volgorde: st.volgorde, tegels: st.tegels });
+  if (st.thema === "licht") cfg.licht = false;   // het lichte thema heeft zijn eigen achtergrond
+  // Voorbeeld van eigen tegels: we kennen hier alleen naam en eenheid, dus "…" als waarde
+  for (const t of st.tegels || []) { const k = (OV.tegels || []).find((x) => x.entity === t.entity) || {}; tg[t.entity] = { state: k.waarde ?? "…", attributes: { friendly_name: k.naam || t.entity, unit_of_measurement: k.eenheid || "" } }; }
   c.setConfig(cfg);
-  c.hass = { states: { "sensor.zonnestuur": { state: "x", last_updated: String(Date.now()), attributes: CARDS }, "input_text.voorbeeld": { state: "" } }, callService: () => Promise.resolve() };
+  c.hass = { states: { ...tg, "sensor.zonnestuur": { state: "x", last_updated: String(Date.now()), attributes: CARDS }, "input_text.voorbeeld": { state: "" } }, callService: () => Promise.resolve() };
 }
 addEventListener("resize", () => { const box = $("prevBox"); if (box) $("prev").style.transform = `scale(${box.clientWidth / 1024})`; });
 

@@ -256,6 +256,19 @@ const ZS_HUB_CSS = `
   .lite .news .np, .lite .kop.in { animation: none; }
   .lite .news .np { display: none; }
   .hub > * { position: relative; }
+  .mid, .onder { zoom: var(--zs-zoom, 1); }
+  .groet { font-weight: 650; color: var(--ink); }
+  /* Licht thema: voor een kamer met veel daglicht */
+  .hub.lt { --bg: #eef3f6; --ink: #0f1d26; --ink2: rgba(15,29,38,.68); --ink3: rgba(15,29,38,.42); }
+  .hub.lt.duur { --bg: #f4f1ea; }
+  .hub.lt::before { opacity: .55; }
+  .hub.lt .chip { background: rgba(15,29,38,.06); }
+  /* Nachtstand: donker en rustig */
+  .hub.nacht { --bg: #000; --ink: rgba(242,247,244,.55); --ink2: rgba(242,247,244,.4); }
+  .hub.nacht::before { display: none; }
+  .nmid { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .nklok { font: 300 clamp(80px, 26vh, 220px)/1 Inter, system-ui, sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .nreg { margin-top: 2vh; font-size: clamp(16px, 3.4vh, 28px); color: var(--ink2); }
   .rv { position: fixed; right: 0; bottom: 0; width: 4px; height: 4px; opacity: .02; pointer-events: none; }
   .top { display: flex; justify-content: space-between; align-items: center; color: var(--ink2); font-size: clamp(14px, 2.6vh, 20px); font-weight: 500; }
   .brand { display: inline-flex; align-items: center; gap: 10px; letter-spacing: .01em; }
@@ -614,6 +627,15 @@ class ZonnestuurHubCard extends HTMLElement {
       const t = b.w >= 100 ? "laadt " + kwT(b.w) : b.w <= -100 ? "levert " + kwT(-b.w) : "in rust";
       chips.push({ p: Math.abs(b.w) >= 100 ? 2.7 : 8, h: `<div class="chip" style="--bin:#7aa7ff">${icon('<rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9.5 1.5h5M12 8.5l-2.5 4h5L12 16.5"/>')}<div><b class="num">Batterij · ${b.soc}%</b><span>${t}</span></div></div>` });
     }
+    // Eigen tegels: wat jij op het scherm wilt zien (temperatuur boven, luchtvochtigheid, een lamp, …)
+    for (const t of (Array.isArray(this._config.tegels) ? this._config.tegels : []).slice(0, 4)) {
+      const st = this._hass && this._hass.states[t.entity]; if (!st) continue;
+      const u = st.attributes.unit_of_measurement || "", n = t.naam || st.attributes.friendly_name || t.entity;
+      let v = st.state;
+      if (v === "on") v = "aan"; else if (v === "off") v = "uit";
+      else if (!isNaN(+v) && v !== "") v = (+v).toLocaleString("nl-NL", { maximumFractionDigits: Math.abs(+v) >= 100 ? 0 : 1 });
+      chips.push({ p: 6, h: `<div class="chip" style="--bin:var(--g)">${icon(/°|K$/.test(u) ? '<path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0zM12 9v7"/>' : /^light\./.test(t.entity) ? '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>' : u === "%" ? '<path d="M12 3.5s-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/>' : '<path d="M4 16a8 8 0 0 1 16 0M12 16l4-5"/>')}<div><b class="num">${zsEsc(v)}${u ? " " + zsEsc(u) : ""}</b><span>${zsEsc(n)}</span></div></div>` });
+    }
     chips.sort((p, q) => p.p - q.p);
     return chips.length ? `<div class="info">${chips.map((x) => x.h).join("")}</div>` : "";
   }
@@ -636,17 +658,37 @@ class ZonnestuurHubCard extends HTMLElement {
       ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.bolt}</svg>Stroom is nu goedkoop</div><div class="h">tot ${zsEsc(C.until)}<small>${zsHubLeft(C.until_ts - now)}</small></div>
          ${this._witgoed().some((w) => !w.nu) ? "" : `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(this._config.tip)}</div>`}`
       : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>Nog even wachten</div><div class="h">${nx ? `${nx.day ? "morgen " : ""}${zsEsc(nx.from)}` : "Geen goedkoop blok"}<small>${nx ? `goedkoop tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}` : "Prijzen voor morgen komen rond 13:00"}</small></div>`;
-    const lite = this._config.licht ?? /CrKey|Fuchsia/i.test(navigator.userAgent);
-    return `<div class="hub ${on ? "" : "duur"} ${lite ? "lite" : ""}">
-      <div class="top"><span class="brand"><i></i>Zonnestuur${(a.save || {}).month > 0.5 && this._config.besparing !== false ? `<em class="sv">${zsEur(a.save.month)} bespaard deze maand</em>` : ""}</span><span class="tr">${this._radioPill()}${this._radioKnopHtml()}<span class="clock">${clock}</span></span></div>
+    const cf = this._config, lite = cf.licht ?? /CrKey|Fuchsia/i.test(navigator.userAgent);
+    const acc = ZS_ACCENT[cf.accent] && !(!on && cf.accent === "oranje") ? ZS_ACCENT[cf.accent] : null;
+    const stijl = [acc && on ? `--g:${acc[0]};--g2:${acc[1]}` : "", `--zs-zoom:${({ groot: 1.15, extra: 1.3 })[cf.tekst] || 1}`].filter(Boolean).join(";");
+    const klas = ["hub", on ? "" : "duur", lite ? "lite" : "", cf.thema === "licht" ? "lt" : ""].join(" ");
+    const uur = new Date().getHours();
+    const groet = cf.begroeting ? `<span class="groet">${uur < 6 ? "Goedenacht" : uur < 12 ? "Goedemorgen" : uur < 18 ? "Goedemiddag" : "Goedenavond"}${cf.wie ? ", " + zsEsc(cf.wie) : ""}</span>` : "";
+    const top = `<div class="top"><span class="brand"><i></i>${groet || "Zonnestuur"}${(a.save || {}).month > 0.5 && cf.besparing !== false ? `<em class="sv">${zsEur(a.save.month)} bespaard deze maand</em>` : ""}</span><span class="tr">${this._radioPill()}${this._radioKnopHtml()}<span class="clock">${clock}</span></span></div>`;
+    if (zsNacht(cf.nacht_van, cf.nacht_tot)) {
+      // Nachtstand: rustig en donker, alleen de klok en wanneer het goedkoop is.
+      return `<div class="${klas} nacht" style="${stijl}">${top}
+        <div class="mid nmid"><div class="nklok">${clock}</div><div class="nreg">${on ? `Goedkoop tot ${zsEsc(C.until)} · ${zsEur(pnow)}` : nx ? `Goedkoop ${nx.day ? "morgen " : ""}vanaf ${zsEsc(nx.from)}` : ""}</div></div><div></div></div>`;
+    }
+    const delen = { info: this._info(a), prijs: bars && cf.prijs !== false ? `<div class="strip" role="img" aria-label="Stroomprijs per uur">${bars}</div>${ax}` : "", nieuws: this._nieuws() };
+    const volg = (Array.isArray(cf.volgorde) && cf.volgorde.length ? cf.volgorde : ["info", "prijs", "nieuws"]).filter((k) => k in delen);
+    for (const k of ["info", "prijs", "nieuws"]) if (!volg.includes(k)) volg.push(k);
+    return `<div class="${klas}" style="${stijl}">${top}
       <div class="mid"><div>${head}</div>
         <div class="price"><b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}</div></div>
-      <div>${this._info(a)}${bars && this._config.prijs !== false ? `<div class="strip" role="img" aria-label="Stroomprijs per uur">${bars}</div>${ax}` : ""}${this._nieuws()}</div>
+      <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
     </div>`;
   }
   getCardSize() { return 12; }
   getGridOptions() { return { columns: 12, rows: "auto" }; }
   static getStubConfig() { return { entity: "sensor.zonnestuur" }; }
+}
+const ZS_ACCENT = { groen: ["#3ee08f", "#0f5f3b"], blauw: ["#5b9dff", "#173a7a"], oranje: ["#ff9a3c", "#6a3200"], paars: ["#b18cff", "#3d2577"], roze: ["#ff7ab8", "#6d1f47"] };
+// Valt nu binnen de nachtstand (bijv. 23:00 tot 06:30, ook over middernacht)?
+function zsNacht(van, tot) {
+  if (!/^\d\d:\d\d$/.test(van || "") || !/^\d\d:\d\d$/.test(tot || "")) return false;
+  const d = new Date(), m = d.getHours() * 60 + d.getMinutes(), a = +van.slice(0, 2) * 60 + +van.slice(3), b = +tot.slice(0, 2) * 60 + +tot.slice(3);
+  return a <= b ? m >= a && m < b : m >= a || m < b;
 }
 function zsHubLeft(sec) {
   const m = Math.max(0, Math.round(sec / 60));

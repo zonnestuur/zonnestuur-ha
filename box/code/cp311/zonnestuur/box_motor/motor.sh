@@ -17,7 +17,9 @@ if [ -d "$APP/images" ]; then                      # images uit het SD-kaartbeel
   for t in "$APP"/images/*.tar; do [ -e "$t" ] && docker load -q -i "$t" && rm -f "$t"; done
   rmdir "$APP/images" 2>/dev/null || true
 fi
-mkdir -p /var/lib/zonnestuur/{ha,matter,otbr,evcc/data}
+mkdir -p /var/lib/zonnestuur/{ha,matter,otbr,evcc/data,mosquitto/data}
+[ -f /var/lib/zonnestuur/mosquitto/mosquitto.conf ] || printf 'listener 1883\nallow_anonymous true\npersistence true\npersistence_location /mosquitto/data/\n' > /var/lib/zonnestuur/mosquitto/mosquitto.conf
+chown -R 1883:1883 /var/lib/zonnestuur/mosquitto/data 2>/dev/null || true
 [ -f /var/lib/zonnestuur/ha/configuration.yaml ] || printf 'default_config:\n\nhttp:\n  use_x_forwarded_for: false\n' > /var/lib/zonnestuur/ha/configuration.yaml
 mkdir -p /var/lib/zonnestuur/ha/custom_components
 chgrp -R zonnestuur /var/lib/zonnestuur/ha/custom_components && chmod -R g+rwX /var/lib/zonnestuur/ha/custom_components
@@ -27,7 +29,7 @@ chgrp zonnestuur /var/lib/zonnestuur/ha/configuration.yaml && chmod g+r /var/lib
 chown -R zonnestuur /var/lib/zonnestuur/evcc/evcc.yaml
 ARGS=(-p zonnestuur-motor)
 for p in $(cat "$DIR/profiles" 2>/dev/null); do
-  case "$p" in thread|evcc) ARGS+=(--profile "$p") ;; esac          # alleen bekende onderdelen
+  case "$p" in thread|evcc|mqtt) ARGS+=(--profile "$p") ;; esac          # alleen bekende onderdelen
 done
 if grep -qw thread "$DIR/profiles" 2>/dev/null; then              # Thread: IPv6 en doorsturen aan
   sysctl -q -p /opt/zonnestuur/motor/sysctl-otbr.conf || true

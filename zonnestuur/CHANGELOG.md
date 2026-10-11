@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.53.0
+- Huisscherm naar jouw smaak: kies een kleur, licht of donker, grotere tekst, een begroeting met je naam, een nachtstand (alleen een rustige klok), tot 4 eigen tegels (bijv. temperatuur buiten of een lamp) en de volgorde onderaan.
+- Thuisbatterij leert van zichzelf: hoe ver de verwachting per uur ernaast zit, en hoeveel kWh en welk rendement je batterij echt haalt. Dat zie je op de batterijkaart.
+- Instellingen doorzoeken: typ bijv. "melding" of "batterij" en je ziet meteen het juiste onderdeel.
+- Zonnestuur Box: ingebouwde MQTT-broker, aan te zetten bij Koppelingen (voor Zigbee2MQTT, Tasmota, Shelly en P1-lezers).
+- Opgelost: de tip van de dag kon een fout geven op het dashboard.
+
 ## 0.52.1
 - Warmtepompboilers en combi-units (zoals Nilan) die niet melden dat ze opwarmen: Zonnestuur ziet het nu aan de stijgende watertemperatuur. Daardoor telt het verbruik en de besparing van warm water eindelijk mee (stond op 0).
 

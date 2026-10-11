@@ -185,6 +185,11 @@ html, body { overscroll-behavior-y: none; }
   .inst-nav button { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 11px 14px; border-radius: 12px; border: 0; background: none; color: var(--ink-2); cursor: pointer; }
   .inst-nav button:hover { background: var(--chip); color: var(--ink); }
   .inst-nav button.on { background: var(--ink); color: var(--bg); }
+  .inst-zoek { grid-column: 1 / -1; max-width: 520px; margin-top: 8px; }
+  .inst-zoek input { width: 100%; }
+  .zoek-leeg { padding: 18px 4px; }
+  .inst-inhoud.zoekt { display: flex; flex-direction: column; }
+  .inst-inhoud.zoekt > .savebar { order: 9; }
   .inst-inhoud { min-width: 0; max-width: 760px; }
   .inst-inhoud .weg { display: none !important; }
   .savebar { position: sticky; bottom: 12px; z-index: 5; background: var(--card-solid); border: 1px solid var(--line); border-radius: 999px; padding: 8px 8px 8px 20px; box-shadow: var(--shadow); }
@@ -1246,8 +1251,29 @@ function groepeer() {
   secs.forEach((x) => inh.appendChild(x));
   if (save) { save.classList.add("savebar"); inh.appendChild(save); }
   root.classList.add("met-nav"); document.body.classList.add("breed");
-  kop.after(nav); nav.after(inh);
+  // Zoeken over alle instellingen heen: "batterij", "nachttarief", "melding", …
+  const zk = document.createElement("div"); zk.className = "inst-zoek";
+  zk.innerHTML = '<input type="search" id="instZoek" placeholder="Zoek een instelling, bijv. batterij of melding" aria-label="Zoek een instelling" autocomplete="off">';
+  const leeg = document.createElement("p"); leeg.className = "small muted zoek-leeg"; leeg.hidden = true;
+  kop.after(zk); zk.after(nav); nav.after(inh); inh.prepend(leeg);
+  let laatste = "huis";
+  zk.querySelector("input").oninput = (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    inh.classList.toggle("zoekt", q.length >= 2);
+    if (q.length < 2) { leeg.hidden = true; toon(laatste, false); return; }
+    let n = 0;
+    secs.forEach((x) => {
+      const tekst = (x.textContent + " " + [...x.querySelectorAll("input[placeholder]")].map((i) => i.placeholder).join(" ")).toLowerCase();
+      const ja = !x.hidden && tekst.includes(q); x.classList.toggle("weg", !ja); if (ja) n++;
+      x.style.order = ((x.querySelector("h2") || {}).textContent || "").toLowerCase().includes(q) ? 0 : 1;   // titel past: bovenaan
+      if (ja) x.querySelectorAll("details").forEach((d) => { if (d.textContent.toLowerCase().includes(q)) d.open = true; });
+    });
+    nav.querySelectorAll("button").forEach((b) => b.classList.remove("on"));
+    leeg.hidden = !!n; leeg.textContent = `Niets gevonden voor "${e.target.value.trim()}". Probeer een ander woord, of kies een onderdeel.`;
+    if (save) save.classList.toggle("weg", !n);
+  };
   const toon = (g, scroll) => {
+    laatste = g; const z = $("instZoek"); if (z && z.value) { z.value = ""; leeg.hidden = true; inh.classList.remove("zoekt"); }
     secs.forEach((x) => x.classList.toggle("weg", x.dataset.groep !== g));
     nav.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.g === g));
     const act = nav.querySelector("button.on"); if (act && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = act.offsetLeft - 16;
@@ -1398,7 +1424,8 @@ async function settings() {
     <section class="card" id="sysCard"><h2 class="t">Andere systemen</h2>
       <p class="small muted" style="margin-top:-4px">Zonnestuur werkt ook met MQTT (Zigbee2MQTT, Tasmota, Shelly, ESPHome, P1-lezers), een Homey Pro, Domoticz, openHAB, ioBroker, of laadpalen via OCPP.</p>
       <h3 class="sub-t">MQTT-broker</h3>
-      ${CFG.mqtt_addon ? `<p class="small" style="margin:-2px 0 8px">✓ De MQTT-broker van de koppelmotor wordt automatisch gebruikt. Hieronder alleen invullen voor een andere broker.</p>` : ""}
+      ${CFG.mqtt_addon ? `<p class="small" style="margin:-2px 0 8px">✓ De MQTT-broker van de koppelmotor wordt automatisch gebruikt. Hieronder alleen invullen voor een andere broker.</p>`
+        : CFG.box && !(CFG.mqtt && CFG.mqtt.host) ? `<p class="small" style="margin:-2px 0 8px">Geen broker? De Box heeft er een ingebouwd. <button type="button" class="btn ghost small" id="q_box">Ingebouwde broker aanzetten</button></p>` : ""}
       <div class="row"><div class="field"><label for="q_host">Adres</label><input id="q_host" placeholder="192.168.1.10" value="${esc(CFG.mqtt?.host || "")}"></div>
         <div class="field" style="flex:0 1 110px"><label for="q_port">Poort</label><input id="q_port" type="number" value="${CFG.mqtt?.port || 1883}"></div>
         <div class="field"><label for="q_user">Gebruiker</label><input id="q_user" autocomplete="off" value="${esc(CFG.mqtt?.username || "")}"></div>
@@ -1525,6 +1552,13 @@ async function settings() {
     SYS.mqtt = r.ok ? r : null;
     $("q_res").innerHTML = r.ok ? `Verbonden. Gevonden: ${r.zigbee2mqtt.length} Zigbee2MQTT-apparaten, ${r.tasmota.length} Tasmota, ${r.shelly.length} Shelly${r.dsmr_reader ? ", DSMR-reader" : ""}. Sla op om te gebruiken.` : esc(r.error);
     addFields();
+  };
+  if ($("q_box")) $("q_box").onclick = async () => {
+    $("q_box").disabled = true; $("q_res").textContent = "Broker aanzetten…";
+    const r = await api("api/setup/mqtt-box", { method: "POST", body: "{}" });
+    if (!r.ok) { $("q_res").textContent = r.error || "Lukte niet"; $("q_box").disabled = false; return; }
+    $("q_res").textContent = "De broker start (± 1 minuut). Stel je apparaten in op het adres van de Box, poort 1883, zonder wachtwoord.";
+    setTimeout(() => location.reload(), 60000);
   };
   $("h_btn").onclick = async () => {
     $("h_res").textContent = "Verbinden…";
