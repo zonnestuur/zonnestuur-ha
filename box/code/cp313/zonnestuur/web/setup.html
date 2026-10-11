@@ -436,6 +436,7 @@ async function loadHA() {
   try {
     const r = await api("api/setup/ha");
     if (r.ok) { W.ha.connected = true; W.ha.cands = r; renderFound(); }
+    if (r.ok) { try { const ov = await api("api/koppel"); W.ont = ov.ontdekt || []; renderFound(); } catch (e) {} }
   } catch (e) {}
 }
 async function connectHA() {
@@ -497,6 +498,9 @@ function renderFound() {
         const taken = (CFG?.devices || []).some((d) => d.params && (d.params.entity === ent || d.params.current_entity === ent || d.params.button_entity === ent));
         return card(key, "ha", ICONS[c.kind] || ICONS.generic, c.name, `${esc(ent)} · ${what}${c.warning ? ` · <b style="color:var(--warn,#e5484d)">${esc(c.warning)}</b>` : ""}`, picked(key), true, "", taken);
       }).join("") : '<p class="small muted">We vonden geen schakelaars, thermostaten of laadpalen.</p>'}</div>
+      ${(W.ont || []).length ? `<div class="niets" style="margin-top:10px"><b>De koppelmotor zag ook ${W.ont.length === 1 ? "dit apparaat" : W.ont.length + " apparaten"} in je huis:</b>
+        <p class="small" style="margin:4px 0 10px">${W.ont.map((d) => esc(d.naam || d.domain.replace(/_/g, " "))).join(", ")}</p>
+        <a class="btn ghost small" href="koppelen#ontdekt">Koppelen</a></div>` : ""}
       ${(cands.readonly_chargers || []).map((r) => `<div class="problem" style="margin-top:10px"><b>Laadpaal ${esc(r.name)} gevonden, maar nog niet te sturen.</b> Hij is nu alleen uit te lezen (via ${esc(r.via)}). ${r.brand === "zaptec" ? "Koppel bij <a href=\"koppelen\">Koppelen</a> het merk <b>Zaptec</b> en log in met je Zaptec-account; daarna staat hij hier met laadstroom erbij." : "Koppel het merk van je laadpaal bij <a href=\"koppelen\">Koppelen</a>; daarna staat hij hier."}</div>`).join("")}`;
   } else {
     html += `<details id="haBox" ${W.ha.open ? "open" : ""}><summary>Koppel je eigen domoticaserver voor warmtepompen, laadpalen en auto's</summary>

@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.53.2
+- Zonnestuur Box: wat de koppelmotor zelf in je huis ziet (bijv. een P1-meter, Shelly, warmtepomp) staat nu bovenaan bij Koppelen onder "Gevonden in je huis", met één knop om te koppelen. Ook bij het eerste instellen zie je het.
+
 ## 0.53.1
 - Koppelen: vond Zonnestuur niets in je netwerk, dan kon je niet verder. Nu kun je meteen een merk koppelen of eerst verder zonder apparaten; het dashboard laat dan zien hoe je je eerste apparaat koppelt.
 

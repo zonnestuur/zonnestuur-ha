@@ -110,6 +110,7 @@ html, body { overscroll-behavior-y: none; }
   .entry span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .count { font-size: 13px; color: var(--ink-3); margin-top: 12px; }
   .more { margin: 12px auto 0; display: block; }
+  .ontdekt { margin: -4px -4px 14px; padding: 12px 14px; border-radius: 16px; background: var(--sun-soft, rgba(255,178,36,.14)); }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -220,13 +221,22 @@ function stateCard() {
   else { dot = "wait"; txt = "Rechtstreekse koppelingen werken. Voor de andere merken is de koppelmotor nodig: die zit in de Zonnestuur Box."; }
   const ents = (OV.entries || []).filter((e) => !["matter", "otbr", "thread", "sun", "met", "radio_browser", "google_translate", "shopping_list", "go2rtc", "backup"].includes(e.domain));
   const dongles = (m && m.dongles) || [];
-  el.innerHTML = `<div class="status"><span class="dot ${dot}"></span><div style="flex:1;min-width:0"><div class="small">${esc(txt)}</div>
+  const merkVan = (d) => { const r = LIST.find((x) => routesOf(x).some((rt) => rt.route === "ha:" + d.domain)); return r ? r.merk : d.domain.replace(/_/g, " "); };
+  const ont = OV.ontdekt || [];
+  el.innerHTML = `${ont.length ? `<div class="ontdekt" id="ontdekt"><b>Gevonden in je huis</b><p class="small muted" style="margin:2px 0 8px">De koppelmotor zag deze apparaten in je netwerk. Koppel wat Zonnestuur mag meten of sturen.</p>
+    ${ont.map((d, i) => `<div class="entry"><span>${esc(merkVan(d))}${d.naam && d.naam !== merkVan(d) ? ` <span class="muted small">${esc(d.naam)}</span>` : ""}</span><button class="btn small" data-ont="${i}">Koppelen</button></div>`).join("")}</div>` : ""}
+  <div class="status"><span class="dot ${dot}"></span><div style="flex:1;min-width:0"><div class="small">${esc(txt)}</div>
     ${OV.error ? `<div class="small err">${esc(OV.error)}</div>` : ""}
     ${ents.length ? `<details style="margin-top:8px"><summary class="small muted">Gekoppelde merken (${ents.length})</summary><div class="entries">${ents.map((e) =>
       `<div class="entry"><span>${esc(e.title || e.domain)} <span class="tag">${esc(e.domain)}${e.state && e.state !== "loaded" ? " · " + esc(e.state) : ""}</span></span><button class="btn ghost small" data-rm="${esc(e.entry_id)}">Ontkoppelen</button></div>`).join("")}</div></details>` : ""}
     ${dongles.length ? `<details style="margin-top:8px"><summary class="small muted">Aangesloten dongles (${dongles.length})</summary><div class="entries">${dongles.map((d) =>
       `<div class="entry"><span>${esc(d.name)}${d.kind ? ` <span class="tag">${esc(d.kind)}</span>` : ""}</span><button class="btn ghost small" data-thread="${esc(d.path)}">Gebruik voor Thread</button></div>`).join("")}</div></details>` : ""}
   </div></div>`;
+  el.querySelectorAll("[data-ont]").forEach((b) => b.onclick = async () => {
+    const d = ont[+b.dataset.ont]; BRAND = merkVan(d);
+    panel(BRAND, `<p><span class="spin"></span>Koppeling openen…</p>`);
+    try { showStep(await api(`api/koppel/flow?domain=${encodeURIComponent(d.domain)}&flow_id=${encodeURIComponent(d.flow_id)}`)); } catch (e) { alertPanel(e.message); }
+  });
   el.querySelectorAll("[data-rm]").forEach((b) => b.onclick = async () => {
     b.disabled = true; try { await post("api/koppel/remove", { entry_id: b.dataset.rm }); await load(); } catch (e) { alertPanel(e.message); }
   });
@@ -472,6 +482,8 @@ async function load() {
   const qp = new URLSearchParams(location.search); if (qp.get("q")) $("q").value = qp.get("q");
   render();
   await load();
+  // nieuwe vondsten van de koppelmotor (en een motor die nog opstart) vanzelf bijwerken
+  setInterval(() => { if ($("panel").hidden && !document.hidden) load(); }, 30000);
   const m = location.hash.match(/^#enode-(\w+)/); if (m) enodeChoose(m[1]);
 })();
 </script>
