@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.52.0
+- Heeft Zonnestuur je minstens € 10 bespaard, dan kun je het met één knop doorvertellen, of ons je ervaring mailen. Wegklikken kan; dan zie je het 60 dagen niet.
+- Lukt het ophalen van de kwartierprijzen even niet, dan probeert Zonnestuur het na een kwartier opnieuw (was zes uur met uurprijzen).
+
 ## 0.51.1
 - Vergelijken met Tibber (en andere leveranciers): laden wordt nu per kwartier bijgehouden en tegen de kwartierprijs gerekend, net zoals Tibber het in rekening brengt. Ook wat Zonnestuur had gedaan wordt per kwartier uitgerekend.
 - Een laadbeurt loopt nu van je klaar-tijd tot de volgende klaar-tijd. Laden tussen de klaar-tijd en 12:00 viel eerder buiten de vergelijking.

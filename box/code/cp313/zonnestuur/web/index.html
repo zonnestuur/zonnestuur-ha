@@ -246,6 +246,12 @@ html, body { overscroll-behavior-y: none; }
 
   /* hero */
   .c-hero { padding: 26px; overflow: hidden; }
+  .deel { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 13.5px; color: var(--ink-2); }
+  .deel > span:first-child { flex: 1 1 220px; }
+  .deel-k { display: flex; gap: 6px; align-items: center; }
+  .deel { grid-column: 1 / -1; }
+  .deel .btn.sm { padding: 7px 14px; font-size: 13px; border-radius: 999px; text-decoration: none; display: inline-block; line-height: 1.2; }
+  .deel-x { border: 0; background: none; color: var(--ink-3); font-size: 18px; cursor: pointer; padding: 2px 6px; }
   .c-hero::before { content: ""; position: absolute; inset: -40% -10% auto auto; width: 70%; height: 140%; pointer-events: none;
                     background: radial-gradient(closest-side, var(--hero-aura, transparent), transparent); opacity: .9; transition: background .6s; }
   .c-hero.s-sun { --hero-aura: var(--glow-soft); } .c-hero.s-net { --hero-aura: color-mix(in srgb, var(--net) 16%, transparent); }
@@ -1143,7 +1149,20 @@ function renderSave(s) {
   el.innerHTML = `<div class="big num">${eur(V.month.eur)}</div>
     <div class="mini"><div><span>Vandaag</span><b>${eur(V.today.eur)}</b></div><div><span>Dit jaar</span><b>${eur(V.year.eur)}</b></div><div><span>${since ? "Sinds " + since.toLocaleDateString("nl-NL", { day: "numeric", month: "short" }) : "Totaal"}</span><b>${eur(V.total.eur)}</b></div></div>
     <div class="lbl">bespaard deze maand</div>
-    ${pace != null ? `<div class="pace">In dit tempo ± <b>${eur(pace).replace(/,\d\d$/, "")}</b> per jaar.${(COACH && (COACH.tips || []).some((t) => t.eur_year > 0)) ? ` Met de tips hieronder kan er ± <b>€ ${nl((COACH.tips || []).reduce((a, t) => a + (t.eur_year || 0), 0))}</b> per jaar bij.` : ""}</div>` : ""}`;
+    ${pace != null ? `<div class="pace">In dit tempo ± <b>${eur(pace).replace(/,\d\d$/, "")}</b> per jaar.${(COACH && (COACH.tips || []).some((t) => t.eur_year > 0)) ? ` Met de tips hieronder kan er ± <b>€ ${nl((COACH.tips || []).reduce((a, t) => a + (t.eur_year || 0), 0))}</b> per jaar bij.` : ""}</div>` : ""}
+    ${deelTonen(V) ? `<div class="deel"><span>Blij met Zonnestuur? Vertel het door: veel mensen weten niet dat dit kan.</span>
+      <span class="deel-k"><button type="button" class="btn ghost sm" id="deelBtn">Delen</button><a class="btn ghost sm" href="mailto:info@zonnestuur.nl?subject=Mijn%20ervaring%20met%20Zonnestuur">Vertel je ervaring</a><button type="button" class="deel-x" id="deelWeg" aria-label="Niet meer tonen">×</button></span></div>` : ""}`;
+  if ($("deelBtn")) $("deelBtn").onclick = async () => {
+    const tekst = `Zonnestuur zet mijn apparaten aan op eigen zon en de goedkoopste uren. Dit jaar al ${eur(V.year.eur)} bespaard.`;
+    try { if (navigator.share) { await navigator.share({ title: "Zonnestuur", text: tekst, url: "https://zonnestuur.nl" }); return; } } catch (e) { return; }
+    try { await navigator.clipboard.writeText(tekst + " https://zonnestuur.nl"); $("deelBtn").textContent = "Gekopieerd"; } catch (e) { location.href = "https://zonnestuur.nl"; }
+  };
+  if ($("deelWeg")) $("deelWeg").onclick = () => { try { localStorage.setItem("zs_deel_weg", String(Date.now())); } catch (e) {} el.querySelector(".deel").remove(); };
+}
+// Mond-tot-mond: pas na echte besparing (€ 10), en niet opnieuw binnen 60 dagen na wegklikken.
+function deelTonen(V) {
+  if (!(V && V.total && V.total.eur >= 10)) return false;
+  try { const t = Number(localStorage.getItem("zs_deel_weg") || 0); return !t || Date.now() - t > 60 * 864e5; } catch (e) { return true; }
 }
 const TIP_IC = {
   zon: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
