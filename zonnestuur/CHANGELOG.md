@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.53.4
+- SmartHeat-warmtepompen staan in de koppellijst: via SG-ready (2 relais) of via een BSB-LAN-adapter op de Siemens-regelaar.
+- KNX (Gira, Jung, ABB, MDT …): na het koppelen kun je bij Koppelen meteen een KNX-schakelaar toevoegen met het groepsadres.
+
 ## 0.53.3
 - Zonnestuur Box kijkt nu elk uur naar een nieuwe versie (was één keer per nacht), en bij Hulp staat een knop "Nu zoeken en bijwerken".
 - Meekijken op afstand (in de testfase standaard aan, uit te zetten bij Hulp): met het seintje gaat mee of de meter en je apparaten werken. Lukt er iets niet, dan kunnen wij één keer het logboek opvragen om het snel op te lossen.
