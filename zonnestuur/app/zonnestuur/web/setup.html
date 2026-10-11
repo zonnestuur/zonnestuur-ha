@@ -185,6 +185,8 @@ html, body { overscroll-behavior-y: none; }
   .inst-nav button { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 11px 14px; border-radius: 12px; border: 0; background: none; color: var(--ink-2); cursor: pointer; }
   .inst-nav button:hover { background: var(--chip); color: var(--ink); }
   .inst-nav button.on { background: var(--ink); color: var(--bg); }
+  .niets { margin-top: 18px; padding: 14px 16px; border-radius: 16px; background: var(--chip); }
+  .niets .row { gap: 8px; }
   .inst-zoek { grid-column: 1 / -1; max-width: 520px; margin-top: 8px; }
   .inst-zoek input { width: 100%; }
   .zoek-leeg { padding: 18px 4px; }
@@ -382,10 +384,16 @@ function zoeken() {
       </div></details>
     <div class="actions"><button class="btn ghost" id="back">← Terug</button>
       <div class="row"><button class="btn ghost small" id="again">Opnieuw zoeken</button><button class="btn" id="next" disabled>Verder →</button></div></div>
+    <div id="nietsHulp" hidden class="niets">
+      <b>Niets gevonden of je apparaat staat er niet bij?</b>
+      <p class="small muted" style="margin:4px 0 10px">Veel warmtepompen, laadpalen, auto's en batterijen werken via de app van het merk, niet via je wifi. Die koppel je los per merk. Je kunt ook eerst verder en later apparaten toevoegen.</p>
+      <div class="row"><a class="btn ghost small" href="koppelen">Merk koppelen</a><button class="btn ghost small" type="button" id="skipDev">Verder zonder apparaten →</button></div>
+    </div>
   </section>`;
   $("back").onclick = () => go(0);
   $("again").onclick = startScan;
   $("next").onclick = () => go(W.addOnly || !W.meter ? 3 : 2);
+  if ($("skipDev")) $("skipDev").onclick = () => { W.picks = []; W.devices = []; W.skip = true; go(W.meter ? 2 : 4); };
   if ($("noPanels")) $("noPanels").onchange = () => { W.noPanels = $("noPanels").checked; if (W.noPanels) W.contract.type = "dynamic"; renderFound(); };
   $("manualBtn").onclick = async () => {
     const host = $("manualIp").value.trim();
@@ -410,9 +418,11 @@ async function startScan() {
     pollScan();
   } catch (e) { setErr(e.message); }
 }
+let SCAN = null;
 async function pollScan() {
   try {
     const s = await api("api/setup/scan");
+    SCAN = s;
     const manual = FOUND.filter((f) => !s.found.some((x) => x.host === f.host) && f._manual);
     FOUND = s.found.concat(manual);
     if ($("scanBar")) $("scanBar").style.width = Math.round(s.progress * 100) + "%";
@@ -519,6 +529,7 @@ function renderFound() {
   });
   const ready = (W.addOnly || W.meter || W.noPanels) && W.picks.length > 0;
   if ($("next")) $("next").disabled = !ready;
+  if ($("nietsHulp")) $("nietsHulp").hidden = W.addOnly || W.picks.length > 0 || !!(SCAN && SCAN.running);
 }
 
 // ---------- stap 3: meter controleren ----------
@@ -571,6 +582,7 @@ function deviceFromPick(p) {
 }
 function evRange(d) { const w = 230 * (d.params.phases || 1); return [d.params.min_a * w, d.params.max_a * w]; }
 function apparaten() {
+  if (!W.picks.length) { W.devices = []; return go(4); }   // verder zonder apparaten
   W.devices = W.picks.map((p) => W.devices.find((d) => d.key === p.key) || deviceFromPick(p));
   devIdx = Math.min(devIdx, W.devices.length - 1);
   const d = W.devices[devIdx], P = d.params, drv = d.driver;
@@ -769,7 +781,7 @@ async function vragen() {
     readContract(c);
     s.kwp = Number($("kwp").value) || 4; s.orient = $("or").value; s.region = $("rg").value;
   };
-  $("back").onclick = () => { read(); devIdx = W.devices.length - 1; go(3); };
+  $("back").onclick = () => { read(); devIdx = W.devices.length - 1; go(W.devices.length ? 3 : 1); };
   $("next").onclick = async () => {
     read();
     if (W.noPanels && c.type !== "dynamic") { setErr("Kies een dynamisch contract, of geef aan dat je zonnepanelen hebt."); return; }
@@ -803,6 +815,7 @@ async function saveAll() {
     next.p1_host = m && m.type !== "ha" ? m.host : "";
     next.meter = m ? meterSpec(m, W.invert).meter : {};
     next.devices = newDevs.map((d, i) => ({ ...d, priority: i + 1 }));
+    next.ingericht = true;
     next.contract = Object.assign({}, next.contract || {}, W.contract);
     const [lat, lon] = REGIONS[W.solar.region];
     next.solar = Object.assign({}, next.solar || {}, { kwp: W.solar.kwp, azimuth: ORIENT[W.solar.orient], latitude: lat, longitude: lon,
@@ -818,11 +831,15 @@ async function saveAll() {
 function klaar() {
   $("app").innerHTML = `<section class="card">
     <div class="done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-    <h1 class="t">Zonnestuur staat aan</h1>
+    <h1 class="t">${W.devices.length ? "Zonnestuur staat aan" : "De basis staat klaar"}</h1>
+    ${W.devices.length ? "" : `<p class="lead">Je contract en je huis zijn ingesteld. Koppel nu je eerste apparaat, dan gaat Zonnestuur sturen.</p>
+    <div class="actions"><a class="btn ghost" href="./">Naar het dashboard</a><a class="btn" href="koppelen">Merk koppelen →</a></div>`}
+    <div ${W.devices.length ? "" : "hidden"}>
     <p class="lead">${W.noPanels ? "Vanaf nu draaien je apparaten in de goedkoopste uren van de dag." : "Vanaf nu lopen je apparaten zo veel mogelijk op je eigen zonnestroom."} Je hoeft verder niets te doen.</p>
     <div class="list">${W.devices.map((d) => `<div class="check"><span class="ic">${ICONS[d.kind].replace("<svg", '<svg width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"')}</span><div><b>${esc(d.name)}</b><div class="small muted">${nl(d.power_w)} W${d.ready_times && KIND_DEFAULTS[d.kind].ready_times.length ? " · klaar om " + esc(d.ready_times[0]) : ""}</div></div></div>`).join("")}</div>
     <p class="small muted" style="margin-top:18px">Tip: zet Zonnestuur op je beginscherm. In Safari of Chrome: deelknop of menu → <b>Zet op beginscherm</b>.</p>
     <div class="actions"><a class="btn ghost" href="instellingen">Instellingen</a><a class="btn" href="./">Naar het dashboard →</a></div>
+    </div>
   </section>`;
 }
 

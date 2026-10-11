@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.53.1
+- Koppelen: vond Zonnestuur niets in je netwerk, dan kon je niet verder. Nu kun je meteen een merk koppelen of eerst verder zonder apparaten; het dashboard laat dan zien hoe je je eerste apparaat koppelt.
+
 ## 0.53.0
 - Huisscherm naar jouw smaak: kies een kleur, licht of donker, grotere tekst, een begroeting met je naam, een nachtstand (alleen een rustige klok), tot 4 eigen tegels (bijv. temperatuur buiten of een lamp) en de volgorde onderaan.
 - Thuisbatterij leert van zichzelf: hoe ver de verwachting per uur ernaast zit, en hoeveel kWh en welk rendement je batterij echt haalt. Dat zie je op de batterijkaart.

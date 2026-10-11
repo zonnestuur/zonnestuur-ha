@@ -798,6 +798,14 @@ html, body { overscroll-behavior-y: none; }
       </div>
     </section>
 
+    <!-- nog niets gekoppeld -->
+    <section class="card c-welcome" id="leeg" hidden aria-labelledby="leegTitle">
+      <div class="eyebrow">Bijna klaar</div>
+      <h2 class="sec" id="leegTitle">Koppel je eerste apparaat</h2>
+      <p class="small muted" style="margin:4px 0 0">Zonnestuur stuurt pas als er iets te sturen is: een boiler, warmtepomp, laadpaal, auto of thuisbatterij.</p>
+      <div class="opts"><button type="button" onclick="location.href='koppelen'">Merk koppelen</button><button type="button" onclick="location.href='setup'">Opnieuw zoeken in mijn netwerk</button></div>
+    </section>
+
     <!-- kennismaking -->
     <section class="card c-welcome" id="welcome" hidden aria-labelledby="welTitle">
       <div class="eyebrow">Welkom</div>
@@ -2522,6 +2530,7 @@ function drawCoach() {
 // ---------- kennismaking ----------
 let WEL_HIDE = false;
 function renderWelcome(s) {
+  $("leeg").hidden = !!s.configured;
   const card = $("welcome");
   card.hidden = WEL_HIDE || !!s.motivation || !s.configured;
 }
