@@ -640,7 +640,8 @@ function renderFound() {
       }).join("") : '<p class="small muted">We vonden geen schakelaars, thermostaten of laadpalen.</p>'}</div>
       ${(W.ont || []).length ? `<div class="niets" style="margin-top:10px"><b>De koppelmotor zag ook ${W.ont.length === 1 ? "dit apparaat" : W.ont.length + " apparaten"} in je huis:</b>
         <p class="small" style="margin:4px 0 10px">${W.ont.map((d) => esc(d.naam || d.domain.replace(/_/g, " "))).join(", ")}</p>
-        <a class="btn ghost small" href="koppelen#ontdekt">Koppelen</a></div>` : ""}
+        <div class="row"><button class="btn small" type="button" id="ontAlles">Alles in één keer koppelen</button><a class="btn ghost small" href="koppelen#ontdekt">Eén voor één</a></div>
+        <p class="small" id="ontMsg" role="status" style="margin:8px 0 0"></p></div>` : ""}
       ${(cands.readonly_chargers || []).map((r) => `<div class="problem" style="margin-top:10px"><b>Laadpaal ${esc(r.name)} gevonden, maar nog niet te sturen.</b> Hij is nu alleen uit te lezen (via ${esc(r.via)}). ${r.brand === "zaptec" ? "Koppel bij <a href=\"koppelen\">Koppelen</a> het merk <b>Zaptec</b> en log in met je Zaptec-account; daarna staat hij hier met laadstroom erbij." : "Koppel het merk van je laadpaal bij <a href=\"koppelen\">Koppelen</a>; daarna staat hij hier."}</div>`).join("")}`;
   } else {
     html += `<details id="haBox" ${W.ha.open ? "open" : ""}><summary>Koppel je eigen domoticaserver voor warmtepompen, laadpalen en auto's</summary>
@@ -655,6 +656,16 @@ function renderFound() {
   renderPlan();
   if ($("haBox")) $("haBox").ontoggle = () => { W.ha.open = $("haBox").open; };
   if ($("haBtn")) $("haBtn").onclick = connectHA;
+  if ($("ontAlles")) $("ontAlles").onclick = async () => {
+    $("ontAlles").disabled = true; $("ontMsg").textContent = "Bezig met koppelen…";
+    try {
+      const r = await api("api/koppel/alles", { method: "POST", body: "{}" });
+      const ok = r.gekoppeld || [], zelf = r.zelf || [];
+      W.ont = zelf; toast(ok.length ? `Gekoppeld: ${ok.length} ${ok.length === 1 ? "apparaat" : "apparaten"}` : "Niets nieuws gekoppeld");
+      await loadHA();                                   // nieuwe apparaten verschijnen hierboven
+      if ($("ontMsg") && zelf.length) $("ontMsg").textContent = "Bij de rest moet je zelf iets invullen, zoals een wachtwoord: tik op Eén voor één.";
+    } catch (e) { $("ontMsg").textContent = e.message; $("ontAlles").disabled = false; }
+  };
   el.querySelectorAll(".dev:not(.bad)").forEach((d) => {
     const toggle = () => {
       const key = d.dataset.key, kind = d.dataset.kind;

@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.56.1
+- Apparaten die de koppelmotor vanzelf in je huis vindt, koppel je nu met één knop: 'Alles in één keer koppelen'. Alleen apparaten die iets vragen (zoals een wachtwoord) doe je nog zelf. Wil je er een niet, dan ontkoppel je hem bij Koppelen.
+- Bij gevonden apparaten staat nu de juiste naam (bijvoorbeeld ESPHome in plaats van een willekeurig merk).
+
 ## 0.56.0
 - Sneller koppelen: Zonnestuur begint al met zoeken terwijl je aantikt wat je in huis hebt. Op het volgende scherm staan je apparaten er dan meestal al.
 - Zoeken gaat sneller: de P1-kabel wordt tegelijk met het netwerk gecontroleerd, en gevonden apparaten worden tegelijk herkend in plaats van een voor een.

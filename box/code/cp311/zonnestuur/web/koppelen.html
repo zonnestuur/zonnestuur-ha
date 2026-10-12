@@ -221,9 +221,16 @@ function stateCard() {
   else { dot = "wait"; txt = "Rechtstreekse koppelingen werken. Voor de andere merken is de koppelmotor nodig: die zit in de Zonnestuur Box."; }
   const ents = (OV.entries || []).filter((e) => !["matter", "otbr", "thread", "sun", "met", "radio_browser", "google_translate", "shopping_list", "go2rtc", "backup"].includes(e.domain));
   const dongles = (m && m.dongles) || [];
-  const merkVan = (d) => { const r = LIST.find((x) => routesOf(x).some((rt) => rt.route === "ha:" + d.domain)); return r ? r.merk : d.domain.replace(/_/g, " "); };
+  const NETJES = { esphome: "ESPHome", homewizard: "HomeWizard", shelly: "Shelly", zha: "Zigbee", matter: "Matter", mqtt: "MQTT", tasmota: "Tasmota",
+    tuya: "Tuya", knx: "KNX", modbus: "Modbus", ocpp: "Laadpaal (OCPP)", bluetooth: "Bluetooth" };
+  const merkVan = (d) => {           // alleen een merknaam als de koppeling bij precies één merk hoort (esphome is van veel merken)
+    if (NETJES[d.domain]) return NETJES[d.domain];
+    const rs = LIST.filter((x) => routesOf(x).some((rt) => rt.route === "ha:" + d.domain));
+    return rs.length === 1 ? rs[0].merk : d.domain.replace(/_/g, " ");
+  };
   const ont = OV.ontdekt || [];
-  el.innerHTML = `${ont.length ? `<div class="ontdekt" id="ontdekt"><b>Gevonden in je huis</b><p class="small muted" style="margin:2px 0 8px">De koppelmotor zag deze apparaten in je netwerk. Koppel wat Zonnestuur mag meten of sturen.</p>
+  el.innerHTML = `${ont.length ? `<div class="ontdekt" id="ontdekt"><b>Gevonden in je huis</b><p class="small muted" style="margin:2px 0 8px">De koppelmotor zag deze apparaten in je netwerk. Koppel ze in één keer, of één voor één. Wil je er later een niet? Dan ontkoppel je hem hieronder bij Gekoppelde merken.</p>
+    <div style="margin:0 0 10px"><button class="btn small" type="button" id="allesKoppelen">Alles in één keer koppelen</button> <span class="small" id="allesMsg" role="status"></span></div>
     ${ont.map((d, i) => `<div class="entry"><span>${esc(merkVan(d))}${d.naam && d.naam !== merkVan(d) ? ` <span class="muted small">${esc(d.naam)}</span>` : ""}</span><button class="btn small" data-ont="${i}">Koppelen</button></div>`).join("")}</div>` : ""}
   <div class="status"><span class="dot ${dot}"></span><div style="flex:1;min-width:0"><div class="small">${esc(txt)}</div>
     ${OV.error ? `<div class="small err">${esc(OV.error)}</div>` : ""}
@@ -238,6 +245,18 @@ function stateCard() {
     ${dongles.length ? `<details style="margin-top:8px"><summary class="small muted">Aangesloten dongles (${dongles.length})</summary><div class="entries">${dongles.map((d) =>
       `<div class="entry"><span>${esc(d.name)}${d.kind ? ` <span class="tag">${esc(d.kind)}</span>` : ""}</span><button class="btn ghost small" data-thread="${esc(d.path)}">Gebruik voor Thread</button></div>`).join("")}</div></details>` : ""}
   </div></div>`;
+  if ($("allesKoppelen")) $("allesKoppelen").onclick = async () => {
+    $("allesKoppelen").disabled = true; $("allesMsg").innerHTML = '<span class="spin"></span>Bezig met koppelen…';
+    try {
+      const r = await post("api/koppel/alles", {});
+      const ok = r.gekoppeld || [], zelf = r.zelf || [];
+      await load();
+      const msg = (ok.length ? `<span class="ok">Gekoppeld: ${ok.map((x) => esc(x.naam)).join(", ")}.</span> ` : "") +
+        (zelf.length ? `Bij ${zelf.length === 1 ? "dit apparaat" : "deze apparaten"} moet je zelf iets invullen (zoals een wachtwoord): tik op Koppelen.` : ok.length ? "" : "Er was niets meer te koppelen.");
+      if ($("allesMsg")) $("allesMsg").innerHTML = msg;
+      else $("state").insertAdjacentHTML("afterbegin", `<p class="small" role="status" style="margin:0 0 10px">${msg}</p>`);   // lijst is leeg: melding bovenaan
+    } catch (e) { $("allesMsg").innerHTML = `<span class="err">${esc(e.message)}</span>`; $("allesKoppelen").disabled = false; }
+  };
   el.querySelectorAll("[data-ont]").forEach((b) => b.onclick = async () => {
     const d = ont[+b.dataset.ont]; BRAND = merkVan(d);
     panel(BRAND, `<p><span class="spin"></span>Koppeling openen…</p>`);
