@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.57.9
+- Huisscherm-pagina werkte niet meer (je zag programmacode in beeld). Opgelost.
+- Koppelen, Huisscherm en Hulp hebben bovenin nu ook een knop 'Dashboard'.
+
 ## 0.57.8
 - Tibber, Zonneplan, Toon en andere meter-koppelingen: na het koppelen vraagt Zonnestuur meteen 'Gebruik als meter', met de stroom van dat moment erbij. Nog geen meter gekozen? Dan staat hij bovenaan Koppelen klaar.
 - Instellen: altijd een knop 'Naar dashboard', 'Verder' loopt nooit meer vast als er niets gevonden is, en duidelijkere stapnamen.
