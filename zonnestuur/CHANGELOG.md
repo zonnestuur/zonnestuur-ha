@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.55.2
+- Tijdens de proef kunnen wij standaard op afstand meekijken en helpen (ook met je scherm), zodat we problemen snel oplossen. Uitzetten kan bij Hulp onder "Zonnestuur mag op afstand meekijken". Met "Help mij instellen" laat je weten dat je op ons wacht.
+
 ## 0.55.1
 - Help mij: zolang je het aan hebt en Zonnestuur open hebt, kunnen wij ook zien wat er op je scherm staat. Zo kunnen we je precies vertellen waar je moet tikken. Wachtwoorden gaan nooit mee.
 

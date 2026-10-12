@@ -112,7 +112,7 @@ html, body { overscroll-behavior-y: none; }
   <section class="card" id="stat"><h2 class="t">Hoe gaat het</h2><div class="checks" id="checks"><p class="small muted"><span class="spin"></span>Controleren…</p></div></section>
 
   <section class="card" id="helpmij"><h2 class="t">Help mij</h2>
-    <p class="small" style="margin:0">Kom je er niet uit? Tik op de knop. Dan kijken wij met je mee (ook met wat er op je scherm staat, zolang je Zonnestuur open hebt) en stellen we het op afstand voor je in: we zoeken je apparaten, kiezen de juiste instellingen en zetten alles klaar. Dat kan alleen zolang jij dit aan zet (hooguit 24 uur), en je kunt het altijd stoppen.</p>
+    <p class="small" style="margin:0">Kom je er niet uit? Tik op de knop. Dan weten we dat je op ons wacht. We kijken met je mee (ook met wat er op je scherm staat, zolang je Zonnestuur open hebt) en stellen het op afstand voor je in: we zoeken je apparaten, kiezen de juiste instellingen en zetten alles klaar.</p>
     <div class="acts" style="margin-top:12px"><button class="btn" type="button" id="h_aan">Help mij instellen</button><button class="btn ghost" type="button" id="h_uit" hidden>Hulp stoppen</button><span id="h_msg" class="small" role="status"></span></div>
     <p class="small muted" style="margin:10px 0 0">Laat ons ook even weten hoe we je kunnen bereiken, via Feedback geven hieronder.</p>
   </section>
@@ -147,7 +147,7 @@ html, body { overscroll-behavior-y: none; }
     <label class="sw"><input type="checkbox" id="seintje"><div><b>Laat weten dat Zonnestuur draait</b>
       <span>Elk uur: installatie-ID, versie, Add-on of Box, proef/Pro/Basis en welke soort apparaten (boiler, auto, …). Geen namen, adressen of meterstanden. Zo weten we hoeveel huizen Zonnestuur gebruiken, en kunnen we je proefperiode verlengen.</span></div></label>
     <label class="sw"><input type="checkbox" id="meekijk"><div><b>Zonnestuur mag op afstand meekijken</b>
-      <span>Met het seintje gaat mee of de meter en je apparaten werken (namen van je apparaten, geen adressen of meterstanden). Lukt er iets niet, dan kunnen wij één keer het logboek opvragen om het snel op te lossen.</span></div></label>
+      <span>Tijdens de proef staat dit standaard aan. Wij zien dan of de meter en je apparaten werken, kunnen het logboek opvragen, je apparaten laten zoeken, instellingen voor je goedzetten en meekijken met wat er op je scherm staat als je Zonnestuur open hebt. Geen wachtwoorden, adressen of meterstanden. Zo kunnen we fouten snel oplossen.</span></div></label>
     <label class="sw"><input type="checkbox" id="test"><div><b>Nieuwe versies als eerste krijgen</b>
       <span>Voor proefhuizen: je krijgt verbeteringen eerder, en meldt zo sneller wat er nog niet goed gaat.</span></div></label>
     <span id="a_msg" class="small" role="status"></span>
@@ -202,9 +202,10 @@ $("u_nu").onclick = async () => {
 };
 async function hulpStand() {
   let h; try { h = await api("api/hulp"); } catch (e) { return; }
-  const aan = h.tot > Date.now() / 1000;
-  $("h_aan").hidden = aan; $("h_uit").hidden = !aan;
-  $("h_msg").innerHTML = aan ? `<span class="ok">Hulp staat aan tot ${new Date(h.tot * 1000).toLocaleString("nl-NL", { weekday: "long", hour: "2-digit", minute: "2-digit" })}.</span> We gaan voor je aan de slag.` : "";
+  const gevraagd = h.gevraagd > Date.now() / 1000;
+  $("h_aan").hidden = gevraagd; $("h_uit").hidden = !gevraagd;
+  $("h_msg").innerHTML = gevraagd ? `<span class="ok">Je hebt om hulp gevraagd (tot ${new Date(h.gevraagd * 1000).toLocaleString("nl-NL", { weekday: "long", hour: "2-digit", minute: "2-digit" })}).</span> We gaan voor je aan de slag.`
+    : h.standaard ? `<span class="ok">Tijdens de proef kijken wij standaard mee</span>, zodat we je snel kunnen helpen. Tik toch op de knop als je ergens niet uitkomt, dan weten we dat je op ons wacht. Uitzetten kan hieronder bij "Zonnestuur mag op afstand meekijken".` : "";
 }
 $("h_aan").onclick = async () => { $("h_aan").disabled = true; $("h_msg").innerHTML = '<span class="spin"></span>Aanzetten…';
   try { await post("api/hulp", { aan: true, uren: 24 }); } catch (e) { $("h_msg").innerHTML = `<span class="err">${esc(e.message)}</span>`; }
