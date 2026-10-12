@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.55.3
+- Bij het zoeken naar een P1-kabel laat Zonnestuur Zigbee-, Z-Wave- en Thread-sticks voortaan met rust. Die werden ten onrechte getoond als "slimme meter via P1-kabel".
+
 ## 0.55.2
 - Tijdens de proef kunnen wij standaard op afstand meekijken en helpen (ook met je scherm), zodat we problemen snel oplossen. Uitzetten kan bij Hulp onder "Zonnestuur mag op afstand meekijken". Met "Help mij instellen" laat je weten dat je op ons wacht.
 
