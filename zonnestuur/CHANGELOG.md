@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.54.0
+- Eerste keer instellen is veel eenvoudiger: je tikt aan wat je in huis hebt (zonnepanelen, boiler, warmtepomp, auto, thuisbatterij, wasmachine) en kiest het merk. Zonnestuur zegt per apparaat in gewone taal wat er moet gebeuren: hij vindt het zelf, je logt in met de app van het merk, of er is een onderdeel nodig.
+- Slimme meter: kies wat er al aan je meter zit, bijvoorbeeld Tibber Pulse, Zonneplan Connect of HomeWizard.
+- Uitleg hoe je een IP-adres vindt (in de app, in je modem of met de gratis app Fing).
+
 ## 0.53.4
 - SmartHeat-warmtepompen staan in de koppellijst: via SG-ready (2 relais) of via een BSB-LAN-adapter op de Siemens-regelaar.
 - KNX (Gira, Jung, ABB, MDT …): na het koppelen kun je bij Koppelen meteen een KNX-schakelaar toevoegen met het groepsadres.

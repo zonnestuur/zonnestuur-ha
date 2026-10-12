@@ -185,6 +185,13 @@ html, body { overscroll-behavior-y: none; }
   .inst-nav button { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 11px 14px; border-radius: 12px; border: 0; background: none; color: var(--ink-2); cursor: pointer; }
   .inst-nav button:hover { background: var(--chip); color: var(--ink); }
   .inst-nav button.on { background: var(--ink); color: var(--bg); }
+  .tiles.wat { grid-template-columns: repeat(3, 1fr); margin-top: 6px; }
+  .tile.on { border-color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .plan { display: grid; gap: 8px; margin-bottom: 6px; }
+  .planrij { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--card-solid); border: 1px solid var(--line); }
+  .planrij .btn { flex: none; }
+  .pdot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .ipuitleg { margin: 0 0 6px; padding-left: 20px; display: grid; gap: 6px; }
   .niets { margin-top: 18px; padding: 14px 16px; border-radius: 16px; background: var(--chip); }
   .niets .row { gap: 8px; }
   .inst-zoek { grid-column: 1 / -1; max-width: 520px; margin-top: 8px; }
@@ -211,7 +218,7 @@ html, body { overscroll-behavior-y: none; }
   details.sys-list[open] { max-height: 360px; overflow: auto; }
   .toast { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
   .toast.show { opacity: 1; }
-  @media (max-width: 560px) { .card { padding: 20px; border-radius: 22px; } .tiles { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .card { padding: 20px; border-radius: 22px; } .tiles, .tiles.wat { grid-template-columns: repeat(2, 1fr); } .planrij { flex-wrap: wrap; } .planrij > div { flex-basis: calc(100% - 22px) !important; } .planrij .btn { margin-left: 22px; } }
   @media (prefers-reduced-motion: reduce) { .pulse, .spin { animation: none; } }
   html, body { overflow-x: hidden; }
   @media (max-width: 700px) { .row { flex-direction: column; align-items: stretch; } .row .field { flex: 1 1 auto !important; min-width: 0; } input, select { max-width: 100%; } }
@@ -349,8 +356,97 @@ function go(n) {
   ({ welkom, zoeken, meter, apparaten, vragen, klaar })[STEPS[n]]();
 }
 
-// ---------- stap 1: welkom ----------
+// ---------- stap 1: wat heb je in huis? ----------
+// Een leek denkt in apparaten, niet in koppelingen: eerst aantikken wat er is en welk merk, daarna regelt
+// Zonnestuur per apparaat de makkelijkste weg (zelf zoeken in de wifi, inloggen met de app, of een onderdeel nodig).
+const ZON_IC = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>';
+const BAT_IC = '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M10 2.5h4M12 8.5l-2 4h4l-2 4"/></svg>';
+const WAT = [
+  ["zon", "Zonnepanelen", "Omvormer", ZON_IC], ["boiler", "Boiler of warm water", "Warm water", null],
+  ["wp", "Warmtepomp", "Warmtepomp", null], ["auto", "Elektrische auto", "Laadpaal", null],
+  ["bat", "Thuisbatterij", "Thuisbatterij", BAT_IC], ["wit", "Wasmachine of vaatwasser", "Witgoed", null]];
+const METER = ["meter", "Slimme meter", "Slimme meter / P1", null];             // vanzelf erbij als je zonnepanelen hebt
+const METER_NAAM = { Tibber: "Tibber (Pulse)", Zonneplan: "Zonneplan (Connect)", HomeWizard: "HomeWizard (P1-meter)", Eneco: "Eneco (Toon)",
+  Sessy: "Sessy (P1-dongle)", "Homey (Athom)": "Homey (Energy Dongle)", Youless: "YouLess", "SlimmeLezer / ESPHome DSMR": "SlimmeLezer" };
+const WAT_IC = { boiler: "boiler", wp: "heatpump", auto: "ev", wit: "generic" };
+const WAT_VRAAG = { zon: "Merk van je omvormer (staat op het kastje bij de panelen)", boiler: "Merk van je boiler", wp: "Merk van je warmtepomp",
+  auto: "Merk van je laadpaal", bat: "Merk van je thuisbatterij", wit: "Merk van je wasmachine of vaatwasser" };
+let LIJST = null;
+async function lijst() { if (!LIJST) { try { LIJST = await (await fetch("koppellijst.json")).json(); } catch (e) { LIJST = []; } } return LIJST; }
+function watLaden() { try { return JSON.parse(localStorage.getItem("zs_wat") || "null") || {}; } catch (e) { return {}; } }
+function watBewaren() { try { localStorage.setItem("zs_wat", JSON.stringify(W.wat)); } catch (e) {} }
+async function watScherm() {
+  W.wat = W.wat || watLaden();
+  const L = await lijst(), orde = { groot: 0, middel: 1, klein: 2 };
+  const merken = (cat) => L.filter((r) => r.categorie === cat && !/^(Generiek|Niet-verbonden)/.test(r.merk))
+    .sort((a, b) => (orde[a.aandeel_nl] ?? 3) - (orde[b.aandeel_nl] ?? 3) || a.merk.localeCompare(b.merk)).map((r) => r.merk);
+  const icon = (w) => w[3] || ICONS[WAT_IC[w[0]]] || ICONS.generic;
+  $("app").innerHTML = `<section class="card">
+    <div class="eyebrow">Stap 1 · ongeveer 5 minuten</div>
+    <h1 class="t">Wat heb je in huis?</h1>
+    <p class="lead">Tik aan wat je hebt. Daarna zoekt Zonnestuur de makkelijkste manier om het te koppelen.</p>
+    <div class="tiles wat" role="group" aria-label="Wat heb je in huis">${WAT.map((w) => `<button type="button" class="tile ${W.wat[w[0]] ? "on" : ""}" data-wat="${w[0]}" aria-pressed="${!!W.wat[w[0]]}">${icon(w)}${w[1]}</button>`).join("")}</div>
+    <div id="watMerk">${WAT.filter((w) => W.wat[w[0]]).map((w) => `<div class="field" style="margin-top:14px"><label for="m_${w[0]}">${WAT_VRAAG[w[0]]}</label>
+      <select id="m_${w[0]}" data-merk="${w[0]}"><option value="">Kies het merk…</option>${merken(w[2]).map((m) => `<option ${W.wat[w[0]].merk === m ? "selected" : ""}>${esc(m)}</option>`).join("")}
+      <option value="?" ${W.wat[w[0]].merk === "?" ? "selected" : ""}>Weet ik niet</option><option value="anders" ${W.wat[w[0]].merk === "anders" ? "selected" : ""}>Ander merk</option></select></div>`).join("")}</div>
+    ${W.wat.zon ? `<div class="field" style="margin-top:14px"><label for="m_meter">Wat zit er aan je slimme meter?</label><select id="m_meter" data-merk="meter">
+      <option value="">Kies…</option><option value="box" ${(W.wat.meter || {}).merk === "box" ? "selected" : ""}>Nog niets: ik gebruik de P1-kabel van de Zonnestuur Box</option>
+      ${merken(METER[2]).filter((m) => !/^(DSMR P1-poort|Eastron|DSMR-reader|Enelogic|frient|SmartGateways)/.test(m)).map((m) => `<option value="${esc(m)}" ${(W.wat.meter || {}).merk === m ? "selected" : ""}>${esc(METER_NAAM[m] || m)}</option>`).join("")}
+      <option value="?" ${(W.wat.meter || {}).merk === "?" ? "selected" : ""}>Weet ik niet</option></select>
+      <span class="hint">Veel mensen hebben al een kastje of stekkertje in de meter van hun energieleverancier, bijvoorbeeld van Tibber of Zonneplan. Kijk in de meterkast: het zit in het kleine poortje (de P1-poort) onder de slimme meter.</span></div>` : ""}
+    <div class="actions"><span class="small muted"><a href="kennismaking?start=1">Eerst kennismaken: wat kan Zonnestuur?</a></span>
+      <button class="btn" id="next">Verder →</button></div>
+  </section>`;
+  $("app").querySelectorAll("[data-wat]").forEach((b) => b.onclick = () => {
+    const k = b.dataset.wat; if (W.wat[k]) delete W.wat[k]; else W.wat[k] = { merk: "" }; watBewaren(); watScherm(); });
+  if (W.wat.zon && !W.wat.meter) W.wat.meter = { merk: "" };
+  if (!W.wat.zon) delete W.wat.meter;
+  $("app").querySelectorAll("[data-merk]").forEach((s) => s.onchange = () => { W.wat[s.dataset.merk].merk = s.value; watBewaren(); });
+  $("next").onclick = () => {
+    W.noPanels = !W.wat.zon;
+    if (W.noPanels) W.contract.type = "dynamic";
+    go(1);
+  };
+}
+
+// Per gekozen apparaat: wat er moet gebeuren, in gewone taal
+function planVoor(k) {
+  const w = k === "meter" ? METER : WAT.find((x) => x[0] === k), keuze = W.wat[k] || {}, L = LIJST || [];
+  if (k === "meter" && W.meter) return ["Slimme meter", "ok", "Gevonden en gekozen.", ""];
+  if (k === "meter" && keuze.merk === "box") {
+    const p1 = FOUND.find((f) => f.kind === "p1_serial");
+    return ["Slimme meter · P1-kabel", p1 ? "ok" : "wifi", p1 ? "De kabel is gevonden. Kies hem hieronder bij Meter."
+      : "Steek de P1-kabel van de Box in het kleine poortje onder je slimme meter (de P1-poort). Zonnestuur vindt hem dan vanzelf; tik daarna op Opnieuw zoeken.", ""];
+  }
+  const rij = L.find((r) => r.categorie === w[2] && r.merk === keuze.merk);
+  const naam = keuze.merk && !["?", "anders"].includes(keuze.merk) ? `${w[1]} · ${k === "meter" ? (METER_NAAM[keuze.merk] || keuze.merk) : keuze.merk}` : w[1];
+  const zoek = (keuze.merk || "").toLowerCase().split(/[ /]/)[0];
+  const gevonden = zoek && FOUND.find((f) => (f.name + " " + (f.model || "")).toLowerCase().includes(zoek));
+  if (gevonden) return [naam, "ok", `Gevonden in je netwerk (${esc(gevonden.name)}). Kies hem hieronder.`, ""];
+  if (!keuze.merk || keuze.merk === "?") return [naam, "vraag", "Weet je het merk niet? Kijk op de sticker op het apparaat (het typeplaatje) of in de app op je telefoon.",
+    `<a class="btn ghost small" href="hulp?soort=vraag#meld" target="_blank" rel="noopener">Vraag het ons</a>`];
+  const koppel = `<a class="btn small" href="koppelen?q=${encodeURIComponent(keuze.merk === "anders" ? w[2] : keuze.merk)}" target="_blank" rel="noopener">${keuze.merk === "anders" ? "Merk opzoeken" : "Koppelen"}</a>`;
+  if (!rij || !rij.routes || !rij.routes.length) return [naam, "vraag", "Zoek je merk op in de lijst; daar staat hoe je hem koppelt.", koppel];
+  const r = rij.routes[0], soort = r.route.split(":")[0], wat = r.route.split(":")[1] || "";
+  if (soort === "zonnestuur" && !["sg_ready", "laadpaal", "ocpp", "shelly"].includes(wat)) return [naam, "wifi",
+    `Zonnestuur zoekt hem zelf in je wifi.${r.nodig ? " Nodig: " + esc(r.nodig) + "." : ""} Niet gevonden? Vul hieronder het IP-adres in (met uitleg hoe je dat vindt).`, ""];
+  if (soort === "relais" || wat === "sg_ready" || wat === "shelly") return [naam, "onderdeel", `Hiervoor is een slimme schakelaar nodig: ${esc(r.nodig || "een Shelly-relais")}. Heb je die al? Dan vindt Zonnestuur hem zelf in je wifi.`, ""];
+  const lokaal = (rij.routes || []).find((x) => x.route === "zonnestuur:p1_serial");
+  return [naam, "app", `Koppel hem met je account van de ${esc(keuze.merk)}-app.${r.nodig ? " Nodig: " + esc(r.nodig) + "." : ""} Na het koppelen staat hij hieronder bij "Uit de koppelmotor".`
+    + (k === "meter" && lokaal ? `<br>Liever zonder internet en sneller? ${esc(lokaal.nodig.replace(/^(alternatief )?lokaal: /, ""))}.` : ""), koppel];
+}
+function renderPlan() {
+  const el = $("plan"); if (!el) return;
+  const keys = Object.keys(W.wat || {}).sort((a, b) => (b === "meter") - (a === "meter"));
+  if (!keys.length) { el.innerHTML = ""; return; }
+  const kleur = { ok: "var(--good)", wifi: "var(--net)", app: "var(--sun)", onderdeel: "var(--ink-3)", vraag: "var(--ink-3)" };
+  el.innerHTML = `<div class="group-title">Jouw apparaten</div><div class="plan">${keys.map((k) => { const [n, s, t, b] = planVoor(k);
+    return `<div class="planrij"><span class="pdot" style="background:${kleur[s]}"></span><div style="flex:1;min-width:0"><b>${esc(n)}</b><div class="small muted">${t}</div></div>${b}</div>`; }).join("")}</div>`;
+}
+
+// ---------- (bij toevoegen) welkom ----------
 function welkom() {
+  if (!W.addOnly) return watScherm();
   $("app").innerHTML = `<section class="card">
     <div class="eyebrow">Koppelen · ongeveer 5 minuten</div>
     <h1 class="t">${W.addOnly ? "Apparaat toevoegen" : "Welkom bij Zonnestuur"}</h1>
@@ -375,11 +471,18 @@ function zoeken() {
     <h1 class="t">Apparaten zoeken</h1>
     <p class="lead" id="scanText">We kijken welke apparaten er in je netwerk zijn…</p>
     <div class="bar"><span id="scanBar"></span></div>
+    <div id="plan"></div>
     <div id="found"></div>
-    ${W.addOnly ? "" : `<label class="check-row" style="margin-top:16px"><input type="checkbox" id="noPanels" ${W.noPanels ? "checked" : ""}> Ik heb geen zonnepanelen <span class="muted">— dan is geen meter nodig en draait alles in de goedkoopste uren (dynamisch contract nodig)</span></label>`}
+    ${W.addOnly || W.wat ? "" : `<label class="check-row" style="margin-top:16px"><input type="checkbox" id="noPanels" ${W.noPanels ? "checked" : ""}> Ik heb geen zonnepanelen <span class="muted">— dan is geen meter nodig en draait alles in de goedkoopste uren (dynamisch contract nodig)</span></label>`}
     <details id="manual"><summary>Staat je apparaat er niet bij? Vul het IP-adres in</summary>
-      <div class="row" style="margin-top:12px">
-        <div class="field"><label for="manualIp">IP-adres</label><input id="manualIp" placeholder="192.168.1.50" inputmode="decimal" autocomplete="off"><span class="hint">Te vinden in de app van het apparaat, onder apparaatinformatie.</span></div>
+      <p class="small" style="margin:10px 0 6px">Elk apparaat in je wifi heeft een eigen nummer: het <b>IP-adres</b>. Het ziet er zo uit: <b>192.168.1.50</b> (vier getallen met punten). Zo vind je het:</p>
+      <ol class="small ipuitleg">
+        <li><b>In de app van het apparaat.</b> HomeWizard Energy: tik op de meter → tandwiel → <i>Apparaatinformatie</i>. Shelly: tik op het apparaat → <i>Instellingen</i> → <i>Apparaatinformatie</i>. Bij andere merken heet het vaak <i>Netwerk</i> of <i>Wifi-informatie</i>.</li>
+        <li><b>In je modem.</b> Open in je browser het adres op de sticker van je modem (vaak <b>192.168.1.1</b> of <b>192.168.178.1</b>) en kijk bij <i>Verbonden apparaten</i>.</li>
+        <li><b>Met de gratis app Fing</b> (iPhone en Android): die laat alle apparaten in je wifi zien, met hun IP-adres.</li>
+      </ol>
+      <div class="row" style="margin-top:8px">
+        <div class="field"><label for="manualIp">IP-adres</label><input id="manualIp" placeholder="192.168.1.50" inputmode="decimal" autocomplete="off"></div>
         <div class="field" style="flex:0 0 auto"><button class="btn ghost" id="manualBtn">Controleren</button></div>
       </div></details>
     <div class="actions"><button class="btn ghost" id="back">← Terug</button>
@@ -409,7 +512,9 @@ function zoeken() {
   };
   startScan();
   if (CFG.has_ha && !W.ha.cands) loadHA();
+  lijst().then(renderPlan);
 }
+document.addEventListener("visibilitychange", () => { if (!document.hidden && STEPS[step] === "zoeken" && CFG && CFG.has_ha) loadHA(); });
 async function startScan() {
   try {
     await api("api/setup/scan", { method: "POST", body: "{}" });
@@ -486,7 +591,7 @@ function renderFound() {
       }).join("");
     }
     html += `<div class="group-title">Meter</div><div class="list">${meters.map((f) => foundCard(f, true)).join("") + haMeters ||
-      '<p class="small muted">Nog geen meter gevonden. Heb je een eigen domoticaserver? Koppel hem hieronder, dan kun je daar een meter kiezen.</p>'}</div>`;
+      '<p class="small muted">Nog geen meter gevonden. Kijk bij Jouw apparaten hierboven wat je moet doen.</p>'}</div>`;
   }
   html += `<div class="group-title">Slimme stekkers en schakelaars</div><div class="list">${sw.length ? sw.map((f) => foundCard(f, false)).join("") : '<p class="small muted">Nog niets gevonden.</p>'}</div>`;
   html += `<div class="group-title">Uit de koppelmotor</div>`;
@@ -512,6 +617,7 @@ function renderFound() {
       </div><p class="small muted" id="haMsg" role="status"></p></details>`;
   }
   el.innerHTML = html;
+  renderPlan();
   if ($("haBox")) $("haBox").ontoggle = () => { W.ha.open = $("haBox").open; };
   if ($("haBtn")) $("haBtn").onclick = connectHA;
   el.querySelectorAll(".dev:not(.bad)").forEach((d) => {

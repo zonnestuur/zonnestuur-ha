@@ -494,6 +494,7 @@ async function load() {
   $("more").onclick = () => { LIMIT += 60; render(); };
   const qp = new URLSearchParams(location.search); if (qp.get("q")) $("q").value = qp.get("q");
   render();
+  if (qp.get("q")) { const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start" }); } }   // vanuit het eerste instellen: meteen open
   await load();
   // nieuwe vondsten van de koppelmotor (en een motor die nog opstart) vanzelf bijwerken
   setInterval(() => { if ($("panel").hidden && !document.hidden) load(); }, 30000);
