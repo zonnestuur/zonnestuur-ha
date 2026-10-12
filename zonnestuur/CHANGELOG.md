@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.55.0
+- Help mij: kom je er niet uit, tik dan bij Hulp (of bij het instellen) op "Help mij instellen". Zonnestuur stelt het dan op afstand voor je in: apparaten zoeken, instellingen kiezen en klaarzetten. Alleen zolang jij het aan zet (hooguit 24 uur), en je kunt het altijd stoppen.
+
 ## 0.54.1
 - Zoeken in je netwerk stopte soms halverwege als een ander apparaat in huis een vreemd antwoord gaf. Nu slaat Zonnestuur dat apparaat over en zoekt hij gewoon verder.
 

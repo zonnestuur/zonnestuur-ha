@@ -441,7 +441,8 @@ function renderPlan() {
   if (!keys.length) { el.innerHTML = ""; return; }
   const kleur = { ok: "var(--good)", wifi: "var(--net)", app: "var(--sun)", onderdeel: "var(--ink-3)", vraag: "var(--ink-3)" };
   el.innerHTML = `<div class="group-title">Jouw apparaten</div><div class="plan">${keys.map((k) => { const [n, s, t, b] = planVoor(k);
-    return `<div class="planrij"><span class="pdot" style="background:${kleur[s]}"></span><div style="flex:1;min-width:0"><b>${esc(n)}</b><div class="small muted">${t}</div></div>${b}</div>`; }).join("")}</div>`;
+    return `<div class="planrij"><span class="pdot" style="background:${kleur[s]}"></span><div style="flex:1;min-width:0"><b>${esc(n)}</b><div class="small muted">${t}</div></div>${b}</div>`; }).join("")}</div>
+    <p class="small" style="margin:8px 2px 0">Kom je er niet uit? <a href="hulp#helpmij" target="_blank" rel="noopener">Laat ons het op afstand voor je instellen</a>.</p>`;
 }
 
 // ---------- (bij toevoegen) welkom ----------
@@ -490,7 +491,7 @@ function zoeken() {
     <div id="nietsHulp" hidden class="niets">
       <b>Niets gevonden of je apparaat staat er niet bij?</b>
       <p class="small muted" style="margin:4px 0 10px">Veel warmtepompen, laadpalen, auto's en batterijen werken via de app van het merk, niet via je wifi. Die koppel je los per merk. Je kunt ook eerst verder en later apparaten toevoegen.</p>
-      <div class="row"><a class="btn ghost small" href="koppelen">Merk koppelen</a><button class="btn ghost small" type="button" id="skipDev">Verder zonder apparaten →</button></div>
+      <div class="row"><a class="btn small" href="hulp#helpmij" target="_blank" rel="noopener">Help mij instellen</a><a class="btn ghost small" href="koppelen">Merk koppelen</a><button class="btn ghost small" type="button" id="skipDev">Verder zonder apparaten →</button></div>
     </div>
   </section>`;
   $("back").onclick = () => go(0);
