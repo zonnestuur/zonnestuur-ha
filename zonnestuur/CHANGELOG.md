@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.57.8
+- Tibber, Zonneplan, Toon en andere meter-koppelingen: na het koppelen vraagt Zonnestuur meteen 'Gebruik als meter', met de stroom van dat moment erbij. Nog geen meter gekozen? Dan staat hij bovenaan Koppelen klaar.
+- Instellen: altijd een knop 'Naar dashboard', 'Verder' loopt nooit meer vast als er niets gevonden is, en duidelijkere stapnamen.
+
 ## 0.57.7
 - Box: de reparatie van de koppelmotor-instellingen gebeurt nu door het onderdeel dat de Box bijwerkt (dat mag het bestand aanpassen). Daarna start de koppelmotor normaal op, met al je koppelingen, en laden extra koppelingen zoals Nilan weer.
 

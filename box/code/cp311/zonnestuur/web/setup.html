@@ -58,6 +58,9 @@ html, body { overscroll-behavior-y: none; }
   .brand img { width: 28px; height: 28px; border-radius: 8px; }
   .spacer { flex: 1; }
   .steps { display: flex; gap: 6px; }
+  .naar-dash { font-size: 14px; font-weight: 600; color: var(--muted, #8a97a3); text-decoration: none; white-space: nowrap; padding: 6px 0 6px 6px; }
+  .naar-dash:hover { color: inherit; }
+  @media (max-width: 480px) { .steps { display: none; } }
   .steps i { width: 26px; height: 5px; border-radius: 3px; background: var(--chip); }
   .steps i.on { background: var(--sun); } .steps i.done { background: color-mix(in srgb, var(--sun) 45%, transparent); }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 26px; box-shadow: var(--shadow);
@@ -231,6 +234,7 @@ html, body { overscroll-behavior-y: none; }
     <a class="brand" href="./"><img src="icon.svg" alt="">Zonnestuur</a>
     <div class="spacer"></div>
     <div class="steps" id="steps" aria-hidden="true"></div>
+    <a class="naar-dash" href="./" id="naarDash">Naar dashboard</a>
   </header>
   <div id="app"></div>
   <p class="err" id="err" role="alert"></p>
@@ -502,7 +506,7 @@ function zoeken() {
   </section>`;
   $("back").onclick = () => go(0);
   $("again").onclick = () => startScan(false);
-  $("next").onclick = () => go(W.addOnly || !W.meter ? 3 : 2);
+  $("next").onclick = () => $("next").dataset.leeg ? $("skipDev").onclick() : go(W.addOnly || !W.meter ? 3 : 2);
   if ($("skipDev")) $("skipDev").onclick = () => { W.picks = []; W.devices = []; W.skip = true; go(W.meter ? 2 : 4); };
   if ($("noPanels")) $("noPanels").onchange = () => { W.noPanels = $("noPanels").checked; if (W.noPanels) W.contract.type = "dynamic"; renderFound(); };
   $("manualBtn").onclick = async () => {
@@ -711,7 +715,14 @@ function renderFound() {
     if (r.found) { r.found._manual = true; FOUND = FOUND.filter((f) => f.host !== r.found.host).concat(r.found); renderFound(); if (r.found.ok) toast("Gelukt, nu bruikbaar"); }
   });
   const ready = (W.addOnly || W.meter || W.noPanels) && W.picks.length > 0;
-  if ($("next")) $("next").disabled = !ready;
+  // Niets gevonden of aangevinkt: 'Verder' gaat dan gewoon door zonder apparaten (nooit vastzitten)
+  const leeg = !W.addOnly && W.picks.length === 0 && !(SCAN && SCAN.running);
+  if ($("next")) {
+    $("next").disabled = !ready && !leeg;
+    $("next").textContent = leeg ? "Verder zonder apparaten →" : "Verder →";
+    $("next").dataset.leeg = leeg ? "1" : "";
+  }
+  if ($("skipDev")) $("skipDev").hidden = leeg;
   if ($("nietsHulp")) $("nietsHulp").hidden = W.addOnly || W.picks.length > 0 || !!(SCAN && SCAN.running);
 }
 
@@ -727,7 +738,7 @@ function meterSpec(m, invert) {
 function meter() {
   const m = W.meter;
   $("app").innerHTML = `<section class="card">
-    <div class="eyebrow">Stap 3</div>
+    <div class="eyebrow">Meter controleren</div>
     <h1 class="t">Je meter uitlezen</h1>
     <p class="lead">Zonnestuur leest nu live mee met ${m.type === "ha" ? esc(m.name) : esc(m.f.name)}.</p>
     <div class="live"><span class="pulse" id="pulse"></span><div><div class="big t" id="p1w">–</div><div class="small muted" id="p1t">verbinden…</div></div></div>
@@ -805,7 +816,7 @@ function apparaten() {
       <p class="small muted">Zonnestuur regelt de laadstroom traploos tussen <b>${nl(lo / 1000, 1)}</b> en <b>${nl(hi / 1000, 1)} kW</b>, precies op wat je overhoudt.${(P.min_interval_s || 0) > 60 ? ` Deze laadpaal passen we hooguit eens per ${Math.round(P.min_interval_s / 60)} minuten aan (advies van de fabrikant), met wat je dat hele kwartier minstens overhield.` : ""}</p>`;
   }
   $("app").innerHTML = `<section class="card">
-    <div class="eyebrow">Stap 4 · apparaat ${devIdx + 1} van ${W.devices.length}</div>
+    <div class="eyebrow">Apparaat ${devIdx + 1} van ${W.devices.length}</div>
     <h1 class="t">${isHA(drv) ? "Wat is dit voor apparaat?" : "Wat zit er aan deze schakelaar?"}</h1>
     <p class="lead">${esc(d.model)}</p>
     <div class="tiles" role="radiogroup" aria-label="Soort apparaat">${KINDS.map((k) => `<button class="tile ${d.kind === k.id ? "on" : ""}" data-kind="${k.id}" role="radio" aria-checked="${d.kind === k.id}">${ICONS[k.id]}${k.label}</button>`).join("")}</div>
@@ -962,7 +973,7 @@ async function vragen() {
   await loadSuppliers();
   const c = W.contract, s = W.solar;
   $("app").innerHTML = `<section class="card">
-    <div class="eyebrow">Stap 5</div>
+    <div class="eyebrow">Laatste stap</div>
     <h1 class="t">Nog ${W.noPanels ? "twee" : "drie"} vragen</h1>
     <h2 class="t">1. Wat voor energiecontract heb je?</h2>
     <div class="chips" data-k="type"><button data-v="fixed" class="${c.type === "fixed" ? "on" : ""}">Vast of variabel</button><button data-v="dynamic" class="${c.type === "dynamic" ? "on" : ""}">Dynamisch (uur- of kwartierprijzen)</button></div>
@@ -1003,6 +1014,12 @@ function buildDevice(d, taken) {
     switch_id: d.switch_id || 0, kind: d.kind, power_w: d.power_w, priority: 1 },
     k, { ready_times: k.ready_times.length ? (d.ready_times || k.ready_times) : [] });
 }
+// Altijd naar het dashboard kunnen, ook halverwege het instellen (later verder via Instellingen)
+document.getElementById("naarDash").addEventListener("click", async (e) => {
+  e.preventDefault();
+  try { if (CFG && !CFG.ingericht) CFG = await postCfg(Object.assign(JSON.parse(JSON.stringify(CFG)), { ingericht: true })); } catch (err) { /* toch naar het dashboard */ }
+  location.href = "./";
+});
 async function postCfg(next) {
   delete next.homeassistant;            // de koppelmotor wordt apart gekoppeld (token blijft op het kastje)
   delete next.has_ha;

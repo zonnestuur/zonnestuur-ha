@@ -124,6 +124,7 @@ html, body { overscroll-behavior-y: none; }
   <h1 class="t">Koppelen</h1>
   <p class="lead">Zoek het merk van je apparaat. Je ziet meteen wat er nodig is, en met één knop koppel je het. Alles blijft in Zonnestuur.</p>
 
+  <section class="card" id="meterKaart" hidden></section>
   <section class="card" id="state"><div class="status"><span class="dot wait"></span><div class="small muted">Even kijken wat er al gekoppeld is…</div></div></section>
 
   <div class="card">
@@ -400,9 +401,30 @@ async function job(id, title) {
     await sleep(2500);
   }
 }
+// Na het koppelen: geeft deze koppeling een meter door (Tibber Pulse, Zonneplan, Toon…)? Dan meteen aanbieden.
+async function gekoppeld(r) {
+  const title = r.title || BRAND || "Gekoppeld";
+  panel(title, `<p class="ok">Gekoppeld.</p><p><span class="spin"></span>Even kijken wat deze koppeling doorgeeft…</p>`, []);
+  let v = { meters: [] };
+  for (let i = 0; i < 6 && !v.meters.length; i++) {
+    try { v = await post("api/koppel/meter-voorstel", { entry_id: r.entry_id || "", domain: r.domain || "" }); } catch (e) { break; }
+    if (!v.meters.length) await sleep(4000);
+  }
+  if (!v.meters.length) return done(title);
+  const m = v.meters[0], w = Number(m.state);
+  const nu = isFinite(w) && m.state !== "" ? ` Nu: <b>${Math.round(m.unit === "kW" ? w * 1000 : w)} W</b>.` : "";
+  panel(title, `<p class="ok">Gekoppeld.</p><p>Hiermee ziet Zonnestuur je <b>stroomverbruik en teruglevering</b> live (${esc(m.name)}).${nu}</p>
+    ${v.huidig ? `<p class="small muted">Je gebruikt nu al een andere meter. Kies deze alleen als je wilt overstappen.</p>` : ""}`,
+    [["Niet nu", closePanel, "ghost"], ["Gebruik als meter", async () => {
+      try { await post("api/koppel/meter", { entity: m.entity, export_entity: m.export_entity || "" });
+        panel(title, `<p class="ok">Klaar: dit is nu je meter.</p><p class="muted">Op het dashboard zie je meteen je verbruik en teruglevering.</p>`,
+          [["Sluiten", closePanel, "ghost"], ["Naar het dashboard", () => { location.href = "./"; }]]);
+      } catch (e) { $("p_err").textContent = e.message; }
+    }]]);
+}
 function done(title, extra) {
   FLOW = null;
-  panel(title, `<p class="ok">Gekoppeld.</p><p class="muted">${extra ? esc(extra) + " " : ""}Kies nu wat Zonnestuur ermee moet doen: de nieuwe apparaten staan klaar bij <b>Apparaat toevoegen</b>.</p>`,
+  panel(title, `<p class="ok">Gekoppeld.</p><p class="muted">${extra ? esc(extra) + " " : ""}Wil je dat Zonnestuur iets aan- of uitzet (een stekker, laadpaal, boiler…)? Kies het dan bij <b>Apparaat toevoegen</b>.</p>`,
     [["Sluiten", closePanel, "ghost"], ["Apparaat toevoegen", () => { location.href = "setup#toevoegen"; }]]);
 }
 
@@ -453,7 +475,7 @@ async function showStep(r) {
     poll(r);
   } else if (r.type === "progress") {
     panel(title || "Bezig", `<p><span class="spin"></span>${esc(r.description || "Even geduld…")}</p>`); poll(r);
-  } else if (r.type === "create_entry") { done(r.title || "Gekoppeld");
+  } else if (r.type === "create_entry") { gekoppeld(r);
   } else if (r.type === "abort" && ["missing_credentials", "missing_configuration", "oauth_implementation_unavailable", "no_implementations"].includes(r.reason)) {
     FLOW = null;
     panel(title, `<p>${esc(BRAND || "Dit merk")} werkt via een inlog bij de fabrikant. Daarvoor moet Zonnestuur bij de fabrikant zijn aangemeld; dat regelen wij centraal en komt vanzelf beschikbaar.</p>
@@ -522,7 +544,23 @@ async function enodeChoose(kind, title) {
 // ---------- laden ----------
 async function load() {
   try { OV = await api("api/koppel"); } catch (e) { OV = { error: e.message }; }
-  stateCard(); render();
+  stateCard(); render(); meterAanbod();
+}
+// Nog geen meter, maar de koppelmotor heeft er wel een (bijv. Tibber Pulse)? Dan bovenaan met één knop aanbieden.
+async function meterAanbod() {
+  const k = $("meterKaart");
+  let v; try { v = await post("api/koppel/meter-voorstel", {}); } catch (e) { return; }
+  if (!v.meters || !v.meters.length || v.huidig) { k.hidden = true; return; }
+  const m = v.meters[0], w = Number(m.state);
+  k.innerHTML = `<h2 class="t" style="margin:0 0 6px">Je meter is gevonden</h2>
+    <p class="small" style="margin:0">${esc(m.name)}${isFinite(w) && m.state !== "" ? ` · nu ${Math.round(m.unit === "kW" ? w * 1000 : w)} W` : ""}. Gebruik hem als meter, dan ziet Zonnestuur je verbruik en teruglevering live.</p>
+    <div class="acts" style="margin-top:12px"><button class="btn" type="button" id="meterJa">Gebruik als meter</button></div>`;
+  k.hidden = false;
+  $("meterJa").onclick = async () => {
+    try { await post("api/koppel/meter", { entity: m.entity, export_entity: m.export_entity || "" });
+      k.innerHTML = `<p class="ok" style="margin:0">Klaar: dit is nu je meter. <a href="./">Naar het dashboard</a></p>`; }
+    catch (e) { k.insertAdjacentHTML("beforeend", `<p class="err">${esc(e.message)}</p>`); }
+  };
 }
 (async () => {
   try { LIST = await (await fetch("koppellijst.json")).json(); } catch (e) { LIST = []; }
