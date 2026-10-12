@@ -28,7 +28,7 @@ of in Zonnestuur bij de kennismaking.
 
 ## Proberen en Pro
 
-De eerste 30 dagen werkt alles. Daarna gaat Zonnestuur verder als **Basis** (gratis), of als **Pro** (€ 49 per jaar)
+De eerste 30 dagen werkt alles. Daarna gaat Zonnestuur verder als **Basis** (gratis), of als **Pro** (€ 2 per maand of € 24 per jaar)
 met alle apparaten, dagplanning op zon en uurprijzen, thuisbatterij en meldingen. Zie [PRO.md](PRO.md).
 
 Copyright © 2026 Zonnestuur. Alle rechten voorbehouden.

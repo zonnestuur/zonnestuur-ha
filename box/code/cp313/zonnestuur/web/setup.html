@@ -978,8 +978,10 @@ async function licenseCard() {
       <p class="small" id="regRes" role="status"></p></div>`;
   const kopen = L.plan === "pro" ? "" : `<div class="pro-blok"><h3 class="pro-kop">Pro kopen</h3>
       <ul class="small muted" style="margin:6px 0 12px; padding-left:18px; line-height:1.7">${PRO_FEATURES.map((x) => `<li>${x}</li>`).join("")}</ul>
-      <div id="koopForm" hidden><div class="row">${f("k_naam", "Naam", "text", A && A.naam, "Voor- en achternaam", "name")}${f("k_email", "E-mail (voor je betaalbewijs)", "email", A && A.email, "naam@voorbeeld.nl", "email")}</div></div>
-      <div class="actions"><button class="btn${A ? " ghost" : ""}" id="koopBtn">Pro kopen · ${esc(L.price)}</button></div>
+      <div id="koopForm" hidden><div class="keuze" role="radiogroup" aria-label="Hoe wil je betalen?" style="display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 10px">
+        <label style="display:inline-flex;align-items:center;gap:8px;font-size:15px;cursor:pointer"><input type="radio" name="k_per" value="maand" checked style="width:18px;height:18px;margin:0"> Per maand: <b>€&nbsp;2</b></label>
+        <label style="display:inline-flex;align-items:center;gap:8px;font-size:15px;cursor:pointer"><input type="radio" name="k_per" value="jaar" style="width:18px;height:18px;margin:0"> Per jaar: <b>€&nbsp;24</b></label></div><div class="row">${f("k_naam", "Naam", "text", A && A.naam, "Voor- en achternaam", "name")}${f("k_email", "E-mail (voor je betaalbewijs)", "email", A && A.email, "naam@voorbeeld.nl", "email")}</div></div>
+      <div class="actions"><button class="btn${A ? " ghost" : ""}" id="koopBtn">Pro kopen · vanaf € 2 per maand</button></div>
       <p class="small" id="koopRes" role="status">${L.betaling_open ? "We wachten op je betaling. Zodra die binnen is, gaat Pro vanzelf aan." : ""}</p></div>`;
   box.innerHTML = `<h2 class="t">Zonnestuur Pro</h2>
     <p class="small" style="margin-top:-4px">${head}</p>
@@ -1010,7 +1012,7 @@ async function licenseCard() {
     if ($("koopForm").hidden) { $("koopForm").hidden = false; $("koopBtn").textContent = "Naar betalen (iDEAL)"; $("koopBtn").classList.remove("ghost"); $("k_naam").focus(); return; }
     $("koopBtn").disabled = true; res.textContent = "Bezig…";
     try {
-      const r = await api("api/betalen", { method: "POST", body: JSON.stringify({ naam: $("k_naam").value, email: $("k_email").value }) });
+      const r = await api("api/betalen", { method: "POST", body: JSON.stringify({ naam: $("k_naam").value, email: $("k_email").value, periode: (document.querySelector("input[name=k_per]:checked") || {}).value || "maand" }) });
       if (!r.ok) {
         res.innerHTML = esc(r.error) + (r.nog_niet ? ` <a href="mailto:info@zonnestuur.nl?subject=Zonnestuur%20Pro&body=Installatie-ID%3A%20${esc(L.install_id)}">Mail ons</a>` : "");
         $("koopBtn").disabled = false; return;

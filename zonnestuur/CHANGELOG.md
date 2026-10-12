@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.55.4
+- Bovenaan elke pagina staat nu duidelijk dat Zonnestuur nog in de testfase is, met een knop om iets te melden.
+- Zonnestuur Pro kost straks € 2 per maand of € 24 per jaar: bij Pro kopen kies je zelf. Tijdens de testfase blijft Pro gratis voor proefhuizen.
+- Een wasmachine of droger die wacht tot je hem klaarzet, wordt niet meer als storing doorgegeven.
+
 ## 0.55.3
 - Bij het zoeken naar een P1-kabel laat Zonnestuur Zigbee-, Z-Wave- en Thread-sticks voortaan met rust. Die werden ten onrechte getoond als "slimme meter via P1-kabel".
 

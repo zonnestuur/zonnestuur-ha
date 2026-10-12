@@ -1292,7 +1292,7 @@ function renderStatus(s) {
   const roi = $("roi");
   if (V.year.eur > 1 && L0.plan !== "basic") {
     roi.hidden = false;
-    roi.textContent = V.year.eur >= 49 ? `Zonnestuur leverde dit jaar ${eur(V.year.eur)} op: ${nl(V.year.eur / 49, 1)}× wat Pro per jaar kost.` : `Dit jaar ${eur(V.year.eur)} opgeleverd. Hoe meer apparaten Zonnestuur stuurt, hoe meer het oplevert.`;
+    roi.textContent = V.year.eur >= 24 ? `Zonnestuur leverde dit jaar ${eur(V.year.eur)} op: ${nl(V.year.eur / 24, 1)}× wat Pro per jaar kost.` : `Dit jaar ${eur(V.year.eur)} opgeleverd. Hoe meer apparaten Zonnestuur stuurt, hoe meer het oplevert.`;
   } else roi.hidden = true;
   $("valueNow").textContent = s.strategy === "price" ? "" : eur(s.value_own_kwh) + " per eigen kWh";
   $("sMonthNote").textContent = (s.strategy === "price" ? "geschat, deze maand, door te draaien in de goedkoopste uren" : "geschat, deze maand, door je eigen zonnestroom slim te gebruiken")

@@ -3,7 +3,7 @@
 Zonnestuur werkt de eerste **30 dagen volledig**. Daarna gaat hij verder als **Zonnestuur Basis**, of met een
 licentie als **Zonnestuur Pro**.
 
-| | Basis (gratis) | Pro (€ 49 per jaar) |
+| | Basis (gratis) | Pro (€ 2 per maand of € 24 per jaar) |
 |---|:---:|:---:|
 | Dashboard, verbruik en inzicht in teruglevering | ✓ | ✓ |
 | Advies en batterijvergelijking op je eigen meterdata | ✓ | ✓ |
@@ -25,7 +25,7 @@ Ik heb een licentiesleutel**.
 
 ## Zo werkt kopen (na de testfase)
 
-1. Kies in Zonnestuur **Instellingen → Zonnestuur Pro → Pro kopen** en betaal € 49 via iDEAL (Mollie).
+1. Kies in Zonnestuur **Instellingen → Zonnestuur Pro → Pro kopen** kies per maand (€ 2) of per jaar (€ 24) en betaal via iDEAL (Mollie).
 2. Na het betalen gaat Pro vanzelf aan. Je ziet je sleutel ook op de bedankpagina; bewaar die goed.
 
 De sleutel wordt op je eigen Home Assistant gecontroleerd, zonder internet en zonder account. Zonnestuur blijft
