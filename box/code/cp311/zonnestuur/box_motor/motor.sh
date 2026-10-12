@@ -20,7 +20,15 @@ fi
 mkdir -p /var/lib/zonnestuur/{ha,matter,otbr,evcc/data,mosquitto/data}
 [ -f /var/lib/zonnestuur/mosquitto/mosquitto.conf ] || printf 'listener 1883\nallow_anonymous true\npersistence true\npersistence_location /mosquitto/data/\n' > /var/lib/zonnestuur/mosquitto/mosquitto.conf
 chown -R 1883:1883 /var/lib/zonnestuur/mosquitto/data 2>/dev/null || true
-[ -f /var/lib/zonnestuur/ha/configuration.yaml ] || printf 'default_config:\n\nhttp:\n  use_x_forwarded_for: false\n' > /var/lib/zonnestuur/ha/configuration.yaml
+HACONF=/var/lib/zonnestuur/ha/configuration.yaml
+[ -f "$HACONF" ] || printf 'default_config:\n' > "$HACONF"
+# Oudere Boxen kregen 'http: use_x_forwarded_for: false'. Nieuwere koppelmotoren keuren dat af (dan weigert hij elke
+# herstart en laadt hij geen nieuwe koppelingen). Die regels weghalen en de koppelmotor daarna opnieuw starten.
+HERSTART_NODIG=0
+if grep -q '^  use_x_forwarded_for: false$' "$HACONF" && ! grep -q 'trusted_proxies' "$HACONF"; then
+  sed -i '/^  use_x_forwarded_for: false$/d' "$HACONF"
+  HERSTART_NODIG=1
+fi
 mkdir -p /var/lib/zonnestuur/ha/custom_components
 chgrp -R zonnestuur /var/lib/zonnestuur/ha/custom_components && chmod -R g+rwX /var/lib/zonnestuur/ha/custom_components
 chmod g+s /var/lib/zonnestuur/ha/custom_components
@@ -47,7 +55,7 @@ if grep -qw evcc "$DIR/profiles" 2>/dev/null && [ /var/lib/zonnestuur/evcc/evcc.
   touch "$APP/.evcc-stamp"
 fi
 # Zonnestuur vraagt om de koppelmotor helemaal opnieuw te starten (bijv. een nieuwe extra koppeling die niet laadde)
-if [ -f "$DIR/herstart" ] && [ "$DIR/herstart" -nt "$APP/.herstart-stamp" ]; then
+if [ "$HERSTART_NODIG" = 1 ] || { [ -f "$DIR/herstart" ] && [ "$DIR/herstart" -nt "$APP/.herstart-stamp" ]; }; then
   docker restart zs-homeassistant >/dev/null 2>&1 || true
   touch "$APP/.herstart-stamp"
 fi

@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.57.6
+- Box: de koppelmotor weigerde elke herstart door een verouderde regel in zijn instellingen, waardoor nieuwe extra koppelingen (zoals Nilan) nooit laadden. De Box zet dat nu zelf goed en herstart de koppelmotor.
+- Nog een keer op Koppelen drukken terwijl hij bezig is, begint niet meer opnieuw.
+
 ## 0.57.5
 - Extra koppeling op de Box veel sneller klaar: de koppelmotor wordt meteen helemaal opnieuw gestart (meestal 1 à 2 minuten in plaats van tot 10).
 - Koppelen: 'Op de achtergrond laten doorgaan' sluit het scherm nu echt; het komt vanzelf terug zodra het klaar is.
