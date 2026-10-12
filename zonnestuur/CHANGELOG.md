@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.54.1
+- Zoeken in je netwerk stopte soms halverwege als een ander apparaat in huis een vreemd antwoord gaf. Nu slaat Zonnestuur dat apparaat over en zoekt hij gewoon verder.
+
 ## 0.54.0
 - Eerste keer instellen is veel eenvoudiger: je tikt aan wat je in huis hebt (zonnepanelen, boiler, warmtepomp, auto, thuisbatterij, wasmachine) en kiest het merk. Zonnestuur zegt per apparaat in gewone taal wat er moet gebeuren: hij vindt het zelf, je logt in met de app van het merk, of er is een onderdeel nodig.
 - Slimme meter: kies wat er al aan je meter zit, bijvoorbeeld Tibber Pulse, Zonneplan Connect of HomeWizard.
