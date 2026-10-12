@@ -388,12 +388,15 @@ async function starten(title, route, tweede) {
   }
   return r;
 }
+// Achtergrond: het scherm gaat dicht en blijft dicht; zodra het klaar is (of misgaat) komt het vanzelf terug.
 async function job(id, title) {
+  let weg = false;
   for (;;) {
     const j = await api("api/koppel/job/" + id);
     if (j.status === "klaar") return j.result || {};
     if (j.status === "fout") throw new Error(j.error);
-    panel(title, `<p><span class="spin"></span>${esc(j.step || "Bezig…")}</p>`, [["Op de achtergrond laten doorgaan", () => { $("panel").hidden = true; }, "ghost"]]);
+    if (!weg) panel(title, `<p><span class="spin"></span>${esc(j.step || "Bezig…")}</p><p class="small muted">Je kunt dit scherm dichtdoen: het gaat op de achtergrond door en het scherm komt terug zodra het klaar is.</p>`,
+      [["Op de achtergrond laten doorgaan", () => { weg = true; $("panel").hidden = true; }, "ghost"]]);
     await sleep(2500);
   }
 }

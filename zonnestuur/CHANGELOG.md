@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.57.5
+- Extra koppeling op de Box veel sneller klaar: de koppelmotor wordt meteen helemaal opnieuw gestart (meestal 1 à 2 minuten in plaats van tot 10).
+- Koppelen: 'Op de achtergrond laten doorgaan' sluit het scherm nu echt; het komt vanzelf terug zodra het klaar is.
+
 ## 0.57.4
 - Extra koppelingen (zoals Nilan) werken nu ook als de koppelmotor ze na het installeren nog niet kende: Zonnestuur controleert dat zelf, herstart de koppelmotor zo nodig (op de Box desnoods helemaal) en gaat daarna verder met koppelen.
 - Tijdens het starten van een koppeling zie je dat de koppelmotor op de achtergrond bezig is, met de tijd erbij.
