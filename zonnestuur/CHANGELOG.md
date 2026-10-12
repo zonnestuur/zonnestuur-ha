@@ -1,5 +1,14 @@
 # Wijzigingen
 
+## 0.56.0
+- Sneller koppelen: Zonnestuur begint al met zoeken terwijl je aantikt wat je in huis hebt. Op het volgende scherm staan je apparaten er dan meestal al.
+- Zoeken gaat sneller: de P1-kabel wordt tegelijk met het netwerk gecontroleerd, en gevonden apparaten worden tegelijk herkend in plaats van een voor een.
+- Zonnestuur vindt nu ook een YouLess en P1-lezers met ESPHome (zoals de SlimmeLezer) vanzelf als meter.
+- HomeWizard P1-meter: staat 'Lokale API' uit, dan koppel je hem nu met één druk op de knop van de meter. Je hoeft niets meer in de HomeWizard-app te zoeken.
+- Is er precies één meter gevonden, dan kiest Zonnestuur die meteen.
+- Wat duidelijk bij je apparaten hoort (bijvoorbeeld je warmtepomp), wordt alvast aangevinkt. Klopt het niet, dan tik je het uit.
+- Heb je je Shelly in de app een naam gegeven, zoals 'Boiler zolder', dan neemt Zonnestuur die naam en de soort apparaat over.
+
 ## 0.55.4
 - Bovenaan elke pagina staat nu duidelijk dat Zonnestuur nog in de testfase is, met een knop om iets te melden.
 - Zonnestuur Pro kost straks € 2 per maand of € 24 per jaar: bij Pro kopen kies je zelf. Tijdens de testfase blijft Pro gratis voor proefhuizen.

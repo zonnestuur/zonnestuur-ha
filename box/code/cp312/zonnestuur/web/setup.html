@@ -278,7 +278,7 @@ const ICONS = {
   generic: '<svg viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v4a6 6 0 0 1-12 0zM12 18v3"/></svg>',
   ha: '<svg viewBox="0 0 24 24"><path d="M3.5 11 12 3.5l8.5 7.5V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z"/><circle cx="12" cy="13" r="2"/><path d="M12 15v6M9 10.5l3 2.5 3-2.5"/></svg>',
 };
-ICONS.hw_socket = ICONS.shelly; ICONS.tasmota = ICONS.shelly; ICONS.shelly_em = ICONS.p1;
+ICONS.hw_socket = ICONS.shelly; ICONS.tasmota = ICONS.shelly; ICONS.shelly_em = ICONS.p1; ICONS.youless = ICONS.p1; ICONS.esphome_p1 = ICONS.p1;
 const DRIVER_LABEL = {
   shelly: "Shelly", shelly_gen1: "Shelly (oud model)", homewizard_socket: "HomeWizard Energy Socket", tasmota: "Tasmota",
   esphome: "ESPHome", mqtt_switch: "MQTT", homey_switch: "Homey · aan/uit", homey_setpoint: "Homey · temperatuur",
@@ -306,7 +306,7 @@ const SYSX = {
     hint: "Installeer in ioBroker de adapter 'simple-api' (poort 8087). Inloggen alleen als dat in ioBroker aan staat." },
 };
 const hasSys = (need) => need === "mqtt" ? !!((CFG.mqtt && CFG.mqtt.host) || CFG.mqtt_addon) : SYSX[need] ? !!(CFG[need] && CFG[need].url) || !!SYS[need] : !!CFG[need];
-const METER_KINDS = ["p1_serial", "p1", "shelly_em"], SWITCH_KINDS = ["shelly", "hw_socket", "tasmota"];
+const METER_KINDS = ["p1_serial", "p1", "shelly_em", "youless", "esphome_p1"], SWITCH_KINDS = ["shelly", "hw_socket", "tasmota"];
 const isHA = (drv) => String(drv || "").startsWith("ha_");
 const KINDS = [
   { id: "boiler", label: "Boiler" }, { id: "ev", label: "Elektrische auto" },
@@ -377,6 +377,9 @@ function watLaden() { try { return JSON.parse(localStorage.getItem("zs_wat") || 
 function watBewaren() { try { localStorage.setItem("zs_wat", JSON.stringify(W.wat)); } catch (e) {} }
 async function watScherm() {
   W.wat = W.wat || watLaden();
+  if (MODE === "setup" && !W.voorScan) {         // alvast zoeken terwijl de klant aantikt wat hij heeft: scheelt wachten
+    W.voorScan = true; api("api/setup/scan", { method: "POST", body: JSON.stringify({ hergebruik: true }) }).catch(() => {});
+  }
   const L = await lijst(), orde = { groot: 0, middel: 1, klein: 2 };
   const merken = (cat) => L.filter((r) => r.categorie === cat && !/^(Generiek|Niet-verbonden)/.test(r.merk))
     .sort((a, b) => (orde[a.aandeel_nl] ?? 3) - (orde[b.aandeel_nl] ?? 3) || a.merk.localeCompare(b.merk)).map((r) => r.merk);
@@ -421,7 +424,8 @@ function planVoor(k) {
   const rij = L.find((r) => r.categorie === w[2] && r.merk === keuze.merk);
   const naam = keuze.merk && !["?", "anders"].includes(keuze.merk) ? `${w[1]} · ${k === "meter" ? (METER_NAAM[keuze.merk] || keuze.merk) : keuze.merk}` : w[1];
   const zoek = (keuze.merk || "").toLowerCase().split(/[ /]/)[0];
-  const gevonden = zoek && FOUND.find((f) => (f.name + " " + (f.model || "")).toLowerCase().includes(zoek));
+  const MERK_VAN = { p1: "homewizard", hw_socket: "homewizard", youless: "youless", esphome_p1: "slimmelezer esphome", shelly: "shelly", shelly_em: "shelly", tasmota: "tasmota" };
+  const gevonden = zoek && FOUND.find((f) => (f.name + " " + (f.model || "") + " " + (MERK_VAN[f.kind] || "")).toLowerCase().includes(zoek));
   if (gevonden) return [naam, "ok", `Gevonden in je netwerk (${esc(gevonden.name)}). Kies hem hieronder.`, ""];
   if (!keuze.merk || keuze.merk === "?") return [naam, "vraag", "Weet je het merk niet? Kijk op de sticker op het apparaat (het typeplaatje) of in de app op je telefoon.",
     `<a class="btn ghost small" href="hulp?soort=vraag#meld" target="_blank" rel="noopener">Vraag het ons</a>`];
@@ -495,7 +499,7 @@ function zoeken() {
     </div>
   </section>`;
   $("back").onclick = () => go(0);
-  $("again").onclick = startScan;
+  $("again").onclick = () => startScan(false);
   $("next").onclick = () => go(W.addOnly || !W.meter ? 3 : 2);
   if ($("skipDev")) $("skipDev").onclick = () => { W.picks = []; W.devices = []; W.skip = true; go(W.meter ? 2 : 4); };
   if ($("noPanels")) $("noPanels").onchange = () => { W.noPanels = $("noPanels").checked; if (W.noPanels) W.contract.type = "dynamic"; renderFound(); };
@@ -511,14 +515,14 @@ function zoeken() {
       renderFound();
     } catch (e) { setErr(e.message); }
   };
-  startScan();
+  startScan(true);
   if (CFG.has_ha && !W.ha.cands) loadHA();
   lijst().then(renderPlan);
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden && STEPS[step] === "zoeken" && CFG && CFG.has_ha) loadHA(); });
-async function startScan() {
+async function startScan(hergebruik) {
   try {
-    await api("api/setup/scan", { method: "POST", body: "{}" });
+    await api("api/setup/scan", { method: "POST", body: JSON.stringify({ hergebruik: !!hergebruik }) });
     clearInterval(scanTimer);
     scanTimer = setInterval(pollScan, 1000);
     pollScan();
@@ -529,8 +533,8 @@ async function pollScan() {
   try {
     const s = await api("api/setup/scan");
     SCAN = s;
-    const manual = FOUND.filter((f) => !s.found.some((x) => x.host === f.host) && f._manual);
-    FOUND = s.found.concat(manual);
+    const manual = FOUND.filter((f) => f._manual), mh = new Set(manual.map((f) => f.host));
+    FOUND = s.found.filter((f) => !mh.has(f.host)).concat(manual);     // met de hand gecontroleerd/gekoppeld gaat voor
     if ($("scanBar")) $("scanBar").style.width = Math.round(s.progress * 100) + "%";
     if ($("scanText")) $("scanText").textContent = s.running ? "We kijken welke apparaten er in je netwerk zijn…"
       : FOUND.length || (W.ha.cands && W.ha.cands.devices.length) ? "Klaar met zoeken. Kies wat bij Zonnestuur hoort." : "We vonden niets. Staan de apparaten op dezelfde wifi? Of vul hieronder het IP-adres in.";
@@ -557,15 +561,41 @@ async function connectHA() {
     renderFound();
   } catch (e) { $("haMsg").textContent = e.message; }
 }
+// Wat duidelijk bij "Wat heb je in huis?" hoort, vinken we één keer alvast aan (de klant kan het uitzetten)
+function alvastAanvinken(sw, cands) {
+  if (W.addOnly || W.alvast || !SCAN || SCAN.running || !W.wat) return;            // pas als het zoeken klaar is
+  if (CFG.has_ha && !cands) return;                                  // eerst de koppelmotor afwachten
+  W.alvast = [];
+  const taken = (ent) => (CFG?.devices || []).some((d) => d.params && (d.params.entity === ent || d.params.current_entity === ent || d.params.button_entity === ent));
+  const soort = { boiler: (c) => c.kind === "boiler", wp: (c) => c.kind === "heatpump", auto: (c) => c.driver === "ha_current" || c.kind === "ev",
+    wit: (c) => c.driver === "ha_start_button" };
+  for (const k of Object.keys(soort)) {
+    if (!W.wat[k]) continue;
+    const ha = cands ? cands.devices.filter((c) => soort[k](c) && !taken(c.entity || c.current_entity || c.button_entity)) : [];
+    const kind = { boiler: "boiler", wp: "heatpump", auto: "ev", wit: "generic" }[k];
+    const fs = sw.filter((f) => f.ok && raadSoort((f.extra || {}).naam) === kind && !(CFG?.devices || []).some((d) => d.host === f.host));
+    if (ha.length + fs.length !== 1) continue;                         // twijfel: niets aanvinken
+    if (ha.length) { const c = ha[0], key = "h:" + (c.entity || c.current_entity || c.button_entity);
+      if (!W.picks.some((p) => p.key === key)) { W.picks.push({ key, source: "ha", c }); W.alvast.push(c.name); } }
+    else { const f = fs[0], key = "f:" + f.host;
+      if (!W.picks.some((p) => p.key === key)) { W.picks.push({ key, source: "found", f }); W.alvast.push(f.extra.naam || f.name); } }
+  }
+}
 function renderFound() {
   const el = $("found"); if (!el) return;
   const meters = FOUND.filter((f) => METER_KINDS.includes(f.kind)), sw = FOUND.filter((f) => SWITCH_KINDS.includes(f.kind));
+  if (!W.addOnly && !W.meter && !W.meterGekozen && !(SCAN && SCAN.running)) {      // precies één bruikbare meter: die nemen we
+    const ok = meters.filter((f) => f.ok);
+    if (ok.length === 1) { W.meter = { type: ok[0].kind, host: ok[0].host, f: ok[0] }; W.meterGekozen = true; }
+  }
   const inUse = new Set((CFG?.devices || []).map((d) => d.host || JSON.stringify(d.params || {})));
   const picked = (key) => W.picks.some((p) => p.key === key);
   const card = (key, kind, icon, name, meta, sel, ok, problem, taken) => `<div class="dev ${sel ? "sel" : ""} ${ok && !taken ? "" : "bad"}" data-key="${esc(key)}" data-kind="${kind}" role="button" tabindex="0" aria-pressed="${sel}">
       <div class="ico">${icon}</div>
       <div style="min-width:0"><div class="name">${esc(name)}</div><div class="meta">${meta}</div>
-        ${ok ? "" : `<div class="problem"><b>Nog niet bruikbaar.</b> ${problem} <button class="btn ghost small" data-recheck="${esc(key.slice(2))}" style="margin-top:8px">Opnieuw controleren</button></div>`}
+        ${ok ? "" : `<div class="problem"><b>Nog niet bruikbaar.</b> ${problem} ${(FOUND.find((x) => "f:" + x.host === key) || {}).problem === "hw_knop"
+          ? `<button class="btn small" data-hwknop="${esc(key.slice(2))}" style="margin-top:8px">Koppelen met de knop</button>`
+          : `<button class="btn ghost small" data-recheck="${esc(key.slice(2))}" style="margin-top:8px">Opnieuw controleren</button>`}</div>`}
         ${taken ? `<div class="ok-note">Al gekoppeld</div>` : ""}
       </div>${ok && !taken ? '<span class="mark"></span>' : ""}</div>`;
   const foundCard = (f, asMeter) => {
@@ -575,11 +605,15 @@ function renderFound() {
     if (f.ok && f.kind === "p1_serial") meta = `P1-kabel in dit kastje · leest nu ${nl(Math.abs(f.extra.active_power_w) / 1000, 2)} kW ${f.extra.active_power_w < 0 ? "teruglevering" : "afname"}`;
     else if (f.ok && f.kind === "p1") meta += ` · leest nu ${nl(Math.abs(f.extra.active_power_w) / 1000, 2)} kW ${f.extra.active_power_w < 0 ? "teruglevering" : "afname"}`;
     else if (f.ok && f.kind === "shelly_em") meta += " · meet het hele huis";
+    else if (f.ok && (f.kind === "youless" || f.kind === "esphome_p1")) meta += ` · leest nu ${nl(Math.abs(f.extra.active_power_w || 0) / 1000, 2)} kW ${f.extra.active_power_w < 0 ? "teruglevering" : "afname"}${f.extra.alleen_afname ? " · ziet geen teruglevering" : ""}`;
     else if (f.ok) meta += f.extra && f.extra.metering ? " · meet ook verbruik" : " · meet geen verbruik";
-    return card(key, asMeter ? "meter" : "found", ICONS[f.kind] || ICONS.generic, f.name || f.model, meta, sel, f.ok, esc(f.problem_text), !asMeter && inUse.has(f.host));
+    const eigen = (f.extra || {}).naam;
+    return card(key, asMeter ? "meter" : "found", ICONS[f.kind] || ICONS.generic, eigen && eigen !== f.name ? `${eigen} · ${f.name}` : (f.name || f.model), meta, sel, f.ok, esc(f.problem_text), !asMeter && inUse.has(f.host));
   };
   let html = "";
   const cands = W.ha.connected && W.ha.cands;
+  alvastAanvinken(sw, cands);
+  if (W.alvast && W.alvast.length) html += `<p class="small" style="margin:14px 2px 0"><b>Alvast aangevinkt:</b> ${W.alvast.map(esc).join(", ")}. Klopt iets niet? Tik erop om het uit te zetten.</p>`;
   if (!W.addOnly) {
     let haMeters = "";
     if (cands) {
@@ -624,7 +658,7 @@ function renderFound() {
   el.querySelectorAll(".dev:not(.bad)").forEach((d) => {
     const toggle = () => {
       const key = d.dataset.key, kind = d.dataset.kind;
-      if (kind === "meter") { const f = FOUND.find((x) => "f:" + x.host === key); W.meter = { type: f.kind, host: f.host, f }; }
+      if (kind === "meter") { const f = FOUND.find((x) => "f:" + x.host === key); W.meter = { type: f.kind, host: f.host, f }; W.meterGekozen = true; }
       else if (kind === "hameter") { const p = cands.power_sensors.find((x) => "m:" + x.entity === key); W.meter = { type: "ha", entity: p.entity, export_entity: p.export_entity || "", name: p.name }; }
       else if (W.picks.some((p) => p.key === key)) W.picks = W.picks.filter((p) => p.key !== key);
       else if (kind === "found") W.picks.push({ key, source: "found", f: FOUND.find((x) => "f:" + x.host === key) });
@@ -632,6 +666,19 @@ function renderFound() {
       renderFound();
     };
     d.onclick = toggle; d.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } };
+  });
+  el.querySelectorAll("[data-hwknop]").forEach((b) => b.onclick = async (e) => {
+    e.stopPropagation();
+    const box = b.closest(".problem");
+    box.innerHTML = '<span class="spin"></span> <b>Druk nu kort op de knop van je HomeWizard.</b> Je hebt 30 seconden.';
+    try {
+      const r = await api("api/setup/hw-koppel", { method: "POST", body: JSON.stringify({ host: b.dataset.hwknop }) });
+      if (!r.ok) { setErr("Koppelen met de knop lukte niet: " + (r.error || "probeer het nog een keer.")); renderFound(); return; }
+      r.found._manual = true;
+      FOUND = FOUND.filter((f) => f.host !== r.found.host).concat(r.found);
+      W.meter = { type: "p1", host: r.found.host, f: r.found }; W.meterGekozen = true;
+      toast("Gekoppeld met de knop"); renderFound();
+    } catch (err) { box.textContent = err.message; }
   });
   el.querySelectorAll("[data-recheck]").forEach((b) => b.onclick = async (e) => {
     e.stopPropagation();
@@ -645,6 +692,8 @@ function renderFound() {
 
 // ---------- stap 3: meter controleren ----------
 function meterSpec(m, invert) {
+  if (m.type === "youless") return { host: m.host, meter: { driver: "youless", host: m.host, invert } };
+  if (m.type === "esphome_p1") return { host: "", meter: { driver: "esphome", host: m.host, sensor: m.f.extra.sensor, export_sensor: m.f.extra.export_sensor || "", invert } };
   if (m.type === "ha" && m.export_entity) return { meter: { driver: "ha", import_entity: m.entity, export_entity: m.export_entity, invert } };
   if (m.type === "ha") return { meter: { driver: "ha", entity: m.entity, invert } };
   if (m.type === "p1_serial") return { host: "", meter: { driver: "p1_serial", port: m.host, invert } };
@@ -679,10 +728,29 @@ function meter() {
 
 // ---------- stap 4: apparaten ----------
 let devIdx = 0;
+// Soort apparaat raden: eerst uit de naam die de klant in de app van de schakelaar gaf, anders uit "Wat heb je in huis?"
+function raadSoort(tekst) {
+  const t = String(tekst || "").toLowerCase();
+  if (/boiler|warm ?water|close.?in|quooker|geiser/.test(t)) return "boiler";
+  if (/\bauto\b|laad|lader|\bev\b|tesla|wallbox|charger|oplaad/.test(t)) return "ev";
+  if (/warmtepomp|\bwp\b|heat ?pump|nilan|daikin|itho|vaillant|nibe/.test(t)) return "heatpump";
+  if (/was|droger|vaatwas|afwas|dish|airco|vriezer|pomp|zwembad/.test(t)) return "generic";
+  return null;
+}
+function soortUitWat() {
+  const map = { boiler: "boiler", wp: "heatpump", auto: "ev", wit: "generic" };
+  const ja = Object.keys(map).filter((k) => (W.wat || {})[k]);
+  const al = new Set(W.devices.map((d) => d.kind));
+  return map[ja.find((k) => !al.has(map[k])) || ja[0]] || "boiler";
+}
 function deviceFromPick(p) {
   if (p.source === "found") {
-    return { key: p.key, host: p.f.host, driver: p.f.driver || "shelly", switch_id: 0, params: {}, kind: "boiler", name: "Boiler",
-      power_w: 2000, tested: null, model: `${p.f.name} op ${p.f.host}` };
+    const eigen = String((p.f.extra || {}).naam || "").trim();
+    const kind = raadSoort(eigen) || soortUitWat();
+    const label = KINDS.find((k) => k.id === kind).label;
+    const naam = eigen && !/^(shelly|tasmota|plug|switch|relay|sonoff)/i.test(eigen) ? eigen.slice(0, 40) : label;
+    return { key: p.key, host: p.f.host, driver: p.f.driver || "shelly", switch_id: 0, params: {}, kind, name: naam,
+      power_w: kind === "heatpump" ? 1500 : kind === "ev" ? 3700 : 2000, tested: null, model: `${p.f.name} op ${p.f.host}` };
   }
   const c = p.c, params = {};
   for (const k of ["entity", "current_entity", "switch_entity", "power_entity", "normal_temp", "boost_temp", "min_a", "max_a", "button_entity", "remote_entity", "min_interval_s", "plug_entity"]) if (c[k] !== undefined && c[k] !== "") params[k] = c[k];
@@ -694,7 +762,8 @@ function deviceFromPick(p) {
 function evRange(d) { const w = 230 * (d.params.phases || 1); return [d.params.min_a * w, d.params.max_a * w]; }
 function apparaten() {
   if (!W.picks.length) { W.devices = []; return go(4); }   // verder zonder apparaten
-  W.devices = W.picks.map((p) => W.devices.find((d) => d.key === p.key) || deviceFromPick(p));
+  const oud = W.devices; W.devices = [];
+  for (const p of W.picks) W.devices.push(oud.find((d) => d.key === p.key) || deviceFromPick(p));   // na elkaar: raden telt mee wat al gekozen is
   devIdx = Math.min(devIdx, W.devices.length - 1);
   const d = W.devices[devIdx], P = d.params, drv = d.driver;
   const readyLabel = d.kind === "ev" ? "Auto geladen om" : "Warm water klaar om";
