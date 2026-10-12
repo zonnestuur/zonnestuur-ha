@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.56.3
+- Op de telefoon schuif je nu met je vinger over de prijsgrafiek om per uur of kwartier de prijs te zien. Een lijn volgt je vinger. Ook bij 'Vandaag' en je verbruikspatroon. Omhoog en omlaag scrollen werkt gewoon.
+
 ## 0.56.2
 - Zonnestuur vindt nu vanzelf een Fronius-omvormer in je netwerk (Symo, Primo, Galvo, Eco, GEN24, en een oudere IG of IG Plus met Datamanager) en koppelt hem bij het instellen. Je ziet meteen wat je panelen opwekken, en of afknijpen bij een negatieve stroomprijs al kan.
 

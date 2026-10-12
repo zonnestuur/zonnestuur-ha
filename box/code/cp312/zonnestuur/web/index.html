@@ -881,7 +881,7 @@ html, body { overscroll-behavior-y: none; }
     <section class="card c-plan" aria-labelledby="priceTitle">
       <div class="title-row"><div><div class="eyebrow">Stroomprijs en planning</div><h2 class="sec" id="priceTitle">Prijs en planning</h2></div><span class="t-end"><span class="small muted" id="priceNote"></span><a class="help-q" href="help#prijzen" aria-label="Uitleg over de prijzen">?</a></span></div>
       <div class="price-stats" id="priceStats"></div>
-      <p class="tik-hint">Tik op een uur om de prijs te zien.</p>
+      <p class="tik-hint">Tik op een uur of schuif met je vinger om de prijzen te zien.</p>
       <div class="chart" id="priceChart"><svg id="priceSvg" role="img" aria-label="Stroomprijs per uur vandaag en morgen, inclusief belastingen"></svg><div class="tip" id="priceTip"></div></div>
       <div class="chart" id="laneChart"><svg id="laneSvg" role="img" aria-label="Planning per apparaat en batterij"></svg><div class="tip" id="laneTip"></div></div>
       <div class="legend" id="priceLegend">
@@ -1933,7 +1933,7 @@ function roundedTop(x, y, w, h, r) {
 }
 // Telefoon: uitleg bij een grafiek pas tonen na een bewuste tik, niet tijdens scrollen.
 const TT = { touch: false, x: 0, y: 0, t: 0, moved: false, pending: null };
-function hideTips() { document.querySelectorAll(".tip").forEach((t) => { t.style.opacity = 0; }); }
+function hideTips() { document.querySelectorAll(".tip, .scrublijn").forEach((t) => { t.style.opacity = 0; }); }
 // Bij aanraken komt "pointerover" vóór "pointerenter" en "pointerdown": daar het soort aanwijzer vastleggen.
 document.addEventListener("pointerover", (e) => {
   TT.touch = e.pointerType !== "mouse";
@@ -1955,8 +1955,26 @@ document.addEventListener("pointerup", (e) => {
   if (p && !TT.moved && Date.now() - TT.t < 1000) showTipNow(...p);
 }, true);
 window.addEventListener("scroll", () => { if (TT.touch) { TT.pending = null; hideTips(); } }, { passive: true });
+// Met je vinger over een grafiek schuiven (links/rechts) om de waarden te zien, zoals in de apps van leveranciers.
+// Omhoog/omlaag blijft gewoon scrollen; alleen een zijwaartse beweging is "schuiven".
+function scrubbaar(svg, fn) {
+  svg._scrub = fn;                                   // grafiek wordt vaak opnieuw getekend: luisteraars maar één keer
+  if (svg._scrubAan) return;
+  svg._scrubAan = true;
+  svg.style.touchAction = "pan-y";
+  let start = null;
+  svg.addEventListener("pointerdown", (e) => { if (e.pointerType === "mouse") return; start = [e.clientX, e.clientY]; TT.scrub = false; });
+  svg.addEventListener("pointermove", (e) => {
+    if (!start || e.pointerType === "mouse") return;
+    const dx = e.clientX - start[0], dy = e.clientY - start[1];
+    if (!TT.scrub && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { TT.scrub = true; try { svg.setPointerCapture(e.pointerId); } catch (x) { /* oudere browser */ } }
+    if (TT.scrub) svg._scrub(e);
+  });
+  const stop = () => { start = null; setTimeout(() => { TT.scrub = false; }, 0); };
+  svg.addEventListener("pointerup", stop); svg.addEventListener("pointercancel", stop);
+}
 function showTip(tip, box, x, html) {
-  if (TT.touch) { TT.pending = [tip, box, x, html]; return; }
+  if (TT.touch && !TT.scrub) { TT.pending = [tip, box, x, html]; return; }
   showTipNow(tip, box, x, html);
 }
 function showTipNow(tip, box, x, html) {
@@ -2044,6 +2062,7 @@ function drawToday() {
   hit.addEventListener("pointermove", (e) => { if (!TT.touch) onMove(e); });
   hit.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse") onMove(e); });
   hit.addEventListener("pointerleave", () => { if (TT.touch) return; tip.style.opacity = 0; cross.setAttribute("opacity", 0); });
+  scrubbaar(svg, onMove);
 }
 
 function drawMonth() {
@@ -2250,6 +2269,19 @@ function drawPrices() {
     });
     hit.addEventListener("pointerleave", () => { if (TT.touch) return; tip.style.opacity = 0; });
   });
+  // schuiven met de vinger: lijn + korte uitleg (kwartier als die er is), net als in de leveranciersapps
+  const lijn = el("line", { y1: T - 4, y2: H - B, stroke: "var(--ink)", "stroke-width": 1.2, class: "scrublijn", style: "opacity:0" }, svg);
+  scrubbaar(svg, (e) => {
+    const rc = svg.getBoundingClientRect(), px = (e.clientX - rc.left) * (W / rc.width);
+    const ts = P.start + ((px - L) / slot) * 3600;
+    const q = Q.find((x) => ts >= x.ts && ts < x.end), r = rows.find((x) => ts >= x.ts && ts < x.end);
+    const p = q || r; if (!p) return;
+    const avg = p.ts < dayEnd ? avgT : avgM, cls = priceClass(p.all_in, avg);
+    const xm = q ? X(q.ts) + slot / 8 : X(r.ts) + slot / 2;
+    lijn.setAttribute("x1", xm); lijn.setAttribute("x2", xm); lijn.style.opacity = 1;
+    const dag = new Date(p.ts * 1000).toLocaleDateString("nl-NL", { weekday: "short" });
+    showTipNow(tip, box, xm * (box.clientWidth / W), `<b>${dag} ${hh(p.ts)}</b><div class="row"><i class="sw" style="background:var(--${cls})"></i>${CLASS_WORD[cls]}<em>${eur3(p.all_in)}</em></div>${r && r.planned.length ? `<div class="row"><i class="sw" style="background:var(--glow)"></i>Gepland<em>${esc(r.planned.join(", "))}</em></div>` : ""}`);
+  });
   $("priceTable").innerHTML = "<tr><th>Uur</th><th>All-in</th><th>Markt</th><th>Teruglevering</th><th>Gepland</th></tr>" + rows.map((r) =>
     `<tr><td>${new Date(r.ts * 1000).toLocaleDateString("nl-NL", { weekday: "short" })} ${hh(r.ts)}</td><td>${eur3(r.all_in)}</td><td>${eur3(r.market)}</td><td>${eur3(r.feed_in)}</td><td>${esc(r.planned.join(", "))}</td></tr>`).join("");
 }
@@ -2446,6 +2478,7 @@ function drawLearned() {
   hit.addEventListener("pointermove", (e) => { if (!TT.touch) onMove(e); });
   hit.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse") onMove(e); });
   hit.addEventListener("pointerleave", () => { if (TT.touch) return; tip.style.opacity = 0; cross.setAttribute("opacity", 0); dots.forEach((d) => d.setAttribute("opacity", 0)); });
+  scrubbaar(svg, onMove);
 }
 let LEARN_KEY = "";
 
