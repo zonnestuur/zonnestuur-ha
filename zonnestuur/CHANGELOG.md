@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.57.2
+- Nieuw: zonnestuur.nl/box brengt je thuis vanaf elke telefoon of computer direct naar je Box, ook als zonnestuur.local niet werkt.
+
 ## 0.57.1
 - De laadtijdlijn heet nu 'Laadbeurten' en heeft de eigen Zonnestuur-stijl: dagen als tegels met de geladen kWh, prijsbalken per kwartier in goedkoop/normaal/duur, en de kwartieren waarin geladen is in zon-oranje.
 
