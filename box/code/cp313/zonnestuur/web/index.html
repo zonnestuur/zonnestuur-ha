@@ -658,6 +658,13 @@ html, body { overscroll-behavior-y: none; }
   .evc-go.uit { background: var(--chip); color: var(--ink); }
   .evc-lnk { font: inherit; font-size: 14px; font-weight: 600; border: 0; background: none; color: var(--ink-2); cursor: pointer; padding: 10px 8px; text-decoration: underline; text-underline-offset: 3px; }
   .evc-why { margin: 12px 20px 0; font-size: 13px; color: var(--ink-2); }
+  .evc-hand { margin: 12px 20px 0; padding: 12px 14px; border-radius: 14px; background: var(--glow-soft, rgba(255,178,36,.12)); }
+  .evp .evc-hand { margin: 10px 0 0; }
+  .evc-hand summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+  .evc-hand .hand-in { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .evc-hand input[type=range] { flex: 1 1 auto; width: 100%; min-width: 0; accent-color: var(--ink); height: 28px; border: 0; padding: 0; margin: 0; background: none; box-shadow: none; }
+  .evc-hand .num { min-width: 3.2em; text-align: right; font-size: 18px; }
+  .hand-add { display: inline-flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
   .evc-warn { margin: 12px 20px 0; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: var(--warn-soft, rgba(181,71,8,.1)); }
   .evc-set { margin: 14px 0 0; border-top: 1px solid var(--card-line); }
   .evc-set > summary { list-style: none; cursor: pointer; padding: 14px 20px; font-size: 14px; font-weight: 600; color: var(--ink-2); display: flex; justify-content: space-between; }
@@ -1368,7 +1375,7 @@ function obsCard(s, w) {
   el.innerHTML = `<div class="evc-hero" data-o="hero"></div>
     <div class="evc-pic" data-o="pic"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>
     <div data-o="bat"></div><div class="evc-story" data-o="story"></div>
-    <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="vergelijk">Bekijk de vergelijking →</a></div>`;
+    <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="laadtijdlijn?bron=ev:${encodeURIComponent(w.id)}">Laadtijdlijn →</a> · <a href="vergelijk">Vergelijking →</a></div>`;
   obsFill(el, w);
   return el;
 }
@@ -1534,7 +1541,7 @@ function renderDevices(s) {
       ${d.last_run ? runReport(d.last_run, PRICE) : ""}
       ${devTip(s, d)}
       ${d.ev ? evPanel(d) : ""}
-      ${(d.kind === "ev" && !(d.ev && d.ev.cars.length)) || (d.kind !== "ev" && (d.ready_times || []).length) ? `<div class="ready-row"><span class="muted">${d.kind === "ev" ? "Vol om" : "Klaar om"}</span><button data-rd="-30" aria-label="Eerder">−</button><b class="num">${esc((d.ready_times || [])[0] || "geen")}</b><button data-rd="30" aria-label="Later">+</button></div>` : ""}
+      ${perDag(d) && !(d.ev && d.ev.cars.length) ? `<div class="ready-row"><span class="muted">${d.kind === "ev" ? "Vol om" : "Klaar om"}</span><b class="num">${esc(eersteKlaar(d) || "geen")}</b><span class="muted small">per dag ingesteld</span></div>` : (d.kind === "ev" && !(d.ev && d.ev.cars.length)) || (d.kind !== "ev" && (d.ready_times || []).length) ? `<div class="ready-row"><span class="muted">${d.kind === "ev" ? "Vol om" : "Klaar om"}</span><button data-rd="-30" aria-label="Eerder">−</button><b class="num">${esc((d.ready_times || [])[0] || "geen")}</b><button data-rd="30" aria-label="Later">+</button></div>` : ""}
       ${d.driver === "ha_start_button" ? progRow(d) : ""}
       ${d.last_event ? `<div class="why"><b>Waarom?</b> ${esc(d.last_event.text)}${d.last_event.outcome ? ` <span class="muted">${d.last_event.running ? "Tot nu: " : ""}${esc(d.last_event.outcome)}</span>` : ""}</div>` : ""}
       <div class="seg" role="group" aria-label="Bediening ${esc(d.name)}">
@@ -1631,12 +1638,26 @@ function evViz(soc, car, E, plugged, charging) {
       <path class="mk minm" d="M${mx} 98 V104"/><path class="mk tgt" d="M${tx} 97 V105"/>` : ""}
     </svg></div>`;
 }
+// Auto zonder app (zoals een Seat Mii): zelf invullen hoe vol hij is; wat er geladen wordt telt Zonnestuur erbij op.
+function socHand(car) {
+  if (!car.handmatig && car.soc != null) return "";
+  const oud = car.stale_days != null && car.stale_days >= 1, open = car.soc == null || oud;
+  const v = Math.round(car.soc ?? 50);
+  const kop = car.soc == null ? `Hoe vol is de ${esc(car.name)} nu?` : `Klopt ${Math.round(car.soc)}% nog?${oud ? ` <span class="muted">(${Math.round(car.stale_days)} ${Math.round(car.stale_days) === 1 ? "dag" : "dagen"} geleden ingevuld)</span>` : ""}`;
+  return `<details class="evc-hand" ${open ? "open" : ""}><summary>${kop}</summary>
+    <div class="hand-in"><input type="range" min="0" max="100" step="1" value="${v}" data-soc-range aria-label="Laadniveau in procent"><b class="num" data-soc-v>${v}%</b>
+      <button class="evc-go" data-soc-ok="${esc(car.id)}">Opslaan</button></div>
+    <p class="small muted" style="margin:6px 0 0">Kijk op het dashboard van de auto. Wat Zonnestuur daarna laadt, telt hij er zelf bij op.</p></details>`;
+}
 function evPanel(d) {
   const E = d.ev;
   if (!E.cars.length) {
-    return E.found.length ? `<div class="evp"><div class="ev-found">Gevonden: <b>${E.found.map((f) => esc(f.name)).join(", ")}</b>.
+    const hand = `<div class="ev-found">Heeft je auto geen app of koppeling? Voeg hem toe en vul zelf in hoe vol hij is.
+      <span class="hand-add"><select data-evhand-model aria-label="Model">${(MODELS.length ? MODELS : [{ key: "other", name: "Ander model" }]).map((m) => `<option value="${m.key}">${esc(m.name)}</option>`).join("")}</select>
+      <button class="btn-line" data-evhand>Auto toevoegen</button></span></div>`;
+    return `<div class="evp">${E.found.length ? `<div class="ev-found">Gevonden: <b>${E.found.map((f) => esc(f.name)).join(", ")}</b>.
       Koppel ${E.found.length > 1 ? "ze" : "hem"}, dan laadt Zonnestuur precies tot het percentage dat je wilt.
-      <button class="btn-line on-sun" data-evadd="${esc(E.found.map((f) => f.id).join(","))}">Koppelen</button></div></div>` : "";
+      <button class="btn-line on-sun" data-evadd="${esc(E.found.map((f) => f.id).join(","))}">Koppelen</button></div>` : ""}${hand}</div>`;
   }
   const car = E.cars.find((c) => c.id === E.active) || E.cars[0];
   const soc = car.soc;
@@ -1654,11 +1675,11 @@ function evPanel(d) {
     else if (E.plan) plan += `<br>Gepland <b>${E.plan[0]}–${E.done_at}</b> · <b>${eur(E.cost)}</b>${E.cost_direct > E.cost + 0.05 ? ` <span class="save-t">${eur(E.cost_direct - E.cost)} goedkoper dan meteen</span>` : ""}`;
   } else if (soc != null) plan = `Doel van ${Math.round(E.target ?? car.target_pct)}% gehaald. ${car.car_limit && car.car_limit < car.target_pct ? `De auto zelf stopt bij ${car.car_limit}%.` : ""}`;
   const warn = [];
-  if (car.stale_days != null && car.stale_days >= 2) warn.push(`Het percentage van de ${esc(car.name)} is ${Math.round(car.stale_days)} dagen oud.`);
+  if (!car.handmatig && car.stale_days != null && car.stale_days >= 2) warn.push(`Het percentage van de ${esc(car.name)} is ${Math.round(car.stale_days)} dagen oud.`);
   if (car.conn === false) warn.push(`Er is nu geen verbinding met de ${esc(car.name)}. Zit de auto in de Tibber- of autofabrikant-app nog gekoppeld? Tot die tijd rekent Zonnestuur met het laatst bekende percentage en wat er sindsdien geladen is.`);
   const mp = E.max_price;
   const priceOpts = [0, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40].map((v) => `<option value="${v}" ${Math.abs(v - mp) < 0.001 ? "selected" : ""}>${v ? "max " + eur(v) : "geen max."}</option>`).join("");
-  const ready = (d.ready_times || [])[0] || "geen";
+  const ready = eersteKlaar(d) || "geen";
   const plugged = car.plug === true || (car.plug == null && d.on), charging = d.on && (d.power_w || 0) > 50;
   const st = charging ? `Laadt · ${nl((d.power_w || 0) / 1000, 1)} kW` : plugged ? "Stekker erin" : car.plug === false ? "Stekker eruit" : "Wacht";
   return `<div class="evp">
@@ -1666,6 +1687,7 @@ function evPanel(d) {
     ${evViz(soc, car, E, plugged, charging)}
     <div class="evstate"><span class="pct num">${soc != null ? Math.round(soc) + "%" : "–"}<small>${esc(car.name)}${car.range_km != null ? ` · ${car.range_km} km` : ""}</small></span>
       <span class="st ${plugged ? "plugged" : ""}"><i></i>${st}</span></div>
+    ${socHand(car)}
     ${plan ? `<div class="ev-plan">${plan}</div>` : ""}
     ${warn.length ? `<div class="ev-warn">${warn.join(" ")}</div>` : ""}
     <div class="ev-ctl">
@@ -1693,6 +1715,8 @@ function hhmmRanges(list) {
   return out.map(([a, b]) => `${String(a).padStart(2, "0")}:00–${String(b % 24).padStart(2, "0")}:00`);
 }
 // Dag + tijd kort: "18:00" als het vandaag is, "morgen 07:30", anders "ma 12 okt 08:00".
+const perDag = (d) => !!(d.ready_week && Object.keys(d.ready_week).length);
+function eersteKlaar(d, now) { return perDag(d) ? (d.next_ready ? dagTijd(d.next_ready, now) : null) : ((d.ready_times || [])[0] || null); }
 function dagTijd(iso, now) {
   if (!iso) return "";
   const t = new Date(iso), n = now ? new Date(now) : new Date(), hm = t.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
@@ -1706,7 +1730,7 @@ function evCard(s, d) {
   const vt = E.vertrek || null;
   const soc = car.soc, tgt = Math.round(E.target ?? ((vt && vt.pct) || car.target_pct));
   const plugged = car.plug === true || (car.plug == null && d.on), charging = d.on && (d.power_w || 0) > 50;
-  const ready = vt ? dagTijd(vt.at, s.now) : ((d.ready_times || [])[0] || null);
+  const ready = vt ? dagTijd(vt.at, s.now) : eersteKlaar(d, s.now);
   const reached = soc != null && !(E.need_min > 0);
   const st = charging ? `Laadt nu met ${nl((d.power_w || 0) / 1000, 1)} kW` : plugged ? "Stekker erin" : car.plug === false ? "Stekker eruit" : "Wacht op de auto";
   const chips = E.cars.length > 1 ? `<div class="ev-cars" role="group" aria-label="Welke auto hangt aan de lader?">${E.cars.map((c) =>
@@ -1771,7 +1795,7 @@ function evCard(s, d) {
     : `<button class="evc-go" data-evmode="vol">${charging ? "Doorladen tot vol" : "Nu laden"}</button>`;
   const skip = d.mode === "off" ? `<button class="evc-lnk" data-mode="auto">Weer automatisch</button>` : `<button class="evc-lnk" data-mode="off" data-skip="1">Vandaag niet laden</button>`;
   const warn = [];
-  if (car.stale_days != null && car.stale_days >= 2) warn.push(`Het percentage van de ${esc(car.name)} is ${Math.round(car.stale_days)} dagen oud.`);
+  if (!car.handmatig && car.stale_days != null && car.stale_days >= 2) warn.push(`Het percentage van de ${esc(car.name)} is ${Math.round(car.stale_days)} dagen oud.`);
   if (car.conn === false) warn.push(`Geen verbinding met de ${esc(car.name)}. Zonnestuur rekent met het laatst bekende percentage.`);
   const mp = E.max_price;
   const priceOpts = [0, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40].map((v) => `<option value="${v}" ${Math.abs(v - mp) < 0.001 ? "selected" : ""}>${v ? "max " + eur(v) : "geen max."}</option>`).join("");
@@ -1781,6 +1805,7 @@ function evCard(s, d) {
     ${chips}
     <div class="evc-pic ${charging ? "laadt" : plugged ? "erin" : "los"}"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>
     ${soc != null ? `<div class="evc-bat" role="img" aria-label="Accu ${Math.round(soc)}%, doel ${tgt}%"><i style="width:${Math.max(0, Math.min(100, soc))}%"></i><em style="left:${car.min_pct}%" title="Altijd minstens ${car.min_pct}%"></em><b style="left:${tgt}%" title="Doel ${tgt}%"></b></div>` : ""}
+    ${socHand(car)}
     <div class="evc-story">${q(q1)}${q(q2)}${q(q3, saved > 0.05 && !reached && E.mode !== "vol" ? "goed" : "")}</div>
     ${E.trip ? `<div class="evc-why"><b>${esc(E.trip.dag[0].toUpperCase() + E.trip.dag.slice(1))}:</b> ${E.trip.km} km${E.trip.temp != null ? ` bij ${nl(E.trip.temp, 0)} °C` : ""}${E.trip.factor > 1.01 ? ` (${Math.round((E.trip.factor - 1) * 100)}% meer verbruik door het weer)` : ""} = ± ${nl(E.trip.kwh, 1)} kWh. Daarom laden tot ${E.trip.pct}%.${E.trip.te_weinig ? " Dat is je maximum; voor deze rit is het krap." : ""}</div>` : ""}
     ${(() => { if (reached || !(E.need_min > 0) || !E.kw) return "";
@@ -1790,6 +1815,7 @@ function evCard(s, d) {
     ${tl}
     ${rit}
     <div class="evc-act">${go}${skip}</div>
+    <div class="evc-why"><a href="laadtijdlijn?bron=dev:${encodeURIComponent(d.id)}">Laadtijdlijn: wanneer geladen en wat het kostte →</a></div>
     ${warn.length ? `<div class="evc-warn">${warn.join(" ")}</div>` : ""}
     ${d.last_event ? `<div class="evc-why"><b>Waarom?</b> ${esc(d.last_event.text)}</div>` : ""}
     <details class="evc-set ev-edit"><summary>Laadinstellingen</summary><div class="inner">
@@ -1818,7 +1844,16 @@ function bindEv(el, d) {
   const E = d.ev, car = E.cars.find((c) => c.id === E.active) || E.cars[0];
   const go = async (body) => { const r = await evPost(d.id, body); if (r && r.ok === false) alert(r.error); refresh(); };
   el.querySelectorAll("[data-evadd]").forEach((b) => b.onclick = () => go({ add_cars: b.dataset.evadd.split(",") }));
+  el.querySelectorAll("[data-evhand]").forEach((b) => b.onclick = () => {
+    const m = b.parentElement.querySelector("[data-evhand-model]"), naam = m && m.selectedOptions[0] ? m.selectedOptions[0].textContent : "Mijn auto";
+    go({ add_cars: [{ handmatig: true, model: m ? m.value : "other", name: naam }] });
+  });
   if (!car) return;
+  el.querySelectorAll("[data-soc-range]").forEach((rg) => rg.oninput = () => { const v = rg.parentElement.querySelector("[data-soc-v]"); if (v) v.textContent = rg.value + "%"; });
+  el.querySelectorAll("[data-soc-ok]").forEach((b) => b.onclick = () => {
+    const rg = b.parentElement.querySelector("[data-soc-range]");
+    go({ soc: { car: b.dataset.socOk, pct: Number(rg.value) } });
+  });
   el.querySelectorAll("[data-evcar]").forEach((b) => b.onclick = () => go({ car: b.dataset.evcar }));
   el.querySelectorAll("[data-rit-ok]").forEach((b) => b.onclick = () => {
     const f = b.closest(".rit-f"), dag = f.querySelector("[data-rit-dag]").value, tijd = f.querySelector("[data-rit-tijd]").value || "08:00";

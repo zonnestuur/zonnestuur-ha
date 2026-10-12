@@ -2064,6 +2064,7 @@ async function settings() {
   };
 }
 const DAYL = ["ma", "di", "wo", "do", "vr", "za", "zo"];
+const DAGNAAM = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
 async function editDevice(i) {
   const d = CFG.devices[i], box = $("editCard"), P = d.params || {};
   let learned = null;
@@ -2071,6 +2072,7 @@ async function editDevice(i) {
   const days = d.ready_days && d.ready_days.length ? d.ready_days : [0, 1, 2, 3, 4, 5, 6];
   const times = d.ready_times && d.ready_times.length ? d.ready_times : [];
   const oneShot = d.driver === "ha_start_button";
+  const week = d.ready_week || {}, perDag = Object.keys(week).length > 0;
   const learnTxt = learned && learned.learned_min != null ? `Geleerd: gemiddeld ${Math.round(learned.learned_min)} min per dag (${String(learned.kwh).replace(".", ",")} kWh, ${learned.days} dagen).`
     : "Nog aan het leren: na 4 dagen met verbruik weet Zonnestuur hoe lang dit apparaat echt nodig heeft.";
   box.hidden = false;
@@ -2108,9 +2110,15 @@ async function editDevice(i) {
 
     ${oneShot ? "" : `<h3 class="sub-t">${d.kind === "ev" ? "Vertrektijd" : "Klaar om"}</h3>
     <p class="hint" style="margin:-4px 0 8px">Op deze tijd moet ${d.kind === "ev" ? "de auto geladen" : d.kind === "boiler" ? "het water warm" : "het apparaat klaar"} zijn. Lukt dat niet met zon of goedkope uren, dan haalt Zonnestuur het laatste stuk van het net.</p>
+    <label class="check-row" style="margin:0 0 8px"><input type="checkbox" id="e_pd" ${perDag ? "checked" : ""}> Per dag een eigen tijd</label>
+    <div id="e_week" ${perDag ? "" : "hidden"}>${DAGNAAM.map((n, k) => `<div style="display:grid;grid-template-columns:110px minmax(0,170px);gap:10px;align-items:center;margin:6px 0"><span>${n}</span>
+      <input type="time" class="e_w" data-d="${k}" value="${esc(week[k] || week[String(k)] || "")}" aria-label="${n}"></div>`).join("")}
+      <p class="hint" style="margin:4px 0 0">Leeg = die dag niet nodig. Dan laadt Zonnestuur rustig door tot de volgende dag dat je weg moet, in de goedkoopste uren.</p></div>
+    <div id="e_same" ${perDag ? "hidden" : ""}>
     <div id="e_times">${(times.length ? times : [""]).map((t) => `<div class="row time-row"><div class="field" style="flex:0 1 160px"><input type="time" class="e_t" value="${esc(t)}" aria-label="Tijd"></div><button type="button" class="btn ghost small e_rm" aria-label="Tijd weghalen">✕</button></div>`).join("")}</div>
     <button type="button" class="btn ghost small" id="e_addt" style="margin:4px 0 10px">+ Nog een tijd</button>
     <div class="days" id="e_days" role="group" aria-label="Op welke dagen">${DAYL.map((l, k) => `<button type="button" data-d="${k}" class="${days.includes(k) ? "on" : ""}" aria-pressed="${days.includes(k)}">${l}</button>`).join("")}</div>
+    </div>
     <div class="row" style="margin-top:12px">
       <div class="field"><label for="e_g">Zoveel minuten ervoor mag hij van het net bijladen</label><input id="e_g" type="number" min="0" step="15" value="${d.guarantee_min}"><span class="hint">0 = geen garantie, alleen zon en goedkope uren.</span></div>
       <div class="field"><label for="e_look">Telt als klaar als hij binnen zoveel uur ervoor vol was</label><input id="e_look" type="number" min="1" max="24" step="0.5" value="${d.full_lookback_h}"></div>
@@ -2144,6 +2152,11 @@ async function editDevice(i) {
   const bindRm = () => box.querySelectorAll(".e_rm").forEach((b) => b.onclick = () => { const rows = box.querySelectorAll(".time-row"); if (rows.length > 1) b.closest(".time-row").remove(); else rows[0].querySelector("input").value = ""; });
   bindRm();
   if ($("e_addt")) $("e_addt").onclick = () => { $("e_times").insertAdjacentHTML("beforeend", `<div class="row time-row"><div class="field" style="flex:0 1 160px"><input type="time" class="e_t" aria-label="Tijd"></div><button type="button" class="btn ghost small e_rm" aria-label="Tijd weghalen">✕</button></div>`); bindRm(); };
+  if ($("e_pd")) $("e_pd").onchange = () => { $("e_week").hidden = !$("e_pd").checked; $("e_same").hidden = $("e_pd").checked;
+    if ($("e_pd").checked && ![...box.querySelectorAll(".e_w")].some((x) => x.value)) {             // overnemen wat er stond
+      const t = [...box.querySelectorAll(".e_t")].map((x) => x.value).find(Boolean), dd = [...box.querySelectorAll("#e_days button.on")].map((b) => Number(b.dataset.d));
+      if (t) box.querySelectorAll(".e_w").forEach((x) => { if (dd.includes(Number(x.dataset.d))) x.value = t; });
+    } };
   box.querySelectorAll("#e_days button").forEach((b) => b.onclick = () => { b.classList.toggle("on"); b.setAttribute("aria-pressed", b.classList.contains("on")); });
   $("e_cancel").onclick = () => { box.hidden = true; };
   let confirmDel = false;
@@ -2157,7 +2170,14 @@ async function editDevice(i) {
     const num = (id, dflt) => { const v = Number($(id).value); return $(id).value === "" || isNaN(v) ? dflt : v; };
     n.name = $("e_name").value.trim() || n.name; n.kind = $("e_kind").value; n.power_w = num("e_power", n.power_w);
     n.priority = num("e_prio", 1) || 1;
-    if (!oneShot) {
+    if (!oneShot && $("e_pd") && $("e_pd").checked) {
+      const wk = {};
+      box.querySelectorAll(".e_w").forEach((x) => { if (x.value) wk[x.dataset.d] = x.value; });
+      if (!Object.keys(wk).length) { setErr("Vul bij minstens één dag een tijd in, of zet 'Per dag een eigen tijd' uit."); return; }
+      n.ready_week = wk; n.ready_times = [...new Set(Object.values(wk))].sort(); n.ready_days = [];
+      n.guarantee_min = Math.max(0, num("e_g", 0)); n.full_lookback_h = Math.max(1, num("e_look", 4));
+    } else if (!oneShot) {
+      n.ready_week = {};
       n.ready_times = [...new Set([...box.querySelectorAll(".e_t")].map((x) => x.value).filter(Boolean))].sort();
       const dd = [...box.querySelectorAll("#e_days button.on")].map((b) => Number(b.dataset.d));
       if (!dd.length) { setErr("Kies minstens één dag, of haal de tijd weg."); return; }

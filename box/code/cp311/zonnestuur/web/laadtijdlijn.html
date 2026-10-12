@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Laadtijdlijn · Zonnestuur</title>
+<style>
+html, body { overscroll-behavior-y: none; }
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  :root {
+    color-scheme: light;
+    --bg: #e8ecef; --card: #ffffff; --line: rgba(14, 17, 22, .08); --ink: #0d1015; --ink-2: #555d69; --ink-3: #868d98;
+    --sun: #b86e00; --sun-ink: #8f5500; --chip: rgba(14, 17, 22, .045); --good: #1f8a4c;
+    --laad: #2c9f8f; --laad-soft: rgba(44, 159, 143, .22); --plan: rgba(44, 159, 143, .5); --grid: rgba(14, 17, 22, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg: #080c10; --card: #10161c; --line: rgba(255, 255, 255, .08); --ink: #f3f5f8; --ink-2: #a2abb7; --ink-3: #6c7582;
+      --sun: #c98500; --sun-ink: #ffc24d; --chip: rgba(255, 255, 255, .055); --good: #4ade80;
+      --laad: #5fc8b8; --laad-soft: rgba(95, 200, 184, .2); --plan: rgba(95, 200, 184, .5); --grid: rgba(255, 255, 255, .08);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #080c10; --card: #10161c; --line: rgba(255, 255, 255, .08); --ink: #f3f5f8; --ink-2: #a2abb7; --ink-3: #6c7582;
+    --sun: #c98500; --sun-ink: #ffc24d; --chip: rgba(255, 255, 255, .055); --good: #4ade80;
+    --laad: #5fc8b8; --laad-soft: rgba(95, 200, 184, .2); --plan: rgba(95, 200, 184, .5); --grid: rgba(255, 255, 255, .08);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 720px; margin: 0 auto; padding: max(20px, env(safe-area-inset-top)) 16px 48px; display: grid; gap: 16px; }
+  .top { display: flex; align-items: center; gap: 10px; }
+  .top a { color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 600; }
+  h1 { font: 650 clamp(26px, 6vw, 34px)/1.15 "Inter Tight", "Inter", sans-serif; letter-spacing: -.02em; margin: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 20px; min-width: 0; }
+  .bronnen { display: flex; gap: 8px; flex-wrap: wrap; }
+  .bronnen button { font: 600 14px "Inter", sans-serif; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); cursor: pointer; }
+  .bronnen button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .sum { display: flex; align-items: center; gap: 16px; }
+  .sum .l { flex: 1; min-width: 0; }
+  .sum .kop { font: 650 20px/1.2 "Inter Tight", "Inter", sans-serif; }
+  .sum .sub { color: var(--ink-2); font-size: 14px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .sum .bedrag { font: 650 clamp(28px, 8vw, 38px)/1 "Inter Tight", "Inter", sans-serif; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .extra { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .extra span { font-size: 13px; background: var(--chip); color: var(--ink-2); padding: 5px 10px; border-radius: 999px; }
+  .extra span.goed { color: var(--good); }
+  .dagen { display: flex; gap: 4px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 -4px; padding: 0 4px; }
+  .dagen::-webkit-scrollbar { display: none; }
+  .dagen button { flex: 0 0 auto; scroll-snap-align: center; font: 600 15px "Inter", sans-serif; color: var(--ink-3); background: none; border: 0;
+    padding: 10px 12px 20px; cursor: pointer; position: relative; white-space: nowrap; line-height: 1.3; }
+  .dagen button.on { color: var(--ink); }
+  .dagen button.on::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 2px; height: 2.5px; border-radius: 2px; background: var(--ink); }
+  .dagen button i { position: absolute; left: 50%; bottom: 9px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--laad); }
+  .dagen button i.leeg { background: transparent; }
+  .grafiek { position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  svg { display: block; width: 100%; overflow: visible; }
+  .axis { font: 12px "Inter", sans-serif; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .tip { position: absolute; top: 0; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 6px 10px;
+    font-size: 13px; white-space: nowrap; opacity: 0; transition: opacity .12s; font-variant-numeric: tabular-nums; }
+  .tip b { font-weight: 650; }
+  .legenda { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: 13px; color: var(--ink-2); margin-top: 10px; }
+  .legenda i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
+  .legenda i.lijn { height: 0; border-top: 2.5px solid var(--ink); border-radius: 0; vertical-align: 3px; }
+  .blokken { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .blokken li { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; font-variant-numeric: tabular-nums; }
+  .blokken li .t { font-weight: 650; }
+  .blokken li .m { color: var(--ink-2); font-size: 14px; }
+  .blokken li .e { font-weight: 650; }
+  h2 { font: 650 17px/1.3 "Inter Tight", "Inter", sans-serif; margin: 0 0 12px; }
+  .leeg { color: var(--ink-2); text-align: center; padding: 18px 0 6px; }
+  .muted { color: var(--ink-3); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><a href="./">← Dashboard</a></div>
+  <h1>Laadtijdlijn</h1>
+  <div class="bronnen" id="bronnen" role="group" aria-label="Welke auto"></div>
+  <section class="card"><div class="sum" id="sum"><div class="l"><div class="kop">Laden</div><div class="sub">Laden…</div></div></div><div class="extra" id="extra"></div></section>
+  <nav class="dagen" id="dagen" aria-label="Kies een dag"></nav>
+  <section class="card">
+    <div class="grafiek" id="graf"><svg id="svg" role="img" aria-label="Stroomprijs en laadmomenten"></svg><div class="tip" id="tip"></div></div>
+    <div class="legenda"><span><i style="background:var(--laad)"></i>Geladen</span><span><i style="background:var(--plan);opacity:.6"></i>Gepland</span><span><i class="lijn"></i>Stroomprijs</span></div>
+    <p class="muted" style="text-align:center;margin:6px 0 0">Schuif met je vinger over de grafiek om per kwartier te zien wat het kostte.</p>
+  </section>
+  <section class="card" id="blokCard"><h2>Laadmomenten</h2><ul class="blokken" id="blokken"></ul></section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nl = (v, d = 2) => Number(v).toLocaleString("nl-NL", { minimumFractionDigits: d, maximumFractionDigits: d });
+const eur = (v) => "€ " + nl(v, 2);
+const hm = (ts) => new Date(ts * 1000).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+const params = new URLSearchParams(location.search);
+let BRON = params.get("bron") || "", DAG = params.get("dag") || "", D = null;
+
+async function laad() {
+  try {
+    const r = await fetch(`api/laadtijdlijn?bron=${encodeURIComponent(BRON)}&dag=${encodeURIComponent(DAG)}`);
+    D = await r.json();
+  } catch (e) { $("sum").innerHTML = `<div class="l"><div class="kop">Niet gelukt</div><div class="sub">${esc(e.message)}</div></div>`; return; }
+  if (D.fout) { $("sum").innerHTML = `<div class="l"><div class="kop">Nog niets te laten zien</div><div class="sub">${esc(D.fout)}</div></div>`; return; }
+  BRON = D.bron; DAG = D.dag;
+  history.replaceState(null, "", `?bron=${encodeURIComponent(BRON)}&dag=${DAG}`);
+  teken();
+}
+
+function teken() {
+  const T = D.totaal;
+  $("bronnen").innerHTML = D.bronnen.length > 1 ? D.bronnen.map((b) => `<button class="${b.id === D.bron ? "on" : ""}" data-bron="${esc(b.id)}">${esc(b.naam)}${b.soort === "meekijken" ? " · meekijken" : ""}</button>`).join("") : "";
+  document.querySelectorAll("[data-bron]").forEach((b) => b.onclick = () => { BRON = b.dataset.bron; laad(); });
+  const bron = D.bronnen.find((b) => b.id === D.bron) || {};
+  const geladen = T.kwh > 0.05;
+  $("sum").innerHTML = `<div class="l"><div class="kop">${geladen ? "Laadkosten" : "Geen laadbeurt"}</div>
+    <div class="sub">${geladen ? `${nl(T.kwh, 2)} kWh${T.ct != null ? ` · gemiddeld ${nl(T.ct, 1)} ct per kWh` : ""}` : "Deze dag is er niet geladen."}</div></div>
+    ${geladen ? `<div class="bedrag">${eur(T.app_eur ?? T.eur)}</div>` : ""}`;
+  const ex = [];
+  if (geladen && T.gemiddeld_ct != null && T.ct != null) {
+    const sc = (T.gemiddeld_ct - T.ct) / 100 * T.kwh;
+    ex.push(sc > 0.05 ? `<span class="goed">${eur(sc)} goedkoper dan het daggemiddelde (${nl(T.gemiddeld_ct, 1)} ct)</span>` : `<span>Daggemiddelde ${nl(T.gemiddeld_ct, 1)} ct per kWh</span>`);
+  }
+  if (T.app_eur != null) ex.push(`<span>Volgens de app van ${esc(bron.leverancier || "de leverancier")}; wij rekenden ${eur(T.eur)}</span>`);
+  if (bron.soort === "meekijken") ex.push(`<span>${esc(bron.leverancier || "De leverancier")} laadt, Zonnestuur kijkt mee</span>`);
+  if (D.gepland.length) ex.push(`<span>Gepland: ${D.gepland.length} ${D.gepland.length === 1 ? "uur" : "uren"}</span>`);
+  $("extra").innerHTML = ex.join("");
+  // dagen
+  const iso = (t) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+  const nu = new Date(), vd = iso(nu), mg = iso(new Date(nu.getTime() + 864e5));
+  $("dagen").innerHTML = D.dagen.map((x) => {
+    const t = new Date(x.dag + "T12:00:00"), lab = x.dag === vd ? "vandaag" : x.dag === mg ? "morgen" : t.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
+    return `<button class="${x.dag === D.dag ? "on" : ""}" data-dag="${x.dag}" aria-pressed="${x.dag === D.dag}">${esc(lab)}<i class="${x.kwh > 0.05 ? "" : "leeg"}"></i></button>`;
+  }).join("");
+  document.querySelectorAll("[data-dag]").forEach((b) => b.onclick = () => { DAG = b.dataset.dag; laad(); });
+  const on = document.querySelector(".dagen button.on"); if (on) on.scrollIntoView({ inline: "center", block: "nearest" });
+  grafiek();
+  // laadmomenten
+  $("blokCard").hidden = !D.blokken.length;
+  $("blokken").innerHTML = D.blokken.map((b) => `<li><span class="t">${hm(b.van)}–${hm(b.tot)}</span>
+    <span class="m">${nl(b.kwh, 2)} kWh${b.kwh > 0.05 ? ` · ${nl(b.eur / b.kwh * 100, 1)} ct per kWh` : ""}</span><span class="e">${eur(b.eur)}</span></li>`).join("");
+}
+
+function grafiek() {
+  const svg = $("svg"), box = $("graf"), tip = $("tip");
+  const W = Math.max(300, box.clientWidth), H = W < 520 ? 270 : 310, L = 34, R = 6, T = 26, B = 28;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H); svg.innerHTML = "";
+  const span = D.end - D.start, X = (ts) => L + (ts - D.start) / span * (W - L - R);
+  const ps = D.prijzen.map((p) => p.p * 100);
+  const lo = Math.min(0, ...ps), hi = Math.max(10, ...ps);
+  const stap = hi - lo > 40 ? 20 : 10, ymin = Math.floor(lo / stap) * stap, ymax = Math.ceil(hi / stap) * stap;
+  const Y = (v) => T + (1 - (v - ymin) / (ymax - ymin)) * (H - T - B);
+  for (let v = ymin; v <= ymax; v += stap) {
+    el("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: "var(--grid)" }, svg);
+    el("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end", class: "axis" }, svg).textContent = v;
+  }
+  el("text", { x: 0, y: 10, class: "axis" }, svg).textContent = "cent";
+  // middernacht
+  const mid = D.start + 6 * 3600;
+  el("line", { x1: X(mid), x2: X(mid), y1: T, y2: H - B, stroke: "var(--grid)" }, svg);
+  el("text", { x: X(mid) + 6, y: T + 12, class: "axis" }, svg).textContent = new Date(mid * 1000).toLocaleDateString("nl-NL", { weekday: "short" });
+  // gepland en geladen
+  for (const g of D.gepland) el("rect", { x: X(g), y: T, width: Math.max(1, X(g + 3600) - X(g)), height: H - T - B, fill: "var(--plan)", opacity: .35 }, svg);
+  const maxK = Math.max(0.01, ...D.kwartieren.map((k) => k.kwh / (k.duur / 900)));
+  for (const k of D.kwartieren) {
+    const sterk = 0.45 + 0.55 * Math.min(1, (k.kwh / (k.duur / 900)) / maxK);
+    el("rect", { x: X(k.ts) - 0.3, y: T, width: Math.max(1.5, X(k.ts + k.duur) - X(k.ts) + 0.6), height: H - T - B, fill: "var(--laad)", opacity: sterk.toFixed(2), "shape-rendering": "crispEdges" }, svg);
+  }
+  // prijslijn (trapjes per kwartier)
+  if (D.prijzen.length) {
+    let dd = "", vorige = null;
+    for (const p of D.prijzen) {
+      const x0 = X(p.ts), x1 = X(p.ts + 900), y = Y(p.p * 100);
+      dd += vorige === null || Math.abs(vorige.ts + 900 - p.ts) > 1 ? `M${x0.toFixed(1)},${y.toFixed(1)} ` : `L${x0.toFixed(1)},${y.toFixed(1)} `;
+      dd += `L${x1.toFixed(1)},${y.toFixed(1)} `; vorige = p;
+    }
+    el("path", { d: dd, fill: "none", stroke: "var(--ink)", "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+  }
+  // nu
+  if (D.nu > D.start && D.nu < D.end) el("line", { x1: X(D.nu), x2: X(D.nu), y1: T, y2: H - B, stroke: "var(--sun)", "stroke-width": 1.5, "stroke-dasharray": "3 3" }, svg);
+  for (let h = 0; h <= 24; h += W < 520 ? 4 : 2) {
+    const ts = D.start + h * 3600;
+    el("text", { x: X(ts), y: H - 8, "text-anchor": h === 0 ? "start" : h === 24 ? "end" : "middle", class: "axis" }, svg).textContent = new Date(ts * 1000).getHours().toString().padStart(2, "0");
+  }
+  if (!D.prijzen.length) el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", class: "axis" }, svg).textContent = "Geen prijzen bewaard voor deze dag";
+  // schuiven / aanwijzen
+  const lijn = el("line", { y1: T, y2: H - B, stroke: "var(--ink)", "stroke-width": 1, opacity: 0 }, svg);
+  const toon = (clientX) => {
+    const rc = svg.getBoundingClientRect(), px = (clientX - rc.left) * (W / rc.width);
+    const ts = Math.max(D.start, Math.min(D.end - 1, D.start + (px - L) / (W - L - R) * span)), q = Math.floor(ts / 900) * 900;
+    const p = D.prijzen.find((x) => x.ts === q), k = D.kwartieren.find((x) => ts >= x.ts && ts < x.ts + x.duur);
+    const xm = X(q + 450);
+    lijn.setAttribute("x1", xm); lijn.setAttribute("x2", xm); lijn.setAttribute("opacity", 1);
+    tip.innerHTML = `<b>${hm(q)}</b>${p ? ` · ${nl(p.p * 100, 1)} ct` : ""}${k ? ` · ${nl(k.kwh, 2)} kWh geladen` : ""}`;
+    tip.style.opacity = 1;
+    const tw = tip.offsetWidth, x = xm * (rc.width / W);
+    tip.style.left = Math.max(0, Math.min(rc.width - tw, x - tw / 2)) + "px";
+    tip.style.top = "-6px";
+  };
+  if (!svg._aan) {
+    svg._aan = true;
+    let start = null, schuif = false;
+    svg.addEventListener("pointerdown", (e) => { start = [e.clientX, e.clientY]; schuif = e.pointerType === "mouse"; if (e.pointerType !== "mouse") svg._toon(e.clientX); });
+    svg.addEventListener("pointermove", (e) => {
+      if (e.pointerType === "mouse") { svg._toon(e.clientX); return; }
+      if (!start) return;
+      const dx = e.clientX - start[0], dy = e.clientY - start[1];
+      if (!schuif && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { schuif = true; try { svg.setPointerCapture(e.pointerId); } catch (x) { /* oud */ } }
+      if (schuif) svg._toon(e.clientX);
+    });
+    const stop = () => { start = null; };
+    svg.addEventListener("pointerup", stop); svg.addEventListener("pointercancel", stop);
+    svg.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { $("tip").style.opacity = 0; } });
+  }
+  svg._toon = toon;
+}
+window.addEventListener("resize", () => { if (D && !D.fout) grafiek(); });
+laad();
+</script>
+</body>
+</html>

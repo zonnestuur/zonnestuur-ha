@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.57.0
+- Nieuw: de laadtijdlijn. Per dag zie je de stroomprijs per kwartier, wanneer de auto laadde, hoeveel kWh en wat het kostte, en hoeveel goedkoper dat was dan het daggemiddelde. Met tabjes per dag blader je terug, en je schuift met je vinger over de grafiek. Werkt ook als je leverancier (bijvoorbeeld Tibber) laadt en Zonnestuur meekijkt.
+- Vertrektijd per weekdag: maandag 7:30, woensdag 8:15, in het weekend niets. Op een dag zonder tijd laadt Zonnestuur rustig door tot de volgende dag dat je weg moet.
+- Auto zonder app of koppeling (zoals een Seat Mii)? Voeg hem toe en vul zelf in hoe vol hij is. Wat Zonnestuur daarna laadt, telt hij er zelf bij op.
+
 ## 0.56.3
 - Op de telefoon schuif je nu met je vinger over de prijsgrafiek om per uur of kwartier de prijs te zien. Een lijn volgt je vinger. Ook bij 'Vandaag' en je verbruikspatroon. Omhoog en omlaag scrollen werkt gewoon.
 
