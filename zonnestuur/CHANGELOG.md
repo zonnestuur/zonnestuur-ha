@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.57.7
+- Box: de reparatie van de koppelmotor-instellingen gebeurt nu door het onderdeel dat de Box bijwerkt (dat mag het bestand aanpassen). Daarna start de koppelmotor normaal op, met al je koppelingen, en laden extra koppelingen zoals Nilan weer.
+
 ## 0.57.6
 - Box: de koppelmotor weigerde elke herstart door een verouderde regel in zijn instellingen, waardoor nieuwe extra koppelingen (zoals Nilan) nooit laadden. De Box zet dat nu zelf goed en herstart de koppelmotor.
 - Nog een keer op Koppelen drukken terwijl hij bezig is, begint niet meer opnieuw.
