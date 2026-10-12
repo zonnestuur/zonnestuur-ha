@@ -46,3 +46,8 @@ if grep -qw evcc "$DIR/profiles" 2>/dev/null && [ /var/lib/zonnestuur/evcc/evcc.
   docker restart zs-evcc >/dev/null 2>&1 || true
   touch "$APP/.evcc-stamp"
 fi
+# Zonnestuur vraagt om de koppelmotor helemaal opnieuw te starten (bijv. een nieuwe extra koppeling die niet laadde)
+if [ -f "$DIR/herstart" ] && [ "$DIR/herstart" -nt "$APP/.herstart-stamp" ]; then
+  docker restart zs-homeassistant >/dev/null 2>&1 || true
+  touch "$APP/.herstart-stamp"
+fi

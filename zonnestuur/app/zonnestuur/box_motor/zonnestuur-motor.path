@@ -5,6 +5,7 @@ Description=Zonnestuur motor: onderdelen aan/uit volgen
 PathChanged=/var/lib/zonnestuur/motor/profiles
 PathChanged=/var/lib/zonnestuur/motor/motor.env
 PathChanged=/var/lib/zonnestuur/evcc/evcc.yaml
+PathChanged=/var/lib/zonnestuur/motor/herstart
 Unit=zonnestuur-motor-restart.service
 
 [Install]

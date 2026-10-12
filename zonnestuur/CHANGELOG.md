@@ -1,5 +1,14 @@
 # Wijzigingen
 
+## 0.57.4
+- Extra koppelingen (zoals Nilan) werken nu ook als de koppelmotor ze na het installeren nog niet kende: Zonnestuur controleert dat zelf, herstart de koppelmotor zo nodig (op de Box desnoods helemaal) en gaat daarna verder met koppelen.
+- Tijdens het starten van een koppeling zie je dat de koppelmotor op de achtergrond bezig is, met de tijd erbij.
+- Laadt de koppelmotor een koppeling echt niet, dan zie je waarom en krijgen wij automatisch een melding. De diagnose bevat nu ook de meldingen van de koppelmotor.
+
+## 0.57.4
+- Koppelen: tijdens het starten van een koppeling zie je dat de koppelmotor op de achtergrond bezig is, met de tijd erbij.
+- De diagnose stuurt nu ook de laatste meldingen van de koppelmotor mee, zodat we kunnen zien waarom een koppeling niet laadt.
+
 ## 0.57.3
 - Extra koppelingen (zoals Nilan): Zonnestuur wacht na het installeren langer tot de koppelmotor klaar is, en probeert het zelf opnieuw in plaats van meteen 'kent deze koppeling nog niet' te melden.
 - Sommige extra koppelingen konden niet worden gedownload (fout 415). Opgelost.

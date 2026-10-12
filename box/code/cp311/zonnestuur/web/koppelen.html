@@ -330,15 +330,14 @@ async function go(row, rt) {
   const info = routeInfo(rt, row);
   BRAND = row.merk;
   try {
-    if (info.kind === "ha") { panel(row.merk, `<p><span class="spin"></span>Koppeling starten…</p>`); showStep(await post("api/koppel/start", { route: rt.route })); return; }
+    if (info.kind === "ha") { showStep(await starten(row.merk, rt.route)); return; }
     if (info.kind === "hacs") {
       const have = (OV.custom || {})[info.arg];
-      if (have) { panel(row.merk, `<p><span class="spin"></span>Koppeling starten…</p>`); showStep(await post("api/koppel/start", { route: "ha:" + have.domain })); return; }
+      if (have) { showStep(await starten(row.merk, "ha:" + have.domain)); return; }
       panel(row.merk, `<p>Hiervoor installeert Zonnestuur een extra koppeling (<b>${esc(info.arg)}</b>) en herstart de koppelmotor. Dat duurt 1 tot 3 minuten (op een Raspberry Pi soms wat langer).</p><p class="small muted">Nodig: ${esc(rt.nodig || "niets extra")}</p>`,
         [["Annuleren", closePanel, "ghost"], ["Installeren en koppelen", async () => {
           try { const r = await post("api/koppel/start", { route: rt.route }); const res = await job(r.job, row.merk);
-            panel(row.merk, `<p><span class="spin"></span>Koppeling starten… De eerste keer kan dat een minuut duren.</p>`);
-            showStep(await post("api/koppel/start", { route: "ha:" + res.domain })); }
+            showStep(await starten(row.merk, "ha:" + res.domain)); }
           catch (e) { $("p_err").textContent = e.message; }
         }]]);
       return;
@@ -371,6 +370,24 @@ async function go(row, rt) {
   } catch (e) { alertPanel(e.message); }
 }
 
+// Koppeling starten: kan op een Raspberry Pi even duren (de koppelmotor zet hem op de achtergrond klaar). Laat zien dat hij bezig is.
+async function starten(title, route, tweede) {
+  const tekst = ["Koppeling starten…", "De koppelmotor zet deze koppeling op de achtergrond klaar. Op een Raspberry Pi kan dat een paar minuten duren.",
+    "Nog even geduld: hij is nog bezig. Laat dit scherm open, het formulier verschijnt vanzelf."];
+  let i = 0, t0 = Date.now();
+  const toon = () => panel(title, `<p><span class="spin"></span>${esc(tekst[i])}</p>${i ? `<p class="small muted">${Math.round((Date.now() - t0) / 1000)} seconden bezig</p>` : ""}`);
+  toon();
+  const tik = setInterval(() => { const s = (Date.now() - t0) / 1000; i = s > 45 ? 2 : s > 6 ? 1 : 0; toon(); }, 1000);
+  let r;
+  try { r = await post("api/koppel/start", { route }); } finally { clearInterval(tik); }
+  if (r && r.type === "job" && r.job) {
+    if (tweede) throw new Error("De koppelmotor kent deze koppeling nog steeds niet. Probeer het later nog eens of meld het probleem.");
+    // de koppelmotor moet hem nog leren kennen: herstarten op de achtergrond
+    await job(r.job, title);
+    return starten(title, route, true);
+  }
+  return r;
+}
 async function job(id, title) {
   for (;;) {
     const j = await api("api/koppel/job/" + id);
