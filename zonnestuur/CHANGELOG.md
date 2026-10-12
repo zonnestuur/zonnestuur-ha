@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.56.2
+- Zonnestuur vindt nu vanzelf een Fronius-omvormer in je netwerk (Symo, Primo, Galvo, Eco, GEN24, en een oudere IG of IG Plus met Datamanager) en koppelt hem bij het instellen. Je ziet meteen wat je panelen opwekken, en of afknijpen bij een negatieve stroomprijs al kan.
+
 ## 0.56.1
 - Apparaten die de koppelmotor vanzelf in je huis vindt, koppel je nu met één knop: 'Alles in één keer koppelen'. Alleen apparaten die iets vragen (zoals een wachtwoord) doe je nog zelf. Wil je er een niet, dan ontkoppel je hem bij Koppelen.
 - Bij gevonden apparaten staat nu de juiste naam (bijvoorbeeld ESPHome in plaats van een willekeurig merk).
