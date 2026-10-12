@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.55.1
+- Help mij: zolang je het aan hebt en Zonnestuur open hebt, kunnen wij ook zien wat er op je scherm staat. Zo kunnen we je precies vertellen waar je moet tikken. Wachtwoorden gaan nooit mee.
+
 ## 0.55.0
 - Help mij: kom je er niet uit, tik dan bij Hulp (of bij het instellen) op "Help mij instellen". Zonnestuur stelt het dan op afstand voor je in: apparaten zoeken, instellingen kiezen en klaarzetten. Alleen zolang jij het aan zet (hooguit 24 uur), en je kunt het altijd stoppen.
 
