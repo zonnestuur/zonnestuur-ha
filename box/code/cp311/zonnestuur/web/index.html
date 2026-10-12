@@ -1375,7 +1375,7 @@ function obsCard(s, w) {
   el.innerHTML = `<div class="evc-hero" data-o="hero"></div>
     <div class="evc-pic" data-o="pic"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>
     <div data-o="bat"></div><div class="evc-story" data-o="story"></div>
-    <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="laadtijdlijn?bron=ev:${encodeURIComponent(w.id)}">Laadtijdlijn →</a> · <a href="vergelijk">Vergelijking →</a></div>`;
+    <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="laadtijdlijn?bron=ev:${encodeURIComponent(w.id)}">Laadbeurten →</a> · <a href="vergelijk">Vergelijking →</a></div>`;
   obsFill(el, w);
   return el;
 }
@@ -1815,7 +1815,7 @@ function evCard(s, d) {
     ${tl}
     ${rit}
     <div class="evc-act">${go}${skip}</div>
-    <div class="evc-why"><a href="laadtijdlijn?bron=dev:${encodeURIComponent(d.id)}">Laadtijdlijn: wanneer geladen en wat het kostte →</a></div>
+    <div class="evc-why"><a href="laadtijdlijn?bron=dev:${encodeURIComponent(d.id)}">Laadbeurten: wanneer geladen en wat het kostte →</a></div>
     ${warn.length ? `<div class="evc-warn">${warn.join(" ")}</div>` : ""}
     ${d.last_event ? `<div class="evc-why"><b>Waarom?</b> ${esc(d.last_event.text)}</div>` : ""}
     <details class="evc-set ev-edit"><summary>Laadinstellingen</summary><div class="inner">

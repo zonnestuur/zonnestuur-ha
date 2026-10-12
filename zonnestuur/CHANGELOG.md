@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.57.1
+- De laadtijdlijn heet nu 'Laadbeurten' en heeft de eigen Zonnestuur-stijl: dagen als tegels met de geladen kWh, prijsbalken per kwartier in goedkoop/normaal/duur, en de kwartieren waarin geladen is in zon-oranje.
+
 ## 0.57.0
 - Nieuw: de laadtijdlijn. Per dag zie je de stroomprijs per kwartier, wanneer de auto laadde, hoeveel kWh en wat het kostte, en hoeveel goedkoper dat was dan het daggemiddelde. Met tabjes per dag blader je terug, en je schuift met je vinger over de grafiek. Werkt ook als je leverancier (bijvoorbeeld Tibber) laadt en Zonnestuur meekijkt.
 - Vertrektijd per weekdag: maandag 7:30, woensdag 8:15, in het weekend niets. Op een dag zonder tijd laadt Zonnestuur rustig door tot de volgende dag dat je weg moet.

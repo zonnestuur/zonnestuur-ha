@@ -4,89 +4,101 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<title>Laadtijdlijn · Zonnestuur</title>
+<title>Laadbeurten · Zonnestuur</title>
 <style>
 html, body { overscroll-behavior-y: none; }
   @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
   @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  /* Zelfde huisstijl als het dashboard: licht vlak, zon-oranje voor wat Zonnestuur doet, blauw/grijs/rood voor de prijs. */
   :root {
     color-scheme: light;
-    --bg: #e8ecef; --card: #ffffff; --line: rgba(14, 17, 22, .08); --ink: #0d1015; --ink-2: #555d69; --ink-3: #868d98;
-    --sun: #b86e00; --sun-ink: #8f5500; --chip: rgba(14, 17, 22, .045); --good: #1f8a4c;
-    --laad: #2c9f8f; --laad-soft: rgba(44, 159, 143, .22); --plan: rgba(44, 159, 143, .5); --grid: rgba(14, 17, 22, .08);
+    --bg: #f4f3ee; --card: #ffffff; --line: rgba(14, 17, 22, .07); --ink: #0d1015; --ink-2: #555d69; --ink-3: #6b727d;
+    --rule: rgba(14, 17, 22, .08); --chip: rgba(14, 17, 22, .045);
+    --cheap: #2a78d6; --dear: #e34948; --mid: #8a9199; --glow: #ffb224; --glow-soft: rgba(255, 178, 36, .18); --sun-ink: #8f5500;
+    --good: #1f8a4c; --good-soft: rgba(31, 138, 76, .12);
+    --shadow: 0 1px 2px rgba(14,17,22,.04), 0 12px 40px -18px rgba(14,17,22,.18);
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
       color-scheme: dark;
-      --bg: #080c10; --card: #10161c; --line: rgba(255, 255, 255, .08); --ink: #f3f5f8; --ink-2: #a2abb7; --ink-3: #6c7582;
-      --sun: #c98500; --sun-ink: #ffc24d; --chip: rgba(255, 255, 255, .055); --good: #4ade80;
-      --laad: #5fc8b8; --laad-soft: rgba(95, 200, 184, .2); --plan: rgba(95, 200, 184, .5); --grid: rgba(255, 255, 255, .08);
+      --bg: #0b0f14; --card: #131a21; --line: rgba(255, 255, 255, .08); --ink: #f3f5f8; --ink-2: #a2abb7; --ink-3: #7d8691;
+      --rule: rgba(255, 255, 255, .08); --chip: rgba(255, 255, 255, .06);
+      --cheap: #3987e5; --dear: #e66767; --mid: #6a7280; --glow: #ffb224; --glow-soft: rgba(255, 178, 36, .14); --sun-ink: #ffc24d;
+      --good: #4ade80; --good-soft: rgba(74, 222, 128, .12); --shadow: none;
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #080c10; --card: #10161c; --line: rgba(255, 255, 255, .08); --ink: #f3f5f8; --ink-2: #a2abb7; --ink-3: #6c7582;
-    --sun: #c98500; --sun-ink: #ffc24d; --chip: rgba(255, 255, 255, .055); --good: #4ade80;
-    --laad: #5fc8b8; --laad-soft: rgba(95, 200, 184, .2); --plan: rgba(95, 200, 184, .5); --grid: rgba(255, 255, 255, .08);
+    --bg: #0b0f14; --card: #131a21; --line: rgba(255, 255, 255, .08); --ink: #f3f5f8; --ink-2: #a2abb7; --ink-3: #7d8691;
+    --rule: rgba(255, 255, 255, .08); --chip: rgba(255, 255, 255, .06);
+    --cheap: #3987e5; --dear: #e66767; --mid: #6a7280; --glow: #ffb224; --glow-soft: rgba(255, 178, 36, .14); --sun-ink: #ffc24d;
+    --good: #4ade80; --good-soft: rgba(74, 222, 128, .12); --shadow: none;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
-  main { max-width: 720px; margin: 0 auto; padding: max(20px, env(safe-area-inset-top)) 16px 48px; display: grid; gap: 16px; }
-  .top { display: flex; align-items: center; gap: 10px; }
+  main { max-width: 760px; margin: 0 auto; padding: max(20px, env(safe-area-inset-top)) 16px 48px; display: grid; gap: 16px; }
   .top a { color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 600; }
-  h1 { font: 650 clamp(26px, 6vw, 34px)/1.15 "Inter Tight", "Inter", sans-serif; letter-spacing: -.02em; margin: 0; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 20px; min-width: 0; }
-  .bronnen { display: flex; gap: 8px; flex-wrap: wrap; }
-  .bronnen button { font: 600 14px "Inter", sans-serif; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); cursor: pointer; }
-  .bronnen button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  .sum { display: flex; align-items: center; gap: 16px; }
-  .sum .l { flex: 1; min-width: 0; }
-  .sum .kop { font: 650 20px/1.2 "Inter Tight", "Inter", sans-serif; }
-  .sum .sub { color: var(--ink-2); font-size: 14px; margin-top: 4px; font-variant-numeric: tabular-nums; }
-  .sum .bedrag { font: 650 clamp(28px, 8vw, 38px)/1 "Inter Tight", "Inter", sans-serif; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .extra { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-  .extra span { font-size: 13px; background: var(--chip); color: var(--ink-2); padding: 5px 10px; border-radius: 999px; }
-  .extra span.goed { color: var(--good); }
-  .dagen { display: flex; gap: 4px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 -4px; padding: 0 4px; }
+  .eyebrow { font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--sun-ink); }
+  h1 { font: 650 clamp(28px, 7vw, 38px)/1.1 "Inter Tight", "Inter", sans-serif; letter-spacing: -.025em; margin: 4px 0 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 20px; box-shadow: var(--shadow); min-width: 0; }
+  .seg { display: inline-flex; background: var(--chip); border-radius: 14px; padding: 4px; gap: 4px; flex-wrap: wrap; }
+  .seg button { font: 600 14px "Inter", sans-serif; border: 0; background: none; color: var(--ink-2); padding: 7px 14px; border-radius: 10px; cursor: pointer; }
+  .seg button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .dagen { display: grid; grid-auto-flow: column; grid-auto-columns: 76px; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding: 2px; }
   .dagen::-webkit-scrollbar { display: none; }
-  .dagen button { flex: 0 0 auto; scroll-snap-align: center; font: 600 15px "Inter", sans-serif; color: var(--ink-3); background: none; border: 0;
-    padding: 10px 12px 20px; cursor: pointer; position: relative; white-space: nowrap; line-height: 1.3; }
-  .dagen button.on { color: var(--ink); }
-  .dagen button.on::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 2px; height: 2.5px; border-radius: 2px; background: var(--ink); }
-  .dagen button i { position: absolute; left: 50%; bottom: 9px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--laad); }
-  .dagen button i.leeg { background: transparent; }
+  .dagen button { scroll-snap-align: center; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 16px;
+    padding: 8px 4px 9px; cursor: pointer; font: 500 12px/1.25 "Inter", sans-serif; display: grid; gap: 2px; justify-items: center; }
+  .dagen button .wd { color: var(--ink-3); text-transform: lowercase; }
+  .dagen button .dn { font: 650 20px/1.1 "Inter Tight", "Inter", sans-serif; }
+  .dagen button .kw { color: var(--sun-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .dagen button .kw.niets { color: var(--ink-3); font-weight: 500; }
+  .dagen button.on { background: var(--glow); border-color: var(--glow); color: #1a1205; }
+  .dagen button.on .wd, .dagen button.on .kw { color: #4a3300; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .stats div { display: grid; gap: 2px; }
+  .stats span { font-size: 12.5px; color: var(--ink-3); }
+  .stats b { font: 650 clamp(20px, 5.5vw, 28px)/1.15 "Inter Tight", "Inter", sans-serif; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .pill { display: inline-block; margin-top: 14px; font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--chip); color: var(--ink-2); }
+  .pill.goed { background: var(--good-soft); color: var(--good); }
+  .pills { display: flex; flex-wrap: wrap; gap: 0 8px; }
+  .kop { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .kop h2 { font: 650 17px/1.3 "Inter Tight", "Inter", sans-serif; margin: 0; }
+  .kop small { color: var(--ink-3); font-size: 13px; }
   .grafiek { position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
   svg { display: block; width: 100%; overflow: visible; }
-  .axis { font: 12px "Inter", sans-serif; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
-  .tip { position: absolute; top: 0; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 6px 10px;
-    font-size: 13px; white-space: nowrap; opacity: 0; transition: opacity .12s; font-variant-numeric: tabular-nums; }
+  .axis { font: 11.5px "Inter", sans-serif; fill: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .tip { position: absolute; top: 0; pointer-events: none; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 8px 10px; font-size: 12.5px; box-shadow: 0 14px 34px -12px rgba(0,0,0,.4); white-space: nowrap; opacity: 0; transition: opacity .12s; z-index: 5; }
   .tip b { font-weight: 650; }
-  .legenda { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: 13px; color: var(--ink-2); margin-top: 10px; }
-  .legenda i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
-  .legenda i.lijn { height: 0; border-top: 2.5px solid var(--ink); border-radius: 0; vertical-align: 3px; }
-  .blokken { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .blokken li { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; font-variant-numeric: tabular-nums; }
-  .blokken li .t { font-weight: 650; }
-  .blokken li .m { color: var(--ink-2); font-size: 14px; }
-  .blokken li .e { font-weight: 650; }
-  h2 { font: 650 17px/1.3 "Inter Tight", "Inter", sans-serif; margin: 0 0 12px; }
-  .leeg { color: var(--ink-2); text-align: center; padding: 18px 0 6px; }
+  .tip .row { display: flex; align-items: center; gap: 7px; color: var(--ink-2); }
+  .tip .row em { font-style: normal; color: var(--ink); margin-left: auto; padding-left: 12px; font-variant-numeric: tabular-nums; }
+  .sw { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); margin-top: 12px; }
+  .legenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .momenten { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .momenten li { display: grid; grid-template-columns: 4px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--chip); font-variant-numeric: tabular-nums; }
+  .momenten li i { align-self: stretch; border-radius: 4px; background: var(--glow); }
+  .momenten li .t { font-weight: 650; }
+  .momenten li .m { color: var(--ink-2); font-size: 13.5px; }
+  .momenten li .e { font-weight: 650; }
   .muted { color: var(--ink-3); font-size: 13px; }
 </style>
 </head>
 <body>
 <main>
   <div class="top"><a href="./">← Dashboard</a></div>
-  <h1>Laadtijdlijn</h1>
-  <div class="bronnen" id="bronnen" role="group" aria-label="Welke auto"></div>
-  <section class="card"><div class="sum" id="sum"><div class="l"><div class="kop">Laden</div><div class="sub">Laden…</div></div></div><div class="extra" id="extra"></div></section>
-  <nav class="dagen" id="dagen" aria-label="Kies een dag"></nav>
+  <div><div class="eyebrow">Auto</div><h1>Laadbeurten</h1></div>
+  <div><div class="seg" id="bronnen" role="group" aria-label="Welke auto"></div></div>
+  <div class="dagen" id="dagen" role="group" aria-label="Kies een dag"></div>
+  <section class="card" id="sum"><p class="muted">Laden…</p></section>
   <section class="card">
-    <div class="grafiek" id="graf"><svg id="svg" role="img" aria-label="Stroomprijs en laadmomenten"></svg><div class="tip" id="tip"></div></div>
-    <div class="legenda"><span><i style="background:var(--laad)"></i>Geladen</span><span><i style="background:var(--plan);opacity:.6"></i>Gepland</span><span><i class="lijn"></i>Stroomprijs</span></div>
-    <p class="muted" style="text-align:center;margin:6px 0 0">Schuif met je vinger over de grafiek om per kwartier te zien wat het kostte.</p>
+    <div class="kop"><h2>Prijs en laden per kwartier</h2><small id="venster"></small></div>
+    <div class="grafiek" id="graf"><svg id="svg" role="img" aria-label="Prijs per kwartier, met de kwartieren waarin geladen is"></svg><div class="tip" id="tip"></div></div>
+    <div class="legenda"><span><i class="sw" style="background:var(--glow)"></i>Geladen</span><span><i class="sw" style="border:1.5px solid var(--glow)"></i>Gepland</span>
+      <span><i class="sw" style="background:var(--cheap)"></i>Goedkoop</span><span><i class="sw" style="background:var(--mid)"></i>Normaal</span><span><i class="sw" style="background:var(--dear)"></i>Duur</span></div>
+    <p class="muted" style="margin:8px 0 0">Tik op een kwartier, of schuif met je vinger, om de prijs te zien.</p>
   </section>
-  <section class="card" id="blokCard"><h2>Laadmomenten</h2><ul class="blokken" id="blokken"></ul></section>
+  <section class="card" id="momCard"><div class="kop"><h2>Laadmomenten</h2></div><ul class="momenten" id="momenten"></ul></section>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -100,110 +112,113 @@ const params = new URLSearchParams(location.search);
 let BRON = params.get("bron") || "", DAG = params.get("dag") || "", D = null;
 
 async function laad() {
-  try {
-    const r = await fetch(`api/laadtijdlijn?bron=${encodeURIComponent(BRON)}&dag=${encodeURIComponent(DAG)}`);
-    D = await r.json();
-  } catch (e) { $("sum").innerHTML = `<div class="l"><div class="kop">Niet gelukt</div><div class="sub">${esc(e.message)}</div></div>`; return; }
-  if (D.fout) { $("sum").innerHTML = `<div class="l"><div class="kop">Nog niets te laten zien</div><div class="sub">${esc(D.fout)}</div></div>`; return; }
+  try { D = await (await fetch(`api/laadtijdlijn?bron=${encodeURIComponent(BRON)}&dag=${encodeURIComponent(DAG)}`)).json(); }
+  catch (e) { $("sum").innerHTML = `<p class="muted">Niet gelukt: ${esc(e.message)}</p>`; return; }
+  if (D.fout) { $("sum").innerHTML = `<p class="muted">${esc(D.fout)}</p>`; return; }
   BRON = D.bron; DAG = D.dag;
   history.replaceState(null, "", `?bron=${encodeURIComponent(BRON)}&dag=${DAG}`);
   teken();
 }
 
+function klasse(p, gem) {
+  if (p < 0) return "cheap";
+  const band = Math.max(0.01, Math.abs(gem) * 0.15);
+  return p <= gem - band ? "cheap" : p >= gem + band ? "dear" : "mid";
+}
+
 function teken() {
-  const T = D.totaal;
-  $("bronnen").innerHTML = D.bronnen.length > 1 ? D.bronnen.map((b) => `<button class="${b.id === D.bron ? "on" : ""}" data-bron="${esc(b.id)}">${esc(b.naam)}${b.soort === "meekijken" ? " · meekijken" : ""}</button>`).join("") : "";
+  const T = D.totaal, bron = D.bronnen.find((b) => b.id === D.bron) || {};
+  $("bronnen").innerHTML = D.bronnen.length > 1 ? D.bronnen.map((b) => `<button class="${b.id === D.bron ? "on" : ""}" data-bron="${esc(b.id)}">${esc(b.naam)}</button>`).join("") : "";
+  $("bronnen").parentElement.hidden = D.bronnen.length < 2;
   document.querySelectorAll("[data-bron]").forEach((b) => b.onclick = () => { BRON = b.dataset.bron; laad(); });
-  const bron = D.bronnen.find((b) => b.id === D.bron) || {};
-  const geladen = T.kwh > 0.05;
-  $("sum").innerHTML = `<div class="l"><div class="kop">${geladen ? "Laadkosten" : "Geen laadbeurt"}</div>
-    <div class="sub">${geladen ? `${nl(T.kwh, 2)} kWh${T.ct != null ? ` · gemiddeld ${nl(T.ct, 1)} ct per kWh` : ""}` : "Deze dag is er niet geladen."}</div></div>
-    ${geladen ? `<div class="bedrag">${eur(T.app_eur ?? T.eur)}</div>` : ""}`;
-  const ex = [];
-  if (geladen && T.gemiddeld_ct != null && T.ct != null) {
-    const sc = (T.gemiddeld_ct - T.ct) / 100 * T.kwh;
-    ex.push(sc > 0.05 ? `<span class="goed">${eur(sc)} goedkoper dan het daggemiddelde (${nl(T.gemiddeld_ct, 1)} ct)</span>` : `<span>Daggemiddelde ${nl(T.gemiddeld_ct, 1)} ct per kWh</span>`);
-  }
-  if (T.app_eur != null) ex.push(`<span>Volgens de app van ${esc(bron.leverancier || "de leverancier")}; wij rekenden ${eur(T.eur)}</span>`);
-  if (bron.soort === "meekijken") ex.push(`<span>${esc(bron.leverancier || "De leverancier")} laadt, Zonnestuur kijkt mee</span>`);
-  if (D.gepland.length) ex.push(`<span>Gepland: ${D.gepland.length} ${D.gepland.length === 1 ? "uur" : "uren"}</span>`);
-  $("extra").innerHTML = ex.join("");
-  // dagen
   const iso = (t) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
-  const nu = new Date(), vd = iso(nu), mg = iso(new Date(nu.getTime() + 864e5));
+  const vd = iso(new Date());
   $("dagen").innerHTML = D.dagen.map((x) => {
-    const t = new Date(x.dag + "T12:00:00"), lab = x.dag === vd ? "vandaag" : x.dag === mg ? "morgen" : t.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
-    return `<button class="${x.dag === D.dag ? "on" : ""}" data-dag="${x.dag}" aria-pressed="${x.dag === D.dag}">${esc(lab)}<i class="${x.kwh > 0.05 ? "" : "leeg"}"></i></button>`;
+    const t = new Date(x.dag + "T12:00:00");
+    return `<button class="${x.dag === D.dag ? "on" : ""}" data-dag="${x.dag}" aria-pressed="${x.dag === D.dag}">
+      <span class="wd">${x.dag === vd ? "vandaag" : esc(t.toLocaleDateString("nl-NL", { weekday: "short" }))}</span><span class="dn">${t.getDate()}</span>
+      <span class="kw ${x.kwh > 0.05 ? "" : "niets"}">${x.kwh > 0.05 ? nl(x.kwh, 1) + " kWh" : "–"}</span></button>`;
   }).join("");
   document.querySelectorAll("[data-dag]").forEach((b) => b.onclick = () => { DAG = b.dataset.dag; laad(); });
   const on = document.querySelector(".dagen button.on"); if (on) on.scrollIntoView({ inline: "center", block: "nearest" });
+  const geladen = T.kwh > 0.05;
+  const pills = [];
+  if (geladen && T.gemiddeld_ct != null && T.ct != null) {
+    const sc = (T.gemiddeld_ct - T.ct) / 100 * T.kwh;
+    pills.push(sc > 0.05 ? `<span class="pill goed">${eur(sc)} goedkoper dan laden tegen het daggemiddelde (${nl(T.gemiddeld_ct, 1)} ct)</span>`
+      : `<span class="pill">Daggemiddelde ${nl(T.gemiddeld_ct, 1)} ct per kWh</span>`);
+  }
+  if (T.app_eur != null) pills.push(`<span class="pill">Volgens de app van ${esc(bron.leverancier || "de leverancier")}: ${eur(T.app_eur)} (wij rekenden ${eur(T.eur)})</span>`);
+  if (bron.soort === "meekijken") pills.push(`<span class="pill">${esc(bron.leverancier || "De leverancier")} laadt, Zonnestuur kijkt mee</span>`);
+  if (D.gepland.length) pills.push(`<span class="pill">${D.gepland.length} ${D.gepland.length === 1 ? "uur" : "uren"} gepland</span>`);
+  $("sum").innerHTML = geladen ? `<div class="stats"><div><span>Geladen</span><b>${nl(T.kwh, 1)} kWh</b></div>
+      <div><span>Kosten</span><b>${eur(T.app_eur ?? T.eur)}</b></div><div><span>Per kWh</span><b>${T.ct != null ? nl(T.ct, 1) + " ct" : "–"}</b></div></div>
+      <div class="pills">${pills.join("")}</div>`
+    : `<p style="margin:0;font-weight:600">Op deze dag is er niet geladen.</p><div class="pills">${pills.join("")}</div>`;
+  $("venster").textContent = `${new Date(D.start * 1000).toLocaleDateString("nl-NL", { weekday: "short" })} 18:00 – ${new Date(D.end * 1000).toLocaleDateString("nl-NL", { weekday: "short" })} 18:00`;
   grafiek();
-  // laadmomenten
-  $("blokCard").hidden = !D.blokken.length;
-  $("blokken").innerHTML = D.blokken.map((b) => `<li><span class="t">${hm(b.van)}–${hm(b.tot)}</span>
-    <span class="m">${nl(b.kwh, 2)} kWh${b.kwh > 0.05 ? ` · ${nl(b.eur / b.kwh * 100, 1)} ct per kWh` : ""}</span><span class="e">${eur(b.eur)}</span></li>`).join("");
+  $("momCard").hidden = !D.blokken.length;
+  $("momenten").innerHTML = D.blokken.map((b) => `<li><i></i><div><div class="t">${hm(b.van)}–${hm(b.tot)}</div>
+    <div class="m">${nl(b.kwh, 1)} kWh${b.kwh > 0.05 ? ` · ${nl(b.eur / b.kwh * 100, 1)} ct per kWh` : ""}</div></div><span class="e">${eur(b.eur)}</span></li>`).join("");
 }
 
 function grafiek() {
   const svg = $("svg"), box = $("graf"), tip = $("tip");
-  const W = Math.max(300, box.clientWidth), H = W < 520 ? 270 : 310, L = 34, R = 6, T = 26, B = 28;
+  const W = Math.max(300, box.clientWidth), H = W < 520 ? 230 : 270, L = 36, R = 4, T = 16, B = 26;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H); svg.innerHTML = "";
-  const span = D.end - D.start, X = (ts) => L + (ts - D.start) / span * (W - L - R);
-  const ps = D.prijzen.map((p) => p.p * 100);
-  const lo = Math.min(0, ...ps), hi = Math.max(10, ...ps);
-  const stap = hi - lo > 40 ? 20 : 10, ymin = Math.floor(lo / stap) * stap, ymax = Math.ceil(hi / stap) * stap;
+  const span = D.end - D.start, X = (ts) => L + (ts - D.start) / span * (W - L - R), slot = (W - L - R) / (span / 900);
+  const ps = D.prijzen.map((p) => p.p);
+  const gem = ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : 0;
+  const lo = Math.min(0, ...ps), hi = Math.max(0.1, ...ps);
+  const stap = (hi - lo) > 0.4 ? 0.2 : 0.1, ymin = Math.floor(lo / stap) * stap, ymax = Math.ceil(hi / stap) * stap;
   const Y = (v) => T + (1 - (v - ymin) / (ymax - ymin)) * (H - T - B);
-  for (let v = ymin; v <= ymax; v += stap) {
-    el("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: "var(--grid)" }, svg);
-    el("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end", class: "axis" }, svg).textContent = v;
+  for (let v = ymin; v <= ymax + 1e-9; v += stap) {
+    el("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: "var(--rule)" }, svg);
+    el("text", { x: L - 6, y: Y(v) + 4, "text-anchor": "end", class: "axis" }, svg).textContent = nl(v, 2);
   }
-  el("text", { x: 0, y: 10, class: "axis" }, svg).textContent = "cent";
-  // middernacht
+  const geladen = new Map();
+  for (const k of D.kwartieren) for (let t = k.ts; t < k.ts + k.duur; t += 900) geladen.set(t, k);
+  const gepland = new Set(); for (const g of D.gepland) for (let t = g; t < g + 3600; t += 900) gepland.add(t);
+  const bw = Math.max(1, slot - (slot > 4 ? 1 : 0.4)), y0 = Y(0);
+  for (const p of D.prijzen) {
+    const x = X(p.ts), y1 = Y(p.p), h = Math.max(1, Math.abs(y0 - y1)), top = Math.min(y0, y1);
+    const laad = geladen.has(p.ts);
+    el("rect", { x: x + (slot - bw) / 2, y: top, width: bw, height: h, rx: Math.min(2, bw / 2), fill: laad ? "var(--glow)" : `var(--${klasse(p.p, gem)})`,
+      opacity: laad ? 1 : 0.42 }, svg);
+    if (gepland.has(p.ts) && !laad) el("rect", { x: x + (slot - bw) / 2, y: top, width: bw, height: h, fill: "none", stroke: "var(--glow)", "stroke-width": 1.4 }, svg);
+  }
+  // middernacht en nu
   const mid = D.start + 6 * 3600;
-  el("line", { x1: X(mid), x2: X(mid), y1: T, y2: H - B, stroke: "var(--grid)" }, svg);
-  el("text", { x: X(mid) + 6, y: T + 12, class: "axis" }, svg).textContent = new Date(mid * 1000).toLocaleDateString("nl-NL", { weekday: "short" });
-  // gepland en geladen
-  for (const g of D.gepland) el("rect", { x: X(g), y: T, width: Math.max(1, X(g + 3600) - X(g)), height: H - T - B, fill: "var(--plan)", opacity: .35 }, svg);
-  const maxK = Math.max(0.01, ...D.kwartieren.map((k) => k.kwh / (k.duur / 900)));
-  for (const k of D.kwartieren) {
-    const sterk = 0.45 + 0.55 * Math.min(1, (k.kwh / (k.duur / 900)) / maxK);
-    el("rect", { x: X(k.ts) - 0.3, y: T, width: Math.max(1.5, X(k.ts + k.duur) - X(k.ts) + 0.6), height: H - T - B, fill: "var(--laad)", opacity: sterk.toFixed(2), "shape-rendering": "crispEdges" }, svg);
+  el("line", { x1: X(mid), x2: X(mid), y1: T - 6, y2: H - B, stroke: "var(--rule)" }, svg);
+  el("text", { x: X(mid) + 4, y: T - 4, class: "axis", "font-weight": 600 }, svg).textContent = new Date(mid * 1000).toLocaleDateString("nl-NL", { weekday: "long" });
+  if (D.nu > D.start && D.nu < D.end) {
+    el("line", { x1: X(D.nu), x2: X(D.nu), y1: T, y2: H - B, stroke: "var(--ink-2)", "stroke-width": 1, "stroke-dasharray": "2 3" }, svg);
+    el("text", { x: X(D.nu), y: T - 4, "text-anchor": "middle", class: "axis" }, svg).textContent = "nu";
   }
-  // prijslijn (trapjes per kwartier)
-  if (D.prijzen.length) {
-    let dd = "", vorige = null;
-    for (const p of D.prijzen) {
-      const x0 = X(p.ts), x1 = X(p.ts + 900), y = Y(p.p * 100);
-      dd += vorige === null || Math.abs(vorige.ts + 900 - p.ts) > 1 ? `M${x0.toFixed(1)},${y.toFixed(1)} ` : `L${x0.toFixed(1)},${y.toFixed(1)} `;
-      dd += `L${x1.toFixed(1)},${y.toFixed(1)} `; vorige = p;
-    }
-    el("path", { d: dd, fill: "none", stroke: "var(--ink)", "stroke-width": 2, "stroke-linejoin": "round" }, svg);
-  }
-  // nu
-  if (D.nu > D.start && D.nu < D.end) el("line", { x1: X(D.nu), x2: X(D.nu), y1: T, y2: H - B, stroke: "var(--sun)", "stroke-width": 1.5, "stroke-dasharray": "3 3" }, svg);
-  for (let h = 0; h <= 24; h += W < 520 ? 4 : 2) {
+  for (let h = 0; h <= 24; h += W < 520 ? 6 : 3) {
     const ts = D.start + h * 3600;
-    el("text", { x: X(ts), y: H - 8, "text-anchor": h === 0 ? "start" : h === 24 ? "end" : "middle", class: "axis" }, svg).textContent = new Date(ts * 1000).getHours().toString().padStart(2, "0");
+    el("text", { x: X(ts), y: H - 7, "text-anchor": h === 0 ? "start" : h === 24 ? "end" : "middle", class: "axis" }, svg).textContent = String(new Date(ts * 1000).getHours()).padStart(2, "0") + ":00";
   }
   if (!D.prijzen.length) el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", class: "axis" }, svg).textContent = "Geen prijzen bewaard voor deze dag";
-  // schuiven / aanwijzen
   const lijn = el("line", { y1: T, y2: H - B, stroke: "var(--ink)", "stroke-width": 1, opacity: 0 }, svg);
-  const toon = (clientX) => {
+  svg._toon = (clientX) => {
     const rc = svg.getBoundingClientRect(), px = (clientX - rc.left) * (W / rc.width);
     const ts = Math.max(D.start, Math.min(D.end - 1, D.start + (px - L) / (W - L - R) * span)), q = Math.floor(ts / 900) * 900;
-    const p = D.prijzen.find((x) => x.ts === q), k = D.kwartieren.find((x) => ts >= x.ts && ts < x.ts + x.duur);
-    const xm = X(q + 450);
+    const p = D.prijzen.find((x) => x.ts === q), k = geladen.get(q);
+    const xm = X(q) + slot / 2;
     lijn.setAttribute("x1", xm); lijn.setAttribute("x2", xm); lijn.setAttribute("opacity", 1);
-    tip.innerHTML = `<b>${hm(q)}</b>${p ? ` · ${nl(p.p * 100, 1)} ct` : ""}${k ? ` · ${nl(k.kwh, 2)} kWh geladen` : ""}`;
+    const cls = p ? klasse(p.p, gem) : "mid";
+    tip.innerHTML = `<b>${new Date(q * 1000).toLocaleDateString("nl-NL", { weekday: "short" })} ${hm(q)}–${hm(q + 900)}</b>
+      ${p ? `<div class="row"><i class="sw" style="background:var(--${cls})"></i>Prijs<em>${nl(p.p * 100, 1)} ct</em></div>` : ""}
+      ${k ? `<div class="row"><i class="sw" style="background:var(--glow)"></i>Geladen<em>${nl(k.kwh / (k.duur / 900), 2)} kWh</em></div>` : gepland.has(q) ? `<div class="row"><i class="sw" style="border:1.5px solid var(--glow)"></i>Gepland<em></em></div>` : ""}`;
     tip.style.opacity = 1;
     const tw = tip.offsetWidth, x = xm * (rc.width / W);
-    tip.style.left = Math.max(0, Math.min(rc.width - tw, x - tw / 2)) + "px";
-    tip.style.top = "-6px";
+    tip.style.left = Math.max(0, Math.min(rc.width - tw, x + 12 + tw > rc.width ? x - tw - 12 : x + 12)) + "px";
   };
   if (!svg._aan) {
     svg._aan = true;
     let start = null, schuif = false;
-    svg.addEventListener("pointerdown", (e) => { start = [e.clientX, e.clientY]; schuif = e.pointerType === "mouse"; if (e.pointerType !== "mouse") svg._toon(e.clientX); });
+    svg.addEventListener("pointerdown", (e) => { start = [e.clientX, e.clientY]; schuif = false; if (e.pointerType !== "mouse") svg._toon(e.clientX); });
     svg.addEventListener("pointermove", (e) => {
       if (e.pointerType === "mouse") { svg._toon(e.clientX); return; }
       if (!start) return;
@@ -215,7 +230,6 @@ function grafiek() {
     svg.addEventListener("pointerup", stop); svg.addEventListener("pointercancel", stop);
     svg.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { $("tip").style.opacity = 0; } });
   }
-  svg._toon = toon;
 }
 window.addEventListener("resize", () => { if (D && !D.fout) grafiek(); });
 laad();
