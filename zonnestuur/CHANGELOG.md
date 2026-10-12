@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.57.3
+- Extra koppelingen (zoals Nilan): Zonnestuur wacht na het installeren langer tot de koppelmotor klaar is, en probeert het zelf opnieuw in plaats van meteen 'kent deze koppeling nog niet' te melden.
+- Sommige extra koppelingen konden niet worden gedownload (fout 415). Opgelost.
+
 ## 0.57.2
 - Nieuw: zonnestuur.nl/box brengt je thuis vanaf elke telefoon of computer direct naar je Box, ook als zonnestuur.local niet werkt.
 
