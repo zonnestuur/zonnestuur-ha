@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.58.1
+- Zonnestuur vindt nu zoveel mogelijk vanzelf, zonder dat je iets hoeft te doen:
+  - Nog geen meter? Hij zoekt zelf in je netwerk en kiest de meter als er precies één is (HomeWizard, YouLess, SlimmeLezer, Shelly EM, P1-kabel, of een meter uit de koppelmotor zoals de Tibber Pulse).
+  - Zonnepanelen met een Fronius-omvormer worden vanzelf herkend en ingesteld.
+  - Op de Box koppelt hij elk kwartier alles wat de koppelmotor in je netwerk ziet en alleen een 'OK' nodig heeft, ook als er standaardwaarden ingevuld moeten worden.
+  - Op het dashboard zie je één keer wat hij vond. Zonnestuur stuurt een apparaat pas als jij dat kiest.
+
 ## 0.58.0
 - Koppelen in gewone taal: geen 'Host' meer maar 'IP-adres van het apparaat' met uitleg waar je dat vindt, Engelse velden vertaald, en onvertaalde Engelse uitleg vervangen door Nederlands.
 - Bij het invullen van een IP-adres kun je kiezen uit de apparaten die Zonnestuur al in je netwerk vond: één tik en het staat er.

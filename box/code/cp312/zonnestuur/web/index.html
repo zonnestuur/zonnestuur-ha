@@ -805,6 +805,15 @@ html, body { overscroll-behavior-y: none; }
       </div>
     </section>
 
+    <!-- vanzelf gevonden -->
+    <section class="card c-welcome" id="vanzelf" hidden aria-labelledby="vzTitle">
+      <div class="eyebrow">Vanzelf gevonden</div>
+      <h2 class="sec" id="vzTitle">Zonnestuur heeft dit al voor je gekoppeld</h2>
+      <ul class="small" id="vzLijst" style="margin:6px 0 0;padding-left:18px"></ul>
+      <p class="small muted" style="margin:6px 0 0">Zonnestuur stuurt een apparaat pas als jij dat kiest. Klopt er iets niet? Je kunt een koppeling altijd weer wissen.</p>
+      <div class="opts"><button type="button" onclick="location.href='setup#toevoegen'">Kiezen wat Zonnestuur stuurt</button><button type="button" id="vzWeg">Oké</button></div>
+    </section>
+
     <!-- nog niets gekoppeld -->
     <section class="card c-welcome" id="leeg" hidden aria-labelledby="leegTitle">
       <div class="eyebrow">Bijna klaar</div>
@@ -1648,6 +1657,18 @@ function socHand(car) {
     <div class="hand-in"><input type="range" min="0" max="100" step="1" value="${v}" data-soc-range aria-label="Laadniveau in procent"><b class="num" data-soc-v>${v}%</b>
       <button class="evc-go" data-soc-ok="${esc(car.id)}">Opslaan</button></div>
     <p class="small muted" style="margin:6px 0 0">Kijk op het dashboard van de auto. Wat Zonnestuur daarna laadt, telt hij er zelf bij op.</p></details>`;
+}
+// Wat Zonnestuur zelf vond en koppelde (meter, zonnepanelen, apparaten uit de koppelmotor): één keer melden
+let VZ_GEDAAN = false;
+async function vanzelfKaart() {
+  if (VZ_GEDAAN) return; VZ_GEDAAN = true;
+  let st; try { st = await api("api/vanzelf"); } catch (e) { return; }
+  let gezien = 0; try { gezien = Number(localStorage.getItem("zs_vanzelf") || 0); } catch (e) {}
+  const nieuw = (st.lijst || []).filter((x) => x.at > gezien);
+  if (!nieuw.length) return;
+  $("vzLijst").innerHTML = nieuw.slice(0, 8).map((x) => `<li>${esc(x.naam)}</li>`).join("");
+  $("vanzelf").hidden = false;
+  $("vzWeg").onclick = () => { try { localStorage.setItem("zs_vanzelf", String(nieuw[0].at)); } catch (e) {} $("vanzelf").hidden = true; };
 }
 function evPanel(d) {
   const E = d.ev;
@@ -2599,6 +2620,7 @@ function drawCoach() {
 let WEL_HIDE = false;
 function renderWelcome(s) {
   $("leeg").hidden = !!s.configured;
+  vanzelfKaart();
   const card = $("welcome");
   card.hidden = WEL_HIDE || !!s.motivation || !s.configured;
 }
