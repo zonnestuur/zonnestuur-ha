@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.58.2
+- Nieuw: SPRSUN-warmtepompen rechtstreeks. Met een RS485-naar-wifi-module (bijv. Elfin EW11) zet Zonnestuur bij zon of goedkope stroom de boilertemperatuur hoger en daarna weer terug, en leest hij vermogen en boilertemperatuur uit. Te vinden bij Koppelen onder SPRSUN.
+
 ## 0.58.1
 - Zonnestuur vindt nu zoveel mogelijk vanzelf, zonder dat je iets hoeft te doen:
   - Nog geen meter? Hij zoekt zelf in je netwerk en kiest de meter als er precies één is (HomeWizard, YouLess, SlimmeLezer, Shelly EM, P1-kabel, of een meter uit de koppelmotor zoals de Tibber Pulse).

@@ -299,7 +299,7 @@ const METERS = [["p1_serial", "P1-kabel in dit kastje"], ["homewizard", "HomeWiz
   ["domoticz", "Domoticz", "domoticz"], ["openhab", "openHAB", "openhab"], ["iobroker", "ioBroker", "iobroker"]];
 const ADD_TYPES = [["z2m", "Zigbee-stekker (Zigbee2MQTT)"], ["tasmota", "Tasmota via MQTT"], ["shellymqtt", "Shelly via MQTT"],
   ["mqttfree", "Eigen MQTT-topics"], ["esphome", "ESPHome-schakelaar"], ["homey", "Homey-apparaat"],
-  ["domoticz", "Domoticz-apparaat"], ["openhab", "openHAB-item"], ["iobroker", "ioBroker-datapunt"], ["ocpp", "Laadpaal via OCPP"], ["alfen", "Alfen-laadpaal (rechtstreeks)"],
+  ["domoticz", "Domoticz-apparaat"], ["openhab", "openHAB-item"], ["iobroker", "ioBroker-datapunt"], ["ocpp", "Laadpaal via OCPP"], ["alfen", "Alfen-laadpaal (rechtstreeks)"], ["sprsun", "SPRSUN-warmtepomp (rechtstreeks)"],
   ["sgready", "SG-ready warmtepomp (2 relais)"], ["hapower", "Traploze vermogensregelaar (koppelmotor)"]];
 let SYS = { mqtt: null, homey: null, ocpp: null, domoticz: null, openhab: null, iobroker: null };
 // Domoticz, openHAB en ioBroker: zelfde vorm (adres, eventueel inloggen, zoeken, aanvinken wat Zonnestuur mag sturen)
@@ -1872,6 +1872,7 @@ async function settings() {
       : t === "homey" ? `<div class="field"><label for="x_a">Apparaat in Homey</label><select id="x_a">${hd.map((x, i) => `<option value="${i}">${esc(x.name)} (${x.driver === "homey_setpoint" ? "temperatuur" : "aan/uit"})</option>`).join("") || "<option>koppel eerst Homey hierboven</option>"}</select></div>`
       : t === "hapower" ? f("x_a", "Vermogen-instelling (number.…)", "", 'placeholder="bijv. number.boiler_vermogen"') + `<div class="field" style="flex:0 1 110px"><label for="x_u">Eenheid</label><select id="x_u"><option>W</option><option>%</option></select></div>` + f("x_b", "Schakelaar (optioneel)", "", 'placeholder="switch.…"') + f("x_c", "Vermogensmeting (optioneel)", "", 'placeholder="sensor.…"')
       : t === "alfen" ? f("x_a", "IP-adres van de laadpaal", "", 'placeholder="192.168.1.50"') + `<div class="field" style="flex:0 1 100px"><label for="x_ph">Fasen</label><select id="x_ph"><option>1</option><option selected>3</option></select></div>` + f("x_min", "Min. A", "6", 'type="number"') + f("x_max", "Max. A", "16", 'type="number"')
+      : t === "sprsun" ? f("x_a", "IP-adres van de RS485-module", "", 'placeholder="192.168.1.60" inputmode="decimal"') + f("x_tn", "Normale boilertemperatuur (°C)", "50", 'type="number" step="1"') + f("x_tb", "Boilertemperatuur bij zon (°C)", "55", 'type="number" step="1"')
       : t === "ocpp" ? listOr("x_a", "Naam (ID) van de laadpaal", cps.map((c) => c.id), "zoals ingesteld in de laadpaal") + `<div class="field" style="flex:0 1 100px"><label for="x_ph">Fasen</label><select id="x_ph"><option>1</option><option selected>3</option></select></div>` + f("x_min", "Min. A", "6", 'type="number"') + f("x_max", "Max. A", "16", 'type="number"')
       : ""}${pw}</div>
       ${t === "mqttfree" ? `<div class="row">${f("x_d", "Topic met vermogen (optioneel)", "")}${f("x_e", "JSON-veld vermogen", "")}${f("x_on", "Bericht aan", "ON")}${f("x_off", "Bericht uit", "OFF")}</div>` : ""}
@@ -1880,9 +1881,10 @@ async function settings() {
       ${t === "shellymqtt" ? `<p class="small muted">Zet in de Shelly bij MQTT 'Generic status update over MQTT' aan.</p>` : ""}
       ${(t === "z2m" || t === "tasmota" || t === "shellymqtt" || t === "mqttfree") && !hasSys("mqtt") ? `<p class="small" style="color:var(--warn)">Vul hierboven eerst je MQTT-broker in en sla op.</p>` : ""}
       ${t === "alfen" ? `<p class="small muted">Laat de installateur in Alfen ACE Service Installer bij Load Balancing kiezen voor "Energy Management System" via Modbus TCP/IP (daarvoor is de licentie Active Load Balancing nodig). Zonnestuur zet dan zelf de laadstroom, en vernieuwt die elke 30 seconden.</p>` : ""}
+      ${t === "sprsun" ? `<p class="small muted">Nodig: een RS485-naar-wifi-module (bijv. Elfin EW11, ± € 25) op de RS485-aansluiting van de warmtepomp, ingesteld op Modbus TCP (poort 502). Zonnestuur zet bij zon of goedkope stroom alleen de boilertemperatuur wat hoger, en daarna weer terug. Aan/uit en verwarming blijven bij je warmtepomp.</p>` : ""}
       ${t === "ocpp" && !CFG.ocpp?.enabled ? `<p class="small" style="color:var(--warn)">Zet hierboven de OCPP-server aan en sla op; verbind daarna de laadpaal.</p>` : ""}`;
     if (t === "ocpp" || t === "alfen") $("x_kind").value = "ev";
-    if (t === "sgready") $("x_kind").value = "heatpump";
+    if (t === "sgready" || t === "sprsun") $("x_kind").value = "heatpump";
   };
   $("x_type").onchange = addFields;
   addFields();
@@ -1914,11 +1916,12 @@ async function settings() {
       dev = { ...dev, driver: sd.driver, params: sd.driver.endsWith("_setpoint") ? { device: sd.device, normal_temp: Number(g("x_tn")), boost_temp: Number(g("x_tb")), power: g("x_pm") } : { device: sd.device, power: g("x_pm") } }; }
     else if (t === "ocpp") { const ph = Number(g("x_ph")), mx = Number(g("x_max")) || 16;
       dev = { ...dev, driver: "ocpp", params: { cp_id: g("x_a"), phases: ph, min_a: Number(g("x_min")) || 6, max_a: mx }, power_w: Math.min(25000, mx * 230 * ph) }; }
+    else if (t === "sprsun") dev = { ...dev, driver: "sprsun", host: g("x_a"), params: { normal_temp: Number(g("x_tn")) || 50, boost_temp: Number(g("x_tb")) || 55, port: 502, unit: 1 } };
     else if (t === "alfen") { const ph = Number(g("x_ph")), mx = Number(g("x_max")) || 16;
       dev = { ...dev, driver: "alfen", host: g("x_a"), params: { phases: ph, min_a: Number(g("x_min")) || 6, max_a: mx, unit: 1 }, power_w: Math.min(25000, mx * 230 * ph) }; }
     else if (t === "hapower") dev = { ...dev, driver: "ha_power", params: { entity: g("x_a"), unit: g("x_u") || "W", switch_entity: g("x_b"), power_entity: g("x_c"), min_w: 100 } };
     else if (t === "sgready") dev = { ...dev, driver: "sg_ready", params: { a: relaySpec("ra"), b: relaySpec("rb"), force: $("x_force").checked } };
-    const need = { z2m: "x_a", tasmota: "x_a", shellymqtt: "x_a", mqttfree: "x_c", esphome: "x_b", ocpp: "x_a", alfen: "x_a", hapower: "x_a" }[t];
+    const need = { z2m: "x_a", tasmota: "x_a", shellymqtt: "x_a", mqttfree: "x_c", esphome: "x_b", ocpp: "x_a", alfen: "x_a", sprsun: "x_a", hapower: "x_a" }[t];
     if (need && !g(need)) { $("x_res").textContent = "Vul eerst in welk apparaat het is."; $(need).focus(); return; }
     if (t === "esphome" && !g("x_a")) { $("x_res").textContent = "Vul het adres van het ESPHome-apparaat in."; return; }
     if (t === "sgready" && (!$("ra_a").value.trim() || !$("rb_a").value.trim())) { $("x_res").textContent = "Vul voor beide relais het adres of de naam in."; return; }
