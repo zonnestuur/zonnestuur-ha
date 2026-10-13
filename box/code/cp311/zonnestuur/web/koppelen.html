@@ -167,7 +167,13 @@ async function api(path, opts = {}) {
 const post = (path, body) => api(path, { method: "POST", body: JSON.stringify(body || {}) });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-let LIST = [], OV = {}, CAT = "", LIMIT = 40;
+let LIST = [], OV = {}, CAT = "", LIMIT = 40, GEVONDEN = [];
+// wat de laatste netwerkscan vond (voor het invullen van een IP-adres)
+api("api/setup/scan").then((r) => { GEVONDEN = (r.found || []).filter((g) => g.host && /^\d+\.\d+\.\d+\.\d+$/.test(g.host)); }).catch(() => {});
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("[data-ip]"); if (!a) return;
+  e.preventDefault(); const inp = a.closest(".field").querySelector("input"); if (inp) inp.value = a.dataset.ip;
+});
 const ZS_LINK = {
   inverter: ["sunspec", "fronius", "sma", "solaredge", "huawei", "goodwe", "sungrow", "kostal", "opendtu", "ahoydtu", "apsystems", "enphase", "solax", "victron"],
 };
@@ -439,7 +445,11 @@ function fieldHtml(f, err) {
   if (f.kind === "select" || f.kind === "multi") return `<div class="field">${lab}<select id="${id}" ${f.kind === "multi" ? "multiple" : ""}>${(f.options || []).map(([ov, ol]) => `<option value="${esc(ov)}" ${String(ov) === String(v) || (Array.isArray(v) && v.includes(ov)) ? "selected" : ""}>${esc(ol)}</option>`).join("")}</select>${help}${e}</div>`;
   if (f.kind === "textarea") return `<div class="field">${lab}<textarea id="${id}" rows="4">${esc(v)}</textarea>${help}${e}</div>`;
   const type = f.kind === "password" ? "password" : f.kind === "number" ? "number" : "text";
-  return `<div class="field">${lab}<input id="${esc(id)}" type="${type}" ${f.step ? `step="${esc(f.step)}"` : ""} value="${esc(v)}" autocomplete="off">${help}${e}</div>`;
+  // IP-adres: apparaten die Zonnestuur al in je netwerk zag als keuzelijst, zodat je niets hoeft op te zoeken
+  const ip = f.placeholder ? ` placeholder="${esc(f.placeholder)}" inputmode="decimal" list="gevondenIp"` : "";
+  const lijst = f.placeholder && GEVONDEN.length ? `<datalist id="gevondenIp">${GEVONDEN.map((g) => `<option value="${esc(g.host)}">${esc(g.name || g.kind || "")}</option>`).join("")}</datalist>
+    <span class="hint">In je netwerk gevonden: ${GEVONDEN.slice(0, 6).map((g) => `<a href="#" data-ip="${esc(g.host)}">${esc(g.host)}${g.name ? " · " + esc(g.name) : ""}</a>`).join(", ")}</span>` : "";
+  return `<div class="field">${lab}<input id="${esc(id)}" type="${type}" ${f.step ? `step="${esc(f.step)}"` : ""} value="${esc(v)}" autocomplete="off"${ip}>${help}${lijst}${e}</div>`;
 }
 function readFields(fields) {
   const out = {};
@@ -478,11 +488,14 @@ async function showStep(r) {
   } else if (r.type === "create_entry") { gekoppeld(r);
   } else if (r.type === "abort" && ["missing_credentials", "missing_configuration", "oauth_implementation_unavailable", "no_implementations"].includes(r.reason)) {
     FLOW = null;
-    panel(title, `<p>${esc(BRAND || "Dit merk")} werkt via een inlog bij de fabrikant. Daarvoor moet Zonnestuur bij de fabrikant zijn aangemeld; dat regelen wij centraal en komt vanzelf beschikbaar.</p>
+    panel(title, `<p>${esc(BRAND || "Dit merk")} werkt via inloggen bij de fabrikant. De inlogdienst daarvoor is op dit moment niet bereikbaar. Meestal is dat na een paar minuten weer zo: probeer het dan opnieuw.</p>
+      <details><summary class="small muted">Voor gevorderden: eigen ontwikkelaarsgegevens</summary>
       <p class="muted small">Heb je zelf ontwikkelaarsgegevens van ${esc(BRAND || "de fabrikant")} (client ID en geheim)? Vul ze hier in, dan kun je nu al koppelen. Gebruik als terugstuuradres <b>https://my.home-assistant.io/redirect/oauth</b>.</p>
       <div class="field"><label for="c_id">Client ID</label><input id="c_id" autocomplete="off"></div>
-      <div class="field"><label for="c_sec">Client secret</label><input id="c_sec" type="password" autocomplete="off"></div>`,
-      [["Sluiten", closePanel, "ghost"], ["Opslaan en koppelen", async () => {
+      <div class="field"><label for="c_sec">Client secret</label><input id="c_sec" type="password" autocomplete="off"></div></details>`,
+      [["Sluiten", closePanel, "ghost"], ["Opnieuw proberen", async () => {
+        try { showStep(await starten(title, "ha:" + r.domain)); } catch (e) { $("p_err").textContent = e.message; }
+      }], ["Eigen gegevens opslaan", async () => {
         try { showStep(await post("api/koppel/credentials", { domain: r.domain, client_id: $("c_id").value.trim(), client_secret: $("c_sec").value.trim() })); }
         catch (e) { $("p_err").textContent = e.message; }
       }]]);

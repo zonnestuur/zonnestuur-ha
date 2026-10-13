@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.58.0
+- Koppelen in gewone taal: geen 'Host' meer maar 'IP-adres van het apparaat' met uitleg waar je dat vindt, Engelse velden vertaald, en onvertaalde Engelse uitleg vervangen door Nederlands.
+- Bij het invullen van een IP-adres kun je kiezen uit de apparaten die Zonnestuur al in je netwerk vond: één tik en het staat er.
+- Is de inlogdienst van een merk even niet bereikbaar, dan zegt Zonnestuur dat en kun je het met één knop opnieuw proberen.
+- Op het dashboard staat bij Apparaten een duidelijke knop '+ Apparaat toevoegen'.
+- Alle 120 ingebouwde en 145 extra koppelingen nagelopen tegen de nieuwste koppelmotor en hun bron: ze bestaan allemaal en kloppen.
+
 ## 0.57.9
 - Huisscherm-pagina werkte niet meer (je zag programmacode in beeld). Opgelost.
 - Koppelen, Huisscherm en Hulp hebben bovenin nu ook een knop 'Dashboard'.
