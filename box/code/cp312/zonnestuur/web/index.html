@@ -271,6 +271,14 @@ html, body { overscroll-behavior-y: none; }
   .wx { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 12px; }
   .wx span { font-size: 12.5px; color: var(--ink-2); padding: 5px 10px; border-radius: 999px; background: var(--chip); }
   .wx span b { color: var(--ink); font-weight: 650; margin-right: 4px; }
+  .dagplan { margin: 4px 0 14px; }
+  .dagplan .som { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
+  .dagplan .som b { color: var(--ink); font-weight: 650; }
+  .dagplan svg { width: 100%; height: 64px; display: block; }
+  .dagplan .af { fill: var(--net); } .dagplan .tr { fill: var(--sun); } .dagplan .ax { stroke: var(--rule); }
+  .dagplan .uren { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+  .dagplan .lg { font-size: 12px; color: var(--ink-2); display: flex; gap: 14px; margin-top: 4px; }
+  .dagplan .lg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
   .plan24 { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
   .plan24 li { display: grid; grid-template-columns: 116px 22px 1fr auto; gap: 4px 12px; align-items: baseline; padding: 11px 6px; border-top: 1px solid var(--rule); }
   .plan24 li:first-child { border-top: 0; }
@@ -858,6 +866,7 @@ html, body { overscroll-behavior-y: none; }
     <section class="card c-plan24" id="planCard" hidden aria-labelledby="planTitle">
       <div class="title-row"><div><div class="eyebrow">Plan</div><h2 class="sec" id="planTitle">Komende 24 uur</h2></div><span class="t-end"><span class="small muted" id="planNote"></span><a class="help-q" href="help#plan" aria-label="Uitleg over de planning">?</a></span></div>
       <div class="wx" id="wxRow"></div>
+      <div class="dagplan" id="dagplan" hidden></div>
       <ol class="plan24" id="planList"></ol>
       <button class="btn-line" id="planMore" hidden style="margin-top:10px">Toon alles</button>
     </section>
@@ -1236,8 +1245,31 @@ function renderPlan(s) {
   $("planMore").hidden = P.items.length <= 6;
   $("planMore").textContent = PLAN_ALL ? "Minder tonen" : `Toon alles (${P.items.length})`;
   const total = P.items.reduce((a, it) => a + (it.eur || 0), 0);
-  $("planNote").textContent = total > 0.01 ? `Geschatte kosten: ± ${eur(total)}` : "";
+  $("planNote").textContent = total > 0.01 && !DAGPLAN ? `Geschatte kosten: ± ${eur(total)}` : "";
 }
+// De gezamenlijke planning in één regel + een kleine grafiek: wat je de komende 24 uur van het net haalt en teruglevert
+let DAGPLAN = null;
+function renderDagplan() {
+  const el = $("dagplan"), D = DAGPLAN;
+  if (!D || !(D.uren || []).length) { el.hidden = true; return; }
+  el.hidden = false;
+  const max = Math.max(0.5, ...D.uren.map((u) => Math.abs(u.net_kwh)));
+  const W = 24 * 10, H = 64, mid = D.terug_kwh > 0.05 ? H * 0.62 : H - 2, sch = (D.terug_kwh > 0.05 ? mid - 2 : H - 4) / max;
+  const bars = D.uren.map((u, i) => {
+    const v = u.net_kwh, h = Math.max(1, Math.abs(v) * sch);
+    return v >= 0 ? `<rect class="af" x="${i * 10 + 1}" y="${(mid - h).toFixed(1)}" width="8" height="${h.toFixed(1)}" rx="1"><title>${hhmm(new Date(u.uur))}: ${nl(v, 2)} kWh van het net</title></rect>`
+      : `<rect class="tr" x="${i * 10 + 1}" y="${mid.toFixed(1)}" width="8" height="${h.toFixed(1)}" rx="1"><title>${hhmm(new Date(u.uur))}: ${nl(-v, 2)} kWh terug</title></rect>`;
+  }).join("");
+  const zelf = D.zelf_pct != null ? `<span><b>${D.zelf_pct}%</b> van je zon zelf gebruikt</span>` : "";
+  el.innerHTML = `<div class="som"><span>Van het net <b>${nl(D.afname_kwh, 1)} kWh</b></span><span>Terug <b>${nl(D.terug_kwh, 1)} kWh</b></span>${zelf}<span>Stroom <b>± ${eur(Math.max(0, D.kosten_eur))}</b></span></div>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Verwacht van het net en terug per uur, komende 24 uur"><line class="ax" x1="0" x2="${W}" y1="${mid}" y2="${mid}"/>${bars}</svg>
+    <div class="uren">${[0, 6, 12, 18].map((i) => `<span>${i ? hhmm(new Date(D.uren[i].uur)) : "nu"}</span>`).join("")}</div>
+    <div class="lg"><span><i style="background:var(--net)"></i>van het net</span>${D.terug_kwh > 0.05 ? '<span><i style="background:var(--sun)"></i>terug</span>' : ""}</div>
+    <p class="small muted" style="margin:6px 0 0">Alles samen gepland: apparaten, auto en batterij houden rekening met elkaar.</p>`;
+  $("planNote").textContent = "";
+}
+async function loadDagplan() { try { DAGPLAN = await api("api/dagplan"); renderDagplan(); } catch (e) { /* volgende keer */ } }
+setInterval(loadDagplan, 300000); setTimeout(loadDagplan, 1500);
 $("planMore").addEventListener("click", () => { PLAN_ALL = !PLAN_ALL; if (STATUS) renderPlan(STATUS); });
 
 function renderStatus(s) {

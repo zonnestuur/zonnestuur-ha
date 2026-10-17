@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.60.0
+- Alles samen plannen: de thuisbatterij weet nu wat de boiler, warmtepomp en auto van plan zijn. Hij rekent niet meer met zon die de boiler al opmaakt, en ziet de auto die vannacht laadt. Verandert een plan, dan rekent de batterij meteen opnieuw.
+- Planning: bovenaan 'Komende 24 uur' zie je in één regel wat je verwacht van het net te halen, terug te leveren, hoeveel van je zon je zelf gebruikt en wat de stroom kost, met een kleine grafiek per uur.
+
 ## 0.59.0
 - Hulp-pagina: bovenaan "Alles in orde ✓" of hoeveel punten aandacht vragen, en bij elk punt wat je kunt doen, met een knop erheen. Ook te zien of de stroomprijzen en de weersverwachting binnen zijn.
 - Een knop die onverwacht misgaat, geeft nu altijd een duidelijke melding (en wij krijgen er automatisch bericht van) in plaats van te blijven hangen.
