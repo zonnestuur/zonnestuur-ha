@@ -354,6 +354,12 @@ html, body { overscroll-behavior-y: none; }
   .dev.on .dev-ico { background: var(--glow-soft); box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow) 35%, transparent), 0 0 30px -4px var(--glow-soft); }
   .dev.on .dev-ico svg { stroke: var(--glow); }
   .dev-name { font-weight: 650; font-size: 16px; letter-spacing: -.01em; }
+  .lamp { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; background: var(--good); }
+  .lamp.uit { background: var(--warn, #c2410c); }
+  .weg-blok { background: var(--warn-soft); border-radius: 14px; padding: 12px 14px; margin: 10px 0 4px; font-size: 14px; color: var(--ink-2); }
+  .weg-blok b { color: var(--ink); }
+  .weg-acts { display: flex; gap: 14px; align-items: center; margin-top: 8px; }
+  .weg-blok p { margin: 6px 0 0; color: var(--ink); }
   .dev-state { font-size: 13px; color: var(--ink-2); }
   .dev-power { margin-left: auto; text-align: right; }
   .dev-power .v { font-size: 26px; font-weight: 650; line-height: 1; }
@@ -1548,7 +1554,7 @@ function renderDevices(s) {
     const running = d.on && d.power_w > 50;
     const isEvCard = !!(d.ev && d.ev.cars.length);
     el.className = "card dev" + (running ? " on" : "") + (isEvCard ? " is-ev evcard" : "");
-    const state = !d.online ? (d.reason && d.reason.startsWith("wacht") ? "Klaar om te zetten" : "Offline") : d.on ? (running ? (RUNNING_WORD[d.kind] || "Aan") : "Aan · neemt geen stroom op") : "Uit";
+    const state = !d.online ? (d.reason && d.reason.startsWith("wacht") ? "Klaar om te zetten" : "Geen verbinding") : d.on ? (running ? (RUNNING_WORD[d.kind] || "Aan") : "Aan · neemt geen stroom op") : "Uit";
     const pos = (h, m) => ((h + m / 60) / 24) * 100;
     let strip = "";
     const PRICE = s.strategy === "price";
@@ -1565,9 +1571,11 @@ function renderDevices(s) {
     el.innerHTML = isEvCard ? evCard(s, d) : `
       <div class="dev-head">
         <div class="dev-ico"><svg viewBox="0 0 24 24">${DEV_ICONS[d.kind] || DEV_ICONS.generic}</svg></div>
-        <div style="min-width:0"><div class="dev-name">${esc(d.name)}</div><div class="dev-state">${state} · ${esc(d.reason)}</div></div>
+        <div style="min-width:0"><div class="dev-name"><i class="lamp ${d.online || (d.reason || "").startsWith("wacht") ? "ok" : "uit"}" title="${d.online ? "Verbonden" : "Niet bereikbaar"}"></i>${esc(d.name)}</div><div class="dev-state">${state} · ${esc(d.reason)}</div></div>
         <div class="dev-power"><div class="v num">${kw(d.power_w)}</div><div class="small muted">kW</div></div>
       </div>
+      ${!d.online && !(d.reason || "").startsWith("wacht") ? `<div class="weg-blok"><b>Niet bereikbaar.</b> Zonnestuur probeert het steeds opnieuw; tot die tijd draait het apparaat zoals het zelf staat.
+        <div class="weg-acts"><button class="btn-line" data-check="${esc(d.id)}">Opnieuw verbinden</button><a class="small" href="hulp">Hulp</a></div><p class="small" role="status" data-checkres></p></div>` : ""}
       <div class="strip" role="img" aria-label="Dagplanning">${strip}</div>
       <div class="strip-axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
       <div class="facts">
@@ -1594,6 +1602,12 @@ function renderDevices(s) {
         <button data-mode="off" data-skip="1" class="${d.mode === "off" ? "active" : ""}">Vandaag overslaan</button>
       </div>
       ${d.mode !== "auto" && d.override_until ? `<div class="small muted" style="margin-top:6px">Door jou ${d.mode === "on" ? "aangezet" : "uitgezet"} tot ${esc(d.override_until.slice(11, 16))}${d.override_until.slice(0, 10) !== s.now.slice(0, 10) ? " (morgen)" : ""}. Daarna weer automatisch.</div>` : ""}`;
+    el.querySelectorAll("[data-check]").forEach((b) => b.addEventListener("click", async () => {
+      const res = el.querySelector("[data-checkres]"); b.disabled = true; res.textContent = "Even kijken…";
+      try { const r = await api(`api/device/${encodeURIComponent(b.dataset.check)}/check`, { method: "POST", body: "{}" }); res.textContent = r.tekst; if (r.online) setTimeout(refresh, 800); }
+      catch (e) { res.textContent = e.message; }
+      finally { b.disabled = false; }
+    }));
     el.querySelectorAll("[data-rd]").forEach((b) => b.addEventListener("click", async () => {
       const cur = (d.ready_times || [])[0] || (d.kind === "ev" ? "07:00" : "18:00");
       let m = Number(cur.slice(0, 2)) * 60 + Number(cur.slice(3, 5)) + Number(b.dataset.rd); m = (m + 1440) % 1440;

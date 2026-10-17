@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.62.0
+- Uitleg (help-centrum): zoeken in alle uitleg én op merk. Per merk een korte handleiding: wat je nodig hebt, hoe je het koppelt en wat Zonnestuur ermee doet, met een knop 'Nu koppelen'.
+- Nieuwe uitleg: wat is een dynamisch contract, waarom salderen stopt, en hoe Zonnestuur beslist.
+- Bij elk onderdeel van de instellingen een vraagteken naar de uitleg.
+- Apparaat niet bereikbaar? Op de kaart staat nu een rood lampje met 'Opnieuw verbinden', en in gewone taal wat je kunt doen.
+- De apparatenlijst in de instellingen toont geen technische adressen meer.
+
 ## 0.61.0
 - Meldingen op je telefoon, zonder extra app: Instellingen → Schermen en meldingen → 'Meldingen op deze telefoon'. Werkt op Android en op de iPhone (zet Zonnestuur dan eerst op je beginscherm). Je krijgt hetzelfde als nu: storingen, hoogstens één kans per dag (zoals 'morgen is stroom extra goedkoop') en het weekrapport.
 - Andere meldmanieren (ntfy, Telegram, e-mail) staan nu onder 'Andere manieren'.

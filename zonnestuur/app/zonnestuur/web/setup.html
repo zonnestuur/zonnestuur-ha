@@ -225,6 +225,8 @@ html, body { overscroll-behavior-y: none; }
   @media (prefers-reduced-motion: reduce) { .pulse, .spin { animation: none; } }
   html, body { overflow-x: hidden; }
   @media (max-width: 700px) { .row { flex-direction: column; align-items: stretch; } .row .field { flex: 1 1 auto !important; min-width: 0; } input, select { max-width: 100%; } }
+  a.help-q { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--chip); color: var(--ink-2);
+    font: 650 13px/1 Inter, sans-serif; text-decoration: none; vertical-align: 3px; margin-left: 4px; }
   .push-blok { background: var(--chip); border-radius: 16px; padding: 14px 16px; margin: 12px 0 14px; }
   .push-blok b { display: block; font-weight: 650; margin-bottom: 2px; }
 </style>
@@ -1489,6 +1491,16 @@ function groepeer() {
     return g ? g[0] : "koppelingen";
   };
   secs.forEach((x) => { x.dataset.groep = welke(x); });
+  // (?) bij elk onderdeel: korte uitleg in het help-centrum
+  const UITLEG = [["Apparaten", "apparaten"], ["Thuisbatterij", "batterij"], ["Omvormer", "omvormer"], ["Energiecontract", "dynamisch"], ["Jouw doel", "beslissen"],
+    ["Meldingen", "meldingen"], ["Huisscherm", "hub"], ["Wandscherm", "hub"], ["Een merk koppelen", "koppelen"], ["Meekijken", "vergelijken"],
+    ["Meten wat Zonnestuur oplevert", "besparing"], ["Installateur", "overdracht"], ["Zonnepanelen", "beslissen"]];
+  secs.forEach((x) => {
+    const h = x.querySelector("h2"); if (!h || h.querySelector(".help-q")) return;
+    const t = h.textContent.trim(), u = UITLEG.find(([k]) => t.startsWith(k));
+    const a = document.createElement("a"); a.className = "help-q"; a.textContent = "?"; a.setAttribute("aria-label", "Uitleg over " + t);
+    a.href = u ? "help#" + u[1] : "help?q=" + encodeURIComponent(t.split(/[ (]/)[0]); h.append(" ", a);
+  });
   const kop = root.firstElementChild, save = root.querySelector(":scope > .actions");
   const nav = document.createElement("nav"); nav.className = "inst-nav"; nav.setAttribute("aria-label", "Onderdelen van de instellingen");
   nav.innerHTML = GROEPEN.map(([id, t]) => `<button type="button" data-g="${id}">${t}</button>`).join("");
@@ -1551,7 +1563,7 @@ async function settings() {
     <section class="card" id="licCard"><h2 class="t">Zonnestuur Pro</h2><p class="small muted">Laden…</p></section>
     <section class="card" id="inst_apparaten"><h2 class="t">Apparaten</h2>
       <div>${CFG.devices.map((d, i) => `<div class="dev-row"><div class="ico" style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--chip)">${ICONS[d.kind].replace("<svg", '<svg width="20" height="20" stroke="currentColor" fill="none" stroke-width="1.8"')}</div>
-        <div style="flex:1;min-width:0"><b>${esc(d.name)}</b><div class="small muted">${esc(DRIVER_LABEL[d.driver] || d.driver)} · ${esc(d.host || d.params.entity || d.params.current_entity || d.params.button_entity || "")} · ${d.driver === "ha_current" ? "traploos" : nl(d.power_w) + " W"} · prioriteit ${d.priority}</div></div>
+        <div style="flex:1;min-width:0"><b>${esc(d.name)}</b><div class="small muted">${esc(DRIVER_LABEL[d.driver] || d.driver)} · ${d.driver === "ha_current" ? "traploos" : nl(d.power_w) + " W"} · ${d.priority <= 1 ? "eerst aan de beurt" : "beurt " + d.priority}</div></div>
         <button class="btn ghost small" data-edit="${i}">Aanpassen</button></div>`).join("")}</div>
       <div class="actions" style="margin-top:14px"><span></span><a class="btn ghost small" href="setup#toevoegen" id="addBtn">+ Apparaat toevoegen</a></div>
     </section>

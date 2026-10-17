@@ -48,6 +48,16 @@ html, body { overscroll-behavior-y: none; }
     section { padding: 18px 16px; border-radius: 18px; scroll-margin-top: 56px; }
     h2 { font-size: 20px; } body { font-size: 15px; }
   }
+  .zoek { grid-column: 1 / -1; }
+  .zoek input { width: 100%; font: inherit; font-size: 17px; padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+  .hz-merken { display: grid; gap: 8px; margin-top: 10px; }
+  .merk { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .merk summary { cursor: pointer; font-weight: 650; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+  .merk summary span { color: var(--ink-2); font-weight: 500; font-size: 14px; }
+  .merk ol { margin: 10px 0 8px; padding-left: 20px; } .merk p { font-size: 15px; }
+  .merk .knop { display: inline-block; margin-top: 6px; font-weight: 650; padding: 9px 16px; border-radius: 999px; background: var(--ink); color: var(--bg); text-decoration: none; }
+  section.weg, nav.zoekt { display: none; }
+  .small { font-size: 14px; color: var(--ink-2); }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -56,13 +66,33 @@ html, body { overscroll-behavior-y: none; }
   <header><a href="./">← Dashboard</a><a href="hulp">Probleem melden</a><a href="instellingen">Instellingen</a></header>
   <h1>Zo werkt Zonnestuur</h1>
   <p class="lead">Zonnestuur zet je apparaten aan op het beste moment: als je eigen zon over is, of als stroom het goedkoopst is. Alles draait bij jou thuis, zonder cloud. Nieuw hier? Bekijk de <a href="kennismaking">kennismaking</a> (2 minuten, met video).</p>
+  <div class="zoek"><input type="search" id="hz" placeholder="Zoek in de uitleg of op een merk, bijv. salderen, batterij of Daikin" aria-label="Zoek in de uitleg of op een merk" autocomplete="off">
+    <div id="hzMerken" class="hz-merken" hidden></div><p class="small" id="hzLeeg" hidden></p></div>
   <nav aria-label="Onderwerpen">
+    <a href="#dynamisch">Dynamisch contract</a><a href="#salderen">Salderen stopt</a><a href="#beslissen">Hoe Zonnestuur beslist</a>
     <a href="#nu">Bovenaan het dashboard</a><a href="#besparing">Besparing: zo rekenen we</a><a href="#tips">Tips</a><a href="#plan">Planning</a>
     <a href="#prijzen">Prijzen per kwartier</a><a href="#apparaten">Apparaten bijsturen</a><a href="#witgoed">Wasmachine en droger</a><a href="#auto">Auto laden</a>
     <a href="#warmte">Warm water en verwarming</a><a href="#koppelen">Merk koppelen</a><a href="#omvormer">Omvormer</a><a href="#batterij">Thuisbatterij</a><a href="#batterij-slim">Batterij: slim sturen</a><a href="#vergelijken">Leverancier vergelijken</a><a href="#nettarief">Nettarief 2029</a><a href="#logboek">Logboek</a><a href="#contract">Contract vergelijken</a>
     <a href="#hub">Huisscherm</a><a href="#widgets">Telefoonwidget</a><a href="#meldingen">Meldingen</a><a href="#privacy">Privacy en veiligheid</a>
   </nav>
   <article>
+    <section id="dynamisch"><h2>Wat is een dynamisch contract?</h2>
+      <p>Bij een dynamisch contract betaal je per kwartier de prijs van de energiebeurs van dat moment, met de belastingen en een kleine opslag van je leverancier erbij. De prijzen voor morgen zijn rond 13:00 bekend.</p>
+      <p>Stroom is meestal goedkoop midden op zonnige dagen, 's nachts en als het hard waait. Duur is hij meestal 's ochtends tussen 7 en 9 en 's avonds tussen 17 en 21 uur. Zonnestuur zet je apparaten zoveel mogelijk in de goedkope kwartieren.</p>
+      <p>Heb je een vast contract? Ook dan helpt Zonnestuur: je gebruikt dan zoveel mogelijk je eigen zonnestroom.</p>
+    </section>
+    <section id="salderen"><h2>Waarom salderen stopt</h2>
+      <p>Tot en met 2026 mag je de stroom die je teruglevert wegstrepen tegen de stroom die je gebruikt. Dat heet salderen. Vanaf <b>1 januari 2027</b> stopt dat.</p>
+      <p>Wat je teruglevert, levert dan veel minder op: je krijgt een lage vergoeding, en soms betaal je zelfs terugleverkosten. Voor elke kWh die je van het net haalt, betaal je wel de volle prijs.</p>
+      <p>Daarom is het slim om je zonnestroom zelf te gebruiken: de boiler, de auto of de wasmachine op het moment dat de zon schijnt. Dat doet Zonnestuur voor je.</p>
+    </section>
+    <section id="beslissen"><h2>Hoe Zonnestuur beslist</h2>
+      <p>Elk kwartier kijkt Zonnestuur naar vier dingen:</p>
+      <ul><li><b>Je meter:</b> hoeveel stroom je nu terug levert of gebruikt.</li><li><b>De zon:</b> hoeveel je panelen vandaag en morgen waarschijnlijk opwekken (uit de weersverwachting).</li>
+        <li><b>De prijzen:</b> wanneer stroom goedkoop en duur is.</li><li><b>Wat er nodig is:</b> warm water vóór de avond, de auto vol vóór je vertrekt, de was klaar op tijd.</li></ul>
+      <p>Daarna maakt hij één plan voor alles samen. Eerst gaat je eigen zon direct naar je apparaten (dat verliest niets). Wat over is, gaat in de thuisbatterij. Moet een apparaat toch van het net draaien, dan kiest Zonnestuur de goedkoopste kwartieren. Lukt iets niet op tijd met zon of goedkope stroom, dan draait het apparaat toch: je komt nooit zonder warm water of een lege auto te zitten.</p>
+      <p>Bij elke actie zie je bij het apparaat onder <b>Waarom?</b> wat Zonnestuur deed en waarom.</p>
+    </section>
     <section id="nu"><h2>Bovenaan het dashboard</h2>
       <p>Het oordeel zegt of nu een goed moment is om stroom te gebruiken:</p>
       <div class="key"><i style="background:#0a7f55"></i><span><b>Goed moment</b>: zon over of een van de goedkoopste kwartieren van vandaag.</span></div>
@@ -204,6 +234,53 @@ fetch("api/howcalc", { headers: token ? { "X-Token": token } : {} }).then((r) =>
     + ((h.per_device || []).length ? `<p><b>Zonder Zonnestuur</b> gaan we per apparaat uit van:</p><ul>${h.per_device.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "")
     + (h.bill ? `<p>${nl(h.bill[0])}</p>` : "");
 }).catch(() => { document.getElementById("calc").textContent = "De bedragen konden niet geladen worden."; });
+// ---- zoeken: in de uitleg en in de koppellijst (per merk een korte handleiding)
+let MERKEN = null;
+const STAP = {
+  ha: (m) => [`Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Tik op <b>Koppelen</b> en volg de stappen. Soms log je in met je account van het merk.",
+    "Klaar? Kies bij <b>Instellingen → Apparaten</b> wat Zonnestuur ermee mag doen."],
+  hacs: (m) => [`Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Tik op <b>Koppelen</b>. Zonnestuur zet eerst een extra koppeling klaar; dat duurt een paar minuten.",
+    "Vul daarna in wat er gevraagd wordt en kies bij <b>Instellingen → Apparaten</b> wat Zonnestuur ermee mag doen."],
+  zonnestuur: (m, r) => r.route === "zonnestuur:ocpp" ? ["Open de app van je laadpaal en zoek de instelling <b>OCPP</b> (soms bij 'backend' of 'centrale').",
+      "Vul het adres in dat Zonnestuur toont bij <b>Instellingen → Koppelingen → Andere systemen</b> (onder OCPP).", "De laadpaal verschijnt vanzelf in Zonnestuur zodra hij verbinding maakt."]
+    : [`Open <b>Instellingen</b> en kies bij het juiste onderdeel (apparaten, omvormer, batterij of meter) <b>${esc(m)}</b>.`, "Zonnestuur zoekt hem zelf in je wifi. Niet gevonden? Kies hem dan uit de lijst.", "Tik op <b>Test verbinding</b>: dan zie je meteen of het werkt."],
+  evcc: (m) => [`Dit merk gaat via de laadmodule van Zonnestuur. Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Volg de stappen; daarna verschijnt de laadpaal bij je apparaten."],
+  relais: () => ["Zet een slimme stekker of schakelaar (bijv. Shelly) voor het apparaat. Bij vast aangesloten apparaten doet een installateur dat.", "Voeg de stekker toe bij <b>Instellingen → Apparaten</b>; Zonnestuur zet hem aan en uit."],
+  meten: () => ["Zonnestuur kan dit apparaat niet aan- of uitzetten, maar wel zien wat het verbruikt.", "Zet er een slimme stekker met meting voor, of koppel het via het merk."],
+  matter: (m) => [`Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a>, kies <b>Matter</b> en scan de code op het apparaat.`],
+  zigbee: () => ["Met een Zigbee-stick in de Zonnestuur Box: open <b>Koppelen → Zigbee</b>, zet het apparaat in koppelstand en wacht tot het verschijnt."],
+};
+function handleiding(x) {
+  const r = (x.routes || []).find((r) => r.zeker) || (x.routes || [])[0] || {};
+  const soort = String(r.route || "").split(":")[0];
+  const stappen = (STAP[soort] || STAP.ha)(x.merk, r);
+  return `<details class="merk"><summary>${esc(x.merk)}<span>${esc(x.categorie)}</span></summary>
+    ${x.producten ? `<p class="small">${esc(x.producten)}</p>` : ""}
+    ${r.nodig ? `<p><b>Wat heb je nodig?</b> ${esc(r.nodig)}</p>` : ""}
+    <p><b>Zo koppel je het:</b></p><ol>${stappen.map((t) => `<li>${t}</li>`).join("")}</ol>
+    ${r.sturen ? `<p><b>Wat Zonnestuur ermee doet:</b> ${esc(r.sturen)}</p>` : ""}
+    <a class="knop" href="koppelen?q=${encodeURIComponent(x.merk)}">Nu koppelen</a></details>`;
+}
+const secs = [...document.querySelectorAll("article > section")];
+const navEl = document.querySelector("nav");
+document.getElementById("hz").addEventListener("input", async (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  const box = document.getElementById("hzMerken"), leeg = document.getElementById("hzLeeg");
+  if (q.length < 2) { secs.forEach((x) => x.classList.remove("weg")); navEl.classList.remove("zoekt"); box.hidden = true; leeg.hidden = true; return; }
+  let n = 0;
+  secs.forEach((x) => { const ja = x.textContent.toLowerCase().includes(q); x.classList.toggle("weg", !ja); if (ja) n++; });
+  navEl.classList.add("zoekt");
+  if (!MERKEN) { try { MERKEN = await (await fetch("koppellijst.json")).json(); } catch (err) { MERKEN = []; } }
+  const m = MERKEN.filter((x) => (x.merk + " " + (x.producten || "")).toLowerCase().includes(q))
+    .sort((a, b) => (a.merk.toLowerCase().startsWith(q) ? 0 : 1) - (b.merk.toLowerCase().startsWith(q) ? 0 : 1)).slice(0, 8);
+  box.hidden = !m.length;
+  box.innerHTML = m.length ? `<p class="small" style="margin:0">Handleiding per merk:</p>` + m.map(handleiding).join("") : "";
+  if (m.length === 1) box.querySelector("details").open = true;
+  leeg.hidden = !!(n || m.length);
+  leeg.textContent = `Niets gevonden voor "${e.target.value.trim()}". Probeer een ander woord, of vraag het ons via Hulp.`;
+});
+const qp = new URLSearchParams(location.search).get("q");
+if (qp) { const i = document.getElementById("hz"); i.value = qp; i.dispatchEvent(new Event("input")); }
 const links = [...document.querySelectorAll("nav a")];
 const mark = () => { const id = location.hash.slice(1); links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + id)); };
 addEventListener("hashchange", mark); mark();
