@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.59.0
+- Hulp-pagina: bovenaan "Alles in orde ✓" of hoeveel punten aandacht vragen, en bij elk punt wat je kunt doen, met een knop erheen. Ook te zien of de stroomprijzen en de weersverwachting binnen zijn.
+- Een knop die onverwacht misgaat, geeft nu altijd een duidelijke melding (en wij krijgen er automatisch bericht van) in plaats van te blijven hangen.
+- Meldingen van de koppelmotor in gewone taal in plaats van Engels.
+- Op afstand meekijken met je scherm werkt nu ook bij grote pagina's, zoals het dashboard.
+- Het dashboard zegt niet meer dat de batterij zonnestroom opslaat als hij van het net laadt.
+- Apparaat testen zonder adres: duidelijke melding wat je eerst moet invullen.
+
 ## 0.58.2
 - Nieuw: SPRSUN-warmtepompen rechtstreeks. Met een RS485-naar-wifi-module (bijv. Elfin EW11) zet Zonnestuur bij zon of goedkope stroom de boilertemperatuur hoger en daarna weer terug, en leest hij vermogen en boilertemperatuur uit. Te vinden bij Koppelen onder SPRSUN.
 

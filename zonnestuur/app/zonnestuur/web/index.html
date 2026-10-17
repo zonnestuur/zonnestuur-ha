@@ -1108,8 +1108,10 @@ function heroState(s) {
     return ["s-net", `${cap(d.name)} ${VERB[d.kind] || "draait"} om op tijd klaar te zijn`, d.next_ready ? `Klaar om ${d.next_ready.slice(11, 16)}, zoals afgesproken. Zon of goedkope uren waren er niet genoeg.` : "Zon of goedkope uren waren er niet genoeg."];
   }
   if (bat && bat.online && bat.power_w != null && Math.abs(bat.power_w) > 50) {
-    if (bat.power_w > 0) return ["s-batt", bat.action === "charge" || !s.has_panels ? "Batterij laadt goedkope stroom" : "Batterij slaat je zonnestroom op",
-      bat.action === "charge" || !s.has_panels ? `Nu ${kw(bat.power_w)} kW${s.price_now != null ? " voor " + eur3(s.price_now) : ""}${bat.target_soc ? ", tot " + Math.round(bat.target_soc) + "%" : ""}, voor de dure uren straks.` : `${kw(bat.power_w)} kW gaat de batterij in in plaats van het net op. Vanavond gebruik je het zelf.`];
+    // Alleen "zonnestroom" als er echt zon over is: haal je tegelijk flink stroom van het net, dan laadt hij van het net.
+    const vanZon = s.has_panels && bat.action !== "charge" && (g == null || g < 150) && s.forecast_now_w !== 0;
+    if (bat.power_w > 0) return ["s-batt", vanZon ? "Batterij slaat je zonnestroom op" : "Batterij laadt van het net",
+      vanZon ? `${kw(bat.power_w)} kW gaat de batterij in in plaats van het net op. Vanavond gebruik je het zelf.` : `Nu ${kw(bat.power_w)} kW${s.price_now != null ? " voor " + eur3(s.price_now) + " per kWh" : ""}${bat.target_soc ? ", tot " + Math.round(bat.target_soc) + "%" : ""}, voor de dure uren straks.`];
     return ["s-batt", "Batterij levert aan je huis", `Je koopt nu ${kw(bat.power_w)} kW minder in${s.price_now != null ? " tegen " + eur3(s.price_now) + " per kWh" : ""}.`];
   }
   if (g != null && g < -100) {

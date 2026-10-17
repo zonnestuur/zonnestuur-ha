@@ -1547,7 +1547,7 @@ async function settings() {
   $("app").innerHTML = `<div class="settings">
     <div class="inst-kop"><h1 class="t" style="margin:0">Instellingen</h1><a class="btn ghost small" href="./">← Dashboard</a></div>
     <section class="card" id="licCard"><h2 class="t">Zonnestuur Pro</h2><p class="small muted">Laden…</p></section>
-    <section class="card"><h2 class="t">Apparaten</h2>
+    <section class="card" id="inst_apparaten"><h2 class="t">Apparaten</h2>
       <div>${CFG.devices.map((d, i) => `<div class="dev-row"><div class="ico" style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--chip)">${ICONS[d.kind].replace("<svg", '<svg width="20" height="20" stroke="currentColor" fill="none" stroke-width="1.8"')}</div>
         <div style="flex:1;min-width:0"><b>${esc(d.name)}</b><div class="small muted">${esc(DRIVER_LABEL[d.driver] || d.driver)} · ${esc(d.host || d.params.entity || d.params.current_entity || d.params.button_entity || "")} · ${d.driver === "ha_current" ? "traploos" : nl(d.power_w) + " W"} · prioriteit ${d.priority}</div></div>
         <button class="btn ghost small" data-edit="${i}">Aanpassen</button></div>`).join("")}</div>
@@ -1558,7 +1558,7 @@ async function settings() {
       <div class="chips" id="ctype"><button data-v="fixed" class="${c.type === "fixed" ? "on" : ""}">Vast of variabel</button><button data-v="dynamic" class="${c.type === "dynamic" ? "on" : ""}">Dynamisch</button></div>
       <div id="cbox">${contractHtml(c)}</div>
     </section>
-    <section class="card"><h2 class="t">Zonnepanelen</h2>
+    <section class="card" id="inst_zon"><h2 class="t">Zonnepanelen</h2>
       <label class="check-row" style="margin:-4px 0 12px"><input type="checkbox" id="s_haspan" ${s.has_panels === false ? "" : "checked"}> Ik heb zonnepanelen <span class="muted">(uit = alles in de goedkoopste uren, met dynamisch contract)</span></label>
       <div class="row">
         <div class="field"><label for="s_kwp">Piekvermogen (kWp)</label><input id="s_kwp" type="number" step="0.1" value="${s.kwp}"></div>
@@ -1652,7 +1652,7 @@ async function settings() {
       <label class="check-row"><input type="checkbox" id="k_ha" ${CFG.kiosk?.ha_sensors === false ? "" : "checked"}> Sensoren aanmaken: <b>sensor.zonnestuur_moment</b> (groen/oranje/rood), zelf gebruikt, besparing deze maand</label>
       <p class="small muted">Koppel het "goede moment" aan een lamp of ledstrip, of zet het op een dashboard. Voor een tablet aan de muur: open <a href="kiosk">het wandscherm</a>.</p>
     </section>` : `<section class="card"><h2 class="t">Wandscherm</h2><p class="small muted" style="margin-top:-4px">Zet een oude tablet aan de muur met <a href="kiosk">het wandscherm</a>: in één oogopslag of het nu een goed moment is voor de was.</p></section>`}
-    <section class="card"><h2 class="t">Meter</h2>
+    <section class="card" id="inst_meter"><h2 class="t">Meter</h2>
       <div class="row">
         <div class="field" style="flex:0 1 280px"><label for="s_md">Soort meter</label><select id="s_md">${METERS.map(([v, l, need]) =>
           `<option value="${v}" ${md === v ? "selected" : ""} ${need && !hasSys(need) ? "disabled" : ""}>${l}${need && !hasSys(need) && md !== v ? " (eerst koppelen)" : ""}</option>`).join("")}</select></div>

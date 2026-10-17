@@ -89,6 +89,11 @@ html, body { overscroll-behavior-y: none; }
   .chk.warn i { background: var(--sun); } .chk.bad i { background: var(--warn); }
   .chk b { font-weight: 650; }
   .chk span { grid-column: 2; font-size: 14px; color: var(--ink-2); overflow-wrap: anywhere; }
+  .chk .doe { color: var(--ink); margin-top: 6px; }
+  .chk .doe b { font-weight: 650; }
+  .knopje { display: inline-block; margin-top: 6px; font-weight: 650; font-size: 14px; padding: 6px 12px; border-radius: 999px; background: var(--chip); color: var(--ink); text-decoration: none; }
+  .sam { margin: 4px 0 8px; font-size: 18px; font-weight: 700; color: var(--good); }
+  .sam.warn { color: var(--ink); }
   textarea { min-height: 130px; resize: vertical; }
   pre { background: var(--chip); border-radius: 12px; padding: 12px; font-size: 12px; max-height: 320px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
   .sw { display: flex; gap: 12px; align-items: flex-start; padding: 6px 0; cursor: pointer; font-weight: 500; }
@@ -169,21 +174,40 @@ async function api(path, opts = {}) {
 }
 const post = (path, body) => api(path, { method: "POST", body: JSON.stringify(body || {}) });
 
+// Per punt: groen/oranje/rood, wat er is, en bij oranje/rood wat je kunt doen (met een knop erheen).
 function checks(d) {
   const out = [];
-  const add = (ok, titel, tekst) => out.push(`<div class="chk ${ok === true ? "" : ok === "warn" ? "warn" : "bad"}"><i></i><b>${esc(titel)}</b><span>${esc(tekst)}</span></div>`);
-  add(d.meter_online !== false, "Slimme meter", d.meter_online === false ? "Geen metingen. Controleer of de meter (of de sensor in de koppelmotor) nog stroom en wifi heeft." : "Meet gewoon.");
-  add(d.ha !== "geen" ? true : "warn", "Koppelmotor", { "add-on": "De koppelmotor draait.", motor: "De ingebouwde koppelmotor draait.", eigen: "Gekoppeld met je eigen koppelmotor.", geen: "Niet gekoppeld; dat is alleen nodig voor apparaten die via de koppelmotor gaan." }[d.ha] || d.ha);
+  let mis = 0;
+  const add = (ok, titel, tekst, doe, link, knop) => {
+    if (ok !== true) mis++;
+    const actie = ok !== true && doe ? `<span class="doe"><b>Wat kun je doen?</b> ${esc(doe)}${link ? ` <a class="knopje" href="${esc(link)}">${esc(knop || "Ga erheen")}</a>` : ""}</span>` : "";
+    out.push(`<div class="chk ${ok === true ? "" : ok === "warn" ? "warn" : "bad"}"><i></i><b>${esc(titel)}</b><span>${esc(tekst)}</span>${actie}</div>`);
+  };
+  add(d.meter_online !== false, "Slimme meter", d.meter_online === false ? "Zonnestuur krijgt geen metingen. Tot dat weer werkt, draaien je apparaten op tijd en prijs." : "Meet gewoon.",
+    "Kijk of de meter-dongle nog brandt en wifi heeft. Haal hem er even uit en doe hem terug. Werkt het na 5 minuten nog niet, kies de meter opnieuw.", "instellingen#inst_meter", "Meter opnieuw kiezen");
+  if (d.prijzen != null) add(d.prijzen ? true : "warn", "Stroomprijzen", d.prijzen ? "De prijzen van vandaag zijn binnen." : "Even geen prijzen. Je apparaten draaien op hun gewone tijden.",
+    "Meestal lost dit zichzelf binnen een uur op. Blijft het zo, controleer dan of je internet thuis werkt.");
+  if (d.zon != null) add(d.zon ? true : "warn", "Zonverwachting", d.zon ? "De weersverwachting is binnen." : "Even geen weersverwachting. Zonnestuur stuurt op wat de meter nu ziet.",
+    "Lost zichzelf meestal binnen een uur op. Kloppen je zonnepanelen onder Instellingen?", "instellingen#inst_zon", "Zonnepanelen");
+  add(d.ha !== "geen" ? true : "warn", "Koppelmotor", { "add-on": "De koppelmotor draait.", motor: "De ingebouwde koppelmotor draait.", eigen: "Gekoppeld met je eigen koppelmotor.", geen: "Niet gekoppeld. Dat hoeft alleen voor apparaten die via de koppelmotor gaan." }[d.ha] || d.ha,
+    "Heb je apparaten die via de koppelmotor gaan? Koppel hem dan onder Koppelen.", "koppelen", "Koppelen");
   for (const a of d.apparaten || []) {
     const ok = a.online ? true : /wacht/.test(a.waarom || "") ? true : "bad";
-    add(ok, a.naam || a.id, a.online ? (a.waarom || "werkt") : /wacht/.test(a.waarom || "") ? a.waarom : `Niet bereikbaar${a.waarom ? ": " + a.waarom : ""}. Staat het apparaat aan en op het netwerk?`);
+    add(ok, a.naam || a.id, a.online ? (a.waarom || "werkt") : /wacht/.test(a.waarom || "") ? a.waarom : `Niet bereikbaar${a.waarom ? ": " + a.waarom : ""}.`,
+      "Staat het apparaat aan en heeft het wifi? Haal de stekker er 10 seconden uit. Lukt het daarna nog niet, test het apparaat opnieuw.", "instellingen#inst_apparaten", "Naar je apparaten");
   }
+  for (const p of (d.problemen || []).filter((p) => p.level === "warn" && !/Meter even niet|reageert niet|stroomprijzen/.test(p.text)))
+    add("warn", "Let op", p.text, "Dit lost zich vaak vanzelf op. Blijft het staan, tik dan op Help mij hieronder.", "#helpmij", "Help mij");
   const fails = (d.gezondheid || {}).failed_today || 0;
-  add(fails ? "warn" : true, "Schakelen vandaag", fails ? `${fails} keer lukte schakelen niet; Zonnestuur probeerde het opnieuw.` : `${(d.gezondheid || {}).switches_today || 0} keer geschakeld, zonder problemen.`);
+  add(fails ? "warn" : true, "Schakelen vandaag", fails ? `${fails} keer lukte schakelen niet; Zonnestuur probeerde het opnieuw.` : `${(d.gezondheid || {}).switches_today || 0} keer geschakeld, zonder problemen.`,
+    "Gebeurt dit vaak bij hetzelfde apparaat? Zet het dichter bij de wifi of laat het ons weten.", "#meld", "Laat het weten");
   const f = d.fouten || [];
-  add(f.length ? "warn" : true, "Fouten in Zonnestuur", f.length ? `Laatste: ${f[0].msg} (${f[0].at})` : "Geen fouten sinds de laatste start.");
+  add(f.length ? "warn" : true, "Fouten in Zonnestuur", f.length ? `Laatste: ${f[0].msg} (${f[0].at})` : "Geen fouten sinds de laatste start.",
+    "Je hoeft niets te doen: wij krijgen deze melding automatisch en lossen het op in een volgende versie.");
   add(true, "Versie", `${d.versie}${d.kanaal === "test" ? " (testkanaal)" : ""}`);
-  $("checks").innerHTML = out.join("");
+  const kop = mis ? `<p class="sam warn">${mis === 1 ? "1 punt vraagt" : mis + " punten vragen"} aandacht. Hieronder staat wat je kunt doen.</p>`
+    : `<p class="sam">Alles in orde ✓</p>`;
+  $("checks").innerHTML = kop + out.join("");
 }
 function wanneer(t) { if (!t) return "nog niet"; const m = Math.round((Date.now() / 1000 - t) / 60); return m < 2 ? "net" : m < 90 ? m + " minuten geleden" : Math.round(m / 60) + " uur geleden"; }
 let U0 = null;
