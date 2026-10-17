@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.61.0
+- Meldingen op je telefoon, zonder extra app: Instellingen → Schermen en meldingen → 'Meldingen op deze telefoon'. Werkt op Android en op de iPhone (zet Zonnestuur dan eerst op je beginscherm). Je krijgt hetzelfde als nu: storingen, hoogstens één kans per dag (zoals 'morgen is stroom extra goedkoop') en het weekrapport.
+- Andere meldmanieren (ntfy, Telegram, e-mail) staan nu onder 'Andere manieren'.
+
 ## 0.60.0
 - Alles samen plannen: de thuisbatterij weet nu wat de boiler, warmtepomp en auto van plan zijn. Hij rekent niet meer met zon die de boiler al opmaakt, en ziet de auto die vannacht laadt. Verandert een plan, dan rekent de batterij meteen opnieuw.
 - Planning: bovenaan 'Komende 24 uur' zie je in één regel wat je verwacht van het net te halen, terug te leveren, hoeveel van je zon je zelf gebruikt en wat de stroom kost, met een kleine grafiek per uur.

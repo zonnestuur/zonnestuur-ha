@@ -225,6 +225,8 @@ html, body { overscroll-behavior-y: none; }
   @media (prefers-reduced-motion: reduce) { .pulse, .spin { animation: none; } }
   html, body { overflow-x: hidden; }
   @media (max-width: 700px) { .row { flex-direction: column; align-items: stretch; } .row .field { flex: 1 1 auto !important; min-width: 0; } input, select { max-width: 100%; } }
+  .push-blok { background: var(--chip); border-radius: 16px; padding: 14px 16px; margin: 12px 0 14px; }
+  .push-blok b { display: block; font-weight: 650; margin-bottom: 2px; }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -1611,7 +1613,10 @@ async function settings() {
     </section>
     <section class="card" id="notifyCard"><h2 class="t">Meldingen en weekrapport</h2>
       <p class="small muted" style="margin-top:-4px">Zonnestuur meldt zich alleen als er iets misgaat, hoogstens één keer per dag als er een kans is om geld te besparen, en op zondagavond met je weekrapport. Tussen 22:00 en 07:00 alleen storingen.</p>
-      ${CFG.has_ha && !CFG.ha_motor ? `<div class="row"><div class="field"><label for="n_svc">App op je telefoon</label><select id="n_svc"><option value="">Niet via de app</option>${N.service ? `<option selected>${esc(N.service)}</option>` : ""}</select></div></div>` : ""}
+      <div class="push-blok"><b>Meldingen op je telefoon</b><span class="small">Open Zonnestuur op je telefoon en tik op de knop. Je telefoon vraagt dan of Zonnestuur meldingen mag sturen. Meer telefoons? Doe hetzelfde op elke telefoon.</span>
+        <div class="actions" style="margin-top:8px"><button class="btn" type="button" id="n_push">Meldingen op deze telefoon</button><span class="small muted" id="n_pushres" role="status"></span></div></div>
+      <details ${N.service || N.ntfy?.topic || N.telegram?.chat_id || N.email?.host ? "open" : ""}><summary class="small">Andere manieren: ntfy, Telegram, e-mail${CFG.has_ha && !CFG.ha_motor ? " of de app van de koppelmotor" : ""}</summary><div style="margin-top:10px">
+      ${CFG.has_ha && !CFG.ha_motor ? `<div class="row"><div class="field"><label for="n_svc">App van de koppelmotor</label><select id="n_svc"><option value="">Niet via de app</option>${N.service ? `<option selected>${esc(N.service)}</option>` : ""}</select></div></div>` : ""}
       <div class="row"><div class="field"><label for="n_ntfy">ntfy-onderwerp (gratis app ntfy)</label><input id="n_ntfy" placeholder="bijv. zonnestuur-${Math.random().toString(36).slice(2, 8)}" value="${esc(N.ntfy?.topic || "")}" autocomplete="off" spellcheck="false">
           <span class="hint">Installeer de app ntfy, tik op + en vul hetzelfde onderwerp in. Kies iets onraadbaars: wie het onderwerp kent, kan meelezen. De meldtekst gaat via de server van ntfy.</span></div>
         <div class="field" style="flex:0 1 220px"><label for="n_ntfys">Server</label><input id="n_ntfys" value="${esc(N.ntfy?.server || "https://ntfy.sh")}"></div></div>
@@ -1623,7 +1628,7 @@ async function settings() {
           <div class="field"><label for="n_eu">Gebruiker</label><input id="n_eu" autocomplete="off" value="${esc(N.email?.user || "")}"></div>
           <div class="field"><label for="n_ew">Wachtwoord${N.has_email_password ? " (leeg = houden)" : ""}</label><input id="n_ew" type="password" autocomplete="new-password"></div>
           <div class="field"><label for="n_et">Naar</label><input id="n_et" type="email" value="${esc(N.email?.to || "")}"></div></div>
-      </details>
+      </details></div></details>
       <label class="check-row"><input type="checkbox" id="n_alerts" ${N.alerts === false ? "" : "checked"}> Storingen: meter of apparaat reageert niet, schakelen lukt niet, warm water in gevaar</label>
       <label class="check-row"><input type="checkbox" id="n_tips" ${N.tips === false ? "" : "checked"}> Kansen: morgen negatieve prijzen of veel zon, vanavond dure stroom (hoogstens één per dag)</label>
       <label class="check-row"><input type="checkbox" id="n_appl" ${N.appliances === false ? "" : "checked"}> Witgoed: als je de was of vaat klaarzet hoe laat hij start, en als hij gestart is</label>
@@ -2039,6 +2044,11 @@ async function settings() {
     if (g("n_tgc")) n.telegram = { chat_id: g("n_tgc"), token: g("n_tgt") };
     if (g("n_eh")) n.email = { host: g("n_eh"), port: Number(g("n_ep")) || 587, user: g("n_eu"), password: $("n_ew").value, to: g("n_et") };
     return n;
+  };
+  $("n_push").onclick = async () => {
+    $("n_pushres").textContent = "Even geduld…";
+    try { const r = await api("api/push/koppel", { method: "POST", body: "{}" }); location.href = r.url; }
+    catch (e) { $("n_pushres").textContent = e.message; }
   };
   $("n_test").onclick = async () => {
     $("n_res").textContent = "Versturen…";
