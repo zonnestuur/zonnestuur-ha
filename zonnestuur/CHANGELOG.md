@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.63.0
+- Zonnestuur vindt nu zelf meer omvormers in je netwerk: SolarEdge, SMA, Kostal en andere SunSpec-omvormers, Huawei SUN2000, Hoymiles (via OpenDTU of AhoyDTU) en de Enphase IQ Gateway. Eén omvormer gevonden? Dan stelt Zonnestuur hem vanzelf in.
+- Instellen: nieuwe vraag 'Wat vind je het belangrijkst?' (zoveel mogelijk besparen, zo min mogelijk terugleveren, of comfort eerst).
+- Instellen in gewone taal: geen IP-adressen en technische namen meer bij de gevonden apparaten.
+
 ## 0.62.0
 - Uitleg (help-centrum): zoeken in alle uitleg én op merk. Per merk een korte handleiding: wat je nodig hebt, hoe je het koppelt en wat Zonnestuur ermee doet, met een knop 'Nu koppelen'.
 - Nieuwe uitleg: wat is een dynamisch contract, waarom salderen stopt, en hoe Zonnestuur beslist.
