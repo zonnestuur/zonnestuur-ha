@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.64.1
+- Gaat een apparaat niet aan (bijvoorbeeld de auto is al vol, of de laadpaal wacht zelf), dan stuurt Zonnestuur niet meer elke 10 seconden opnieuw 'aan'. Na ± 1 minuut wacht hij 15 minuten en probeert het dan opnieuw. Gezien bij een laadpaal die vanochtend een kwartier lang elke 10 seconden een opdracht kreeg.
+
 ## 0.64.0
 - Slimmer kiezen: op een dag met weinig zon gaat de zon eerst naar de thuisbatterij als dat 's avonds duidelijk meer oplevert, en draait bijvoorbeeld de boiler in een goedkoop uur. Op zonnige dagen blijven je apparaten voorgaan.
 - Thuisbatterij en omvormer: rood lampje en 'Opnieuw verbinden' als ze niet bereikbaar zijn; ook te zien op de Hulp-pagina.
