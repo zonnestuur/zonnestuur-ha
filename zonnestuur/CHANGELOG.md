@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.68.1
+- Laadpaal die op toestemming wacht (bijvoorbeeld Zaptec met 'autorisatie nodig'): Zonnestuur drukt nu zelf op 'Autoriseer het laden' of 'Hervat het opladen' als hij wil laden en de auto is aangesloten. Eerder bleef hij het opnieuw proberen zonder resultaat.
+
 ## 0.68.0
 - Huisscherm (Nest Hub): bovenaan staat nu duidelijk "Goedkope stroom vanaf 23:00" of "Nu duur · goedkoop vanaf …" (in rood als stroom nu duur is).
 - Nieuw op het Huisscherm: wat Zonnestuur straks regelt (bijvoorbeeld 23:00 auto laadt, 23:00 warm water). Uit te zetten bij Huisscherm.
