@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.66.0
+- Zonnestuur kijkt naar het patroon van je stroomverbruik en ziet zo of je waarschijnlijk een elektrische auto, boiler, warmtepomp of zonnepanelen hebt. Op het dashboard vraagt hij dan: klopt dit? Zeg je ja, dan helpt hij je meteen koppelen.
+- Heb je een FRITZ!Box? Met het wachtwoord daarvan ziet Zonnestuur alle apparaten in huis, ook die even slapen (Koppelen).
+- Matter: scan de QR-code met je telefoon (een foto is genoeg), of tik de cijfers in. Een tikfout ziet Zonnestuur meteen. Een nieuw Matter-apparaat dat wacht op koppelen, wordt vanzelf gezien.
+
 ## 0.65.0
 - Zonnestuur herkent nu het merk van veel meer apparaten in je netwerk, ook als ze geen eigen webpagina hebben (bijvoorbeeld laadpalen en warmtepompen die alleen een app hebben). Hij kijkt naar de netwerkkaart, de naam die het apparaat aan je router geeft en hoe het zich meldt.
 - Instellen: wat gevonden is, staat bij 'Wat heb je in huis?' al aangevinkt, met het merk erbij. Je hoeft alleen te bevestigen.

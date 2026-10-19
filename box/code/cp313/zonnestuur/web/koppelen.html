@@ -135,6 +135,9 @@ html, body { overscroll-behavior-y: none; }
   </div>
   <div class="results" id="results"></div>
   <button class="btn ghost more" id="more" hidden>Meer tonen</button>
+  <section class="card" style="margin-top:14px"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:200px"><b>Apparaat met een Matter-logo?</b><p class="small muted" style="margin:2px 0 0">Steeds meer laadpalen, boilers en warmtepompen hebben Matter. Dan scan je alleen de QR-code; het merk maakt niet uit.</p></div>
+    <button class="btn" type="button" id="matterAltijd">QR-code scannen</button></div></section>
 </main>
 
 <div class="panel" id="panel" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="p_title">
@@ -169,9 +172,21 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let LIST = [], OV = {}, CAT = "", LIMIT = 40, GEVONDEN = [];
 // wat de laatste netwerkscan vond (voor het invullen van een IP-adres)
-let NETMERKEN = [];
-api("api/setup/scan").then((r) => { GEVONDEN = (r.found || []).filter((g) => g.host && /^\d+\.\d+\.\d+\.\d+$/.test(g.host));
-  NETMERKEN = (r.merken || []).filter((m) => m.merk && m.zeker); if (NETMERKEN.length && OV && Object.keys(OV).length) stateCard(); }).catch(() => {});
+let NETMERKEN = [], ROUTER = {};
+function matterBlok() {
+  const wacht = NETMERKEN.filter((m) => m.merk === "Matter");
+  if (!wacht.length) return "";               // alleen tonen als er echt een Matter-apparaat wacht (de knop staat ook onderaan)
+  const soorten = [...new Set(wacht.map((m) => (m.categorie || "apparaat").toLowerCase()))].join(", ");
+  return `<div class="ontdekt" id="matterKaart"><b>Er wacht een Matter-apparaat op koppelen (${esc(soorten)})</b>
+    <p class="small muted" style="margin:2px 0 8px">Scan de QR-code op het apparaat, dan koppelt Zonnestuur het meteen.</p>
+    <button class="btn small" type="button" id="matterGo">QR-code scannen</button></div>`;
+}
+function scanLaden() {
+  return api("api/setup/scan").then((r) => { GEVONDEN = (r.found || []).filter((g) => g.host && /^\d+\.\d+\.\d+\.\d+$/.test(g.host));
+    NETMERKEN = (r.merken || []).filter((m) => m.merk && m.zeker); ROUTER = r.router || {};
+    if ((NETMERKEN.length || ROUTER.soort) && OV && Object.keys(OV).length) stateCard(); return r; }).catch(() => {});
+}
+scanLaden();
 document.addEventListener("click", (e) => {
   const a = e.target.closest("[data-ip]"); if (!a) return;
   e.preventDefault(); const inp = a.closest(".field").querySelector("input"); if (inp) inp.value = a.dataset.ip;
@@ -246,6 +261,11 @@ function stateCard() {
     ${ont.map((d, i) => `<div class="entry"><span>${esc(merkVan(d))}${d.naam && d.naam !== merkVan(d) ? ` <span class="muted small">${esc(d.naam)}</span>` : ""}</span><button class="btn small" data-ont="${i}">Koppelen</button></div>`).join("")}</div>` : ""}
 ${netm.length ? `<div class="ontdekt" id="netmerk"><b>Ook gezien in je netwerk</b><p class="small muted" style="margin:2px 0 8px">Zonnestuur herkende deze merken aan hun netwerkkaart, hun naam of hoe ze zich melden. Tik op Koppelen: je ziet dan meteen wat er nodig is (vaak alleen inloggen met de app van het merk).</p>
     ${netm.map((m) => `<div class="entry"><span>${esc(m.merk)}${m.categorie ? ` <span class="muted small">${esc(m.categorie.toLowerCase())}</span>` : ""}</span><button class="btn small" data-netmerk="${esc(m.merk)}">Koppelen</button></div>`).join("")}</div>` : ""}
+${matterBlok()}
+${ROUTER.soort === "fritzbox" && (ROUTER.nodig || ROUTER.fout) ? `<div class="ontdekt" id="routerKaart"><b>Je hebt een FRITZ!Box</b><p class="small muted" style="margin:2px 0 8px">Met het wachtwoord van je FRITZ!Box ziet Zonnestuur alle apparaten in huis, ook die nu even slapen. Het wachtwoord staat op de sticker onderop de FRITZ!Box (of je hebt het zelf gekozen). Zonnestuur leest alleen de lijst met apparaten.</p>
+    ${ROUTER.fout ? `<p class="small err">${esc(ROUTER.fout)}</p>` : ""}
+    <div class="field" style="margin:0"><label for="r_pw">Wachtwoord FRITZ!Box</label><input id="r_pw" type="password" autocomplete="off"></div>
+    <div style="margin-top:8px"><button class="btn small" type="button" id="routerGo">Apparaten zoeken</button> <span class="small" id="routerMsg" role="status"></span></div></div>` : ""}
   <div class="status"><span class="dot ${dot}"></span><div style="flex:1;min-width:0"><div class="small">${esc(txt)}</div>
     ${OV.error ? `<div class="small err">${esc(OV.error)}</div>` : ""}
     ${ents.length ? `<details style="margin-top:8px"><summary class="small muted">Gekoppelde merken (${ents.length})</summary><div class="entries">${ents.map((e) =>
@@ -259,6 +279,17 @@ ${netm.length ? `<div class="ontdekt" id="netmerk"><b>Ook gezien in je netwerk</
     ${dongles.length ? `<details style="margin-top:8px"><summary class="small muted">Aangesloten dongles (${dongles.length})</summary><div class="entries">${dongles.map((d) =>
       `<div class="entry"><span>${esc(d.name)}${d.kind ? ` <span class="tag">${esc(d.kind)}</span>` : ""}</span><button class="btn ghost small" data-thread="${esc(d.path)}">Gebruik voor Thread</button></div>`).join("")}</div></details>` : ""}
   </div></div>`;
+  if ($("matterGo")) $("matterGo").onclick = () => matterPaneel("", "");
+  if ($("routerGo")) $("routerGo").onclick = async () => {
+    const m = $("routerMsg"); m.textContent = "Bezig…"; $("routerGo").disabled = true;
+    try {
+      const r = await post("api/setup/router", { password: $("r_pw").value });
+      if (!r.ok) { m.textContent = r.error; $("routerGo").disabled = false; return; }
+      m.textContent = `Gelukt: ${r.aantal} apparaten in de lijst. Zonnestuur zoekt nu opnieuw…`;
+      for (let i = 0; i < 30; i++) { await new Promise((x) => setTimeout(x, 3000)); const s2 = await scanLaden(); if (s2 && !s2.running) break; }
+      ROUTER = {}; stateCard();
+    } catch (e) { m.textContent = e.message; $("routerGo").disabled = false; }
+  };
   el.querySelectorAll("[data-netmerk]").forEach((b) => b.onclick = () => {
     $("q").value = b.dataset.netmerk; LIMIT = 40; render();
     const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start", behavior: "smooth" }); }
@@ -330,6 +361,51 @@ function goButton(info, ri, j, rt) {
 
 // ---------- paneel ----------
 let FLOW = null, BRAND = "";
+// ---- Matter: QR-code scannen (foto; werkt ook zonder https) of de cijfers intikken
+function jsqrLaden() {
+  if (window.jsQR) return Promise.resolve();
+  return new Promise((ok, fout) => { const sc = document.createElement("script"); sc.src = "jsqr.js"; sc.onload = ok; sc.onerror = fout; document.head.appendChild(sc); });
+}
+async function qrUitFoto(bestand) {
+  const img = await createImageBitmap(bestand);
+  if ("BarcodeDetector" in window) {
+    try { const r = await new window.BarcodeDetector({ formats: ["qr_code"] }).detect(img); if (r[0]) return r[0].rawValue; } catch (e) {}
+  }
+  await jsqrLaden();
+  for (const max of [1400, 900, 2000]) {                 // verschillende maten: kleine QR-codes op een grote foto
+    const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas");
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    const g = c.getContext("2d"); g.drawImage(img, 0, 0, c.width, c.height);
+    const r = window.jsQR(g.getImageData(0, 0, c.width, c.height).data, c.width, c.height, { inversionAttempts: "attemptBoth" });
+    if (r && r.data) return r.data;
+  }
+  return "";
+}
+function matterPaneel(merk, nodig) {
+  panel(merk ? `${merk} via Matter` : "Matter-apparaat toevoegen", `<p>Op het apparaat of de verpakking staat een QR-code met <b>Matter</b>-logo. Maak er een foto van, of tik de cijfers eronder in.</p>
+    ${nodig ? `<p class="small muted">Nodig: ${esc(nodig)}</p>` : ""}
+    <label class="btn" style="display:inline-flex;gap:8px;align-items:center;cursor:pointer">📷 Scan de QR-code<input type="file" id="m_foto" accept="image/*" capture="environment" hidden></label>
+    <p class="small" id="m_qr" role="status" style="margin:6px 0 0"></p>
+    <div class="field"><label for="m_code">Matter-code (11 cijfers, of de tekst die begint met MT:)</label><input id="m_code" inputmode="text" autocomplete="off" placeholder="1234-567-8901"></div>
+    <details><summary class="small muted">Zit het al in Google Home, Apple Woning, Alexa of SmartThings?</summary>
+      <p class="small muted">Dan kun je het delen. Open die app, kies het apparaat en zoek naar <b>Gekoppelde Matter-apps</b> of <b>Koppelen met ander systeem</b>. Je krijgt een nieuwe code: vul die hierboven in. Het apparaat blijft ook in die app werken.</p></details>
+    <details><summary class="small muted">Nieuw wifi-apparaat? Wifi-gegevens</summary>
+      <p class="small muted">Een nieuw Matter-apparaat dat via wifi werkt, krijgt deze gegevens via bluetooth van de Box.</p>
+      <div class="field"><label for="m_ssid">Wifi-naam</label><input id="m_ssid" autocomplete="off"></div>
+      <div class="field"><label for="m_pw">Wifi-wachtwoord</label><input id="m_pw" type="password" autocomplete="off"></div></details>
+    <p class="small muted">Houd het apparaat dichtbij en zet het aan. Koppelen duurt tot 3 minuten.</p>`,
+    [["Annuleren", closePanel, "ghost"], ["Koppelen", async () => {
+      try { const r = await post("api/koppel/matter", { code: $("m_code").value, ssid: $("m_ssid").value.trim(), password: $("m_pw").value }); await job(r.job, merk || "Matter-apparaat"); done(merk || "Matter-apparaat"); } catch (e) { $("p_err").textContent = e.message; }
+    }]]);
+  $("m_foto").onchange = async (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    $("m_qr").textContent = "QR-code lezen…";
+    let t = ""; try { t = await qrUitFoto(f); } catch (x) {}
+    if (/^MT:/i.test(t)) { $("m_code").value = t.trim(); $("m_qr").textContent = "✓ QR-code gelezen. Tik op Koppelen."; }
+    else $("m_qr").textContent = t ? "Dit is geen Matter-code. Zoek de QR-code met het Matter-logo." : "Geen QR-code gevonden. Maak de foto wat dichterbij en scherp, of tik de cijfers in.";
+    e.target.value = "";
+  };
+}
 function panel(title, body, acts) {
   $("panel").hidden = false; $("p_title").textContent = title; $("p_body").innerHTML = body; $("p_err").textContent = "";
   $("p_acts").innerHTML = "";
@@ -360,18 +436,7 @@ async function go(row, rt) {
         }]]);
       return;
     }
-    if (info.kind === "matter") {
-      panel(`${row.merk} via Matter`, `<p>Pak de Matter-code van het apparaat of de verpakking: de cijfers onder de QR-code (11 of 21 cijfers), of de tekst die begint met <b>MT:</b>.</p>
-        <p class="small muted">Nodig: ${esc(rt.nodig || "niets extra")}</p><div class="field"><label for="m_code">Matter-code</label><input id="m_code" inputmode="text" autocomplete="off"></div>
-        <details><summary class="small muted">Nieuw wifi-apparaat? Wifi-gegevens</summary>
-          <p class="small muted">Een nieuw Matter-apparaat dat via wifi werkt, krijgt deze gegevens via bluetooth van de Box.</p>
-          <div class="field"><label for="m_ssid">Wifi-naam</label><input id="m_ssid" autocomplete="off"></div>
-          <div class="field"><label for="m_pw">Wifi-wachtwoord</label><input id="m_pw" type="password" autocomplete="off"></div></details>`,
-        [["Annuleren", closePanel, "ghost"], ["Koppelen", async () => {
-          try { const r = await post("api/koppel/matter", { code: $("m_code").value, ssid: $("m_ssid").value.trim(), password: $("m_pw").value }); await job(r.job, row.merk); done(row.merk); } catch (e) { $("p_err").textContent = e.message; }
-        }]]);
-      return;
-    }
+    if (info.kind === "matter") { matterPaneel(row.merk, rt.nodig); return; }
     if (info.kind === "zigbee") {
       const r = await post("api/koppel/start", { route: "zigbee" });
       if (r.type === "permit") { panel(`${row.merk} via Zigbee`, `<p>${esc(r.description)}</p><p class="small muted">Nodig: ${esc(rt.nodig || "")}</p>`, [["Klaar", () => done(row.merk)]]); return; }
@@ -593,7 +658,11 @@ async function meterAanbod() {
   $("cats").querySelectorAll("button").forEach((b) => b.onclick = () => { CAT = b.dataset.c; LIMIT = 40; $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); render(); });
   $("q").oninput = () => { LIMIT = 40; render(); };
   $("more").onclick = () => { LIMIT += 60; render(); };
+  $("matterAltijd").onclick = () => matterPaneel("", "");
   const qp = new URLSearchParams(location.search); if (qp.get("q")) $("q").value = qp.get("q");
+  if (qp.get("cat") && cats.includes(qp.get("cat"))) {      // vanuit 'Gezien aan je meter': meteen de goede soort
+    CAT = qp.get("cat"); $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.c === CAT));
+  }
   render();
   if (qp.get("q")) { const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start" }); } }   // vanuit het eerste instellen: meteen open
   await load();

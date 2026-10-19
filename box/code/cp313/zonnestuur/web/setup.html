@@ -439,6 +439,14 @@ async function watScherm() {
 const CAT_WAT = { Omvormer: "zon", "Warm water": "boiler", Warmtepomp: "wp", Laadpaal: "auto", "Elektrische auto": "auto", Thuisbatterij: "bat",
   Witgoed: "wit", "Slimme meter / P1": "meter" };
 async function merkenOphalen() {
+  try {                                            // wat Zonnestuur al aan het meterpatroon zag (alleen als het vrij zeker is)
+    const mp = await api("api/meterpatroon");
+    W.meterZag = [...(mp.vermoedens || []).filter((x) => x.zeker).map((x) => [x.soort, x.titel]),
+      ...(mp.ja || []).map((k) => [k, (WAT.find((w) => w[0] === k) || [k, k])[1]])];
+    let nieuw = false;
+    for (const [k] of W.meterZag) if (!W.wat[k] && (mp.antwoord || {})[k] !== "nee") { W.wat[k] = { merk: "", vanzelf: true }; nieuw = true; }
+    if (nieuw) { watBewaren(); watScherm(); }
+  } catch (e) {}
   for (let i = 0; i < 20 && $("watMerk"); i++) {
     let s = null; try { s = await api("api/setup/scan"); } catch (e) { return; }
     if (s && !s.running && s.leeftijd_s != null) { W.merkenKlaar = true; W.netMerken = s.merken || []; break; }
@@ -458,6 +466,11 @@ async function merkenOphalen() {
   watScherm();
 }
 function gevondenRegel() {
+  const zag = W.meterZag && W.meterZag.length ? `<div class="gevonden"><b>Gezien aan je meter:</b> ${[...new Map(W.meterZag).values()].map((t) => esc(t.toLowerCase())).join(", ")}.
+    <span class="small muted">Staat al aangevinkt.</span></div>` : "";
+  return zag + netRegel();
+}
+function netRegel() {
   const m = (W.netMerken || []).filter((x) => x.merk);
   if (!m.length) return W.merkenKlaar ? "" : `<p class="small muted" id="netZoek"><span class="spin" style="display:inline-block;width:12px;height:12px;vertical-align:-1px"></span> Zonnestuur kijkt alvast wat er in je netwerk zit…</p>`;
   const uniek = [...new Map(m.map((x) => [x.merk, x])).values()].slice(0, 6);

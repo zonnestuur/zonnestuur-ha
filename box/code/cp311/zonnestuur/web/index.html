@@ -145,6 +145,7 @@ html, body { overscroll-behavior-y: none; }
   .tw.low { color: var(--sun-ink); } .tw.empty { background: var(--warn-soft); color: var(--warn); }
   .ready-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13.5px; }
   .ready-row button { font: inherit; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--card-line); background: var(--card-solid); color: var(--ink); cursor: pointer; font-size: 17px; }
+  .vm + .vm { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
   .c-welcome .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .c-welcome .opts button, .btn-line { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 12px; cursor: pointer;
     border: 1px solid var(--card-line); background: var(--card-solid, var(--chip)); color: var(--ink); }
@@ -826,6 +827,14 @@ html, body { overscroll-behavior-y: none; }
       <ul class="small" id="vzLijst" style="margin:6px 0 0;padding-left:18px"></ul>
       <p class="small muted" style="margin:6px 0 0">Zonnestuur stuurt een apparaat pas als jij dat kiest. Klopt er iets niet? Je kunt een koppeling altijd weer wissen.</p>
       <div class="opts"><button type="button" onclick="location.href='setup#toevoegen'">Kiezen wat Zonnestuur stuurt</button><button type="button" id="vzWeg">Oké</button></div>
+    </section>
+
+    <!-- gezien aan de meter -->
+    <section class="card c-welcome" id="vermoed" hidden aria-labelledby="vmTitle">
+      <div class="eyebrow">Gezien aan je meter</div>
+      <h2 class="sec" id="vmTitle">Klopt dit?</h2>
+      <div id="vmLijst"></div>
+      <p class="small muted" style="margin:8px 0 0">Zonnestuur kijkt naar het patroon van je stroomverbruik. Zeg je ja, dan helpt hij je het apparaat te koppelen.</p>
     </section>
 
     <!-- nog niets gekoppeld -->
@@ -1732,6 +1741,25 @@ async function vanzelfKaart() {
   $("vzLijst").innerHTML = nieuw.slice(0, 8).map((x) => `<li>${esc(x.naam)}</li>`).join("");
   $("vanzelf").hidden = false;
   $("vzWeg").onclick = () => { try { localStorage.setItem("zs_vanzelf", String(nieuw[0].at)); } catch (e) {} $("vanzelf").hidden = true; };
+}
+// Wat Zonnestuur aan het meterpatroon ziet (auto, boiler, warmtepomp, zonnepanelen): vragen of het klopt
+const VM_CAT = { auto: "Laadpaal", boiler: "Warm water", wp: "Warmtepomp", zon: "Omvormer" };
+let VM_AT = 0;
+async function vermoedKaart(nu) {
+  if (!nu && Date.now() - VM_AT < 600000) return; VM_AT = Date.now();
+  let st; try { st = await api("api/meterpatroon"); } catch (e) { return; }
+  const v = (st.vermoedens || []).slice(0, 2);
+  $("vermoed").hidden = !v.length;
+  if (!v.length) return;
+  $("vmLijst").innerHTML = v.map((x) => `<div class="vm"><b>${x.zeker ? "Je hebt waarschijnlijk " : "Heb je "}${esc((x.lid || "") + x.titel.toLowerCase())}${x.zeker ? "." : "?"}</b>
+    <p class="small muted" style="margin:2px 0 0">${esc(x.waarom)}</p>
+    <div class="opts"><button type="button" data-vm="${x.soort}" data-a="ja">Ja, koppelen</button><button type="button" data-vm="${x.soort}" data-a="nee">Nee</button></div></div>`).join("");
+  $("vmLijst").querySelectorAll("[data-vm]").forEach((b) => b.onclick = async () => {
+    b.disabled = true;
+    try { await api("api/meterpatroon", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ soort: b.dataset.vm, antwoord: b.dataset.a }) }); } catch (e) {}
+    if (b.dataset.a === "ja") { location.href = "koppelen?cat=" + encodeURIComponent(VM_CAT[b.dataset.vm]); return; }
+    vermoedKaart(true);
+  });
 }
 function evPanel(d) {
   const E = d.ev;
@@ -2685,6 +2713,7 @@ let WEL_HIDE = false;
 function renderWelcome(s) {
   $("leeg").hidden = !!s.configured;
   vanzelfKaart();
+  vermoedKaart();
   const card = $("welcome");
   card.hidden = WEL_HIDE || !!s.motivation || !s.configured;
 }
