@@ -234,6 +234,8 @@ html, body { overscroll-behavior-y: none; }
   label.check-row .i-tekst { flex-basis: 100%; padding-left: 30px; }
   a.help-q { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--chip); color: var(--ink-2);
     font: 650 13px/1 Inter, sans-serif; text-decoration: none; vertical-align: 3px; margin-left: 4px; }
+  .gevonden { background: var(--chip); border-radius: 14px; padding: 12px 14px; margin: 4px 0 14px; font-size: 15px; }
+  .gevonden .small { display: block; margin-top: 4px; }
   .push-blok { background: var(--chip); border-radius: 16px; padding: 14px 16px; margin: 12px 0 14px; }
   .push-blok b { display: block; font-weight: 650; margin-bottom: 2px; }
 </style>
@@ -406,6 +408,7 @@ async function watScherm() {
     <div class="eyebrow">Stap 1 · ongeveer 5 minuten</div>
     <h1 class="t">Wat heb je in huis?</h1>
     <p class="lead">Tik aan wat je hebt. Daarna zoekt Zonnestuur de makkelijkste manier om het te koppelen.</p>
+    ${gevondenRegel()}
     <div class="tiles wat" role="group" aria-label="Wat heb je in huis">${WAT.map((w) => `<button type="button" class="tile ${W.wat[w[0]] ? "on" : ""}" data-wat="${w[0]}" aria-pressed="${!!W.wat[w[0]]}">${icon(w)}${w[1]}</button>`).join("")}</div>
     <div id="watMerk">${WAT.filter((w) => W.wat[w[0]]).map((w) => `<div class="field" style="margin-top:14px"><label for="m_${w[0]}">${WAT_VRAAG[w[0]]}</label>
       <select id="m_${w[0]}" data-merk="${w[0]}"><option value="">Kies het merk…</option>${merken(w[2]).map((m) => `<option ${W.wat[w[0]].merk === m ? "selected" : ""}>${esc(m)}</option>`).join("")}
@@ -423,11 +426,43 @@ async function watScherm() {
   if (W.wat.zon && !W.wat.meter) W.wat.meter = { merk: "" };
   if (!W.wat.zon) delete W.wat.meter;
   $("app").querySelectorAll("[data-merk]").forEach((s) => s.onchange = () => { W.wat[s.dataset.merk].merk = s.value; watBewaren(); });
+  if (MODE === "setup" && !W.merkenKlaar && !W.merkenBezig) { W.merkenBezig = true; merkenOphalen().finally(() => { W.merkenBezig = false; }); }
   $("next").onclick = () => {
     W.noPanels = !W.wat.zon;
     if (W.noPanels) W.contract.type = "dynamic";
     go(1);
   };
+}
+
+// Merken die Zonnestuur zelf in het netwerk herkende (netwerkkaart, naam, mDNS, UPnP): alvast aanvinken.
+// Alleen aanvullen, nooit iets weghalen wat de klant zelf koos.
+const CAT_WAT = { Omvormer: "zon", "Warm water": "boiler", Warmtepomp: "wp", Laadpaal: "auto", "Elektrische auto": "auto", Thuisbatterij: "bat",
+  Witgoed: "wit", "Slimme meter / P1": "meter" };
+async function merkenOphalen() {
+  for (let i = 0; i < 20 && $("watMerk"); i++) {
+    let s = null; try { s = await api("api/setup/scan"); } catch (e) { return; }
+    if (s && !s.running && s.leeftijd_s != null) { W.merkenKlaar = true; W.netMerken = s.merken || []; break; }
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+  if (!W.netMerken || !W.netMerken.length || !$("watMerk")) return;
+  const L = await lijst();
+  let nieuw = false;
+  for (const m of W.netMerken) {
+    const k = CAT_WAT[m.categorie]; if (!k || !m.zeker) continue;
+    if (k === "meter") { if (!W.wat.zon) continue; }
+    if (!W.wat[k]) { W.wat[k] = { merk: "", vanzelf: true }; nieuw = true; }
+    const cat = (k === "meter" ? METER : WAT.find((w) => w[0] === k))[2];
+    if (!W.wat[k].merk && L.some((r) => r.merk === m.merk && r.categorie === cat)) { W.wat[k].merk = m.merk; nieuw = true; }
+  }
+  if (nieuw) watBewaren();
+  watScherm();
+}
+function gevondenRegel() {
+  const m = (W.netMerken || []).filter((x) => x.merk);
+  if (!m.length) return W.merkenKlaar ? "" : `<p class="small muted" id="netZoek"><span class="spin" style="display:inline-block;width:12px;height:12px;vertical-align:-1px"></span> Zonnestuur kijkt alvast wat er in je netwerk zit…</p>`;
+  const uniek = [...new Map(m.map((x) => [x.merk, x])).values()].slice(0, 6);
+  return `<div class="gevonden"><b>Gevonden in je netwerk:</b> ${uniek.map((x) => esc(x.merk) + (x.categorie ? ` <span class="muted">(${esc(x.categorie.toLowerCase())})</span>` : "")).join(", ")}.
+    <span class="small muted">Wat bij Zonnestuur hoort, staat al aangevinkt. Klopt iets niet? Tik het uit.</span></div>`;
 }
 
 // Per gekozen apparaat: wat er moet gebeuren, in gewone taal

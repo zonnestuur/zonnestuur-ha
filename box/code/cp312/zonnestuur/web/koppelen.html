@@ -169,7 +169,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let LIST = [], OV = {}, CAT = "", LIMIT = 40, GEVONDEN = [];
 // wat de laatste netwerkscan vond (voor het invullen van een IP-adres)
-api("api/setup/scan").then((r) => { GEVONDEN = (r.found || []).filter((g) => g.host && /^\d+\.\d+\.\d+\.\d+$/.test(g.host)); }).catch(() => {});
+let NETMERKEN = [];
+api("api/setup/scan").then((r) => { GEVONDEN = (r.found || []).filter((g) => g.host && /^\d+\.\d+\.\d+\.\d+$/.test(g.host));
+  NETMERKEN = (r.merken || []).filter((m) => m.merk && m.zeker); if (NETMERKEN.length && OV && Object.keys(OV).length) stateCard(); }).catch(() => {});
 document.addEventListener("click", (e) => {
   const a = e.target.closest("[data-ip]"); if (!a) return;
   e.preventDefault(); const inp = a.closest(".field").querySelector("input"); if (inp) inp.value = a.dataset.ip;
@@ -236,9 +238,14 @@ function stateCard() {
     return rs.length === 1 ? rs[0].merk : d.domain.replace(/_/g, " ");
   };
   const ont = OV.ontdekt || [];
+  // Merken die Zonnestuur zelf in het netwerk herkende en die nog niet gekoppeld zijn (ook cloud-merken: dan inloggen)
+  const al = new Set([...ents.map((e) => merkVan(e)), ...ont.map((d) => merkVan(d))].map((x) => String(x).toLowerCase()));
+  const netm = [...new Map(NETMERKEN.filter((m) => !al.has(m.merk.toLowerCase()) && LIST.some((x) => x.merk === m.merk)).map((m) => [m.merk, m])).values()];
   el.innerHTML = `${ont.length ? `<div class="ontdekt" id="ontdekt"><b>Gevonden in je huis</b><p class="small muted" style="margin:2px 0 8px">De koppelmotor zag deze apparaten in je netwerk. Koppel ze in één keer, of één voor één. Wil je er later een niet? Dan ontkoppel je hem hieronder bij Gekoppelde merken.</p>
     <div style="margin:0 0 10px"><button class="btn small" type="button" id="allesKoppelen">Alles in één keer koppelen</button> <span class="small" id="allesMsg" role="status"></span></div>
     ${ont.map((d, i) => `<div class="entry"><span>${esc(merkVan(d))}${d.naam && d.naam !== merkVan(d) ? ` <span class="muted small">${esc(d.naam)}</span>` : ""}</span><button class="btn small" data-ont="${i}">Koppelen</button></div>`).join("")}</div>` : ""}
+${netm.length ? `<div class="ontdekt" id="netmerk"><b>Ook gezien in je netwerk</b><p class="small muted" style="margin:2px 0 8px">Zonnestuur herkende deze merken aan hun netwerkkaart, hun naam of hoe ze zich melden. Tik op Koppelen: je ziet dan meteen wat er nodig is (vaak alleen inloggen met de app van het merk).</p>
+    ${netm.map((m) => `<div class="entry"><span>${esc(m.merk)}${m.categorie ? ` <span class="muted small">${esc(m.categorie.toLowerCase())}</span>` : ""}</span><button class="btn small" data-netmerk="${esc(m.merk)}">Koppelen</button></div>`).join("")}</div>` : ""}
   <div class="status"><span class="dot ${dot}"></span><div style="flex:1;min-width:0"><div class="small">${esc(txt)}</div>
     ${OV.error ? `<div class="small err">${esc(OV.error)}</div>` : ""}
     ${ents.length ? `<details style="margin-top:8px"><summary class="small muted">Gekoppelde merken (${ents.length})</summary><div class="entries">${ents.map((e) =>
@@ -252,6 +259,10 @@ function stateCard() {
     ${dongles.length ? `<details style="margin-top:8px"><summary class="small muted">Aangesloten dongles (${dongles.length})</summary><div class="entries">${dongles.map((d) =>
       `<div class="entry"><span>${esc(d.name)}${d.kind ? ` <span class="tag">${esc(d.kind)}</span>` : ""}</span><button class="btn ghost small" data-thread="${esc(d.path)}">Gebruik voor Thread</button></div>`).join("")}</div></details>` : ""}
   </div></div>`;
+  el.querySelectorAll("[data-netmerk]").forEach((b) => b.onclick = () => {
+    $("q").value = b.dataset.netmerk; LIMIT = 40; render();
+    const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start", behavior: "smooth" }); }
+  });
   if ($("allesKoppelen")) $("allesKoppelen").onclick = async () => {
     $("allesKoppelen").disabled = true; $("allesMsg").innerHTML = '<span class="spin"></span>Bezig met koppelen…';
     try {

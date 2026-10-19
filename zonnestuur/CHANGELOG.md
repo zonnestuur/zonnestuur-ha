@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.65.0
+- Zonnestuur herkent nu het merk van veel meer apparaten in je netwerk, ook als ze geen eigen webpagina hebben (bijvoorbeeld laadpalen en warmtepompen die alleen een app hebben). Hij kijkt naar de netwerkkaart, de naam die het apparaat aan je router geeft en hoe het zich meldt.
+- Instellen: wat gevonden is, staat bij 'Wat heb je in huis?' al aangevinkt, met het merk erbij. Je hoeft alleen te bevestigen.
+- Koppelen: nieuw blok 'Ook gezien in je netwerk' met per merk een knop die meteen de juiste koppeling opent.
+
 ## 0.64.1
 - Gaat een apparaat niet aan (bijvoorbeeld de auto is al vol, of de laadpaal wacht zelf), dan stuurt Zonnestuur niet meer elke 10 seconden opnieuw 'aan'. Na ± 1 minuut wacht hij 15 minuten en probeert het dan opnieuw. Gezien bij een laadpaal die vanochtend een kwartier lang elke 10 seconden een opdracht kreeg.
 
