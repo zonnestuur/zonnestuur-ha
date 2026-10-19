@@ -15,7 +15,7 @@ html, body { overscroll-behavior-y: none; }
     color-scheme: light;
     --bg: #e8ecef; --card: #ffffff; --line: rgba(14, 17, 22, .08); --ink: #0d1015; --ink-2: #555d69; --ink-3: #868d98;
     --sun: #b86e00; --sun-ink: #8f5500; --glow-soft: rgba(255, 178, 36, .18); --chip: rgba(14, 17, 22, .045);
-    --good: #1f8a4c; --warn: #b54708;
+    --good: #16733e; --warn: #b54708;
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
@@ -104,7 +104,7 @@ html, body { overscroll-behavior-y: none; }
   .bar2 { display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 6px; text-align: center; font-size: 11.5px; color: var(--ink-2); }
   .bar2 .stk { display: flex; flex-direction: column-reverse; justify-content: flex-start; height: 100%; }
   .bar2 .stk i { display: block; width: 100%; border-radius: 3px; }
-  .bar2 .stk i.a { background: var(--sun); } .bar2 .stk i.b { background: #2f6bdb; } .bar2 .stk i.o { background: var(--good); }
+  .bar2 .stk i.a { background: var(--sun); } .bar2 .stk i.b { background: #2659c4; } .bar2 .stk i.o { background: var(--good); }
   .bar2 .stk i:last-child { border-radius: 5px 5px 2px 2px; }
   .bar2 b { display: block; font-size: 11.5px; color: var(--ink); font-weight: 650; min-height: 14px; }
   .leg { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); margin-top: 12px; }
@@ -123,7 +123,7 @@ html, body { overscroll-behavior-y: none; }
   <div class="top"><a href="./">← Dashboard</a><span class="spacer"></span><div class="jaar"><button id="vorig" aria-label="Vorig jaar">‹</button><b id="jr">–</b><button id="volgend" aria-label="Volgend jaar">›</button></div></div>
   <section class="card"><div class="eyebrow" id="eb">Opbrengst</div><h1 id="kop">Even rekenen…</h1><div class="big" id="tot">–</div><p class="sub" id="sub"></p><div id="terug"></div></section>
   <section class="card"><div class="eyebrow">Per maand</div><div class="bars2" id="bars" role="img" aria-label="Opbrengst per maand"></div>
-    <div class="leg"><span><i style="background:var(--sun)"></i>Apparaten op zon en goedkope uren</span><span><i style="background:#2f6bdb"></i>Thuisbatterij</span><span><i style="background:var(--good)"></i>Omvormer afknijpen</span></div>
+    <div class="leg"><span><i style="background:var(--sun)"></i>Apparaten op zon en goedkope uren</span><span><i style="background:#2659c4"></i>Thuisbatterij</span><span><i style="background:var(--good)"></i>Omvormer afknijpen</span></div>
     <div class="rows" id="maanden"></div></section>
   <section class="card"><div class="eyebrow">Per apparaat</div><div class="rows" id="apps"></div></section>
   <p class="muted">Opbrengst = wat je minder betaalde dan zonder Zonnestuur: stroom van je eigen zon in plaats van van het net, en stroom in goedkope in plaats van gewone uren. <a href="help#besparing">Zo rekenen we</a> · <a href="vergelijk">Vergelijken met je leverancier</a></p>

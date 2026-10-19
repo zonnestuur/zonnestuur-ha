@@ -43,7 +43,7 @@
   .getal { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 18px; }
   .getal div { border-radius: 18px; padding: 16px; background: var(--zs-zacht); }
   .getal b { display: block; font: 760 30px/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin-bottom: 4px; }
-  .getal .goed b { color: #0a7f55; } .getal span { font-size: 14px; color: var(--zs-ink2); }
+  .getal .goed b { color: #08654a; } .getal span { font-size: 14px; color: var(--zs-ink2); }
   .tegels { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
   .tegel { border-radius: 18px; padding: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); display: grid; gap: 8px; align-content: start; }
   .tegel .ic { width: 40px; height: 40px; border-radius: 12px; } .tegel .ic svg { width: 22px; height: 22px; }
@@ -51,8 +51,9 @@
   nav.onder { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px max(14px, env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--zs-dag) 88%, transparent);
               -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-top: 1px solid var(--zs-lijn); }
   nav.onder .in { max-width: 980px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
-  .dots { display: flex; gap: 6px; flex: 1; } .dots button { width: 9px; height: 9px; border-radius: 50%; border: 0; padding: 0; background: var(--zs-lijn); cursor: pointer; }
-  .dots button.on { background: var(--zs-ink); width: 24px; border-radius: 99px; }
+  .dots { display: flex; gap: 0; flex: 1; } .dots button { width: 24px; height: 24px; border: 0; padding: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+  .dots button::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--zs-lijn); }
+  .dots button.on { width: 36px; } .dots button.on::before { background: var(--zs-ink); width: 24px; border-radius: 99px; }
   .btn { font: inherit; font-weight: 650; padding: 13px 22px; border-radius: 999px; border: 0; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; }
   .btn.terug { background: transparent !important; color: var(--zs-ink) !important; box-shadow: inset 0 0 0 1.5px var(--zs-lijn) !important; }
   .eind { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
@@ -78,7 +79,7 @@
   </header>
 
   <div class="slides" id="slides">
-    <section class="slide" aria-label="Welkom">
+    <section tabindex="0" class="slide" aria-label="Welkom">
       <div class="eyebrow">Kennismaking · 2 minuten</div>
       <h1>Je huis kiest zelf het beste moment</h1>
       <p class="lead">Zonnestuur laat je boiler, warmtepomp, auto en wasmachine draaien op je eigen zonnestroom, of in de goedkoopste uren van de dag. Jij merkt er niets van, behalve een lagere rekening.</p>
@@ -88,7 +89,7 @@
       </button>
     </section>
 
-    <section class="slide" aria-label="Waarom">
+    <section tabindex="0" class="slide" aria-label="Waarom">
       <div class="eyebrow">Waarom nu</div>
       <h1>Vanaf 2027 telt elke kWh die je zelf gebruikt</h1>
       <p class="lead">Op 1 januari 2027 stopt de salderingsregeling. Stroom die je teruglevert, mag je dan niet meer wegstrepen tegen stroom die je later afneemt.</p>
@@ -99,7 +100,7 @@
       <div class="vlak">Zonder zonnepanelen? Met een dynamisch contract scheelt het per uur flink wat je betaalt. Zonnestuur zoekt de goedkoopste uren voor je uit.</div>
     </section>
 
-    <section class="slide" aria-label="Zo werkt het">
+    <section tabindex="0" class="slide" aria-label="Zo werkt het">
       <div class="eyebrow">Zo werkt het</div>
       <h1>Kijken, plannen, schakelen</h1>
       <div class="stappen">
@@ -114,7 +115,7 @@
       <div class="vlak"><b>Alles bij jou thuis.</b> Je meterdata gaan niet naar een cloud. Valt Zonnestuur uit, dan werken je apparaten gewoon op hun eigen instellingen.</div>
     </section>
 
-    <section class="slide" aria-label="Wat kun je ermee">
+    <section tabindex="0" class="slide" aria-label="Wat kun je ermee">
       <div class="eyebrow">Wat kun je ermee</div>
       <h1>Eén systeem voor je hele huis</h1>
       <div class="tegels">
@@ -129,14 +130,14 @@
       </div>
     </section>
 
-    <section class="slide" aria-label="Wat heb je nodig">
+    <section tabindex="0" class="slide" aria-label="Wat heb je nodig">
       <div class="eyebrow">Wat heb je nodig</div>
       <h1>Kijk wat je al hebt</h1>
       <p class="lead">Tik aan wat bij jou thuis past. Je ziet meteen wat Zonnestuur kan en of je nog iets nodig hebt.</p>
       <div id="nodig"></div>
     </section>
 
-    <section class="slide" aria-label="Beginnen">
+    <section tabindex="0" class="slide" aria-label="Beginnen">
       <div class="eyebrow">Beginnen</div>
       <h1 id="eindKop">Klaar om te beginnen</h1>
       <p class="lead" id="eindTekst">Koppelen duurt ongeveer 5 minuten. Zonnestuur zoekt je meter en apparaten zelf in je thuisnetwerk; je hoeft geen adressen of codes over te typen.</p>

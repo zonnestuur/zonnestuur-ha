@@ -15,7 +15,7 @@
 const ZS_VERSION = "1.9.0";
 
 const ZS_CSS = `
-  :host { --zs-sun: #ffb000; --zs-save: #0a7f55; --zs-cheap: #2a78d6; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
+  :host { --zs-sun: #ffb000; --zs-save: #08654a; --zs-cheap: #2a78d6; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
           --zs-ink: var(--primary-text-color, #0e151c); --zs-ink2: var(--secondary-text-color, #47525e);
           --zs-line: var(--divider-color, rgba(0,0,0,.08)); --zs-chip: color-mix(in srgb, var(--zs-ink) 6%, transparent); }
   :host(.dark) { --zs-save: #3ddc97; --zs-warn: #fb923c; --zs-cheap: #3987e5; --zs-dear: #e66767; --zs-mid: #6a7280; }

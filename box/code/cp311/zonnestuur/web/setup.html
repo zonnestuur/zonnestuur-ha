@@ -21,7 +21,7 @@ html, body { overscroll-behavior-y: none; }
     --shadow: 0 1px 2px rgba(14,17,22,.04), 0 8px 28px -12px rgba(14,17,22,.12);
     --ink: #0e1116; --ink-2: #5c6470; --ink-3: #8a919b; --field: #fff;
     --sun: #e08600; --sun-ink: #9a5b00; --sun-soft: rgba(255,178,36,.16); --net: #2f5bdb;
-    --good: #1f8a4c; --good-soft: rgba(31,138,76,.12); --warn: #b54708; --warn-soft: rgba(181,71,8,.10);
+    --good: #16733e; --good-soft: rgba(31,138,76,.12); --warn: #b54708; --warn-soft: rgba(181,71,8,.10);
     --chip: rgba(14,17,22,.05);
   }
   @media (prefers-color-scheme: dark) {
@@ -58,7 +58,7 @@ html, body { overscroll-behavior-y: none; }
   .brand img { width: 28px; height: 28px; border-radius: 8px; }
   .spacer { flex: 1; }
   .steps { display: flex; gap: 6px; }
-  .naar-dash { font-size: 14px; font-weight: 600; color: var(--muted, #8a97a3); text-decoration: none; white-space: nowrap; padding: 6px 0 6px 6px; }
+  .naar-dash { font-size: 14px; font-weight: 600; color: var(--zs-ink2, #4a5764); text-decoration: none; white-space: nowrap; padding: 6px 0 6px 6px; }
   .naar-dash:hover { color: inherit; }
   @media (max-width: 480px) { .steps { display: none; } }
   .steps i { width: 26px; height: 5px; border-radius: 3px; background: var(--chip); }
@@ -225,14 +225,14 @@ html, body { overscroll-behavior-y: none; }
   @media (prefers-reduced-motion: reduce) { .pulse, .spin { animation: none; } }
   html, body { overflow-x: hidden; }
   @media (max-width: 700px) { .row { flex-direction: column; align-items: stretch; } .row .field { flex: 1 1 auto !important; min-width: 0; } input, select { max-width: 100%; } }
-  .i-knop { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 0; padding: 0; margin-left: 4px;
+  .i-knop { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 0; padding: 0; margin-left: 4px;
     background: var(--chip); color: var(--ink-2); font: italic 700 12px/1 Georgia, serif; cursor: pointer; vertical-align: 1px; }
   .i-knop[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
   .i-tekst { display: block; margin-top: 4px; }
   label.check-row { flex-wrap: wrap; }
   label.check-row .i-knop { flex: none; align-self: center; }
   label.check-row .i-tekst { flex-basis: 100%; padding-left: 30px; }
-  a.help-q { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--chip); color: var(--ink-2);
+  a.help-q { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--chip); color: var(--ink-2);
     font: 650 13px/1 Inter, sans-serif; text-decoration: none; vertical-align: 3px; margin-left: 4px; }
   .gevonden { background: var(--chip); border-radius: 14px; padding: 12px 14px; margin: 4px 0 14px; font-size: 15px; }
   .gevonden .small { display: block; margin-top: 4px; }
@@ -1793,7 +1793,9 @@ async function settings() {
     <section class="card" id="notifyCard"><h2 class="t">Meldingen en weekrapport</h2>
       <p class="small muted" style="margin-top:-4px">Zonnestuur meldt zich alleen als er iets misgaat, hoogstens één keer per dag als er een kans is om geld te besparen, en op zondagavond met je weekrapport. Tussen 22:00 en 07:00 alleen storingen.</p>
       <div class="push-blok"><b>Meldingen op je telefoon</b><span class="small">Open Zonnestuur op je telefoon en tik op de knop. Je telefoon vraagt dan of Zonnestuur meldingen mag sturen. Meer telefoons? Doe hetzelfde op elke telefoon.</span>
-        <div class="actions" style="margin-top:8px"><button class="btn" type="button" id="n_push">Meldingen op deze telefoon</button><span class="small muted" id="n_pushres" role="status"></span></div></div>
+        <div class="actions" style="margin-top:8px"><button class="btn" type="button" id="n_push">Meldingen op deze telefoon</button><button class="btn ghost" type="button" id="n_huis">Ook voor je huisgenoot</button><span class="small muted" id="n_pushres" role="status"></span></div>
+        <div id="n_huisqr" hidden style="margin-top:10px"><p class="small">Laat je huisgenoot deze code scannen met de camera van zijn of haar telefoon. Die krijgt dan dezelfde meldingen en kan Zonnestuur ook bekijken en bijsturen. Zo hoeft niet één persoon alles te doen.</p>
+          <div id="n_qr" style="width:200px;height:200px;background:#fff;padding:8px;border-radius:12px"></div></div></div>
       <details ${N.service || N.ntfy?.topic || N.telegram?.chat_id || N.email?.host ? "open" : ""}><summary class="small">Andere manieren: ntfy, Telegram, e-mail${CFG.has_ha && !CFG.ha_motor ? " of de app van de koppelmotor" : ""}</summary><div style="margin-top:10px">
       ${CFG.has_ha && !CFG.ha_motor ? `<div class="row"><div class="field"><label for="n_svc">App van de koppelmotor</label><select id="n_svc"><option value="">Niet via de app</option>${N.service ? `<option selected>${esc(N.service)}</option>` : ""}</select></div></div>` : ""}
       <div class="row"><div class="field"><label for="n_ntfy">ntfy-onderwerp (gratis app ntfy)</label><input id="n_ntfy" placeholder="bijv. zonnestuur-${Math.random().toString(36).slice(2, 8)}" value="${esc(N.ntfy?.topic || "")}" autocomplete="off" spellcheck="false">
@@ -2228,6 +2230,16 @@ async function settings() {
     $("n_pushres").textContent = "Even geduld…";
     try { const r = await api("api/push/koppel", { method: "POST", body: "{}" }); location.href = r.url; }
     catch (e) { $("n_pushres").textContent = e.message; }
+  };
+  $("n_huis").onclick = async () => {
+    $("n_pushres").textContent = "Even geduld…";
+    try {
+      const r = await api("api/push/koppel", { method: "POST", body: "{}" });
+      if (!window.qrcode) await new Promise((ok, fout) => { const sc = document.createElement("script"); sc.src = "qrcode.js"; sc.onload = ok; sc.onerror = fout; document.head.appendChild(sc); });
+      const q = window.qrcode(0, "M"); q.addData(r.url); q.make();
+      $("n_qr").innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); $("n_qr").firstChild.setAttribute("aria-label", "QR-code voor je huisgenoot");
+      $("n_huisqr").hidden = false; $("n_pushres").textContent = "";
+    } catch (e) { $("n_pushres").textContent = e.message; }
   };
   $("n_test").onclick = async () => {
     $("n_res").textContent = "Versturen…";

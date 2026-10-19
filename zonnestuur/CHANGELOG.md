@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.67.0
+- Makkelijker te lezen: betere contrasten in de hele app en op de website, en alles waar je op tikt is groot genoeg (volgens de nieuwe Europese toegankelijkheidsnorm).
+- Moeilijke woorden zoals kWh, P1, omvormer en salderen hebben een stippellijn: tik erop en je krijgt de uitleg in één zin.
+- Een paar dagen weg? Kies op het dashboard wanneer je thuiskomt. De boiler staat zolang uit en is weer warm als je thuiskomt.
+- Huisgenoot toevoegen: bij Meldingen staat een QR-code. Je huisgenoot scant die en krijgt dezelfde meldingen.
+
 ## 0.66.0
 - Zonnestuur kijkt naar het patroon van je stroomverbruik en ziet zo of je waarschijnlijk een elektrische auto, boiler, warmtepomp of zonnepanelen hebt. Op het dashboard vraagt hij dan: klopt dit? Zeg je ja, dan helpt hij je meteen koppelen.
 - Heb je een FRITZ!Box? Met het wachtwoord daarvan ziet Zonnestuur alle apparaten in huis, ook die even slapen (Koppelen).

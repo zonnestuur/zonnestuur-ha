@@ -1,8 +1,8 @@
 /* Huisstijl van zonnestuur.nl, over elke pagina van de app heen (na de eigen stijl van de pagina geladen).
    Daglicht-grijs, inkt, zon-geel en goedkoop-blauw; Inter Tight voor koppen; strakke vlakken met een haarlijn. */
 :root {
-  --zs-dag: #e9eef2; --zs-vlak: #ffffff; --zs-ink: #13202b; --zs-ink2: #4a5764; --zs-ink3: #6b7784; --zs-lijn: rgba(19, 32, 43, .10);
-  --zs-zon: #ffb224; --zs-blauw: #2f6bdb; --zs-zacht: rgba(19, 32, 43, .05);
+  --zs-dag: #e9eef2; --zs-vlak: #ffffff; --zs-ink: #13202b; --zs-ink2: #4a5764; --zs-ink3: #5d6873; --zs-lijn: rgba(19, 32, 43, .10);
+  --zs-zon: #ffb224; --zs-blauw: #2659c4; --zs-zacht: rgba(19, 32, 43, .05);
   --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: var(--zs-vlak);
   --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn);
   --shadow: 0 0 0 1px var(--zs-lijn);
@@ -88,3 +88,9 @@ a { text-underline-offset: 3px; }
   .card.c-hero .flowpause { right: 0; }
 }
 .headline { font-size: clamp(34px, 4.8vw, 62px) !important; line-height: 1 !important; }
+
+/* WCAG 2.2 (2.5.8): alles waar je op tikt is minstens 24 x 24 px. Tekstlinks midden in een zin zijn uitgezonderd. */
+summary { min-height: 24px; }
+.actions a { display: inline-block; padding: 4px 0; }
+header a, .top a, a.link, a.naar-dash { display: inline-flex; align-items: center; min-height: 24px; }
+input[type="checkbox"], input[type="radio"] { min-width: 24px; min-height: 24px; }

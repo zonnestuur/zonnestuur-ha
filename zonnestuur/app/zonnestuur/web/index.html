@@ -25,7 +25,7 @@ html, body { overscroll-behavior-y: none; }
     --sun: #b86e00; --net: #2f5bdb; --batt: #0d9488;          /* dataseries (gevalideerd op licht vlak) */
     --cheap: #2a78d6; --dear: #e34948; --mid: #8a9199;         /* prijs: goedkoop / duur / normaal (gevalideerd) */
     --glow: #ffb224; --glow-soft: rgba(255, 178, 36, .18);
-    --good: #1f8a4c; --good-soft: rgba(31, 138, 76, .12); --warn: #b54708; --warn-soft: rgba(181, 71, 8, .10);
+    --good: #16733e; --good-soft: rgba(31, 138, 76, .12); --warn: #b54708; --warn-soft: rgba(181, 71, 8, .10);
     --chip: rgba(14, 17, 22, .045); --seg: rgba(14, 17, 22, .06); --seg-on: #ffffff;
     --sun-ink: #8f5500;
   }
@@ -145,6 +145,12 @@ html, body { overscroll-behavior-y: none; }
   .tw.low { color: var(--sun-ink); } .tw.empty { background: var(--warn-soft); color: var(--warn); }
   .ready-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13.5px; }
   .ready-row button { font: inherit; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--card-line); background: var(--card-solid); color: var(--ink); cursor: pointer; font-size: 17px; }
+  footer a, .evc-why a, .links-row a { display: inline-block; padding: 4px 0; }
+  .weg { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; margin: 0 0 12px; }
+  .weg.on { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-color: color-mix(in srgb, var(--sun) 50%, transparent); }
+  .weg.on > div { flex: 1; min-width: 220px; } .weg summary { cursor: pointer; padding: 6px 0; }
+  .weg-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 10px; }
+  .weg-form label { display: grid; gap: 4px; font-size: 14px; } .weg-form input { font: inherit; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); min-height: 44px; }
   .vm + .vm { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
   .c-welcome .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .c-welcome .opts button, .btn-line { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 12px; cursor: pointer;
@@ -480,8 +486,8 @@ html, body { overscroll-behavior-y: none; }
     --card: #ffffff; --card-hi: #ffffff; --card-solid: #ffffff; --card-line: rgba(14, 21, 28, .07);
     --shadow: 0 1px 0 rgba(14, 21, 28, .04);
     --ink: #0e151c; --ink-2: #47525e; --ink-3: #6a7480; --rule: rgba(14, 21, 28, .08);
-    --glow: #ffb000; --glow-soft: rgba(255, 176, 0, .16); --good: #0a7f55; --good-soft: rgba(10, 127, 85, .11);
-    --chip: rgba(14, 21, 28, .045); --seg: rgba(14, 21, 28, .06); --seg-on: #ffffff; --save: #0a7f55;
+    --glow: #ffb000; --glow-soft: rgba(255, 176, 0, .16); --good: #08654a; --good-soft: rgba(10, 127, 85, .11);
+    --chip: rgba(14, 21, 28, .045); --seg: rgba(14, 21, 28, .06); --seg-on: #ffffff; --save: #08654a;
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
@@ -942,7 +948,8 @@ html, body { overscroll-behavior-y: none; }
     <div class="sec-head" id="s-apparaten"><h2>Apparaten</h2><p>Bedienen en bijsturen: wat elk apparaat nu doet, en waarom.</p></div>
     <!-- apparaten -->
     <section class="c-devs" aria-labelledby="devTitle">
-      <div class="devs-head" style="justify-content:flex-end;margin-top:-6px"><span id="devTitle" hidden>Apparaten</span><a class="btn-line" href="setup#toevoegen" style="text-decoration:none">+ Apparaat toevoegen</a><a class="small muted" href="instellingen" style="margin-left:14px">Beheren</a></div>
+      <div class="devs-head" style="justify-content:flex-end;margin-top:-6px"><span id="devTitle" hidden>Apparaten</span><a class="btn-line" href="setup#toevoegen" style="text-decoration:none">+ Apparaat toevoegen</a><a class="small muted" href="instellingen" style="margin-left:14px;display:inline-flex;align-items:center;min-height:24px">Beheren</a></div>
+      <div id="weg" hidden></div>
       <div class="devs" id="devices"></div>
     </section>
 
@@ -1741,6 +1748,34 @@ async function vanzelfKaart() {
   $("vzLijst").innerHTML = nieuw.slice(0, 8).map((x) => `<li>${esc(x.naam)}</li>`).join("");
   $("vanzelf").hidden = false;
   $("vzWeg").onclick = () => { try { localStorage.setItem("zs_vanzelf", String(nieuw[0].at)); } catch (e) {} $("vanzelf").hidden = true; };
+}
+// Ik ben weg (vakantie): boiler en losse apparaten uit tot kort voor thuiskomst
+let WEG_AT = 0;
+async function wegKaart(nu) {
+  if (!nu && Date.now() - WEG_AT < 300000) return; WEG_AT = Date.now();
+  let st; try { st = await api("api/afwezig"); } catch (e) { return; }
+  const el = $("weg"); el.hidden = !(st.actief || st.kan); if (el.hidden) return;
+  const dag = (iso) => new Date(iso).toLocaleString("nl-NL", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  if (st.actief) {
+    el.innerHTML = `<div class="weg on"><div><b>Je bent weg tot ${esc(dag(st.tot))}</b>
+      <p class="small muted" style="margin:2px 0 0">${esc((st.namen || []).join(", "))} staat uit. 4 uur voor je thuiskomt gaat alles weer gewoon, zodat er warm water is.</p></div>
+      <button type="button" class="btn-line" id="wegTerug">Ik ben terug</button></div>`;
+    $("wegTerug").onclick = async () => { await wegPost({ terug: true }); };
+    return;
+  }
+  const d = new Date(Date.now() + 3 * 86400000), ds = d.toISOString().slice(0, 10);
+  el.innerHTML = `<details class="weg"><summary><b>Een paar dagen weg?</b> <span class="small muted">Dan hoeft de boiler niet warm te blijven.</span></summary>
+    <div class="weg-form"><label>Ik ben weer thuis op<input type="date" id="wegDag" value="${ds}" min="${new Date().toISOString().slice(0, 10)}"></label>
+    <label>om<input type="time" id="wegUur" value="18:00"></label><button type="button" class="btn-line on-sun" id="wegGo">Zet klaar</button></div>
+    <p class="small" id="wegMsg" role="status" style="margin:6px 0 0"></p></details>`;
+  $("wegGo").onclick = () => wegPost({ tot: $("wegDag").value + "T" + ($("wegUur").value || "18:00") + ":00" });
+}
+async function wegPost(body) {
+  try {
+    const r = await fetch("api/afwezig", { method: "POST", headers: { "X-Token": token, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json(); if (!r.ok) { if ($("wegMsg")) $("wegMsg").textContent = j.error || "Dat lukte niet."; return; }
+  } catch (e) { if ($("wegMsg")) $("wegMsg").textContent = "Dat lukte niet. Probeer het opnieuw."; return; }
+  wegKaart(true); if (typeof refresh === "function") refresh();
 }
 // Wat Zonnestuur aan het meterpatroon ziet (auto, boiler, warmtepomp, zonnepanelen): vragen of het klopt
 const VM_CAT = { auto: "Laadpaal", boiler: "Warm water", wp: "Warmtepomp", zon: "Omvormer" };
@@ -2714,6 +2749,7 @@ function renderWelcome(s) {
   $("leeg").hidden = !!s.configured;
   vanzelfKaart();
   vermoedKaart();
+  wegKaart();
   const card = $("welcome");
   card.hidden = WEL_HIDE || !!s.motivation || !s.configured;
 }

@@ -11,7 +11,7 @@ background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px rgba(127,127,1
 .zn-r{display:grid;gap:10px;margin-top:4px}.zn-r:empty{display:none}
 .zn-i{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:12px 14px;border-radius:16px;background:rgba(127,127,127,.08);font-size:14px;line-height:1.5}
 .zn-i .ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px}
-.zn-i.ok .ic{background:rgba(10,127,85,.16);color:#0a7f55}.zn-i.nodig .ic{background:rgba(255,178,36,.25);color:#8a5a00}.zn-i.tip .ic{background:rgba(47,107,219,.14);color:#2f6bdb}
+.zn-i.ok .ic{background:rgba(10,127,85,.16);color:#08654a}.zn-i.nodig .ic{background:rgba(255,178,36,.25);color:#8a5a00}.zn-i.tip .ic{background:rgba(47,107,219,.14);color:#2659c4}
 @media(prefers-color-scheme:dark){.zn-i.nodig .ic{color:#ffcf5c}.zn-i.ok .ic{color:#3ccf7f}.zn-i.tip .ic{color:#8fb0ff}}
 .zn-i p{margin:2px 0 0}.zn-i .pr{font-weight:650}.zn-k{font-size:12px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;opacity:.65;margin-top:6px}`;
   function zsNodig(el, opt = {}) {
