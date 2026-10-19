@@ -257,6 +257,7 @@ const BLOKKEN = [
   ["agenda", "Agenda", "de eerstvolgende afspraak van vandaag"],
   ["auto", "Auto", "laadt hij, en hoe vol is de accu"],
   ["besparing", "Besparing", "wat Zonnestuur deze maand bespaarde"],
+  ["plan", "Wat Zonnestuur regelt", "welk apparaat straks aangaat (auto laden, warm water)"],
   ["nieuws", "Nieuws", "koppen uit je nieuwsfeeds"],
 ];
 const DAGEN = [["mon", "ma"], ["tue", "di"], ["wed", "wo"], ["thu", "do"], ["fri", "vr"], ["sat", "za"], ["sun", "zo"]];
@@ -471,7 +472,7 @@ function draw() {
   const d = $("prev").contentDocument, c = d.querySelector("zonnestuur-hub-card");
   if (!c || !c.setConfig) return;
   const b = ED.blokken, cfg = { licht: true, radio_knop: ED.radio.knop !== false, radio_entity: "input_text.voorbeeld", radio_stream: ED.radio.url || undefined, radio_name: ED.radio.naam || undefined };
-  for (const k of ["afval", "weer", "witgoed", "agenda", "besparing", "prijs", "auto"]) if (!b[k]) cfg[k] = false;
+  for (const k of ["afval", "weer", "witgoed", "agenda", "besparing", "prijs", "auto", "plan"]) if (!b[k]) cfg[k] = false;
   const st = ED.stijl || {}, tg = {};
   Object.assign(cfg, { accent: st.accent, thema: st.thema, tekst: st.tekst, begroeting: st.begroeting, wie: st.wie, volgorde: st.volgorde, tegels: st.tegels });
   if (st.thema === "licht") cfg.licht = false;   // het lichte thema heeft zijn eigen achtergrond

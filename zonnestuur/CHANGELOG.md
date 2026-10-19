@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.68.0
+- Huisscherm (Nest Hub): bovenaan staat nu duidelijk "Goedkope stroom vanaf 23:00" of "Nu duur · goedkoop vanaf …" (in rood als stroom nu duur is).
+- Nieuw op het Huisscherm: wat Zonnestuur straks regelt (bijvoorbeeld 23:00 auto laadt, 23:00 warm water). Uit te zetten bij Huisscherm.
+- 's Avonds zie je wanneer het morgen het goedkoopst is (handig voor de was). De auto toont tot hoeveel procent hij laadt.
+- Geen wasadvies meer midden in de nacht; bedragen breken niet meer middenin af.
+- Wandscherm op een klein scherm (zoals een Nest Hub): de klok blijft netjes, zonder tekst over de rand.
+
 ## 0.67.0
 - Makkelijker te lezen: betere contrasten in de hele app en op de website, en alles waar je op tikt is groot genoeg (volgens de nieuwe Europese toegankelijkheidsnorm).
 - Moeilijke woorden zoals kWh, P1, omvormer en salderen hebben een stippellijn: tik erop en je krijgt de uitleg in één zin.

@@ -135,6 +135,12 @@ html, body { overscroll-behavior-y: none; }
   .sheet a { color: var(--ink-2); font-size: 14px; }
   .seg button { white-space: nowrap; }
   .why-out { display: none; color: var(--ink-2); text-align: center; margin: 0; max-width: 34ch; font-size: 15px; }
+  /* Laag scherm (Nest Hub 1024×600, tablet liggend): de klok is klein, dus geen lange uitleg in het midden */
+  @media (max-height: 700px) and (min-width: 561px) {
+    .center .why { display: none; }
+    .center { inset: 19%; }
+    .verdict { font-size: 14px; padding: 6px 12px; white-space: nowrap; }
+  }
   @media (max-width: 560px) {
     .center .why, .time span, .unit { display: none; }
     .why-out { display: block; }

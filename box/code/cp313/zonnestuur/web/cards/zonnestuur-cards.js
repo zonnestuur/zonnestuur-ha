@@ -12,7 +12,7 @@
  *
  * Optioneel bij elke kaart: entity: sensor.zonnestuur
  */
-const ZS_VERSION = "1.9.0";
+const ZS_VERSION = "1.10.0";
 
 const ZS_CSS = `
   :host { --zs-sun: #ffb000; --zs-save: #08654a; --zs-cheap: #2a78d6; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
@@ -109,7 +109,7 @@ const ZS_ICON = {
   batt: '<rect x="6" y="5" width="12" height="16" rx="2.5"/><path d="M10 3h4M12 9l-2 4h4l-2 4"/>',
 };
 
-const zsEur = (v) => v == null ? "–" : (v < -0.004 ? "−" : "") + "€ " + Math.abs(v).toFixed(2).replace(".", ",");
+const zsEur = (v) => v == null ? "–" : (v < -0.004 ? "−" : "") + "€\u00a0" + Math.abs(v).toFixed(2).replace(".", ",");
 const zsEsc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const zsKw = (w) => (Math.abs(w || 0) / 1000).toFixed(1).replace(".", ",");
 
@@ -243,6 +243,10 @@ const ZS_HUB_CSS = `
     background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
     padding: clamp(20px, 5vh, 44px) clamp(24px, 5vw, 56px); display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: minmax(0, 1fr); gap: 2vh; -webkit-font-smoothing: antialiased; }
   .hub.duur { --g: #ffb000; --g2: #5a3a00; --bg: #0b0d10; }
+  .hub.piek { --g: #ff7a59; --g2: #5c1d10; }
+  .plan { margin-top: 2.6vh; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5em 1.4em; font-size: clamp(14px, 3vh, 23px); color: var(--ink2); }
+  .plan .pl { color: var(--ink3); font-size: .82em; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; width: 100%; }
+  .plan .pi { white-space: nowrap; } .plan .pi b { color: var(--ink); font-variant-numeric: tabular-nums; margin-right: .4em; }
   .hub::before { content: ""; position: absolute; inset: -30%; pointer-events: none;
     background: radial-gradient(42% 46% at 22% 58%, color-mix(in srgb, var(--g) 34%, transparent), transparent 70%),
                 radial-gradient(30% 34% at 84% 18%, color-mix(in srgb, var(--g2) 60%, transparent), transparent 70%);
@@ -612,7 +616,7 @@ class ZonnestuurHubCard extends HTMLElement {
     if (w) chips.push({ p: 4, h: `<div class="chip">${icon(ZS_WX[w.s] || ZS_WX.cloudy)}<div><b class="num">${w.t}°</b><span>${w.regen ? w.regen.t : ZS_WX_NL[w.s] || "buiten"}</span></div></div>` });
     for (const d of (this._config.auto === false ? [] : (a.devices || []).filter((x) => x.ev))) {
       const e = d.ev, laadt = d.on && d.w > 50, plug = e.plug === true || (e.plug == null && d.on);
-      chips.push({ p: laadt ? 3 : 7, h: `<div class="chip">${icon('<path d="M5 16V11l2-5h10l2 5v5M3.5 16h17M7 16v2M17 16v2M6 11h12"/>')}<div><b class="num">${zsEsc(e.car)}${e.soc != null ? ` · ${e.soc}%` : ""}</b><span>${laadt ? "laadt" : e.plan ? "laadt " + zsEsc(e.plan) : plug ? "stekker erin" : "niet aan de stekker"}</span></div></div>` });
+      chips.push({ p: laadt ? 3 : 7, h: `<div class="chip">${icon('<path d="M5 16V11l2-5h10l2 5v5M3.5 16h17M7 16v2M17 16v2M6 11h12"/>')}<div><b class="num">${zsEsc(e.car)}${e.soc != null ? ` · ${e.soc}%` : ""}</b><span>${laadt ? "laadt nu" + (e.target ? " tot " + e.target + "%" : "") : e.plan ? "laadt vanaf " + zsEsc(String(e.plan).split(/[–-]/)[0]) + (e.target ? " tot " + e.target + "%" : "") : plug ? "stekker erin" : "niet aan de stekker"}</span></div></div>` });
     }
     // Wat er nu draait: apparaten die Zonnestuur aanzet, de thuisbatterij, en laden dat een leverancier doet.
     const kwT = (w) => (w / 1000).toLocaleString("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " kW";
@@ -636,6 +640,12 @@ class ZonnestuurHubCard extends HTMLElement {
       else if (!isNaN(+v) && v !== "") v = (+v).toLocaleString("nl-NL", { maximumFractionDigits: Math.abs(+v) >= 100 ? 0 : 1 });
       chips.push({ p: 6, h: `<div class="chip" style="--bin:var(--g)">${icon(/°|K$/.test(u) ? '<path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0zM12 9v7"/>' : /^light\./.test(t.entity) ? '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>' : u === "%" ? '<path d="M12 3.5s-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z"/>' : '<path d="M4 16a8 8 0 0 1 16 0M12 16l4-5"/>')}<div><b class="num">${zsEsc(v)}${u ? " " + zsEsc(u) : ""}</b><span>${zsEsc(n)}</span></div></div>` });
     }
+    // 's Avonds: wanneer is het morgen het goedkoopst? (handig om de was te plannen)
+    const tm = (a.tips || []).find((t) => t.kind === "prijs" && /morgen/i.test(t.t || ""));
+    if (tm && new Date().getHours() >= 17) {
+      const tijd = (String(tm.t).match(/\d{1,2}:\d\d\s*[–-]\s*\d{1,2}:\d\d/) || [""])[0];
+      if (tijd) chips.push({ p: 4.2, h: `<div class="chip" style="--bin:var(--g)">${icon(ZS_WX.sunny)}<div><b class="num">${zsEsc(tijd.replace(/\s/g, ""))}</b><span>morgen goedkoopst</span></div></div>` });
+    }
     chips.sort((p, q) => p.p - q.p);
     return chips.length ? `<div class="info">${chips.map((x) => x.h).join("")}</div>` : "";
   }
@@ -654,14 +664,25 @@ class ZonnestuurHubCard extends HTMLElement {
     }).join("");
     const ax = H.length && this._config.prijs !== false ? `<div class="ax">${H.map((r, i) => { const h = new Date(r[0] * 1000).getHours(), l = ((i + 0.5) / H.length * 100).toFixed(2);
       return h === 0 ? `<span class="d" style="left:${(i / H.length * 100).toFixed(2)}%">${i === 0 ? "vandaag" : "morgen"}</span>` : h % 6 === 0 ? `<span style="left:${l}%">${h}:00</span>` : ""; }).join("")}</div>` : "";
+    const uurNu = new Date().getHours();
+    const nuRij = H.find((r) => now >= r[0] && now < r[0] + 3600), piek = !on && nuRij && nuRij[2] === "dear";
+    // Advies: alleen als het past bij het uur (geen wasmachine midden in de nacht)
+    const tip = uurNu < 6 ? "" : uurNu >= 22 ? "Start de vaatwasser voor je gaat slapen" : this._config.tip;
+    const wacht = nx ? `${nx.day ? "morgen " : ""}${zsEsc(nx.from)}` : "";
     const head = on
       ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.bolt}</svg>Stroom is nu goedkoop</div><div class="h">tot ${zsEsc(C.until)}<small>${zsHubLeft(C.until_ts - now)}</small></div>
-         ${this._witgoed().some((w) => !w.nu) ? "" : `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(this._config.tip)}</div>`}`
-      : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>Nog even wachten</div><div class="h">${nx ? `${nx.day ? "morgen " : ""}${zsEsc(nx.from)}` : "Geen goedkoop blok"}<small>${nx ? `goedkoop tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}` : "Prijzen voor morgen komen rond 13:00"}</small></div>`;
+         ${this._witgoed().some((w) => !w.nu) || !tip ? "" : `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(tip)}</div>`}`
+      : nx
+        ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Nu duur · goedkoop vanaf" : "Goedkope stroom vanaf"}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
+        : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Stroom is nu duur" : "Nog even wachten"}</div><div class="h">Geen goedkoop blok<small>Prijzen voor morgen komen rond 13:00</small></div>`;
+    // Wat Zonnestuur straks doet (per apparaat de eerste keer), zodat je ziet dat het geregeld is
+    const gezien = new Set(), plan = (a.plan || []).filter((x) => !gezien.has(x.n) && gezien.add(x.n)).slice(0, 3);
+    const planHtml = plan.length && this._config.plan !== false ? `<div class="plan"><span class="pl">${on ? "Nu en straks" : "Zonnestuur regelt"}</span>${plan.map((x) =>
+      `<span class="pi"><b>${x.now ? "nu" : (x.day ? "morgen " : "") + zsEsc(x.s)}</b>${zsEsc(x.n)} ${zsEsc(x.w)}</span>`).join("")}</div>` : "";
     const cf = this._config, lite = cf.licht ?? /CrKey|Fuchsia/i.test(navigator.userAgent);
     const acc = ZS_ACCENT[cf.accent] && !(!on && cf.accent === "oranje") ? ZS_ACCENT[cf.accent] : null;
     const stijl = [acc && on ? `--g:${acc[0]};--g2:${acc[1]}` : "", `--zs-zoom:${({ groot: 1.15, extra: 1.3 })[cf.tekst] || 1}`].filter(Boolean).join(";");
-    const klas = ["hub", on ? "" : "duur", lite ? "lite" : "", cf.thema === "licht" ? "lt" : ""].join(" ");
+    const klas = ["hub", on ? "" : "duur", piek ? "piek" : "", lite ? "lite" : "", cf.thema === "licht" ? "lt" : ""].join(" ");
     const uur = new Date().getHours();
     const groet = cf.begroeting ? `<span class="groet">${uur < 6 ? "Goedenacht" : uur < 12 ? "Goedemorgen" : uur < 18 ? "Goedemiddag" : "Goedenavond"}${cf.wie ? ", " + zsEsc(cf.wie) : ""}</span>` : "";
     const top = `<div class="top"><span class="brand"><i></i>${groet || "Zonnestuur"}${(a.save || {}).month > 0.5 && cf.besparing !== false ? `<em class="sv">${zsEur(a.save.month)} bespaard deze maand</em>` : ""}</span><span class="tr">${this._radioPill()}${this._radioKnopHtml()}<span class="clock">${clock}</span></span></div>`;
@@ -674,7 +695,7 @@ class ZonnestuurHubCard extends HTMLElement {
     const volg = (Array.isArray(cf.volgorde) && cf.volgorde.length ? cf.volgorde : ["info", "prijs", "nieuws"]).filter((k) => k in delen);
     for (const k of ["info", "prijs", "nieuws"]) if (!volg.includes(k)) volg.push(k);
     return `<div class="${klas}" style="${stijl}">${top}
-      <div class="mid"><div>${head}</div>
+      <div class="mid"><div>${head}${planHtml}</div>
         <div class="price"><b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}</div></div>
       <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
     </div>`;
