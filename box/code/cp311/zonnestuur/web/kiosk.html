@@ -20,7 +20,7 @@ html, body { overscroll-behavior-y: none; }
     --bg: #eceff3; --panel: #f8fafc; --line: #dde2e8; --ink: #121821; --ink-2: #3f4955; --ink-3: #56616f;
     --now: #ff9f1c; --now-ink: #8a4b00;
     --cheap: #2a78d6; --mid: #c4cbd3; --dear: #e34948; --sun: #f0a020;
-    --ok: #17845a; --ok-bg: #dff3ea; --wait: #c2382f; --wait-bg: #fbe4e1; --meh: #8a4b00; --meh-bg: #fdf0db;
+    --ok: #126c49; --ok-bg: #dff3ea; --wait: #ad2f27; --wait-bg: #fbe4e1; --meh: #8a4b00; --meh-bg: #fdf0db;
     --seg: #e3e8ee; --seg-on: #ffffff; --shadow: 0 1px 2px rgba(18, 24, 33, .05), 0 18px 40px -26px rgba(18, 24, 33, .35);
   }
   :root[data-mode="dark"] {
@@ -58,6 +58,9 @@ html, body { overscroll-behavior-y: none; }
   .stage { display: grid; grid-template-columns: minmax(340px, 1fr) minmax(380px, 1.05fr); gap: 18px; min-height: 0; }
   .stage > .panel { min-height: 0; overflow: auto; }
   @media (max-width: 900px) { main { height: auto; } .stage { grid-template-columns: 1fr; } .stage > .panel { overflow: visible; } }
+  /* tv of groot scherm aan de muur: alles groter, zodat je het van een paar meter afstand leest */
+  @media (min-width: 1700px) and (min-height: 950px) { main { zoom: 1.25; max-width: 1560px; } }
+  @media (min-width: 2400px) and (min-height: 1300px) { main { zoom: 1.6; } }
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 30px; box-shadow: var(--shadow); min-width: 0; }
 
   /* de stroomklok */
@@ -315,6 +318,7 @@ function stateText(d) {
   if (d.mode === "on") return `Door jou aangezet${d.override_until ? " tot " + d.override_until.slice(11, 16) : ""}`;
   if (d.mode === "off") return `Vandaag overgeslagen${d.override_until ? " tot " + d.override_until.slice(11, 16) : ""}`;
   const r = String(d.reason || "");
+  if (d.on && d.power_w > 50 && /goedkoop/.test(r) && d.next_ready) return (d.kind === "ev" ? "Laadt nu" : "Draait nu") + `: goedkoopste moment vóór ${d.next_ready.slice(11, 16)}`;
   if (d.on && d.power_w > 50) return d.kind === "ev" ? "Laadt nu" + (/goedkoop/.test(r) ? ", goedkoop uur" : /zon|overschot/.test(r) ? ", op zon" : "") : "Draait nu" + (/goedkoop/.test(r) ? ", goedkoop uur" : /zon|overschot/.test(r) ? ", op zon" : "");
   if (d.on && d.kind === "ev") return "Vol of wacht op de auto";
   const m = r.match(/goedkoop uur \((\d\d:\d\d)\)/) || r.match(/\((\d\d:\d\d)\)/);

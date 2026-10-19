@@ -1116,6 +1116,10 @@ function heroState(s) {
   }
   if (cheapRun.length) {
     const d = cheapRun[0];
+    // boven het daggemiddelde maar toch nu? Dan is dit het goedkoopste moment vóór de klaar-tijd: zeg dat, niet "goedkoop uur"
+    const duur = avg != null && s.price_now != null && s.price_now > avg;
+    if (duur && d.next_ready) return ["s-net", `${cap(d.name)} ${VERB[d.kind] || "draait"} op het goedkoopste moment`,
+      `Stroom kost nu ${eur3(s.price_now)} per kWh. Dat is het goedkoopste moment vóór ${d.next_ready.slice(11, 16)}, wanneer hij klaar moet zijn.`];
     return ["s-net", `${cap(d.name)} ${VERB[d.kind] || "draait"} in een goedkoop uur`, `Stroom kost nu ${eur3(s.price_now)} per kWh${priceWord ? ", " + priceWord : ""}.`];
   }
   if (guarRun.length) {
@@ -1445,15 +1449,26 @@ function obsFill(el, w) {
     + q("Sinds 12:00", `${nl(w.kwh, 1)} kWh`, w.kwh > 0.05 ? `± ${eur(w.kosten)} · klaar om ${w.klaar}` : `nog niets geladen · klaar om ${w.klaar}`)
     + q("Zonnestuur", w.zon ? "Zou nu laden" : laadt && /wachten/.test(zs) ? "Zou wachten" : laadt ? "Zou ook laden" : "Kijkt mee", zs, /Goed moment|Zon over/.test(zs) ? "goed" : "");
 }
+// Knop 'Opnieuw verbinden': het apparaat nu uitlezen en in gewone taal laten zien hoe het gaat
+function verbindKnop(el, sel, pad) {
+  el.querySelectorAll(sel).forEach((k) => k.addEventListener("click", async () => {
+    const res = el.querySelector("[data-checkres]"); k.disabled = true; res.textContent = "Even kijken…";
+    try { const r = await api(pad(k), { method: "POST", body: "{}" }); res.textContent = r.tekst; if (r.online) setTimeout(refresh, 800); }
+    catch (e) { res.textContent = e.message; }
+    finally { k.disabled = false; }
+  }));
+}
 function batteryCard(s, b) {
   const el = document.createElement("article");
   const pw = b.power_w || 0;
   el.className = "card dev bat" + (Math.abs(pw) > 30 ? " on" : "");
   el.id = "battDev";
   if (!b.online) {
-    el.innerHTML = `<div class="dev-head"><div class="dev-ico"><svg viewBox="0 0 24 24">${BAT_ICO}</svg></div><div><div class="dev-name">${esc(b.name)}</div>
-      <div class="dev-state">Niet bereikbaar${b.error ? ": " + esc(b.error) : ""}</div></div></div>
-      <p class="small muted" style="margin:14px 0 0">Zolang Zonnestuur de batterij niet kan lezen, regelt hij zichzelf (nul op de meter).</p>`;
+    el.innerHTML = `<div class="dev-head"><div class="dev-ico"><svg viewBox="0 0 24 24">${BAT_ICO}</svg></div><div><div class="dev-name"><i class="lamp uit" title="Niet bereikbaar"></i>${esc(b.name)}</div>
+      <div class="dev-state">Geen verbinding</div></div></div>
+      <div class="weg-blok"><b>Niet bereikbaar.</b> Zolang Zonnestuur de batterij niet kan lezen, regelt hij zichzelf (nul op de meter).
+        <div class="weg-acts"><button class="btn-line" data-checkbat="${esc(b.id)}">Opnieuw verbinden</button><a class="small" href="hulp">Hulp</a></div><p class="small" role="status" data-checkres></p></div>`;
+    verbindKnop(el, "[data-checkbat]", (k) => `api/battery/${encodeURIComponent(k.dataset.checkbat)}/check`);
     return el;
   }
   const soc = b.soc == null ? 0 : Math.max(0, Math.min(100, b.soc));
@@ -1488,7 +1503,7 @@ function batteryCard(s, b) {
     facts.push(`<div class="fact"><i class="dot" style="background:var(--warn)"></i><span>Al ${b.full_days} dagen niet vol: laat hem op een zonnige dag een keer tot 100% laden, dan klopt zijn percentage weer.</span></div>`);
   el.innerHTML = `<div class="dev-head">
       <div class="dev-ico"><svg viewBox="0 0 24 24">${BAT_ICO}</svg></div>
-      <div><div class="dev-name">${esc(b.name)}</div><div class="dev-state">${esc(state)}</div></div>
+      <div><div class="dev-name"><i class="lamp ok" title="Verbonden"></i>${esc(b.name)}</div><div class="dev-state">${esc(state)}</div></div>
       <div class="dev-power"><div class="v num">${nl(soc)}<small style="font-size:15px">%</small></div><div class="small muted">${b.kwh != null ? nl(b.kwh, 1) + " / " + nl(b.capacity_kwh, 1) + " kWh" : ""}</div></div>
     </div>
     <div class="soc" role="img" aria-label="Laadniveau ${nl(soc)} procent"><span class="f" style="width:${soc}%"></span>
@@ -2471,13 +2486,14 @@ function drawInsight() {
       <div><b>€ ${nl(I.missed_eur_year)}</b><span>per jaar meer waard als je het zelf gebruikt*</span></div>
       <div><b>${peak}</b><span>hier lever je het meest terug</span></div>`}
     </div>
-    ${STATUS && STATUS.inverter ? `<p class="small" style="margin:10px 0 0"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${STATUS.inverter.limited ? "var(--sun)" : "var(--ink-3)"}"></span>${STATUS.inverter.error ? "Omvormer: " + esc(STATUS.inverter.error) : STATUS.inverter.limited ? esc(STATUS.inverter.reason) : STATUS.inverter.can_limit === false ? `Omvormer gekoppeld: ${STATUS.inverter.pv_w != null ? STATUS.inverter.pv_w + " W nu" : "opwek wordt uitgelezen"}${STATUS.inverter.day_kwh != null ? `, ${STATUS.inverter.day_kwh.toFixed(1)} kWh vandaag` : ""}.` : `Omvormer op vol vermogen${STATUS.inverter.pv_w != null ? ` (${STATUS.inverter.pv_w} W nu${STATUS.inverter.day_kwh != null ? `, ${STATUS.inverter.day_kwh.toFixed(1)} kWh vandaag` : ""})` : ""}; Zonnestuur knijpt hem af zodra terugleveren geld kost.`}</p>` : ""}
+    ${STATUS && STATUS.inverter ? `<p class="small" style="margin:10px 0 0"><span class="dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${STATUS.inverter.limited ? "var(--sun)" : "var(--ink-3)"}"></span>${STATUS.inverter.error ? `<b>Omvormer niet bereikbaar.</b> ${esc(STATUS.inverter.error_nl || "")} <button class="btn-line" style="margin-top:6px" data-checkinv>Opnieuw verbinden</button> <span data-checkres role="status"></span>` : STATUS.inverter.limited ? esc(STATUS.inverter.reason) : STATUS.inverter.can_limit === false ? `Omvormer gekoppeld: ${STATUS.inverter.pv_w != null ? STATUS.inverter.pv_w + " W nu" : "opwek wordt uitgelezen"}${STATUS.inverter.day_kwh != null ? `, ${STATUS.inverter.day_kwh.toFixed(1)} kWh vandaag` : ""}.` : `Omvormer op vol vermogen${STATUS.inverter.pv_w != null ? ` (${STATUS.inverter.pv_w} W nu${STATUS.inverter.day_kwh != null ? `, ${STATUS.inverter.day_kwh.toFixed(1)} kWh vandaag` : ""})` : ""}; Zonnestuur knijpt hem af zodra terugleveren geld kost.`}</p>` : ""}
     ${STATUS && STATUS.notifications && STATUS.notifications.length ? `<p class="small muted" style="margin:6px 0 0">Laatste melding (${new Date(STATUS.notifications[0].at).toLocaleString("nl-NL", { weekday: "short", hour: "2-digit", minute: "2-digit" })}): ${esc(STATUS.notifications[0].title)}</p>` : ""}
     <div class="chart" id="feedChart"><svg id="feedSvg" role="img" aria-label="Gemiddeld per uur van de dag: afname en teruglevering"></svg><div class="tip" id="feedTip"></div></div>
     <div class="legend"><span><i class="sw" style="background:var(--net)"></i>Gemiddeld afgenomen</span><span><i class="sw" style="background:var(--sun)"></i>Gemiddeld teruggeleverd</span><span class="muted">kWh per uur van de dag</span></div>
     ${I.export_per_day < 0.1 ? `<p class="small muted" style="margin-top:12px">Je levert (bijna) niets terug: al je stroom komt van het net. Zonnestuur haalt bij jou de winst uit de goedkoopste uren.</p>` : `<p class="small muted" style="margin-top:12px">Wat je hieraan kunt doen, staat bij de <a href="#hero">Zonnecoach</a> bovenaan.</p>`}
     <p class="small muted" style="margin-top:10px" ${I.export_per_day < 0.1 ? "hidden" : ""}>* Bovengrens: wat je had bespaard als je al die stroom zelf had gebruikt (afnameprijs min wat teruglevering opleverde: gemiddeld ${eur3(I.avg_import_price)} tegen ${eur3(I.avg_export_value)} per kWh). 
       ${I.seasonal_warning ? "Minder dan een jaar aan gegevens: per-jaar-bedragen zijn doorgetrokken en hangen af van het seizoen." : ""}</p>`;
+  verbindKnop(body, "[data-checkinv]", () => "api/inverter/check");
   const svg = $("feedSvg"), box = $("feedChart"), tip = $("feedTip");
   const W = Math.max(300, box.clientWidth), H = 180, L = 40, R = 6, T = 10, B = 24;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);

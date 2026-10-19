@@ -196,7 +196,11 @@ function checks(d) {
     add(ok, a.naam || a.id, a.online ? (a.waarom || "werkt") : /wacht/.test(a.waarom || "") ? a.waarom : `Niet bereikbaar${a.waarom ? ": " + a.waarom : ""}.`,
       "Staat het apparaat aan en heeft het wifi? Haal de stekker er 10 seconden uit. Lukt het daarna nog niet, test het apparaat opnieuw.", "instellingen#inst_apparaten", "Naar je apparaten");
   }
-  for (const p of (d.problemen || []).filter((p) => p.level === "warn" && !/Meter even niet|reageert niet|stroomprijzen/.test(p.text)))
+  if (d.omvormer) add(d.omvormer.online ? true : "bad", "Omvormer", d.omvormer.online ? "Wordt uitgelezen." : "Niet bereikbaar.",
+    d.omvormer.tekst || "Staat de omvormer aan en zit hij op het netwerk?", "./#feedBody", "Naar het dashboard");
+  for (const b of d.batterijen_stand || []) add(b.online ? true : "bad", b.naam || "Thuisbatterij", b.online ? "Wordt uitgelezen en gestuurd." : "Niet bereikbaar.",
+    b.tekst || "Staat de batterij aan en heeft hij netwerk?", "./#battDev", "Naar de batterij");
+  for (const p of (d.problemen || []).filter((p) => p.level === "warn" && !/Meter even niet|reageert niet|stroomprijzen|Omvormer niet bereikbaar/.test(p.text)))
     add("warn", "Let op", p.text, "Dit lost zich vaak vanzelf op. Blijft het staan, tik dan op Help mij hieronder.", "#helpmij", "Help mij");
   const fails = (d.gezondheid || {}).failed_today || 0;
   add(fails ? "warn" : true, "Schakelen vandaag", fails ? `${fails} keer lukte schakelen niet; Zonnestuur probeerde het opnieuw.` : `${(d.gezondheid || {}).switches_today || 0} keer geschakeld, zonder problemen.`,

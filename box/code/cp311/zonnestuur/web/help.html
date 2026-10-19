@@ -54,6 +54,8 @@ html, body { overscroll-behavior-y: none; }
   .merk { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
   .merk summary { cursor: pointer; font-weight: 650; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
   .merk summary span { color: var(--ink-2); font-weight: 500; font-size: 14px; }
+  .stap-beeld { margin: 10px 0; } .stap-beeld img { width: 100%; max-width: 320px; border-radius: 14px; border: 1px solid var(--line); display: block; }
+  .stap-beeld figcaption { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
   .merk ol { margin: 10px 0 8px; padding-left: 20px; } .merk p { font-size: 15px; }
   .merk .knop { display: inline-block; margin-top: 6px; font-weight: 650; padding: 9px 16px; border-radius: 999px; background: var(--ink); color: var(--bg); text-decoration: none; }
   section.weg, nav.zoekt { display: none; }
@@ -90,7 +92,7 @@ html, body { overscroll-behavior-y: none; }
       <p>Elk kwartier kijkt Zonnestuur naar vier dingen:</p>
       <ul><li><b>Je meter:</b> hoeveel stroom je nu terug levert of gebruikt.</li><li><b>De zon:</b> hoeveel je panelen vandaag en morgen waarschijnlijk opwekken (uit de weersverwachting).</li>
         <li><b>De prijzen:</b> wanneer stroom goedkoop en duur is.</li><li><b>Wat er nodig is:</b> warm water vóór de avond, de auto vol vóór je vertrekt, de was klaar op tijd.</li></ul>
-      <p>Daarna maakt hij één plan voor alles samen. Eerst gaat je eigen zon direct naar je apparaten (dat verliest niets). Wat over is, gaat in de thuisbatterij. Moet een apparaat toch van het net draaien, dan kiest Zonnestuur de goedkoopste kwartieren. Lukt iets niet op tijd met zon of goedkope stroom, dan draait het apparaat toch: je komt nooit zonder warm water of een lege auto te zitten.</p>
+      <p>Daarna maakt hij één plan voor alles samen. Eerst gaat je eigen zon direct naar je apparaten (dat verliest niets). Wat over is, gaat in de thuisbatterij. Op een dag met weinig zon kan het andersom slimmer zijn: dan gaat de zon eerst in de batterij voor de dure avond, en draait bijvoorbeeld de boiler in een goedkoop uur. Zonnestuur kiest wat het meeste oplevert. Moet een apparaat toch van het net draaien, dan kiest Zonnestuur de goedkoopste kwartieren. Lukt iets niet op tijd met zon of goedkope stroom, dan draait het apparaat toch: je komt nooit zonder warm water of een lege auto te zitten.</p>
       <p>Bij elke actie zie je bij het apparaat onder <b>Waarom?</b> wat Zonnestuur deed en waarom.</p>
     </section>
     <section id="nu"><h2>Bovenaan het dashboard</h2>
@@ -250,6 +252,13 @@ const STAP = {
   matter: (m) => [`Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a>, kies <b>Matter</b> en scan de code op het apparaat.`],
   zigbee: () => ["Met een Zigbee-stick in de Zonnestuur Box: open <b>Koppelen → Zigbee</b>, zet het apparaat in koppelstand en wacht tot het verschijnt."],
 };
+// Een plaatje bij de stappen: zo ziet het scherm eruit
+function plaatje(soort, x) {
+  const [src, alt] = ["ha", "hacs", "evcc", "matter"].includes(soort) ? ["img/help/koppelen.webp", "Zo ziet Koppelen eruit: zoek op het merk en tik op Koppelbaar"]
+    : soort === "zonnestuur" && /omvormer/i.test(x.categorie) ? ["img/help/omvormer.webp", "Instellingen, onderdeel Omvormer: kies bij Koppeling je merk"]
+    : soort === "zonnestuur" || soort === "relais" ? ["img/help/apparaten.webp", "Instellingen, onderdeel Apparaten: met + Apparaat toevoegen voeg je iets toe"] : [];
+  return src ? `<figure class="stap-beeld"><img src="${src}" alt="${esc(alt)}" loading="lazy"><figcaption>${esc(alt)}</figcaption></figure>` : "";
+}
 function handleiding(x) {
   const r = (x.routes || []).find((r) => r.zeker) || (x.routes || [])[0] || {};
   const soort = String(r.route || "").split(":")[0];
@@ -258,6 +267,7 @@ function handleiding(x) {
     ${x.producten ? `<p class="small">${esc(x.producten)}</p>` : ""}
     ${r.nodig ? `<p><b>Wat heb je nodig?</b> ${esc(r.nodig)}</p>` : ""}
     <p><b>Zo koppel je het:</b></p><ol>${stappen.map((t) => `<li>${t}</li>`).join("")}</ol>
+    ${plaatje(soort, x)}
     ${r.sturen ? `<p><b>Wat Zonnestuur ermee doet:</b> ${esc(r.sturen)}</p>` : ""}
     <a class="knop" href="koppelen?q=${encodeURIComponent(x.merk)}">Nu koppelen</a></details>`;
 }

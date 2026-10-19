@@ -225,6 +225,13 @@ html, body { overscroll-behavior-y: none; }
   @media (prefers-reduced-motion: reduce) { .pulse, .spin { animation: none; } }
   html, body { overflow-x: hidden; }
   @media (max-width: 700px) { .row { flex-direction: column; align-items: stretch; } .row .field { flex: 1 1 auto !important; min-width: 0; } input, select { max-width: 100%; } }
+  .i-knop { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 0; padding: 0; margin-left: 4px;
+    background: var(--chip); color: var(--ink-2); font: italic 700 12px/1 Georgia, serif; cursor: pointer; vertical-align: 1px; }
+  .i-knop[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
+  .i-tekst { display: block; margin-top: 4px; }
+  label.check-row { flex-wrap: wrap; }
+  label.check-row .i-knop { flex: none; align-self: center; }
+  label.check-row .i-tekst { flex-basis: 100%; padding-left: 30px; }
   a.help-q { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--chip); color: var(--ink-2);
     font: 650 13px/1 Inter, sans-serif; text-decoration: none; vertical-align: 3px; margin-left: 4px; }
   .push-blok { background: var(--chip); border-radius: 16px; padding: 14px 16px; margin: 12px 0 14px; }
@@ -1496,6 +1503,100 @@ const GROEPEN = [
   ["koppelingen", "Koppelingen", ["Andere systemen", "Een merk koppelen", "Auto's via de cloud", "Apparaat toevoegen via een ander systeem", "Koppelmotor", "Eigen domoticaserver"]],
   ["account", "Pro en hulp", ["Zonnestuur Pro", "Hulp en problemen", "Installateur", "Beveiliging"]],
 ];
+// (i) bij elke instelling zonder uitleg: één zin in gewone taal, met een link naar de uitleg van dat onderdeel
+const VELD_UITLEG = [
+  [/^naam$/i, "Hoe je dit wilt noemen. Alleen voor jezelf, zodat je het herkent."],
+  [/^e-?mail/i, "Hierheen sturen we je sleutel of betaalbewijs. We sturen geen reclame."],
+  [/mobiel nummer/i, "Alleen om je toe te voegen aan de WhatsApp-groep van proefhuizen, als je dat wilt."],
+  [/woonplaats/i, "Zodat we weten waar de proefhuizen staan. We delen dit met niemand."],
+  [/contact met me opnemen/i, "Dan mogen we je mailen of bellen over hoe Zonnestuur bij jou werkt."],
+  [/licentiesleutel/i, "De code die je kreeg na het kopen van Pro. Plak hem hier in zijn geheel."],
+  [/^leverancier/i, "Bij wie je je stroom koopt. Zonnestuur vult dan zelf de juiste opslag en vergoeding in."],
+  [/inkoopvergoeding/i, "Wat je leverancier per kWh bovenop de beursprijs rekent. Staat op je contract of in de app van je leverancier."],
+  [/teruglevering: \+ of/i, "Hoeveel je leverancier bij teruglevering bij of af doet op de beursprijs. Bij de meeste leveranciers is dit min de opslag."],
+  [/vaste leveringskosten/i, "Het vaste bedrag per maand van je leverancier. Alleen nodig als je wilt dat de rekening precies klopt met je factuur."],
+  [/staffel/i, "Sommige leveranciers rekenen vanaf 2027 een vast bedrag per maand, afhankelijk van hoeveel je teruglevert. Laat leeg als je het niet weet."],
+  [/geldt vanaf/i, "Vanaf welke datum deze bedragen gelden."],
+  [/ik heb zonnepanelen/i, "Uit: Zonnestuur zet je apparaten alleen in de goedkoopste uren. Aan: eerst je eigen zonnestroom."],
+  [/piekvermogen/i, "Hoeveel je panelen samen maximaal leveren. Aantal panelen × wattpiek per paneel ÷ 1000. Bijvoorbeeld 10 × 400 = 4,0."],
+  [/^richting/i, "Naar welke kant je panelen liggen. Bij twee kanten: kies oost-west."],
+  [/^provincie/i, "Voor de weersverwachting. We slaan geen adres op."],
+  [/ik heb een thuisbatterij/i, "Zet aan als je een thuisbatterij hebt. Zonnestuur laadt hem dan met je zon en met goedkope stroom."],
+  [/ip-adres|^adres|ip van een batterij/i, "Waar het apparaat in je thuisnetwerk zit. Zonnestuur zoekt het meestal zelf. Lukt dat niet: het staat in de app van het merk of in de lijst van je modem."],
+  [/token/i, "Een soort wachtwoord dat het apparaat zelf maakt. Je vindt het in de app van het merk, of laat Zonnestuur het ophalen met de knop."],
+  [/serienummer/i, "Staat op de sticker van het apparaat. Leeg laten mag: Zonnestuur leest het dan zelf uit."],
+  [/gebruikersnaam|^gebruiker/i, "De inlognaam van het apparaat. Bij veel merken staat die op een sticker."],
+  [/wachtwoord/i, "Het wachtwoord van het apparaat. Het blijft in Zonnestuur bij jou thuis en gaat nergens anders heen."],
+  [/batterijen voor het laadniveau/i, "Heb je meer dan één batterij, vul ze dan allemaal in. Zonnestuur neemt het gemiddelde."],
+  [/opslag \(kwh\)/i, "Hoeveel stroom er in de batterij past. Staat in de handleiding of de app."],
+  [/^laden \(w\)/i, "Hoe snel de batterij maximaal laadt, in watt (2,5 kW = 2500)."],
+  [/^ontladen \(w\)/i, "Hoe snel de batterij maximaal stroom levert, in watt."],
+  [/script/i, "Alleen voor gevorderden: een eigen script in de koppelmotor dat de batterij aanstuurt."],
+  [/oktober tot en met maart/i, "Dan houdt Zonnestuur deze reserve alleen in de wintermaanden aan."],
+  [/tweede lijst/i, "Alleen nodig als je batterij een tweede keuzelijst heeft voor deze stand."],
+  [/positief getal betekent laden/i, "Zet aan als het vermogen van je batterij positief is bij laden. Twijfel je? Kijk tijdens het laden in de app."],
+  [/meekijken met het laden/i, "Zonnestuur stuurt dan niets, maar rekent uit wat hij zelf had gedaan. Zo zie je wie het goedkoper doet."],
+  [/laadvermogen \(sensor\)/i, "Waar Zonnestuur ziet hoeveel de auto nu laadt."],
+  [/wie stuurt het laden/i, "Welke leverancier of app nu het laden van je auto regelt."],
+  [/meestal klaar om/i, "Hoe laat de auto meestal vol moet zijn."],
+  [/laadvermogen max/i, "Hoe snel je auto thuis maximaal kan laden, in kW."],
+  [/^koppeling/i, "Hoe Zonnestuur met dit apparaat praat. Weet je het niet? Gebruik Koppelen: daar zoekt Zonnestuur het voor je uit."],
+  [/instelling van je omvormer/i, "De instelling in de koppelmotor waarmee de omvormer minder kan leveren."],
+  [/vol vermogen/i, "Het maximale vermogen van je omvormer in watt. Staat op de sticker of in de app."],
+  [/eenheid/i, "Of de instelling in procent of in watt werkt."],
+  [/^poort/i, "Een nummer dat bij het adres hoort. Laat staan zoals het staat, tenzij de handleiding iets anders zegt."],
+  [/unit-id/i, "Een nummer voor de Modbus-verbinding. Laat staan, tenzij de handleiding iets anders zegt."],
+  [/app van de koppelmotor/i, "Krijg meldingen in de app van de koppelmotor op je telefoon, als je die gebruikt."],
+  [/^server/i, "Laat staan zoals het staat, tenzij je een eigen server gebruikt."],
+  [/chat-id/i, "Het nummer van je gesprek met de Telegram-bot. Stuur je bot een berichtje en vraag het nummer op via @userinfobot."],
+  [/mailserver/i, "De uitgaande mailserver van je e-mailaanbieder, bijvoorbeeld smtp.gmail.com."],
+  [/^naar$/i, "Het e-mailadres waar de meldingen heen gaan."],
+  [/^storingen/i, "Een melding als er iets misgaat, zodat je nooit zonder warm water zit."],
+  [/^kansen/i, "Hoogstens één tip per dag als er iets te besparen valt."],
+  [/^witgoed/i, "Een seintje als je de was klaarzet en wanneer hij start."],
+  [/weekrapport/i, "Op zondagavond een kort overzicht van wat je bespaarde."],
+  [/adres van zonnestuur in meldingen/i, "Waar je telefoon Zonnestuur opent als je op een melding tikt. Leeg laten mag."],
+  [/wat vind je het belangrijkst/i, "Bepaalt welk cijfer bovenaan het dashboard staat: geld of eigen groene stroom."],
+  [/^doel$/i, "Waar je Zonnestuur aan wilt meten: meer eigen zon of een bedrag per maand."],
+  [/punten boven zonder/i, "Hoeveel procentpunten meer eigen zon je wilt gebruiken dan zonder Zonnestuur."],
+  [/per maand/i, "Hoeveel euro per maand je wilt besparen."],
+  [/meetdagen/i, "Op sommige dagen stuurt Zonnestuur een apparaat niet. Zo zie je eerlijk wat sturen oplevert."],
+  [/gemiddeld 1 dag/i, "Hoe vaak zo'n meetdag voorkomt."],
+  [/welke apparaten/i, "Welke apparaten op een meetdag niet gestuurd worden."],
+  [/sensoren aanmaken/i, "Voor gevorderden: Zonnestuur zet dan zijn cijfers als sensoren in de koppelmotor, voor je eigen dashboard."],
+  [/soort meter/i, "Waar Zonnestuur je slimme meter mee uitleest. Meestal stelt hij dit zelf in."],
+  [/plus en min omdraaien/i, "Zet aan als Zonnestuur teruglevering ziet terwijl je stroom gebruikt (of andersom)."],
+  [/ocpp-server/i, "Laadpalen kunnen zich zelf bij Zonnestuur melden via OCPP. Zet aan en vul het adres in de app van je laadpaal in."],
+  [/client id|client secret|omgeving/i, "Alleen als je een eigen account bij Enode hebt. De meeste mensen hebben dit niet nodig."],
+  [/^soort$/i, "Wat voor apparaat het is: boiler, warmtepomp, auto of iets anders."],
+  [/friendly name|^apparaat \(/i, "Hoe het apparaat heet in het andere systeem."],
+  [/vermogen als hij aan staat/i, "Hoeveel het apparaat ongeveer gebruikt als het aan staat, in watt. Een boiler is vaak 2000 tot 3000."],
+  [/toegangstoken/i, "Een sleutel uit je eigen domoticaserver. Leeg laten houdt de huidige."],
+  [/wachtwoord instellen/i, "Met een wachtwoord kan niemand anders in je thuisnetwerk Zonnestuur veranderen."],
+];
+function zetInfo(secs, uitleg) {
+  let n = 0;
+  secs.forEach((sec) => {
+    const h = ((sec.querySelector("h2") || {}).textContent || "").trim();
+    const u = uitleg.find(([k]) => h.startsWith(k));
+    sec.querySelectorAll(".field, label.check-row").forEach((f) => {
+      if (f.querySelector(".hint, .i-knop") || (f.matches("label") && f.querySelector("span"))) return;   // heeft al uitleg
+      const lab = f.matches("label") ? f : f.querySelector("label");
+      if (!lab) return;
+      const t = lab.textContent.trim();
+      const r = VELD_UITLEG.find(([re]) => re.test(t));
+      if (!r) return;
+      const id = "iu" + (n++);
+      const k = document.createElement("button"); k.type = "button"; k.className = "i-knop"; k.textContent = "i";
+      k.setAttribute("aria-label", "Uitleg"); k.setAttribute("aria-expanded", "false"); k.setAttribute("aria-controls", id);
+      const uit = document.createElement("span"); uit.className = "hint i-tekst"; uit.id = id; uit.hidden = true;
+      uit.innerHTML = esc(r[1]) + (u ? ` <a href="help#${u[1]}">Meer uitleg</a>` : "");
+      k.onclick = (e) => { e.preventDefault(); e.stopPropagation(); uit.hidden = !uit.hidden; k.setAttribute("aria-expanded", String(!uit.hidden)); };
+      lab.append(" ", k);
+      (f.matches("label") ? f : f).append(uit);
+    });
+  });
+}
 function groepeer() {
   const root = document.querySelector(".settings"); if (!root) return;
   const secs = [...root.querySelectorAll(":scope > section")];
@@ -1510,6 +1611,9 @@ function groepeer() {
   const UITLEG = [["Apparaten", "apparaten"], ["Thuisbatterij", "batterij"], ["Omvormer", "omvormer"], ["Energiecontract", "dynamisch"], ["Jouw doel", "beslissen"],
     ["Meldingen", "meldingen"], ["Huisscherm", "hub"], ["Wandscherm", "hub"], ["Een merk koppelen", "koppelen"], ["Meekijken", "vergelijken"],
     ["Meten wat Zonnestuur oplevert", "besparing"], ["Installateur", "overdracht"], ["Zonnepanelen", "beslissen"]];
+  zetInfo(secs, UITLEG);
+  // onderdelen die later verschijnen (Pro, meter, formulieren) krijgen ook hun (i)
+  let zt; new MutationObserver(() => { clearTimeout(zt); zt = setTimeout(() => zetInfo(secs, UITLEG), 150); }).observe(root, { childList: true, subtree: true });
   secs.forEach((x) => {
     const h = x.querySelector("h2"); if (!h || h.querySelector(".help-q")) return;
     const t = h.textContent.trim(), u = UITLEG.find(([k]) => t.startsWith(k));

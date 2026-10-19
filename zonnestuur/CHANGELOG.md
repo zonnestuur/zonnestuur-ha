@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.64.0
+- Slimmer kiezen: op een dag met weinig zon gaat de zon eerst naar de thuisbatterij als dat 's avonds duidelijk meer oplevert, en draait bijvoorbeeld de boiler in een goedkoop uur. Op zonnige dagen blijven je apparaten voorgaan.
+- Thuisbatterij en omvormer: rood lampje en 'Opnieuw verbinden' als ze niet bereikbaar zijn; ook te zien op de Hulp-pagina.
+- Instellingen: bij elke instelling een (i) met één zin uitleg.
+- Uitleg per merk nu met een plaatje van het scherm.
+- Wandscherm: groter op een tv of groot scherm, beter contrast. Bij laden op het goedkoopste moment vóór je vertrek staat nu precies dat, in plaats van 'goedkoop uur'.
+
 ## 0.63.0
 - Zonnestuur vindt nu zelf meer omvormers in je netwerk: SolarEdge, SMA, Kostal en andere SunSpec-omvormers, Huawei SUN2000, Hoymiles (via OpenDTU of AhoyDTU) en de Enphase IQ Gateway. Eén omvormer gevonden? Dan stelt Zonnestuur hem vanzelf in.
 - Instellen: nieuwe vraag 'Wat vind je het belangrijkst?' (zoveel mogelijk besparen, zo min mogelijk terugleveren, of comfort eerst).
