@@ -207,6 +207,46 @@ html, body { overscroll-behavior-y: none; }
   .flowpause:hover, .flowpause:focus-visible, .flowpause[aria-pressed="true"] { opacity: 1; }
   .flowpause svg { width: 14px; height: 14px; }
   .flow.paused .pulse { animation-play-state: paused; }
+  /* Zonnestuur huis */
+  .flowbar { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
+  .flowbar .flowpause { position: static; opacity: .8; }
+  .seg.two { grid-template-columns: repeat(2, 1fr); min-width: 170px; }
+  .flow #huisSvg, .flow .hz-zin { display: none; }
+  .flow.huis-aan #huisSvg { display: block; } .flow.huis-aan .hz-zin { display: block; } .flow.huis-aan #flowSvg { display: none; }
+  .hz { width: 100%; height: auto; border-radius: 22px; }
+  .hz-zin { margin: 8px 4px 0; font-size: 14px; line-height: 1.45; color: var(--ink-2); text-align: center; text-wrap: balance; }
+  .hz .hz-naam text { fill: #ffffff; }
+  .hz-naamform { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin-top: 8px; }
+  .hz-naamform label { width: 100%; text-align: center; font-size: 13px; color: var(--ink-2); }
+  .hz-naamform input { font: inherit; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--card-line); background: var(--field); color: var(--ink); min-width: 0; flex: 1 1 180px; max-width: 260px; }
+  .hz-naamform .btn { padding: 10px 16px; border-radius: 12px; min-height: 44px; }
+  .hz text { font: 600 11.5px "Inter", system-ui, sans-serif; fill: #13202b; }
+  .hz .hz-wolk { animation: hzDrijf 50s ease-in-out infinite alternate; }
+  .hz .hz-boom { animation: hzWuif 3s ease-in-out infinite alternate; }
+  .hz .hz-ster { animation: hzTwinkel 4s ease-in-out infinite alternate; }
+  .hz .hz-regen { stroke: #5b7fa8; stroke-width: 1.4; stroke-linecap: round; opacity: .75; animation: hzVal .9s linear infinite; }
+  .hz .hz-regen.sneeuw { fill: #fff; stroke: none; animation-duration: 5s; }
+  .hz .hz-gloed { animation: hzGloed 4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  .hz .hz-stroom { fill: none; stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 2 12; animation: dash 1s linear infinite; }
+  .hz .hz-stroom.zon { stroke: #ffb224; } .hz .hz-stroom.in { stroke: #2659c4; } .hz .hz-stroom.uit { stroke: #ffb224; } .hz .hz-stroom.laad { stroke: #2bb673; }
+  .hz .hz-straal { stroke: #ffd56b; stroke-width: 10; stroke-linecap: round; stroke-opacity: .35; fill: none; }
+  .hz .hz-paneel.aan path { fill: #2d5a9e; animation: hzGlans 3s ease-in-out infinite alternate; }
+  .hz .hz-aan { fill: #ffd27a; opacity: .45; animation: hzAan 1.6s ease-in-out infinite alternate; }
+  .hz .hz-aan.bat { fill: #8fe0b5; }
+  .hz .hz-fan { animation: hzDraai 1s linear infinite; }
+  .hz .hz-trommel { animation: hzDraai 1.4s linear infinite; transform-box: view-box; transform-origin: 0 -11px; }
+  .hz .hz-damp { opacity: .6; animation: hzDamp 2.4s ease-in-out infinite; }
+  @keyframes hzDrijf { from { transform: translateX(-22px); } to { transform: translateX(26px); } }
+  @keyframes hzWuif { from { transform: rotate(calc(var(--a) * -1)); } to { transform: rotate(var(--a)); } }
+  @keyframes hzTwinkel { from { opacity: .25; } to { opacity: 1; } }
+  @keyframes hzVal { from { transform: translateY(0); } to { transform: translateY(40px); } }
+  @keyframes hzGloed { from { transform: scale(.92); } to { transform: scale(1.08); } }
+  @keyframes hzGlans { from { fill: #23406e; } to { fill: #3b6fbf; } }
+  @keyframes hzAan { from { opacity: .2; } to { opacity: .55; } }
+  @keyframes hzDraai { to { transform: rotate(360deg); } }
+  @keyframes hzDamp { 0% { transform: translateY(2px); opacity: 0; } 50% { opacity: .6; } 100% { transform: translateY(-6px); opacity: 0; } }
+  .flow.paused .hz * { animation-play-state: paused !important; }
+  @media (prefers-reduced-motion: reduce) { .hz * { animation: none !important; } }
   .runrep { margin-top: 8px; font-size: 13px; color: var(--ink-2); display: flex; gap: 6px; align-items: baseline; }
   .runrep b { color: var(--ink); }
   .devtip { margin-top: 8px; font-size: 13px; padding: 8px 10px; border-radius: 10px; background: var(--good-soft); color: var(--ink); }
@@ -822,7 +862,10 @@ html, body { overscroll-behavior-y: none; }
           <div class="pills" id="pills"></div>
           <div class="kpis" id="kpis"></div>
         </div>
-        <div class="flow"><button type="button" class="flowpause" id="flowPause" aria-pressed="false" aria-label="Animatie pauzeren" title="Animatie pauzeren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><svg id="flowSvg" viewBox="0 0 440 300" role="img" aria-label="Energiestroom tussen zon, net, huis, batterij en apparaten"></svg></div>
+        <div class="flow huis-aan"><svg id="huisSvg" class="hz" viewBox="0 0 440 300" role="img" aria-label="Je huis van nu"></svg><svg id="flowSvg" viewBox="0 0 440 300" role="img" aria-label="Energiestroom tussen zon, net, huis, batterij en apparaten"></svg>
+          <p class="hz-zin" id="huisZin" aria-hidden="true"></p>
+          <form class="hz-naamform" id="huisNaamForm" hidden><label for="huisNaam">Naam van je huis</label><input id="huisNaam" maxlength="28" placeholder="Bijvoorbeeld: Huize Zonnig" autocomplete="off"><button type="submit" class="btn">Bewaar</button></form>
+          <div class="flowbar"><div class="seg two" role="group" aria-label="Weergave"><button type="button" data-hv="huis" class="active" aria-pressed="true">Huis</button><button type="button" data-hv="schema" aria-pressed="false">Schema</button></div><button type="button" class="flowpause" id="huisNaamKnop" aria-label="Geef je huis een naam" title="Geef je huis een naam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></button><button type="button" class="flowpause" id="flowPause" aria-pressed="false" aria-label="Animatie pauzeren" title="Animatie pauzeren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></div>
       </div>
     </section>
 
@@ -1036,7 +1079,7 @@ try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
 
 // eenvoudig / uitgebreid, en animatie pauzeren
 (function () {
-  const vb = $("viewBtn"), fp = $("flowPause"), flow = fp.parentElement;
+  const vb = $("viewBtn"), fp = $("flowPause"), flow = fp.closest(".flow");
   let simple = false, paused = false;
   // Op de telefoon standaard eenvoudig (alleen wat nu telt); je eigen keuze blijft bewaard
   simple = matchMedia("(max-width: 700px)").matches;
@@ -1051,6 +1094,23 @@ try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
       : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
   };
   vb.addEventListener("click", () => { simple = !simple; try { localStorage.setItem("zs_simple", simple ? "1" : "0"); } catch (e) {} show(); if (!simple) drawCharts(); });
+  // Huis (tekening) of Schema (stroomschema); keuze blijft bewaard
+  let hv = "huis";
+  try { hv = localStorage.getItem("zs_huisweergave") || "huis"; } catch (e) {}
+  const zetHv = () => {
+    flow.classList.toggle("huis-aan", hv === "huis");
+    flow.querySelectorAll("[data-hv]").forEach((b) => { const on = b.dataset.hv === hv; b.classList.toggle("active", on); b.setAttribute("aria-pressed", String(on)); });
+  };
+  flow.querySelectorAll("[data-hv]").forEach((b) => b.addEventListener("click", () => { hv = b.dataset.hv; try { localStorage.setItem("zs_huisweergave", hv); } catch (e) {} zetHv(); }));
+  zetHv();
+  // eigen naam van het huis
+  const nk = $("huisNaamKnop"), nf = $("huisNaamForm"), ni = $("huisNaam");
+  nk.addEventListener("click", () => { nf.hidden = !nf.hidden; if (!nf.hidden) { ni.value = (window.LAST_STATUS && window.LAST_STATUS.huis_naam) || ""; ni.focus(); } });
+  nf.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try { const cfg = await api("api/config"); cfg.huis_naam = ni.value.trim().slice(0, 28); await api("api/config", { method: "POST", body: JSON.stringify(cfg) }); nf.hidden = true; refresh(); }
+    catch (err) { nf.querySelector("label").textContent = "Bewaren lukte niet: " + err.message; }
+  });
   fp.addEventListener("click", () => { paused = !paused; try { localStorage.setItem("zs_flowpause", paused ? "1" : "0"); } catch (e) {} show(); });
   show();
 })();
@@ -1299,6 +1359,7 @@ setInterval(loadDagplan, 300000); setTimeout(loadDagplan, 1500);
 $("planMore").addEventListener("click", () => { PLAN_ALL = !PLAN_ALL; if (STATUS) renderPlan(STATUS); });
 
 function renderStatus(s) {
+  window.LAST_STATUS = s;
   STATUS = s;
   const now = new Date(s.now);
   const warn = (s.problems || []).filter((p) => p.level === "warn");
@@ -1349,6 +1410,7 @@ function renderStatus(s) {
   renderSave(s);
   renderTips(s);
   renderFlow(s);
+  if (window.zsHuis) try { window.zsHuis.teken($("huisSvg"), s, $("huisZin")); } catch (e) { console.warn("huis", e); }
   renderDevices(s);
   renderBattery(s);
 
@@ -2895,5 +2957,6 @@ setInterval(refresh, 4000);
 setInterval(refreshCharts, 60000);
 let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawCharts, 150); });
 </script>
+<script src="huis.js"></script>
 </body>
 </html>

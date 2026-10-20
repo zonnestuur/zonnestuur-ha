@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.69.0
+- Zonnestuur huis: bovenaan het dashboard een tekening van jouw huis van nu. Met het echte weer (zon of maan op de goede plek, wolken, regen, wind in de bomen, dag, schemer of nacht), je zonnepanelen, de apparaten binnen die aan staan, de batterij, je auto's op de oprit (met lading) en de stroom van en naar het net. Eronder in één zin wat er gebeurt. Met de knop Schema krijg je het oude stroomschema terug.
+- Geef je huis een eigen naam (potloodje onder de tekening). Zonnepanelen staan alleen op het dak als je ze hebt, de batterij hangt aan de buitenmuur, en een auto staat op de oprit zolang hij laadt of aan de laadpaal hangt.
+
 ## 0.68.2
 - Vergelijken raadt pas aan om over te stappen als het minstens € 50 per jaar scheelt. Kleine verschillen: "laat het zo".
 - Afwezig-stand rekent goed als de zomertijd ertussen eindigt.
