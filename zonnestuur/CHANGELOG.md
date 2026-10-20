@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.68.2
+- Vergelijken raadt pas aan om over te stappen als het minstens € 50 per jaar scheelt. Kleine verschillen: "laat het zo".
+- Afwezig-stand rekent goed als de zomertijd ertussen eindigt.
+
 ## 0.68.1
 - Laadpaal die op toestemming wacht (bijvoorbeeld Zaptec met 'autorisatie nodig'): Zonnestuur drukt nu zelf op 'Autoriseer het laden' of 'Hervat het opladen' als hij wil laden en de auto is aangesloten. Eerder bleef hij het opnieuw proberen zonder resultaat.
 
