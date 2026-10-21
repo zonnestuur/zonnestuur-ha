@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.73.0
+- Nieuwe indeling met drie tabbladen onderin: Vandaag, Apparaten en Meer. Overal dezelfde, zodat je nooit meer zoekt.
+- Apparaten: alles op één plek. Wat meedoet, wat Zonnestuur in je huis vond (met één knop: Toevoegen, Koppelen of Inloggen), je meter, zonnepanelen en stroomprijs. Een ander merk zoeken kan onderaan.
+- De eerste keer opent Zonnestuur meteen Apparaten en gaat zelf zoeken.
+- Op de Box doet witgoed met 'start op afstand' vanzelf mee zodra het gekoppeld is.
+- Vandaag is rustiger: grafieken en logboek staan onder 'Meer details tonen'.
+
 ## 0.72.8
 - Hulp op afstand kan zien wat de Box in je netwerk herkent, zodat we het zoeken naar apparaten kunnen verbeteren.
 

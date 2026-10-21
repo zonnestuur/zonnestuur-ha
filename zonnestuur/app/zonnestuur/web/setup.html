@@ -1732,7 +1732,7 @@ async function settings() {
       <div>${CFG.devices.map((d, i) => `<div class="dev-row"><div class="ico" style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--chip)">${ICONS[d.kind].replace("<svg", '<svg width="20" height="20" stroke="currentColor" fill="none" stroke-width="1.8"')}</div>
         <div style="flex:1;min-width:0"><b>${esc(d.name)}</b><div class="small muted">${esc(DRIVER_LABEL[d.driver] || d.driver)} · ${d.driver === "ha_current" ? "traploos" : nl(d.power_w) + " W"} · ${d.priority <= 1 ? "eerst aan de beurt" : "beurt " + d.priority}</div></div>
         <button class="btn ghost small" data-edit="${i}">Aanpassen</button></div>`).join("")}</div>
-      <div class="actions" style="margin-top:14px"><span></span><a class="btn ghost small" href="setup#toevoegen" id="addBtn">+ Apparaat toevoegen</a></div>
+      <div class="actions" style="margin-top:14px"><span></span><a class="btn ghost small" href="apparaten" id="addBtn">+ Apparaat toevoegen</a></div>
     </section>
     <section class="card" id="editCard" hidden></section>
     <section class="card"><h2 class="t">Energiecontract</h2>
@@ -2189,6 +2189,10 @@ async function settings() {
     $("b_on").checked = true; $("b_form").hidden = false; $("b_link").value = qp.get("batterij"); $("b_link").onchange();
   }
   if (location.hash && document.querySelector(location.hash)) setTimeout(() => document.querySelector(location.hash).scrollIntoView({ block: "start" }), 50);
+  if (qp.get("apparaat")) {                       // vanaf de pagina Apparaten: meteen dit apparaat aanpassen
+    const i = (CFG.devices || []).findIndex((d) => d.id === qp.get("apparaat"));
+    if (i >= 0) setTimeout(async () => { await editDevice(i); location.hash = "editCard"; }, 80);
+  }
   if (CFG.has_ha) {
     (async () => {
       try {

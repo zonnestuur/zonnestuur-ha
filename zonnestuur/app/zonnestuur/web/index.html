@@ -195,6 +195,15 @@ html, body { overscroll-behavior-y: none; }
   .sec-head h2 { font: 650 clamp(22px, 2.2vw, 28px)/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 0; }
   .sec-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
   #hero { scroll-margin-top: 70px; }
+  .c-stap { display: grid; grid-template-columns: 40px minmax(0, 1fr) 12px; gap: 12px; align-items: center; text-decoration: none; color: inherit;
+    background: var(--sun-soft, rgba(255,178,36,.16)) !important; border-color: transparent !important; }
+  .c-stap .st-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--card-solid, #fff); color: var(--sun-ink, #9a5b00); }
+  .c-stap .st-ic svg { width: 22px; height: 22px; }
+  .c-stap b { display: block; font-size: 16px; }
+  .c-stap .st-pijl { width: 9px; height: 9px; border-right: 2px solid currentColor; border-top: 2px solid currentColor; transform: rotate(45deg); opacity: .6; }
+  #vanzelf, #vermoed, #leeg, #welcome { display: none !important; }
+  .detailknop { display: block; margin: 18px auto 0; font: inherit; font-weight: 600; font-size: 14px; padding: 11px 20px; border-radius: 999px;
+    border: 1px solid var(--card-line, rgba(0,0,0,.1)); background: var(--card, #fff); color: var(--ink); cursor: pointer; min-height: 44px; }
   .secnav { position: sticky; top: 0; z-index: 30; display: flex; gap: 4px; width: max-content; max-width: 100%; overflow-x: auto; margin: -6px auto 14px;
             padding: 4px; border-radius: 14px; background: color-mix(in srgb, var(--card-solid) 70%, transparent); border: 1px solid var(--card-line);
             backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%); scrollbar-width: none; }
@@ -860,7 +869,7 @@ html, body { overscroll-behavior-y: none; }
   </header>
 
   <nav class="secnav" aria-label="Onderdelen" id="secnav">
-    <a href="#hero" data-s="hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span>Nu</span></a><a href="#s-planning" data-s="s-planning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Planning</span></a><a href="#s-apparaten" data-s="s-apparaten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg><span>Apparaten</span></a><a href="#s-inzicht" data-s="s-inzicht" class="adv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Inzicht</span></a><button type="button" class="viewbtn" id="viewBtn" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h6"/></svg><span>Eenvoudig</span></button>
+    <a href="#hero" data-s="hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span>Nu</span></a><a href="#s-planning" data-s="s-planning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Planning</span></a><a href="#s-apparaten" data-s="s-apparaten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg><span>Apparaten</span></a><a href="#s-inzicht" data-s="s-inzicht" class="adv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Inzicht</span></a>
   </nav>
   <div class="grid">
     <!-- nu -->
@@ -884,6 +893,10 @@ html, body { overscroll-behavior-y: none; }
           <div class="flowbar"><div class="seg two" role="group" aria-label="Weergave"><button type="button" data-hv="huis" class="active" aria-pressed="true">Huis</button><button type="button" data-hv="schema" aria-pressed="false">Schema</button></div><button type="button" class="flowpause" id="huisNaamKnop" aria-label="Geef je huis een naam" title="Geef je huis een naam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></button><button type="button" class="flowpause" id="flowPause" aria-pressed="false" aria-label="Animatie pauzeren" title="Animatie pauzeren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></div>
       </div>
     </section>
+
+    <!-- Apparaten: nog één stap (alles wat gevonden is staat op de pagina Apparaten) -->
+    <a class="card c-stap" id="huisStap" href="apparaten" hidden><span class="st-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M16.5 13.5v6M13.5 16.5h6"/></svg></span>
+      <span><b id="hsTitel"></b><span class="small muted" id="hsSub"></span></span><span class="st-pijl" aria-hidden="true"></span></a>
 
     <!-- vanzelf gevonden -->
     <section class="card c-welcome" id="vanzelf" hidden aria-labelledby="vzTitle">
@@ -1015,7 +1028,7 @@ html, body { overscroll-behavior-y: none; }
     <div class="sec-head" id="s-apparaten"><h2>Apparaten</h2><p>Bedienen en bijsturen: wat elk apparaat nu doet, en waarom.</p></div>
     <!-- apparaten -->
     <section class="c-devs" aria-labelledby="devTitle">
-      <div class="devs-head" style="justify-content:flex-end;margin-top:-6px"><span id="devTitle" hidden>Apparaten</span><a class="btn-line" href="setup#toevoegen" style="text-decoration:none">+ Apparaat toevoegen</a><a class="small muted" href="instellingen" style="margin-left:14px;display:inline-flex;align-items:center;min-height:24px">Beheren</a></div>
+      <div class="devs-head" style="justify-content:flex-end;margin-top:-6px"><span id="devTitle" hidden>Apparaten</span><a class="btn-line" href="apparaten" style="text-decoration:none">Apparaten beheren</a></div>
       <div id="weg" hidden></div>
       <div class="devs" id="devices"></div>
     </section>
@@ -1077,6 +1090,7 @@ html, body { overscroll-behavior-y: none; }
       <div id="cmpBody"><button class="btn-line" id="cmpBtn" style="margin-top:12px">Uitrekenen</button></div>
     </section>
   </div>
+  <button type="button" class="detailknop" id="viewBtn" aria-pressed="false"><span>Meer details tonen</span></button>
 
   <footer><span id="foot"></span><span><a href="kiosk" style="color:inherit">Wandscherm</a> · Zonnestuur · lokaal, zonder cloud</span></footer>
 </main>
@@ -1106,11 +1120,11 @@ try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
   const vb = $("viewBtn"), fp = $("flowPause"), flow = fp.closest(".flow");
   let simple = false, paused = false;
   // Op de telefoon standaard eenvoudig (alleen wat nu telt); je eigen keuze blijft bewaard
-  simple = matchMedia("(max-width: 700px)").matches;
+  simple = true;                        // standaard alleen wat nu telt; grafieken en logboek via 'Meer details tonen'
   try { const v = localStorage.getItem("zs_simple"); if (v !== null) simple = v === "1"; paused = localStorage.getItem("zs_flowpause") === "1"; } catch (e) {}
   const show = () => {
     document.body.classList.toggle("simple", simple);
-    (vb.querySelector("span") || vb).textContent = simple ? "Uitgebreid" : "Eenvoudig"; vb.setAttribute("aria-pressed", String(simple));
+    (vb.querySelector("span") || vb).textContent = simple ? "Meer details tonen" : "Minder tonen"; vb.setAttribute("aria-pressed", String(!simple));
     vb.title = simple ? "Toon alles: grafieken, logboek en inzicht" : "Toon alleen wat nu belangrijk is";
     flow.classList.toggle("paused", paused); fp.setAttribute("aria-pressed", String(paused));
     fp.setAttribute("aria-label", paused ? "Animatie hervatten" : "Animatie pauzeren"); fp.title = fp.getAttribute("aria-label");
@@ -1823,9 +1837,23 @@ function socHand(car) {
       <button class="evc-go" data-soc-ok="${esc(car.id)}">Opslaan</button></div>
     <p class="small muted" style="margin:6px 0 0">Kijk op het dashboard van de auto. Wat Zonnestuur daarna laadt, telt hij er zelf bij op.</p></details>`;
 }
+// Gevonden in huis en nog één stap nodig? Eén kaart die naar de pagina Apparaten wijst (elke 10 minuten bijgewerkt).
+let HS_AT = 0;
+async function huisStapKaart() {
+  if (Date.now() - HS_AT < 600000) return; HS_AT = Date.now();
+  let h; try { h = await api("api/koppel/huis"); } catch (e) { return; }
+  const n = (h.gevonden || []).length, mee = (h.doet_mee || []).length;
+  const el = $("huisStap");
+  if (!n && mee) { el.hidden = true; return; }
+  $("hsTitel").textContent = n ? `${n} ${n === 1 ? "apparaat" : "apparaten"} gevonden` : "Nog geen apparaten";
+  $("hsSub").textContent = n ? `Nog één stap en ${n === 1 ? "het doet" : "ze doen"} mee: ${(h.gevonden || []).slice(0, 3).map((g) => g.naam).join(", ")}${n > 3 ? "…" : ""}`
+    : "Zonnestuur zoekt vanzelf in je huis. Kijk bij Apparaten wat hij vond.";
+  el.hidden = false;
+}
 // Wat Zonnestuur zelf vond en koppelde (meter, zonnepanelen, apparaten uit de koppelmotor): één keer melden
 let VZ_GEDAAN = false;
 async function vanzelfKaart() {
+  huisStapKaart();
   if (VZ_GEDAAN) return; VZ_GEDAAN = true;
   let st; try { st = await api("api/vanzelf"); } catch (e) { return; }
   let gezien = 0; try { gezien = Number(localStorage.getItem("zs_vanzelf") || 0); } catch (e) {}
@@ -1881,7 +1909,7 @@ async function vermoedKaart(nu) {
   $("vmLijst").querySelectorAll("[data-vm]").forEach((b) => b.onclick = async () => {
     b.disabled = true;
     try { await api("api/meterpatroon", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ soort: b.dataset.vm, antwoord: b.dataset.a }) }); } catch (e) {}
-    if (b.dataset.a === "ja") { location.href = "koppelen?cat=" + encodeURIComponent(VM_CAT[b.dataset.vm]); return; }
+    if (b.dataset.a === "ja") { location.href = "apparaten?cat=" + encodeURIComponent(VM_CAT[b.dataset.vm]); return; }
     vermoedKaart(true);
   });
 }

@@ -143,7 +143,7 @@
       <p class="lead" id="eindTekst">Koppelen duurt ongeveer 5 minuten. Zonnestuur zoekt je meter en apparaten zelf in je thuisnetwerk; je hoeft geen adressen of codes over te typen.</p>
       <div class="vlak">Tip: begin met één apparaat, bijvoorbeeld de boiler. Je kunt later altijd meer toevoegen bij Instellingen.</div>
       <div class="vlak">Vragen of iets onduidelijk? Tik bovenin Zonnestuur op het tekstwolkje om ons een bericht te sturen.</div>
-      <div class="eind"><a class="btn" id="start" href="setup">Begin met koppelen</a><a class="btn terug" href="help">Meer uitleg</a></div>
+      <div class="eind"><a class="btn" id="start" href="apparaten">Naar je apparaten</a><a class="btn terug" href="help">Meer uitleg</a></div>
     </section>
   </div>
 </div>
@@ -157,7 +157,7 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const S = $("slides"), slides = [...S.children], START = new URLSearchParams(location.search).has("start");
-if (START) $("skip").href = "setup";
+if (START) $("skip").href = "apparaten";
 else { $("start").href = "./"; $("start").textContent = "Naar het dashboard"; $("eindKop").textContent = "Dat was de kennismaking";
   $("eindTekst").textContent = "Meer weten over een onderdeel? Bij Meer uitleg staat per kaart wat je ziet en hoe Zonnestuur rekent."; }
 $("dots").innerHTML = slides.map((s, i) => `<button type="button" aria-label="${s.getAttribute("aria-label")}" data-i="${i}"></button>`).join("");

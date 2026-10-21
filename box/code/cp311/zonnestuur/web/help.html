@@ -239,17 +239,17 @@ fetch("api/howcalc", { headers: token ? { "X-Token": token } : {} }).then((r) =>
 // ---- zoeken: in de uitleg en in de koppellijst (per merk een korte handleiding)
 let MERKEN = null;
 const STAP = {
-  ha: (m) => [`Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Tik op <b>Koppelen</b> en volg de stappen. Soms log je in met je account van het merk.",
+  ha: (m) => [`Open <a href="apparaten?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Tik op <b>Koppelen</b> en volg de stappen. Soms log je in met je account van het merk.",
     "Klaar? Kies bij <b>Instellingen → Apparaten</b> wat Zonnestuur ermee mag doen."],
-  hacs: (m) => [`Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Tik op <b>Koppelen</b>. Zonnestuur zet eerst een extra koppeling klaar; dat duurt een paar minuten.",
+  hacs: (m) => [`Open <a href="apparaten?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Tik op <b>Koppelen</b>. Zonnestuur zet eerst een extra koppeling klaar; dat duurt een paar minuten.",
     "Vul daarna in wat er gevraagd wordt en kies bij <b>Instellingen → Apparaten</b> wat Zonnestuur ermee mag doen."],
   zonnestuur: (m, r) => r.route === "zonnestuur:ocpp" ? ["Open de app van je laadpaal en zoek de instelling <b>OCPP</b> (soms bij 'backend' of 'centrale').",
       "Vul het adres in dat Zonnestuur toont bij <b>Instellingen → Koppelingen → Andere systemen</b> (onder OCPP).", "De laadpaal verschijnt vanzelf in Zonnestuur zodra hij verbinding maakt."]
     : [`Open <b>Instellingen</b> en kies bij het juiste onderdeel (apparaten, omvormer, batterij of meter) <b>${esc(m)}</b>.`, "Zonnestuur zoekt hem zelf in je wifi. Niet gevonden? Kies hem dan uit de lijst.", "Tik op <b>Test verbinding</b>: dan zie je meteen of het werkt."],
-  evcc: (m) => [`Dit merk gaat via de laadmodule van Zonnestuur. Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Volg de stappen; daarna verschijnt de laadpaal bij je apparaten."],
+  evcc: (m) => [`Dit merk gaat via de laadmodule van Zonnestuur. Open <a href="apparaten?q=${encodeURIComponent(m)}">Koppelen</a> en zoek op <b>${esc(m)}</b>.`, "Volg de stappen; daarna verschijnt de laadpaal bij je apparaten."],
   relais: () => ["Zet een slimme stekker of schakelaar (bijv. Shelly) voor het apparaat. Bij vast aangesloten apparaten doet een installateur dat.", "Voeg de stekker toe bij <b>Instellingen → Apparaten</b>; Zonnestuur zet hem aan en uit."],
   meten: () => ["Zonnestuur kan dit apparaat niet aan- of uitzetten, maar wel zien wat het verbruikt.", "Zet er een slimme stekker met meting voor, of koppel het via het merk."],
-  matter: (m) => [`Open <a href="koppelen?q=${encodeURIComponent(m)}">Koppelen</a>, kies <b>Matter</b> en scan de code op het apparaat.`],
+  matter: (m) => [`Open <a href="apparaten?q=${encodeURIComponent(m)}">Koppelen</a>, kies <b>Matter</b> en scan de code op het apparaat.`],
   zigbee: () => ["Met een Zigbee-stick in de Zonnestuur Box: open <b>Koppelen → Zigbee</b>, zet het apparaat in koppelstand en wacht tot het verschijnt."],
 };
 // Een plaatje bij de stappen: zo ziet het scherm eruit
@@ -269,7 +269,7 @@ function handleiding(x) {
     <p><b>Zo koppel je het:</b></p><ol>${stappen.map((t) => `<li>${t}</li>`).join("")}</ol>
     ${plaatje(soort, x)}
     ${r.sturen ? `<p><b>Wat Zonnestuur ermee doet:</b> ${esc(r.sturen)}</p>` : ""}
-    <a class="knop" href="koppelen?q=${encodeURIComponent(x.merk)}">Nu koppelen</a></details>`;
+    <a class="knop" href="apparaten?q=${encodeURIComponent(x.merk)}">Nu koppelen</a></details>`;
 }
 const secs = [...document.querySelectorAll("article > section")];
 const navEl = document.querySelector("nav");

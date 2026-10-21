@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#e9eef2" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0d151d" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<title>Zonnestuur koppelen</title>
+<title>Zonnestuur apparaten</title>
 <style>
 /* In een app-webweergave: doorslepen bovenaan mag niet doorgaan naar 'trek omlaag om te verversen' van de app. */
 html, body { overscroll-behavior-y: none; }
@@ -116,6 +116,29 @@ html, body { overscroll-behavior-y: none; }
   .count { font-size: 13px; color: var(--ink-3); margin-top: 12px; }
   .more { margin: 12px auto 0; display: block; }
   .ontdekt { margin: -4px -4px 14px; padding: 12px 14px; border-radius: 16px; background: var(--sun-soft, rgba(255,178,36,.14)); }
+  .rijen { display: grid; gap: 2px; }
+  .rij { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+  .rij:first-child { border-top: 0; }
+  .rij .ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--chip); color: var(--ink-2); }
+  .rij .ic svg { width: 19px; height: 19px; }
+  .rij .ic.ok { background: var(--good-soft); color: var(--good); }
+  .rij .ic.let { background: var(--sun-soft); color: var(--sun-ink); }
+  .rij b { font-weight: 650; display: block; overflow-wrap: anywhere; }
+  .rij .sub { font-size: 13px; color: var(--ink-2); display: block; }
+  .rij .act { justify-self: end; }
+  .rij a.act { color: var(--ink-2); font-size: 14px; font-weight: 600; text-decoration: none; padding: 10px 4px; }
+  .zoek .zrij { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .zoek .zrij #zTekst { flex: 1; min-width: 180px; }
+  .card h2.t { margin: 0 0 6px; }
+  details.zonder > summary { list-style: none; cursor: pointer; display: grid; gap: 2px; }
+  details.zonder > summary::-webkit-details-marker { display: none; }
+  details.zonder > summary h2 { display: flex; justify-content: space-between; align-items: center; }
+  details.zonder > summary h2::after { content: ""; width: 9px; height: 9px; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); margin-right: 6px; transition: transform .2s; }
+  details.zonder[open] > summary h2::after { transform: rotate(-135deg); }
+  .leeg { color: var(--ink-2); font-size: 14px; margin: 0; }
+  .kies { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 10px 0; }
+  .kies button { font: inherit; font-weight: 600; padding: 14px 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--card-solid); color: var(--ink); cursor: pointer; }
+  .kies button.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink) inset; }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -123,26 +146,36 @@ html, body { overscroll-behavior-y: none; }
 <main>
   <header class="top">
     <a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a>
-    <div class="spacer"></div>
-    <a class="link" href="./">Dashboard</a><a class="link" href="instellingen" style="margin-left:16px">Instellingen</a>
   </header>
-  <h1 class="t">Koppelen</h1>
-  <p class="lead">Zoek het merk van je apparaat. Je ziet meteen wat er nodig is, en met één knop koppel je het. Alles blijft in Zonnestuur.</p>
+  <h1 class="t">Apparaten</h1>
+  <p class="lead" id="lead">Alles wat Zonnestuur in je huis vond, op één plek.</p>
 
-  <section class="card" id="meterKaart" hidden></section>
-  <section class="card" id="state"><div class="status"><span class="dot wait"></span><div class="small muted">Even kijken wat er al gekoppeld is…</div></div></section>
+  <section class="card zoek" id="zoekKaart" aria-live="polite"><div class="zrij"><span class="spin" id="zSpin" hidden></span><span id="zTekst">Even kijken…</span>
+    <button class="btn ghost small" type="button" id="zoekNu">Opnieuw zoeken</button></div></section>
 
-  <div class="card">
-    <div class="field" style="margin:0"><label for="q">Merk of apparaat</label>
+  <section class="card" id="stapKaart" hidden><h2 class="t">Nog één stap</h2>
+    <p class="small muted" style="margin:-2px 0 10px">Gevonden in je huis. Eén tik en het doet mee.</p><div class="rijen" id="stappen"></div></section>
+
+  <section class="card" id="meeKaart"><h2 class="t">Doet mee</h2><div class="rijen" id="mee"></div></section>
+
+  <section class="card" id="basisKaart"><h2 class="t">Basis</h2><div class="rijen" id="basis"></div></section>
+
+  <details class="card zonder" id="anderMerk"><summary><h2 class="t">Ander merk toevoegen</h2><span class="small muted">Staat je apparaat er niet bij? Zoek het merk.</span></summary>
+  <div style="margin-top:12px">
+  <div class="field" style="margin:0"><label for="q">Merk of apparaat</label>
       <input id="q" type="search" placeholder="Bijv. Daikin, Tesla, Miele, Shelly, warmtepomp" autocomplete="off"></div>
     <div class="chips" id="cats"></div>
     <p class="count" id="count"></p>
-  </div>
   <div class="results" id="results"></div>
   <button class="btn ghost more" id="more" hidden>Meer tonen</button>
-  <section class="card" style="margin-top:14px"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-    <div style="flex:1;min-width:200px"><b>Apparaat met een Matter-logo?</b><p class="small muted" style="margin:2px 0 0">Steeds meer laadpalen, boilers en warmtepompen hebben Matter. Dan scan je alleen de QR-code; het merk maakt niet uit.</p></div>
-    <button class="btn" type="button" id="matterAltijd">QR-code scannen</button></div></section>
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px">
+    <div style="flex:1;min-width:200px"><b>Apparaat met een Matter-logo?</b><p class="small muted" style="margin:2px 0 0">Dan scan je alleen de QR-code; het merk maakt niet uit.</p></div>
+    <button class="btn ghost" type="button" id="matterAltijd">QR-code scannen</button></div>
+  </div></details>
+
+  <details class="card zonder" id="beheer"><summary><h2 class="t">Koppelingen beheren</h2><span class="small muted">Welke merken gekoppeld zijn, en ontkoppelen.</span></summary>
+    <section id="state" style="margin-top:12px"></section></details>
+  <section class="card" id="meterKaart" hidden></section>
 </main>
 
 <div class="panel" id="panel" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="p_title">
@@ -267,13 +300,7 @@ function stateCard() {
   // Merken die Zonnestuur zelf in het netwerk herkende en die nog niet gekoppeld zijn (ook cloud-merken: dan inloggen)
   const al = new Set([...ents.map((e) => merkVan(e)), ...ont.map((d) => merkVan(d))].map((x) => String(x).toLowerCase()));
   const netm = [...new Map(NETMERKEN.filter((m) => !al.has(m.merk.toLowerCase()) && LIST.some((x) => x.merk === m.merk)).map((m) => [m.merk, m])).values()];
-  el.innerHTML = `${ont.length ? `<div class="ontdekt" id="ontdekt"><b>Gevonden in je huis</b><p class="small muted" style="margin:2px 0 8px">De koppelmotor zag deze apparaten in je netwerk. Koppel ze in één keer, of één voor één. Wil je er later een niet? Dan kun je hem altijd weer ontkoppelen.</p>
-    <div style="margin:0 0 10px"><button class="btn small" type="button" id="allesKoppelen">Alles in één keer koppelen</button> <span class="small" id="allesMsg" role="status"></span></div>
-    ${ont.map((d, i) => `<div class="entry"><span>${esc(merkVan(d))}${d.naam && d.naam !== merkVan(d) ? ` <span class="muted small">${esc(d.naam)}</span>` : ""}${watKan(d.domain) ? `<span class="wat">${esc(watKan(d.domain))}</span>` : ""}</span><button class="btn small" data-ont="${i}">Koppelen</button></div>`).join("")}</div>` : ""}
-${ontRest.length ? `<details class="small muted" style="margin:0 0 12px"><summary>Ook gezien, maar Zonnestuur heeft het niet nodig (${ontRest.length})</summary><p class="small muted" style="margin:6px 0 0">${ontRest.map((d) => esc(merkVan(d))).join(", ")}. Bijvoorbeeld camera's of speakers: daar stuurt Zonnestuur niets mee. Je hoeft ze niet te koppelen.</p></details>` : ""}
-${netm.length ? `<div class="ontdekt" id="netmerk"><b>Ook gezien in je netwerk</b><p class="small muted" style="margin:2px 0 8px">Zonnestuur herkende deze merken aan hun netwerkkaart, hun naam of hoe ze zich melden. Tik op Koppelen: je ziet dan meteen wat er nodig is (vaak alleen inloggen met de app van het merk).</p>
-    ${netm.map((m) => `<div class="entry"><span>${esc(m.merk)}${m.categorie ? ` <span class="muted small">${esc(m.categorie.toLowerCase())}</span>` : ""}</span><button class="btn small" data-netmerk="${esc(m.merk)}">Koppelen</button></div>`).join("")}</div>` : ""}
-${matterBlok()}
+  el.innerHTML = `
 ${ROUTER.soort === "fritzbox" && (ROUTER.nodig || ROUTER.fout) ? `<div class="ontdekt" id="routerKaart"><b>Je hebt een FRITZ!Box</b><p class="small muted" style="margin:2px 0 8px">Met het wachtwoord van je FRITZ!Box ziet Zonnestuur alle apparaten in huis, ook die nu even slapen. Het wachtwoord staat op de sticker onderop de FRITZ!Box (of je hebt het zelf gekozen). Zonnestuur leest alleen de lijst met apparaten.</p>
     ${ROUTER.fout ? `<p class="small err">${esc(ROUTER.fout)}</p>` : ""}
     <div class="field" style="margin:0"><label for="r_pw">Wachtwoord FRITZ!Box</label><input id="r_pw" type="password" autocomplete="off"></div>
@@ -455,7 +482,7 @@ function busy(text) { panel($("p_title").textContent || "Koppelen", `<p><span cl
 function alertPanel(msg) { panel("Dat lukte niet", `<p>${esc(msg)}</p>`); }
 async function closePanel() {
   if (FLOW && FLOW.flow_id) { try { await post("api/koppel/abort", { flow_id: FLOW.flow_id }); } catch (e) {} }
-  FLOW = null; $("panel").hidden = true; load();
+  FLOW = null; $("panel").hidden = true; load(); huisLaden(false);
 }
 
 async function go(row, rt) {
@@ -584,8 +611,8 @@ async function apparaatKeuze(title, r, kop) {
 }
 function done(title, extra) {
   FLOW = null;
-  panel(title, `<p class="ok">Gekoppeld.</p><p class="muted">${extra ? esc(extra) + " " : ""}Wil je dat Zonnestuur iets aan- of uitzet (een stekker, laadpaal, boiler…)? Kies het dan bij <b>Apparaat toevoegen</b>.</p>`,
-    [["Sluiten", closePanel, "ghost"], ["Apparaat toevoegen", () => { location.href = "setup#toevoegen"; }]]);
+  panel(title, `<p class="ok">Gekoppeld.</p><p class="muted">${extra ? esc(extra) + " " : ""}Zonnestuur zag bij dit merk nog niets om te sturen. Duurt het even voordat je apparaat verschijnt? Het komt vanzelf bij <b>Nog één stap</b> te staan.</p>`,
+    [["Klaar", closePanel]]);
 }
 
 const safeUrl = (u) => /^https?:\/\//i.test(String(u || "")) ? String(u) : "";
@@ -727,7 +754,101 @@ async function enodeChoose(kind, title) {
 // ---------- laden ----------
 async function load() {
   try { OV = await api("api/koppel"); } catch (e) { OV = { error: e.message }; }
-  stateCard(); render(); meterAanbod();
+  stateCard(); render();
+}
+// ---------- Jouw huis: één overzicht ----------
+const IC = {
+  ev: '<path d="M5 16V9l2-4h10l2 4v7"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="16" r="1.5"/><circle cx="16.5" cy="16" r="1.5"/>',
+  boiler: '<rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 9v5"/>',
+  heatpump: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="9" cy="12" r="3"/><path d="M15 10h3M15 14h3"/>',
+  generic: '<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 6h2"/>',
+  battery: '<rect x="4" y="7" width="15" height="10" rx="2"/><path d="M21 10v4M8 10v4M11 10v4"/>',
+  meter: '<path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-5"/>',
+  zon: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',
+  prijs: '<path d="M17 6a7 7 0 1 0 0 12"/><path d="M4 10h9M4 14h9"/>',
+  stekker: '<path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/>',
+  merk: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+  ok: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+};
+const ico = (k, cls = "") => `<span class="ic ${cls}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[k] || IC.generic}</svg></span>`;
+const KNOP = { toevoegen: "Toevoegen", koppelen: "Koppelen", inloggen: "Inloggen", kiezen: "Kiezen" };
+let HUIS = null, HUIS_BEZIG = false;
+function soortIcoon(g) {
+  const t = (g.uitleg + " " + g.naam).toLowerCase();
+  if (g.actie.type === "meter" || g.actie.type === "meter_lan") return "meter";
+  if (g.actie.type === "omvormer_lan") return "zon";
+  if (g.actie.type === "lan") return "stekker";
+  if (/laad|auto/.test(t)) return "ev";
+  if (/boiler|warm water/.test(t)) return "boiler";
+  if (/warmtepomp|klimaat|airco/.test(t)) return "heatpump";
+  return g.actie.type === "route" ? "merk" : "generic";
+}
+function huisTekenen() {
+  const h = HUIS; if (!h) return;
+  const g = h.gevonden || [];
+  $("zSpin").hidden = !h.zoekt;
+  $("zTekst").textContent = h.zoekt ? "Zonnestuur zoekt in je huis… (± 1 minuut)"
+    : h.gezocht_s == null ? "Zonnestuur heeft nog niet gezocht."
+    : `Laatst gezocht ${h.gezocht_s < 90 ? "net" : Math.round(h.gezocht_s / 60) + " min geleden"}. ${g.length ? `${g.length} ${g.length === 1 ? "ding" : "dingen"} gevonden die nog één stap nodig ${g.length === 1 ? "heeft" : "hebben"}.` : "Niets nieuws gevonden."}`;
+  $("zoekNu").disabled = !!h.zoekt;
+  $("stapKaart").hidden = !g.length;
+  $("stappen").innerHTML = g.map((x, i) => `<div class="rij">${ico(soortIcoon(x), "let")}<span><b>${esc(x.naam)}</b><span class="sub">${esc(x.uitleg || "")}${x.stap === "inloggen" && x.nodig ? `. ${esc(x.nodig)}` : ""}</span></span>
+    <button class="btn small act" data-stap="${i}">${KNOP[x.stap] || "Toevoegen"}</button></div>`).join("");
+  const mee = h.doet_mee || [];
+  $("mee").innerHTML = mee.length ? mee.map((d) => `<div class="rij">${ico(d.kind, "ok")}<span><b>${esc(d.naam)}</b><span class="sub">${esc(d.soort)}${d.leverancier ? ` · ${esc(d.leverancier)} stuurt, Zonnestuur kijkt mee` : ""}</span></span>
+    ${d.driver === "batterij" ? `<a class="act" href="instellingen#batCard">Aanpassen</a>` : d.driver === "meekijken" ? `<a class="act" href="vergelijk">Bekijken</a>` : `<a class="act" href="instellingen?apparaat=${encodeURIComponent(d.id)}">Aanpassen</a>`}</div>`).join("")
+    : `<p class="leeg">${g.length ? "Nog niets. Kies hierboven wat mee mag doen." : "Nog niets. Zonnestuur zoekt vanzelf; staat je apparaat er niet bij, kies dan hieronder het merk."}</p>`;
+  $("basis").innerHTML = (h.basis || []).map((b) => `<div class="rij">${ico(b.soort, b.ok ? "ok" : "let")}<span><b>${esc(b.naam)}</b><span class="sub">${esc(b.tekst)}</span></span>
+    <a class="act" href="instellingen#${b.soort === "meter" ? "inst_meter" : b.soort === "zon" ? "inst_zon" : "inst_meter"}">${b.ok ? "Aanpassen" : "Instellen"}</a></div>`).join("");
+  if ((h.niet_nodig || []).length) $("basis").insertAdjacentHTML("afterend", "");
+  $("stappen").querySelectorAll("[data-stap]").forEach((b) => b.onclick = () => stapDoen(g[+b.dataset.stap], b));
+}
+async function huisLaden(zoek) {
+  if (HUIS_BEZIG && !zoek) return;
+  HUIS_BEZIG = true;
+  try { HUIS = await api("api/koppel/huis" + (zoek === "nu" ? "?zoek=1&nu=1" : zoek ? "?zoek=1" : "")); } catch (e) { $("zTekst").textContent = e.message; return; }
+  finally { HUIS_BEZIG = false; }
+  huisTekenen();
+  if (HUIS.zoekt) { await sleep(4000); return huisLaden(false); }
+}
+async function stapDoen(g, b) {
+  const a = g.actie; BRAND = g.merk || g.naam;
+  const klaar = async (tekst) => { await huisLaden(false); if (tekst) panel(g.naam, `<p class="ok">${esc(tekst)}</p>`, [["Klaar", closePanel]]); };
+  try {
+    if (a.type === "entity") {
+      b.disabled = true; b.textContent = "Bezig…";
+      await post("api/koppel/apparaat", { entity: a.entity });
+      return klaar(g.driver === "ha_start_button" ? `${g.naam} doet mee. Vul de machine, kies het programma en zet hem op start op afstand: Zonnestuur drukt op start zodra het gunstig is.` : `${g.naam} doet mee.`);
+    }
+    if (a.type === "meter") { b.disabled = true; await post("api/koppel/meter", { entity: a.entity, export_entity: a.export_entity || "" }); return klaar("Dit is nu je meter."); }
+    if (a.type === "meter_lan" || a.type === "omvormer_lan") { b.disabled = true; await post("api/koppel/lan-basis", { host: a.host, soort: a.type === "meter_lan" ? "meter" : "omvormer" }); return klaar(a.type === "meter_lan" ? "Dit is nu je meter." : "Je omvormer doet mee."); }
+    if (a.type === "flow") {
+      panel(g.naam, `<p><span class="spin"></span>Koppeling openen…</p>`);
+      return showStep(await api(`api/koppel/flow?domain=${encodeURIComponent(a.domain)}&flow_id=${encodeURIComponent(a.flow_id)}`));
+    }
+    if (a.type === "route") {
+      const row = LIST.find((r) => r.merk === a.merk), rt = row && routesOf(row).find((x) => x.route === a.route);
+      if (row && rt) return go(row, rt);
+    }
+    if (a.type === "lan") return lanKiezen(g);
+  } catch (e) { b.disabled = false; b.textContent = KNOP[g.stap] || "Toevoegen"; alertPanel(e.message); }
+}
+function lanKiezen(g) {
+  const SOORT = [["boiler", "Boiler"], ["heatpump", "Warmtepomp"], ["generic", "Wasmachine of droger"], ["ev", "Laadpaal"], ["generic", "Iets anders"]];
+  let keuze = -1;
+  panel(g.naam, `<p>Wat zit er op deze stekker of schakelaar? Dan weet Zonnestuur wanneer hij hem aan mag zetten.</p>
+    <div class="kies">${SOORT.map(([, l], i) => `<button type="button" data-k="${i}">${esc(l)}</button>`).join("")}</div>
+    <div class="field"><label for="l_naam">Naam</label><input id="l_naam" maxlength="40" placeholder="Bijv. Boiler"></div>
+    <p class="small muted">Zet hier nooit een koelkast, vriezer of iets op dat altijd aan moet blijven.</p>`,
+    [["Annuleren", closePanel, "ghost"], ["Toevoegen", async () => {
+      if (keuze < 0) { $("p_err").textContent = "Kies eerst wat erop zit."; return; }
+      try { await post("api/koppel/lan", { host: g.actie.host, kind: SOORT[keuze][0], naam: $("l_naam").value || SOORT[keuze][1] });
+        closePanel(); huisLaden(false); }
+      catch (e) { $("p_err").textContent = e.message; }
+    }]]);
+  $("p_body").querySelectorAll("[data-k]").forEach((x) => x.onclick = () => { keuze = +x.dataset.k;
+    $("p_body").querySelectorAll("[data-k]").forEach((y) => y.classList.toggle("on", y === x));
+    if (!$("l_naam").value || SOORT.some(([, l]) => l === $("l_naam").value)) $("l_naam").value = keuze === 4 ? "" : SOORT[keuze][1]; });
 }
 // Nog geen meter, maar de koppelmotor heeft er wel een (bijv. Tibber Pulse)? Dan bovenaan met één knop aanbieden.
 async function meterAanbod() {
@@ -758,10 +879,13 @@ async function meterAanbod() {
     CAT = qp.get("cat"); $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.c === CAT));
   }
   render();
+  $("zoekNu").onclick = () => huisLaden("nu");
+  if (qp.get("q") || qp.get("cat")) $("anderMerk").open = true;
   if (qp.get("q")) { const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start" }); } }   // vanuit het eerste instellen: meteen open
   await load();
+  huisLaden(true);
   // nieuwe vondsten van de koppelmotor (en een motor die nog opstart) vanzelf bijwerken
-  setInterval(() => { if ($("panel").hidden && !document.hidden) load(); }, 30000);
+  setInterval(() => { if ($("panel").hidden && !document.hidden) { load(); huisLaden(false); } }, 30000);
   const m = location.hash.match(/^#enode-(\w+)/); if (m) enodeChoose(m[1]);
 })();
 </script>
