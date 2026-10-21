@@ -531,7 +531,7 @@ async function gekoppeld(r) {
   const title = BRAND || r.title || "Gekoppeld";
   panel(title, `<p class="ok">Gekoppeld.</p><p><span class="spin"></span>Even kijken wat deze koppeling doorgeeft…</p>`, []);
   let v = { meters: [] };
-  for (let i = 0; i < 6 && !v.meters.length; i++) {
+  for (let i = 0; i < 6 && !v.meters.length && !(OV && OV.heeft_meter); i++) {
     try { v = await post("api/koppel/meter-voorstel", { entry_id: r.entry_id || "", domain: r.domain || "" }); } catch (e) { break; }
     if (!v.meters.length) await sleep(4000);
   }
@@ -540,10 +540,9 @@ async function gekoppeld(r) {
   const nu = isFinite(w) && m.state !== "" ? ` Nu: <b>${Math.round(m.unit === "kW" ? w * 1000 : w)} W</b>.` : "";
   panel(title, `<p class="ok">Gekoppeld.</p><p>Hiermee ziet Zonnestuur je <b>stroomverbruik en teruglevering</b> live (${esc(m.name)}).${nu}</p>
     ${v.huidig ? `<p class="small muted">Je gebruikt nu al een andere meter. Kies deze alleen als je wilt overstappen.</p>` : ""}`,
-    [["Niet nu", closePanel, "ghost"], ["Gebruik als meter", async () => {
+    [["Niet nu", () => apparaatKeuze(title, r, "Gekoppeld."), "ghost"], ["Gebruik als meter", async () => {
       try { await post("api/koppel/meter", { entity: m.entity, export_entity: m.export_entity || "" });
-        panel(title, `<p class="ok">Klaar: dit is nu je meter.</p><p class="muted">Op het dashboard zie je meteen je verbruik en teruglevering.</p>`,
-          [["Sluiten", closePanel, "ghost"], ["Naar het dashboard", () => { location.href = "./"; }]]);
+        apparaatKeuze(title, r, "Klaar: dit is nu je meter.");
       } catch (e) { $("p_err").textContent = e.message; }
     }]]);
 }

@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.72.7
+- Na het koppelen van een laadpaal biedt Zonnestuur het laadvermogen niet meer aan als meter. Alleen echte meters (zoals Tibber Pulse of HomeWizard) worden nog aangeboden, en alleen als je nog geen meter hebt.
+- Gewone namen: 'Laadpaal Haardijk 3' in plaats van 'Haardijk 3 Beschikbare stroom', 'Wasmachine' in plaats van 'Wasmachine Starten'.
+
 ## 0.72.6
 - Na het koppelen komen alleen apparaten waarvan zeker is dat ze bij Zonnestuur horen er meteen in: witgoed met een startknop, laadpalen en boilers of warmtepompen. Losse schakelaars kies je zelf.
 - Koelkasten, vriezers en ovens worden nooit meer als warmtepomp aangeboden.
