@@ -217,7 +217,10 @@ html, body { overscroll-behavior-y: none; }
   .secnav .viewbtn:hover { color: var(--ink); }
   .secnav svg { display: none; }
   /* eenvoudig: bij de auto alleen het belangrijkste (de uitleg en de tijdlijn staan onder 'Meer details tonen') */
-  body.simple .evc-why:not(:has(a)), body.simple .evc-tl { display: none !important; }
+  body.simple .evc-why, body.simple .evc-tl, body.simple .evc-rit { display: none !important; }
+  /* batterij in eenvoudig: alleen hoe vol, wat hij nu doet en waarom (het uurplan en de cijfers staan in de details) */
+  body.simple .bplan, body.simple .bplan + .strip-axis, body.simple .bkeys, body.simple .kv4, body.simple .kv4 + p,
+  body.simple .facts .fact:nth-child(n+2) { display: none !important; }
   body.simple .adv, body.simple .dev .strip, body.simple .dev .strip-axis, body.simple .dev .facts .fact.more { display: none !important; }
   .flow { position: relative; }
   .flowpause { position: absolute; right: 4px; top: 4px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--card-line); background: var(--card-solid);

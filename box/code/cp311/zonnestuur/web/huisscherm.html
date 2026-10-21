@@ -252,6 +252,7 @@ const post = (path, body) => api(path, { method: "POST", body: JSON.stringify(bo
 const BLOKKEN = [
   ["prijs", "Stroomprijs per uur", "de balk met goedkope en dure uren"],
   ["weer", "Weer", "temperatuur en hoe lang het droog blijft"],
+  ["huis", "Je huis", "de tekening van je huis met het weer van nu en wat er aan staat"],
   ["afval", "Afval", "welke container aan de weg moet"],
   ["witgoed", "Wasmachine en droger", "wanneer de was klaar is"],
   ["agenda", "Agenda", "de eerstvolgende afspraak van vandaag"],
@@ -472,7 +473,7 @@ function draw() {
   const d = $("prev").contentDocument, c = d.querySelector("zonnestuur-hub-card");
   if (!c || !c.setConfig) return;
   const b = ED.blokken, cfg = { licht: true, radio_knop: ED.radio.knop !== false, radio_entity: "input_text.voorbeeld", radio_stream: ED.radio.url || undefined, radio_name: ED.radio.naam || undefined };
-  for (const k of ["afval", "weer", "witgoed", "agenda", "besparing", "prijs", "auto", "plan"]) if (!b[k]) cfg[k] = false;
+  for (const k of ["huis", "afval", "weer", "witgoed", "agenda", "besparing", "prijs", "auto", "plan"]) if (!b[k]) cfg[k] = false;
   const st = ED.stijl || {}, tg = {};
   Object.assign(cfg, { accent: st.accent, thema: st.thema, tekst: st.tekst, begroeting: st.begroeting, wie: st.wie, volgorde: st.volgorde, tegels: st.tegels });
   if (st.thema === "licht") cfg.licht = false;   // het lichte thema heeft zijn eigen achtergrond

@@ -303,6 +303,11 @@ const ZS_HUB_CSS = `
   .do span { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 30%; background: color-mix(in srgb, var(--g) 20%, transparent); color: var(--g); flex: none; }
   .do svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .price { text-align: right; }
+  .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 46%); align-items: center; }
+  .hubhuis { display: grid; gap: 1.2vh; justify-items: end; }
+  .hubhuis .hz { width: 100%; max-height: 46vh; height: auto; border-radius: 18px; display: block; }
+  .price.klein b { display: inline; font-size: clamp(22px, 6vh, 44px); margin-right: .3em; }
+  .price.klein br { display: none; } .price.klein em { margin: 0 0 0 .5em; }
   .price b { display: block; font: 700 clamp(36px, 11vh, 88px)/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
   .price span { color: var(--ink2); font-size: clamp(13px, 2.6vh, 20px); }
   .price em { font-style: normal; display: inline-block; margin-top: 1vh; padding: .25em .7em; border-radius: 99px; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); font-weight: 600; font-size: clamp(13px, 2.5vh, 19px); }
@@ -337,7 +342,7 @@ const ZS_HUB_CSS = `
   .ax span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
   .ax span.d { transform: none; color: var(--ink2); font-weight: 600; padding-left: 0; }
   .empty { align-self: center; font-size: 22px; color: var(--ink2); }
-  @media (max-aspect-ratio: 1/1) { .mid { grid-template-columns: 1fr; } .price { text-align: left; } .info { height: auto; max-height: calc(2 * clamp(54px, 11vh, 74px) + 18px); } }
+  @media (max-aspect-ratio: 1/1) { .mid, .mid.met-huis { grid-template-columns: 1fr; } .hubhuis { justify-items: start; } .price { text-align: left; } .info { height: auto; max-height: calc(2 * clamp(54px, 11vh, 74px) + 18px); } }
 `;
 const ZS_HUB_ICON = {
   bolt: '<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6l1-8z"/>',
@@ -362,6 +367,17 @@ const ZS_WX = {
 };
 ZS_WX.pouring = ZS_WX.rainy; ZS_WX.lightning = ZS_WX["lightning-rainy"] = ZS_WX.rainy; ZS_WX.snowy = ZS_WX["snowy-rainy"] = ZS_WX.rainy; ZS_WX.fog = ZS_WX.windy = ZS_WX["windy-variant"] = ZS_WX.cloudy; ZS_WX["clear-night"] = ZS_WX.night;
 const ZS_WX_NL = { sunny: "zonnig", "clear-night": "helder", partlycloudy: "half bewolkt", cloudy: "bewolkt", rainy: "regen", pouring: "flinke regen", lightning: "onweer", "lightning-rainy": "onweer", snowy: "sneeuw", "snowy-rainy": "natte sneeuw", fog: "mist", windy: "veel wind", "windy-variant": "veel wind", hail: "hagel" };
+
+// sensor.zonnestuur (compact) → wat de huistekening verwacht (zoals /api/status)
+function zsHuisStatus(a) {
+  const h = a.huis || {};
+  return {
+    huis: h.z, huis_naam: h.naam, contract: h.contract, has_panels: a.panels, inverter: { pv_w: h.pv }, grid_w: h.net,
+    devices: (a.devices || []).map((d) => ({ name: d.name, kind: d.kind, on: d.on, power_w: d.w, ev: d.ev ? { soc: d.ev.soc, plug: d.ev.plug } : null })),
+    batteries: (a.batteries || []).map((b) => ({ soc: b.soc, power_w: b.w })),
+    waarnemen: (a.waarnemen || []).map((w) => ({ naam: w.name, power_w: w.w, soc: w.soc, wie: w.wie, plug: w.plug })),
+  };
+}
 
 class ZonnestuurHubCard extends HTMLElement {
   setConfig(config) { this._config = Object.assign({ entity: "sensor.zonnestuur", tip: "Zet nu de was of vaatwasser aan", radio_cast_only: true }, config || {}); this._key = null; }
@@ -396,6 +412,13 @@ class ZonnestuurHubCard extends HTMLElement {
       if (this._audio) this.shadowRoot.appendChild(this._audio);
     }
     this._c.innerHTML = st && st.attributes.moment ? this.render(st.attributes) : `<div class="hub"><div></div><div class="empty">Zonnestuur is nog niet bereikbaar.</div><div></div></div>`;
+    const hz = this._c.querySelector(".hubhuis svg");
+    if (hz && window.zsHuis) {
+      if (!this.shadowRoot.getElementById("hzcss")) {
+        const c = document.createElement("style"); c.id = "hzcss"; c.textContent = window.zsHuis.css; this.shadowRoot.appendChild(c);
+      }
+      try { window.zsHuis.teken(hz, zsHuisStatus(st.attributes), null); } catch (e) { console.warn("zonnestuur huis", e); }
+    }
     if (this._config.height) this._c.querySelector(".hub").style.setProperty("--zs-hub-h", this._config.height);
   }
   // Radio in het scherm: zo speelt de muziek door terwijl het scherm in beeld is (een Nest Hub draait maar één cast-app).
@@ -694,9 +717,13 @@ class ZonnestuurHubCard extends HTMLElement {
     const delen = { info: this._info(a), prijs: bars && cf.prijs !== false ? `<div class="strip" role="img" aria-label="Stroomprijs per uur">${bars}</div>${ax}` : "", nieuws: this._nieuws() };
     const volg = (Array.isArray(cf.volgorde) && cf.volgorde.length ? cf.volgorde : ["info", "prijs", "nieuws"]).filter((k) => k in delen);
     for (const k of ["info", "prijs", "nieuws"]) if (!volg.includes(k)) volg.push(k);
+    // Het huis van nu (dezelfde tekening als op Vandaag), met de prijs eronder
+    const huis = cf.huis !== false && a.huis && a.huis.z && window.zsHuis;
+    const prijsHtml = `<b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}`;
     return `<div class="${klas}" style="${stijl}">${top}
-      <div class="mid"><div>${head}${planHtml}</div>
-        <div class="price"><b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}</div></div>
+      <div class="mid${huis ? " met-huis" : ""}"><div>${head}${planHtml}</div>
+        ${huis ? `<div class="hubhuis"><svg class="hz" viewBox="0 0 440 300" role="img" aria-label="Je huis"></svg><div class="price klein">${prijsHtml}</div></div>`
+          : `<div class="price">${prijsHtml}</div>`}</div>
       <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
     </div>`;
   }

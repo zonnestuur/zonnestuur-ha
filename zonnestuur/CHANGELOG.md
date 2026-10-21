@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.75.0
+- Je huis staat nu ook op de Nest Hub: dezelfde tekening als op Vandaag, met het weer, de zon of de maan en wat er aan staat. Uit te zetten bij Huisscherm.
+- Apparaten op Vandaag zijn korter: bij de auto en de batterij zie je alleen wat nu telt. De uitleg, het uurplan en de cijfers staan onder 'Meer details tonen'.
+
 ## 0.74.0
 - Nieuwe, rustigere vormgeving over de hele app: overal even grote koppen, zachte knoppen, minder lijnen en randen.
 - Op de computer staan de tabbladen bovenaan in het midden, op de telefoon onderin.
