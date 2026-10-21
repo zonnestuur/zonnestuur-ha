@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.73.2
+- Zonnestuur herkent meer merken in je netwerk, met de nieuwste lijst van netwerkkaarten (ook laadpalen zoals Zaptec en Alfen).
+- Bosch, Siemens en Neff: Zonnestuur ziet aan de naam of het een wasmachine, vaatwasser of droger is (doet mee) of een oven of kookplaat (niet nodig).
+- Apparaten laat zien hoeveel apparaten Zonnestuur in je netwerk zag en wat niet nodig is (tv, telefoon, robotmaaier …).
+- 'Klopt dit?' (gezien aan je meter) staat nu bij Apparaten, met Ja en Nee.
+- Ander merk toevoegen: eerst kiezen wat het is (laadpaal, warmtepomp, boiler …), dan het merk.
+- Instellingen: geen dubbele lijst met apparaten meer; technische velden staan onder 'Voor gevorderden'.
+
 ## 0.73.1
 - Een laadpaal die je leverancier al stuurt (Zonnestuur kijkt mee) wordt niet nog eens aangeboden.
 - Duidelijkere uitleg bij gevonden merken (bijv. Bosch/Siemens: 'Start de was of vaat op zon of goedkope stroom').

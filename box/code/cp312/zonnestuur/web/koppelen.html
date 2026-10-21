@@ -153,6 +153,7 @@ html, body { overscroll-behavior-y: none; }
   <section class="card zoek" id="zoekKaart" aria-live="polite"><div class="zrij"><span class="spin" id="zSpin" hidden></span><span id="zTekst">Even kijken…</span>
     <button class="btn ghost small" type="button" id="zoekNu">Opnieuw zoeken</button></div></section>
 
+  <p class="small muted" id="ookGezien" hidden style="margin:10px 4px 0"></p>
   <section class="card" id="stapKaart" hidden><h2 class="t">Nog één stap</h2>
     <p class="small muted" style="margin:-2px 0 10px">Gevonden in je huis. Eén tik en het doet mee.</p><div class="rijen" id="stappen"></div></section>
 
@@ -162,7 +163,14 @@ html, body { overscroll-behavior-y: none; }
 
   <details class="card zonder" id="anderMerk"><summary><h2 class="t">Ander merk toevoegen</h2><span class="small muted">Staat je apparaat er niet bij? Zoek het merk.</span></summary>
   <div style="margin-top:12px">
-  <div class="field" style="margin:0"><label for="q">Merk of apparaat</label>
+  <p class="small muted" style="margin:0 0 4px">Wat wil je toevoegen?</p>
+  <div class="kies" id="soortKies">
+    <button type="button" data-cat="Laadpaal">Laadpaal</button><button type="button" data-cat="Elektrische auto">Auto</button>
+    <button type="button" data-cat="Warmtepomp">Warmtepomp</button><button type="button" data-cat="Warm water">Boiler</button>
+    <button type="button" data-cat="Thuisbatterij">Thuisbatterij</button><button type="button" data-cat="Omvormer">Zonnepanelen</button>
+    <button type="button" data-cat="Witgoed">Wasmachine of vaatwasser</button><button type="button" data-cat="Slimme meter / P1">Meter</button>
+  </div>
+  <div class="field" style="margin:0"><label for="q">Of zoek het merk</label>
       <input id="q" type="search" placeholder="Bijv. Daikin, Tesla, Miele, Shelly, warmtepomp" autocomplete="off"></div>
     <div class="chips" id="cats"></div>
     <p class="count" id="count"></p>
@@ -793,15 +801,27 @@ function huisTekenen() {
   $("zoekNu").disabled = !!h.zoekt;
   $("stapKaart").hidden = !g.length;
   $("stappen").innerHTML = g.map((x, i) => `<div class="rij">${ico(soortIcoon(x), "let")}<span><b>${esc(x.naam)}</b><span class="sub">${esc(x.uitleg || "")}${x.stap === "inloggen" && x.nodig ? `. ${esc(x.nodig)}` : ""}</span></span>
-    <button class="btn small act" data-stap="${i}">${KNOP[x.stap] || "Toevoegen"}</button></div>`).join("");
+    ${x.stap === "vraag" ? `<span class="act" style="display:flex;gap:6px"><button class="btn small" data-vm="${i}" data-a="ja">Ja</button><button class="btn ghost small" data-vm="${i}" data-a="nee">Nee</button></span>`
+      : `<button class="btn small act" data-stap="${i}">${KNOP[x.stap] || "Toevoegen"}</button>`}</div>`).join("");
   const mee = h.doet_mee || [];
   $("mee").innerHTML = mee.length ? mee.map((d) => `<div class="rij">${ico(d.kind, "ok")}<span><b>${esc(d.naam)}</b><span class="sub">${esc(d.soort)}${d.leverancier ? ` · ${esc(d.leverancier)} stuurt, Zonnestuur kijkt mee` : ""}</span></span>
     ${d.driver === "batterij" ? `<a class="act" href="instellingen#batCard">Aanpassen</a>` : d.driver === "meekijken" ? `<a class="act" href="vergelijk">Bekijken</a>` : `<a class="act" href="instellingen?apparaat=${encodeURIComponent(d.id)}">Aanpassen</a>`}</div>`).join("")
     : `<p class="leeg">${g.length ? "Nog niets. Kies hierboven wat mee mag doen." : "Nog niets. Zonnestuur zoekt vanzelf; staat je apparaat er niet bij, kies dan hieronder het merk."}</p>`;
   $("basis").innerHTML = (h.basis || []).map((b) => `<div class="rij">${ico(b.soort, b.ok ? "ok" : "let")}<span><b>${esc(b.naam)}</b><span class="sub">${esc(b.tekst)}</span></span>
     <a class="act" href="instellingen#${b.soort === "meter" ? "inst_meter" : b.soort === "zon" ? "inst_zon" : "inst_meter"}">${b.ok ? "Aanpassen" : "Instellen"}</a></div>`).join("");
-  if ((h.niet_nodig || []).length) $("basis").insertAdjacentHTML("afterend", "");
+  const nn = h.niet_nodig || [];
+  $("ookGezien").hidden = !nn.length && !h.netwerk_aantal;
+  $("ookGezien").innerHTML = `${h.netwerk_aantal ? `Zonnestuur zag ${h.netwerk_aantal} apparaten in je netwerk.` : ""} ${nn.length ? `Niet nodig voor Zonnestuur: ${nn.map(esc).join(", ")}.` : ""}`;
   $("stappen").querySelectorAll("[data-stap]").forEach((b) => b.onclick = () => stapDoen(g[+b.dataset.stap], b));
+  $("stappen").querySelectorAll("[data-vm]").forEach((b) => b.onclick = async () => {     // gezien aan de meter: klopt het?
+    const x = g[+b.dataset.vm]; b.disabled = true;
+    try { await post("api/meterpatroon", { soort: x.actie.soort, antwoord: b.dataset.a }); } catch (e) {}
+    if (b.dataset.a === "ja" && x.actie.cat) {
+      CAT = x.actie.cat; $("cats").querySelectorAll("button").forEach((y) => y.classList.toggle("on", y.dataset.c === CAT));
+      $("q").value = ""; render(); $("anderMerk").open = true; $("anderMerk").scrollIntoView({ block: "start", behavior: "smooth" });
+    }
+    huisLaden(false);
+  });
 }
 async function huisLaden(zoek) {
   if (HUIS_BEZIG && !zoek) return;
@@ -880,6 +900,12 @@ async function meterAanbod() {
   }
   render();
   $("zoekNu").onclick = () => huisLaden("nu");
+  $("soortKies").querySelectorAll("[data-cat]").forEach((b) => b.onclick = () => {
+    const aan = CAT !== b.dataset.cat; CAT = aan ? b.dataset.cat : ""; LIMIT = 40;
+    $("soortKies").querySelectorAll("button").forEach((x) => x.classList.toggle("on", aan && x === b));
+    $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.c === CAT));
+    render(); $("results").scrollIntoView({ block: "start", behavior: "smooth" });
+  });
   if (qp.get("q") || qp.get("cat")) $("anderMerk").open = true;
   if (qp.get("q")) { const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start" }); } }   // vanuit het eerste instellen: meteen open
   await load();

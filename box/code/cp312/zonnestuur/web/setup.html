@@ -238,6 +238,9 @@ html, body { overscroll-behavior-y: none; }
   .gevonden .small { display: block; margin-top: 4px; }
   .push-blok { background: var(--chip); border-radius: 16px; padding: 14px 16px; margin: 12px 0 14px; }
   .push-blok b { display: block; font-weight: 650; margin-bottom: 2px; }
+  details.gevorderd { margin-top: 12px; border-top: 1px solid var(--line, rgba(0,0,0,.08)); padding-top: 10px; }
+  details.gevorderd > summary { cursor: pointer; min-height: 32px; }
+  details.gevorderd .field { margin-top: 10px; }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -1548,8 +1551,8 @@ const GROEPEN = [
   ["huis", "Je huis", ["Apparaten", "Thuisbatterij", "Zonnepanelen", "Omvormer", "Meter", "Meekijken bij slim laden"]],
   ["geld", "Prijs en doel", ["Energiecontract", "Jouw doel", "Meten wat Zonnestuur oplevert"]],
   ["schermen", "Schermen en meldingen", ["Meldingen en weekrapport", "Huisscherm en radio", "Wandscherm", "Sensoren voor je dashboard"]],
-  ["koppelingen", "Koppelingen", ["Andere systemen", "Een merk koppelen", "Auto's via de cloud", "Apparaat toevoegen via een ander systeem", "Koppelmotor", "Eigen domoticaserver"]],
   ["account", "Pro en hulp", ["Zonnestuur Pro", "Hulp en problemen", "Installateur", "Beveiliging"]],
+  ["koppelingen", "Voor gevorderden", ["Andere systemen", "Een merk koppelen", "Auto's via de cloud", "Apparaat toevoegen via een ander systeem", "Koppelmotor", "Eigen domoticaserver"]],
 ];
 // (i) bij elke instelling zonder uitleg: één zin in gewone taal, met een link naar de uitleg van dat onderdeel
 const VELD_UITLEG = [
@@ -1645,6 +1648,23 @@ function zetInfo(secs, uitleg) {
     });
   });
 }
+// Velden met namen uit de koppelmotor (sensor.…, switch.…) zijn voor gevorderden: per onderdeel ingeklapt onderaan.
+// Zonnestuur vult ze zelf in; een leek hoeft ze nooit te zien.
+const ENT_RE = /^(sensor|switch|number|binary_sensor|select|climate|water_heater|input_\w+|button|script)\./;
+function techniekWeg(secs) {
+  secs.forEach((sec) => {
+    if (sec.dataset.groep === "koppelingen") return;              // dat tabblad is al 'voor gevorderden'
+    const velden = [...sec.querySelectorAll(".field")].filter((f) => !f.closest("details.gevorderd") && !f.closest("[hidden]")
+      && [...f.querySelectorAll("input")].some((x) => (ENT_RE.test(x.placeholder || "") || ENT_RE.test(x.value || ""))
+        && (x.value || /optioneel|mag leeg/i.test(f.textContent))));      // leeg en nodig: laten staan, anders kan de klant niet verder
+    sec.querySelectorAll("code").forEach((c) => { if (ENT_RE.test(c.textContent.trim()) && !c.closest("details.gevorderd")) c.hidden = true; });
+    if (!velden.length) return;
+    let d = sec.querySelector(":scope details.gevorderd");
+    if (!d) { d = document.createElement("details"); d.className = "gevorderd"; d.innerHTML = '<summary class="small muted">Voor gevorderden</summary>';
+      const acts = sec.querySelector(":scope > .actions"); acts ? sec.insertBefore(d, acts) : sec.appendChild(d); }
+    velden.forEach((f) => d.appendChild(f));
+  });
+}
 function groepeer() {
   const root = document.querySelector(".settings"); if (!root) return;
   const secs = [...root.querySelectorAll(":scope > section")];
@@ -1661,7 +1681,8 @@ function groepeer() {
     ["Meten wat Zonnestuur oplevert", "besparing"], ["Installateur", "overdracht"], ["Zonnepanelen", "beslissen"]];
   zetInfo(secs, UITLEG);
   // onderdelen die later verschijnen (Pro, meter, formulieren) krijgen ook hun (i)
-  let zt; new MutationObserver(() => { clearTimeout(zt); zt = setTimeout(() => zetInfo(secs, UITLEG), 150); }).observe(root, { childList: true, subtree: true });
+  let zt; new MutationObserver(() => { clearTimeout(zt); zt = setTimeout(() => { zetInfo(secs, UITLEG); techniekWeg(secs); }, 150); }).observe(root, { childList: true, subtree: true });
+  techniekWeg(secs);
   secs.forEach((x) => {
     const h = x.querySelector("h2"); if (!h || h.querySelector(".help-q")) return;
     const t = h.textContent.trim(), u = UITLEG.find(([k]) => t.startsWith(k));
@@ -1726,13 +1747,11 @@ async function settings() {
   Object.keys(SYSX).forEach((k) => { CFG[k] = CFG[k] || {}; });
   const N = CFG.notify || {};
   $("app").innerHTML = `<div class="settings">
-    <div class="inst-kop"><h1 class="t" style="margin:0">Instellingen</h1><a class="btn ghost small" href="./">← Dashboard</a></div>
+    <div class="inst-kop"><h1 class="t" style="margin:0">Instellingen</h1></div>
     <section class="card" id="licCard"><h2 class="t">Zonnestuur Pro</h2><p class="small muted">Laden…</p></section>
     <section class="card" id="inst_apparaten"><h2 class="t">Apparaten</h2>
-      <div>${CFG.devices.map((d, i) => `<div class="dev-row"><div class="ico" style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--chip)">${ICONS[d.kind].replace("<svg", '<svg width="20" height="20" stroke="currentColor" fill="none" stroke-width="1.8"')}</div>
-        <div style="flex:1;min-width:0"><b>${esc(d.name)}</b><div class="small muted">${esc(DRIVER_LABEL[d.driver] || d.driver)} · ${d.driver === "ha_current" ? "traploos" : nl(d.power_w) + " W"} · ${d.priority <= 1 ? "eerst aan de beurt" : "beurt " + d.priority}</div></div>
-        <button class="btn ghost small" data-edit="${i}">Aanpassen</button></div>`).join("")}</div>
-      <div class="actions" style="margin-top:14px"><span></span><a class="btn ghost small" href="apparaten" id="addBtn">+ Apparaat toevoegen</a></div>
+      <p class="small muted" style="margin:0 0 12px">${CFG.devices.length ? `Zonnestuur stuurt ${CFG.devices.length === 1 ? "1 apparaat" : CFG.devices.length + " apparaten"}: ${CFG.devices.map((d) => esc(d.name)).join(", ")}.` : "Nog geen apparaten."} Toevoegen en aanpassen doe je bij Apparaten.</p>
+      <a class="btn ghost small" href="apparaten">Naar Apparaten</a>
     </section>
     <section class="card" id="editCard" hidden></section>
     <section class="card"><h2 class="t">Energiecontract</h2>
