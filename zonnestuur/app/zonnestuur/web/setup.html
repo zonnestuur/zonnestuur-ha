@@ -244,7 +244,7 @@ html, body { overscroll-behavior-y: none; }
 <body>
 <main>
   <header class="top">
-    <a class="brand" href="./"><img src="icon.svg" alt="">Zonnestuur</a>
+    <a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a>
     <div class="spacer"></div>
     <div class="steps" id="steps" aria-hidden="true"></div>
     <a class="naar-dash" href="./" id="naarDash">Naar dashboard</a>
@@ -405,7 +405,7 @@ async function watScherm() {
     .sort((a, b) => (orde[a.aandeel_nl] ?? 3) - (orde[b.aandeel_nl] ?? 3) || a.merk.localeCompare(b.merk)).map((r) => r.merk);
   const icon = (w) => w[3] || ICONS[WAT_IC[w[0]]] || ICONS.generic;
   $("app").innerHTML = `<section class="card">
-    <div class="eyebrow">Stap 1 · ongeveer 5 minuten</div>
+    <div class="eyebrow">Stap 1, ongeveer 5 minuten</div>
     <h1 class="t">Wat heb je in huis?</h1>
     <p class="lead">Tik aan wat je hebt. Daarna zoekt Zonnestuur de makkelijkste manier om het te koppelen.</p>
     ${gevondenRegel()}
@@ -419,7 +419,7 @@ async function watScherm() {
       <option value="?" ${(W.wat.meter || {}).merk === "?" ? "selected" : ""}>Weet ik niet</option></select>
       <span class="hint">Veel mensen hebben al een kastje of stekkertje in de meter van hun energieleverancier, bijvoorbeeld van Tibber of Zonneplan. Kijk in de meterkast: het zit in het kleine poortje (de P1-poort) onder de slimme meter.</span></div>` : ""}
     <div class="actions"><span class="small muted"><a href="kennismaking?start=1">Eerst kennismaken: wat kan Zonnestuur?</a></span>
-      <button class="btn" id="next">Verder →</button></div>
+      <button class="btn" id="next">Verder</button></div>
   </section>`;
   $("app").querySelectorAll("[data-wat]").forEach((b) => b.onclick = () => {
     const k = b.dataset.wat; if (W.wat[k]) delete W.wat[k]; else W.wat[k] = { merk: "" }; watBewaren(); watScherm(); });
@@ -519,7 +519,7 @@ function renderPlan() {
 function welkom() {
   if (!W.addOnly) return watScherm();
   $("app").innerHTML = `<section class="card">
-    <div class="eyebrow">Koppelen · ongeveer 5 minuten</div>
+    <div class="eyebrow">Koppelen, ongeveer 5 minuten</div>
     <h1 class="t">${W.addOnly ? "Apparaat toevoegen" : "Welkom bij Zonnestuur"}</h1>
     <p class="lead">${W.addOnly ? "We zoeken de nieuwe schakelaar in je netwerk en testen hem even." :
       "We zoeken je apparaten in je thuisnetwerk. Je hoeft geen adressen of codes over te typen."}</p>
@@ -529,7 +529,7 @@ function welkom() {
       <div class="check"><span class="ic">${W.addOnly ? 2 : 3}</span><div><b>Alles in hetzelfde thuisnetwerk</b><div class="small muted">Meter en apparaten zitten op dezelfde wifi of router als Zonnestuur.</div></div></div>
     </div>
     <div class="actions"><span class="small muted">${W.addOnly ? '<a href="instellingen">Terug naar instellingen</a>' : '<a href="kennismaking?start=1">Eerst kennismaken: wat kan Zonnestuur?</a>'}</span>
-      <button class="btn" id="next">Start zoeken →</button></div>
+      <button class="btn" id="next">Start zoeken</button></div>
   </section>`;
   $("next").onclick = () => go(1);
 }
@@ -557,11 +557,11 @@ function zoeken() {
         <div class="field" style="flex:0 0 auto"><button class="btn ghost" id="manualBtn">Controleren</button></div>
       </div></details>
     <div class="actions"><button class="btn ghost" id="back">← Terug</button>
-      <div class="row"><button class="btn ghost small" id="again">Opnieuw zoeken</button><button class="btn" id="next" disabled>Verder →</button></div></div>
+      <div class="row"><button class="btn ghost small" id="again">Opnieuw zoeken</button><button class="btn" id="next" disabled>Verder</button></div></div>
     <div id="nietsHulp" hidden class="niets">
       <b>Niets gevonden of je apparaat staat er niet bij?</b>
       <p class="small muted" style="margin:4px 0 10px">Veel warmtepompen, laadpalen, auto's en batterijen werken via de app van het merk, niet via je wifi. Die koppel je los per merk. Je kunt ook eerst verder en later apparaten toevoegen.</p>
-      <div class="row"><a class="btn small" href="hulp#helpmij" target="_blank" rel="noopener">Help mij instellen</a><a class="btn ghost small" href="koppelen">Merk koppelen</a><button class="btn ghost small" type="button" id="skipDev">Verder zonder apparaten →</button></div>
+      <div class="row"><a class="btn small" href="hulp#helpmij" target="_blank" rel="noopener">Help mij instellen</a><a class="btn ghost small" href="koppelen">Merk koppelen</a><button class="btn ghost small" type="button" id="skipDev">Verder zonder apparaten</button></div>
     </div>
   </section>`;
   $("back").onclick = () => go(0);
@@ -780,7 +780,7 @@ function renderFound() {
   const leeg = !W.addOnly && W.picks.length === 0 && !(SCAN && SCAN.running);
   if ($("next")) {
     $("next").disabled = !ready && !leeg;
-    $("next").textContent = leeg ? "Verder zonder apparaten →" : "Verder →";
+    $("next").textContent = leeg ? "Verder zonder apparaten" : "Verder";
     $("next").dataset.leeg = leeg ? "1" : "";
   }
   if ($("skipDev")) $("skipDev").hidden = leeg;
@@ -805,7 +805,7 @@ function meter() {
     <div class="live"><span class="pulse" id="pulse"></span><div><div class="big t" id="p1w">–</div><div class="small muted" id="p1t">verbinden…</div></div></div>
     <p class="small muted" style="margin-top:14px">Negatief betekent: je levert terug aan het net. Dat is precies de stroom die Zonnestuur straks in je eigen huis wil gebruiken.</p>
     ${m.type === "p1" ? "" : `<label class="check-row"><input type="checkbox" id="inv" ${W.invert ? "checked" : ""}> Plus en min omdraaien <span class="muted">(zet dit aan als hij negatief toont terwijl je stroom afneemt)</span></label>`}
-    <div class="actions"><button class="btn ghost" id="back">← Terug</button><button class="btn" id="next" disabled>Klopt, verder →</button></div>
+    <div class="actions"><button class="btn ghost" id="back">← Terug</button><button class="btn" id="next" disabled>Klopt, verder</button></div>
   </section>`;
   $("back").onclick = () => go(1);
   $("next").onclick = () => go(3);
@@ -891,7 +891,7 @@ function apparaten() {
     <div class="test" id="testBox">${testHtml(d)}</div>
     ${drv === "ha_start_button" ? `<p class="small muted">Zo gebruik je hem: vul de machine, kies het programma en zet hem op <b>Start op afstand</b> (MobileStart). Zonnestuur drukt op start zodra er genoeg zon is. Een gestart programma zet Zonnestuur nooit stop.</p>` : ""}
     ${drv === "ha_current" ? "" : `<div class="row"><div class="field" style="flex:0 1 220px"><label for="dpower">Vermogen (watt)</label><input id="dpower" type="number" min="100" max="25000" step="50" value="${d.power_w}"><span class="hint">${drv === "ha_setpoint" || drv === "ha_start_button" ? "Wat hij ongeveer gemiddeld opneemt als hij draait." : "Staat ook op het typeplaatje."}</span></div></div>`}
-    <div class="actions"><button class="btn ghost" id="back">← Terug</button><button class="btn" id="next">${devIdx < W.devices.length - 1 ? "Volgende →" : W.addOnly ? "Opslaan →" : "Verder →"}</button></div>
+    <div class="actions"><button class="btn ghost" id="back">← Terug</button><button class="btn" id="next">${devIdx < W.devices.length - 1 ? "Volgende" : W.addOnly ? "Opslaan" : "Verder"}</button></div>
   </section>`;
   const save = () => {
     d.name = $("dname").value.trim() || KINDS.find((x) => x.id === d.kind).label;
@@ -1055,7 +1055,7 @@ async function vragen() {
     <h2 class="t">${W.noPanels ? 3 : 4}. Wat vind je het belangrijkst?</h2>
     <div class="chips" id="doel">${DOELEN.map(([v, l]) => `<button data-v="${v}" class="${(W.doel || "terug") === v ? "on" : ""}">${l}</button>`).join("")}</div>
     <p class="small muted" style="margin-top:8px">${esc((DOELEN.find((x) => x[0] === (W.doel || "terug")) || DOELEN[1])[2])} Je kunt dit later altijd veranderen bij Instellingen → Prijs en doel.</p>
-    <div class="actions"><button class="btn ghost" id="back">← Terug</button><button class="btn" id="next">Opslaan en starten →</button></div>
+    <div class="actions"><button class="btn ghost" id="back">← Terug</button><button class="btn" id="next">Opslaan en starten</button></div>
   </section>`;
   document.querySelectorAll("#doel button").forEach((b) => b.onclick = () => { read(); W.doel = b.dataset.v; vragen(); });
   document.querySelectorAll(".chips[data-k=type] button").forEach((b) => b.onclick = () => { read(); c.type = b.dataset.v; applySupplier(c, c.supplier); vragen(); });
@@ -1131,12 +1131,12 @@ function klaar() {
     <div class="done-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h1 class="t">${W.devices.length ? "Zonnestuur staat aan" : "De basis staat klaar"}</h1>
     ${W.devices.length ? "" : `<p class="lead">Je contract en je huis zijn ingesteld. Koppel nu je eerste apparaat, dan gaat Zonnestuur sturen.</p>
-    <div class="actions"><a class="btn ghost" href="./">Naar het dashboard</a><a class="btn" href="koppelen">Merk koppelen →</a></div>`}
+    <div class="actions"><a class="btn ghost" href="./">Naar het dashboard</a><a class="btn" href="koppelen">Merk koppelen</a></div>`}
     <div ${W.devices.length ? "" : "hidden"}>
     <p class="lead">${W.noPanels ? "Vanaf nu draaien je apparaten in de goedkoopste uren van de dag." : "Vanaf nu lopen je apparaten zo veel mogelijk op je eigen zonnestroom."} Je hoeft verder niets te doen.</p>
     <div class="list">${W.devices.map((d) => `<div class="check"><span class="ic">${ICONS[d.kind].replace("<svg", '<svg width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"')}</span><div><b>${esc(d.name)}</b><div class="small muted">${nl(d.power_w)} W${d.ready_times && KIND_DEFAULTS[d.kind].ready_times.length ? " · klaar om " + esc(d.ready_times[0]) : ""}</div></div></div>`).join("")}</div>
     <p class="small muted" style="margin-top:18px">Tip: zet Zonnestuur op je beginscherm. In Safari of Chrome: deelknop of menu → <b>Zet op beginscherm</b>.</p>
-    <div class="actions"><a class="btn ghost" href="instellingen">Instellingen</a><a class="btn" href="./">Naar het dashboard →</a></div>
+    <div class="actions"><a class="btn ghost" href="instellingen">Instellingen</a><a class="btn" href="./">Naar het dashboard</a></div>
     </div>
   </section>`;
 }

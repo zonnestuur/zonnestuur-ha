@@ -75,12 +75,12 @@
 <div class="wrap">
   <header>
     <a class="brand" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="6.5" fill="#ffb224"/><g stroke="#ffb224" stroke-width="2.4" stroke-linecap="round"><path d="M16 2.5v3.5M16 26v3.5M2.5 16H6M26 16h3.5M6.4 6.4l2.5 2.5M23.1 23.1l2.5 2.5M6.4 25.6l2.5-2.5M23.1 8.9l2.5-2.5"/></g></svg>Zonnestuur</a>
-    <a class="skip" id="skip" href="./">Overslaan →</a>
+    <a class="skip" id="skip" href="./">Overslaan</a>
   </header>
 
   <div class="slides" id="slides">
     <section tabindex="0" class="slide" aria-label="Welkom">
-      <div class="eyebrow">Kennismaking · 2 minuten</div>
+      <div class="eyebrow">Kennismaking van 2 minuten</div>
       <h1>Je huis kiest zelf het beste moment</h1>
       <p class="lead">Zonnestuur laat je boiler, warmtepomp, auto en wasmachine draaien op je eigen zonnestroom, of in de goedkoopste uren van de dag. Jij merkt er niets van, behalve een lagere rekening.</p>
       <button class="film" id="film" type="button" aria-label="Bekijk de uitlegvideo (1 minuut)">
@@ -143,7 +143,7 @@
       <p class="lead" id="eindTekst">Koppelen duurt ongeveer 5 minuten. Zonnestuur zoekt je meter en apparaten zelf in je thuisnetwerk; je hoeft geen adressen of codes over te typen.</p>
       <div class="vlak">Tip: begin met één apparaat, bijvoorbeeld de boiler. Je kunt later altijd meer toevoegen bij Instellingen.</div>
       <div class="vlak">Vragen of iets onduidelijk? Tik bovenin Zonnestuur op het tekstwolkje om ons een bericht te sturen.</div>
-      <div class="eind"><a class="btn" id="start" href="setup">Begin met koppelen →</a><a class="btn terug" href="help">Meer uitleg</a></div>
+      <div class="eind"><a class="btn" id="start" href="setup">Begin met koppelen</a><a class="btn terug" href="help">Meer uitleg</a></div>
     </section>
   </div>
 </div>
@@ -158,7 +158,7 @@
 const $ = (id) => document.getElementById(id);
 const S = $("slides"), slides = [...S.children], START = new URLSearchParams(location.search).has("start");
 if (START) $("skip").href = "setup";
-else { $("start").href = "./"; $("start").textContent = "Naar het dashboard →"; $("eindKop").textContent = "Dat was de kennismaking";
+else { $("start").href = "./"; $("start").textContent = "Naar het dashboard"; $("eindKop").textContent = "Dat was de kennismaking";
   $("eindTekst").textContent = "Meer weten over een onderdeel? Bij Meer uitleg staat per kaart wat je ziet en hoe Zonnestuur rekent."; }
 $("dots").innerHTML = slides.map((s, i) => `<button type="button" aria-label="${s.getAttribute("aria-label")}" data-i="${i}"></button>`).join("");
 const nu = () => Math.round(S.scrollLeft / S.clientWidth);

@@ -71,7 +71,17 @@ html, body { overscroll-behavior-y: none; }
   td.plus { color: var(--good); font-weight: 650; } td.min { color: var(--warn); font-weight: 650; }
   .tw { overflow-x: auto; }
   main > * { min-width: 0; }
-  table.t td, table.t th { white-space: normal; overflow-wrap: anywhere; }
+  table.t td, table.t th { white-space: normal; overflow-wrap: break-word; }
+  /* Telefoon: elk apparaat als een blokje onder elkaar in plaats van een smalle tabel */
+  @media (max-width: 560px) {
+    table.t thead { display: none; }
+    table.t, table.t tbody, table.t tr, table.t td { display: block; width: 100%; }
+    table.t tr { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    table.t td { border: 0 !important; padding: 2px 0 !important; text-align: left; }
+    table.t td:not(:first-child)::before { color: var(--ink-2); font-size: 12.5px; display: inline-block; min-width: 84px; }
+    #apps td:nth-child(2)::before { content: "Koppeling"; } #apps td:nth-child(3)::before { content: "Klaar om"; } #apps td:nth-child(4)::before { content: "Status"; }
+    #bats td:nth-child(2)::before { content: "Koppeling"; } #bats td:nth-child(3)::before { content: "Sturing"; } #bats td:nth-child(4)::before { content: "Status"; }
+  }
   .bars { display: flex; align-items: center; gap: 2px; height: 90px; margin-top: 14px; position: relative; }
   .bars::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--line); }
   .bars i { flex: 1; display: block; border-radius: 3px; min-width: 3px; }

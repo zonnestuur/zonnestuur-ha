@@ -94,3 +94,25 @@ summary { min-height: 24px; }
 .actions a { display: inline-block; padding: 4px 0; }
 header a, .top a, a.link, a.naar-dash { display: inline-flex; align-items: center; min-height: 24px; }
 input[type="checkbox"], input[type="radio"] { min-width: 24px; min-height: 24px; }
+
+/* ---- 2027: rustiger en overal hetzelfde ---- */
+/* Kleine labels boven een titel in gewone zinsvorm (geen hoofdletters), en een label dat de enige kop van een blok is
+   wordt een echte kop. */
+.eyebrow, .log-day, .group-title, .cmp-table th { text-transform: none !important; letter-spacing: 0 !important; }
+.eyebrow { font-size: 14px !important; font-weight: 600 !important; color: var(--zs-ink3) !important; }
+.card > .eyebrow:not(:has(+ h1, + h2, + h3, + .t)) {
+  font: 700 18px/1.3 "Inter Tight", "Inter", sans-serif !important; letter-spacing: -.01em !important;
+  color: var(--zs-ink) !important; margin-bottom: 10px;
+}
+/* Links: in de inktkleur met een rustige onderstreping, nergens meer de blauwe browserkleur */
+a:not([class]), a.link, .small a, .muted a, p a, li a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:not([class]):hover, p a:hover, li a:hover { text-decoration-thickness: 2px; }
+/* Logo: overal dezelfde zon */
+.brand img[src="zon.svg"] { width: 28px; height: 28px; border-radius: 0; box-shadow: none; background: none; }
+/* Testfase-balk: één rustige regel */
+.testfase { font-size: 13px !important; padding: 6px 14px !important; }
+@media (max-width: 560px) { .testfase { font-size: 12.5px !important; line-height: 1.4 !important; } }
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .testfase { background: #33280c !important; color: #ffe2a0 !important; border-bottom-color: rgba(255, 210, 120, .18) !important; }
+}
+:root[data-theme="dark"] .testfase { background: #33280c !important; color: #ffe2a0 !important; border-bottom-color: rgba(255, 210, 120, .18) !important; }

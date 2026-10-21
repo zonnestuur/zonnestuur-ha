@@ -222,7 +222,8 @@ html, body { overscroll-behavior-y: none; }
   .flow.huis-aan #huisSvg { display: block; } .flow.huis-aan .hz-zin { display: block; } .flow.huis-aan #flowSvg { display: none; }
   .hz { width: 100%; height: auto; border-radius: 22px; }
   .hz-zin { margin: 8px 4px 0; font-size: 14px; line-height: 1.45; color: var(--ink-2); text-align: center; text-wrap: balance; }
-  .hz .hz-naam text { fill: #ffffff; }
+  .hz .hz-labels text { fill: #13202b !important; }
+  .hz .hz-labels .hz-naam text { fill: #ffffff !important; }
   .hz-naamform { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin-top: 8px; }
   .hz-naamform label { width: 100%; text-align: center; font-size: 13px; color: var(--ink-2); }
   .hz-naamform input { font: inherit; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--card-line); background: var(--field); color: var(--ink); min-width: 0; flex: 1 1 180px; max-width: 260px; }
@@ -792,6 +793,14 @@ html, body { overscroll-behavior-y: none; }
     .c-welcome .opts { display: grid; grid-template-columns: 1fr; }
     .c-welcome .opts button { width: 100%; text-align: left; }
     .hero-grid .flow { margin: -28px auto -18px; }
+    /* Telefoon: eerst wat er nu gebeurt (kop + huis), daarna de bedragen en cijfers */
+    .hero-grid { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+    .hero-grid > div:first-child { display: contents; }
+    .hero-grid > div:first-child > * { order: 3; }
+    .hero-grid > div:first-child > .hero-date, .hero-grid > div:first-child > .verdict,
+    .hero-grid > div:first-child > .headline, .hero-grid > div:first-child > .subline { order: 1; }
+    .hero-grid .flow { order: 2; margin: 6px auto 14px; max-width: 420px; }
+    .hero-grid > div:first-child > .verdict, .hero-grid > div:first-child > .pills { align-self: flex-start; }
     .flowpause { top: 34px; }
     .legend { font-size: 12px; gap: 6px 12px; }
     .log-item { grid-template-columns: 44px 1fr; gap: 10px; padding: 10px 2px; } .log-item .badge { display: none; } .log-item .w { font-size: 13.5px; }
@@ -1394,9 +1403,9 @@ function renderStatus(s) {
   renderPlan(s);
   renderDayTip(s);
   const Lc = s.license || {};
-  const licPill = Lc.plan !== "pro" && !Lc.aangemeld ? `<a class="pill sun" href="instellingen#licCard">Meld je aan als proefhuis: Pro gratis →</a>`
+  const licPill = Lc.plan !== "pro" && !Lc.aangemeld ? `<a class="pill sun" href="instellingen#licCard">Meld je aan als proefhuis: Pro gratis</a>`
     : Lc.plan === "trial" && Lc.days_left <= 10 ? `<a class="pill sun" href="instellingen#licCard">Proef: nog ${Lc.days_left} ${Lc.days_left === 1 ? "dag" : "dagen"} alles · Pro ${esc(Lc.price)}</a>`
-    : Lc.plan === "basic" ? `<a class="pill" href="instellingen#licCard">Zonnestuur Basis · alles slim sturen met Pro →</a>` : "";
+    : Lc.plan === "basic" ? `<a class="pill" href="instellingen#licCard">Zonnestuur Basis · alles slim sturen met Pro</a>` : "";
   const sw = H.switches_today || 0, fl = H.failed_today || 0;
   const swPill = sw || fl ? `<a class="pill ${fl ? "warn" : ""}" href="#logTitle">${fl ? `⚠︎ Sturing vandaag: ${fl} van ${sw} schakelingen mislukt` : `✓ Sturing vandaag: ${sw} ${sw === 1 ? "schakeling" : "schakelingen"}, alles gelukt`}</a>` : "";
   const meet = (s.baseline_today || []).map((id) => (s.devices.find((d) => d.id === id) || {}).name).filter(Boolean);
@@ -1521,7 +1530,7 @@ function obsCard(s, w) {
   el.innerHTML = `<div class="evc-hero" data-o="hero"></div>
     <div class="evc-pic" data-o="pic"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>
     <div data-o="bat"></div><div class="evc-story" data-o="story"></div>
-    <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="laadtijdlijn?bron=ev:${encodeURIComponent(w.id)}">Laadbeurten →</a> · <a href="vergelijk">Vergelijking →</a></div>`;
+    <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="laadtijdlijn?bron=ev:${encodeURIComponent(w.id)}">Laadbeurten</a> · <a href="vergelijk">Vergelijking</a></div>`;
   obsFill(el, w);
   return el;
 }
@@ -1587,7 +1596,7 @@ function batteryCard(s, b) {
   if (b.can && b.can.charge && v.breakeven != null && s.contract === "dynamic")
     facts.push(`<div class="fact"><i class="dot" style="background:var(--mid)"></i><span>Laden van het net loont nu onder <b>${eur3(v.breakeven)}</b> per kWh</span></div>`);
   if (b.sturing && b.sturing !== "zonnestuur")
-    facts.push(`<div class="fact"><i class="dot" style="background:var(--save)"></i><span>${b.observing ? "" : "Zonnestuur stuurt deze maand. "}<a href="vergelijk">Bekijk wat Zonnestuur had opgeleverd →</a></span></div>`);
+    facts.push(`<div class="fact"><i class="dot" style="background:var(--save)"></i><span>${b.observing ? "" : "Zonnestuur stuurt deze maand. "}<a href="vergelijk">Bekijk wat Zonnestuur had opgeleverd</a></span></div>`);
   if (b.reserve && b.reserve.kwh > 0)
     facts.push(`<div class="fact"><i class="dot" style="background:var(--mid)"></i><span>Reserve <b>${nl(b.reserve.kwh, 1)} kWh</b> van ${b.reserve.from}:00 tot ${b.reserve.until}:00${b.reserve.winter_only ? " (oktober–maart)" : ""}</span></div>`);
   if (b.peak_limit_w > 0)
@@ -2056,7 +2065,7 @@ function evCard(s, d) {
     ${tl}
     ${rit}
     <div class="evc-act">${go}${skip}</div>
-    <div class="evc-why"><a href="laadtijdlijn?bron=dev:${encodeURIComponent(d.id)}">Laadbeurten: wanneer geladen en wat het kostte →</a></div>
+    <div class="evc-why"><a href="laadtijdlijn?bron=dev:${encodeURIComponent(d.id)}">Laadbeurten: wanneer geladen en wat het kostte</a></div>
     ${warn.length ? `<div class="evc-warn">${warn.join(" ")}</div>` : ""}
     ${d.last_event ? `<div class="evc-why"><b>Waarom?</b> ${esc(d.last_event.text)}</div>` : ""}
     <details class="evc-set ev-edit"><summary>Laadinstellingen</summary><div class="inner">

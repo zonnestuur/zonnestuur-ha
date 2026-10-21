@@ -100,6 +100,8 @@ html, body { overscroll-behavior-y: none; }
   .sw input { margin-top: 3px; flex: none; }
   .sw b { display: block; font-weight: 650; }
   .sw span { font-size: 13.5px; color: var(--ink-2); }
+  .btn.rood { background: #b42318 !important; color: #fff !important; }
+  .btn.rood:disabled { opacity: .4; }
   .acts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
 </style>
 <link rel="stylesheet" href="stijl.css">
@@ -107,7 +109,7 @@ html, body { overscroll-behavior-y: none; }
 <body>
 <main>
   <header class="top">
-    <a class="brand" href="./"><img src="icon.svg" alt="">Zonnestuur</a>
+    <a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a>
     <div class="spacer"></div>
     <a class="link" href="./">Dashboard</a><a class="link" href="instellingen" style="margin-left:16px">Instellingen</a>
   </header>
@@ -157,6 +159,25 @@ html, body { overscroll-behavior-y: none; }
     <label class="sw"><input type="checkbox" id="test"><div><b>Nieuwe versies als eerste krijgen</b>
       <span>Voor proefhuizen: je krijgt verbeteringen eerder, en meldt zo sneller wat er nog niet goed gaat.</span></div></label>
     <span id="a_msg" class="small" role="status"></span>
+  </section>
+
+  <section class="card" id="reset"><h2 class="t">Opnieuw beginnen</h2>
+    <p class="small" style="margin:0">Zet Zonnestuur terug naar een kale installatie, alsof hij net is geïnstalleerd. Handig als je verhuist,
+      de Box aan iemand anders geeft of helemaal opnieuw wilt instellen.</p>
+    <details style="margin-top:10px"><summary class="small" style="cursor:pointer;font-weight:650">Wat gebeurt er precies?</summary>
+      <ul class="small" style="margin:8px 0 0;padding-left:18px;line-height:1.5">
+        <li><b>Weg:</b> je meter, apparaten, contract, batterij, meldingen, de naam van je huis en alles wat Zonnestuur over je huis heeft geleerd (verbruik, besparing, logboek).</li>
+        <li><b>Eerst losgelaten:</b> boiler en warmtepomp gaan terug naar hun eigen regeling, de laadpaal mag weer laden en de batterij en omvormer regelen zichzelf.</li>
+        <li><b>Blijft:</b> het installatienummer en je proefperiode, en je licentiesleutel (tenzij je hieronder kiest om die ook te wissen).</li>
+        <li>Zonnestuur start daarna opnieuw op, met de kennismaking. Dat duurt ongeveer een halve minuut.</li>
+      </ul></details>
+    <label class="sw" style="margin-top:12px"><input type="checkbox" id="r_lic"><div><b>Ook de licentiesleutel wissen</b>
+      <span>Doe dit als je de Box aan iemand anders geeft.</span></div></label>
+    <label class="sw" id="r_motor_rij" hidden><input type="checkbox" id="r_motor"><div><b>Ook de koppelmotor leegmaken</b>
+      <span>Alle koppelingen met merken (apps waarop je inlogde, Matter-apparaten) gaan weg. Daarna richt Zonnestuur de koppelmotor zelf opnieuw in. Duurt een paar minuten.</span></div></label>
+    <div class="field" style="margin-top:10px;max-width:320px"><label for="r_typ">Typ <b>WISSEN</b> om te bevestigen</label>
+      <input id="r_typ" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+    <div class="acts" style="margin-top:8px"><button class="btn rood" type="button" id="r_go" disabled>Zonnestuur terugzetten</button><span id="r_msg" class="small" role="status"></span></div>
   </section>
 </main>
 <script>
@@ -218,7 +239,7 @@ let U0 = null;
 async function updates() {
   let u; try { u = await api("api/box/update"); } catch (e) { return; }
   if (!u.box) return;
-  $("upd").hidden = false;
+  $("upd").hidden = false; $("r_motor_rij").hidden = false;
   const nieuw = u.available && u.current && u.available !== u.current;
   $("u_tekst").innerHTML = `Deze Box draait versie <b>${esc(u.current || "?")}</b>. ${nieuw ? `Versie <b>${esc(u.available)}</b> staat klaar.` : "Dat is de nieuwste."}<br><span class="muted">Laatst gekeken: ${wanneer(u.checked_at)}${u.result ? " · " + esc(u.result) : ""}</span>`;
   if (U0 && u.checked_at !== U0) { $("u_msg").innerHTML = '<span class="ok">Klaar</span>'; $("u_nu").disabled = false; U0 = null; if (/bijgewerkt naar/.test(u.result || "")) setTimeout(() => location.reload(), 4000); }
@@ -228,6 +249,21 @@ $("u_nu").onclick = async () => {
   try { const u = await api("api/box/update"); U0 = u.checked_at || 1; await post("api/box/update", {}); }
   catch (e) { $("u_msg").innerHTML = `<span class="err">${esc(e.message)}</span>`; $("u_nu").disabled = false; return; }
   const t = setInterval(async () => { await updates(); if (!U0) clearInterval(t); }, 5000);
+};
+// Opnieuw beginnen: alles terug naar een kale installatie
+$("r_typ").addEventListener("input", () => { $("r_go").disabled = $("r_typ").value.trim().toUpperCase() !== "WISSEN"; });
+$("r_go").onclick = async () => {
+  $("r_go").disabled = true; $("r_msg").innerHTML = '<span class="spin"></span>Bezig met terugzetten…';
+  try { await post("api/terugzetten", { bevestig: $("r_typ").value, licentie: $("r_lic").checked, motor: $("r_motor").checked }); }
+  catch (e) { $("r_msg").innerHTML = `<span class="err">${esc(e.message)}</span>`; $("r_go").disabled = false; return; }
+  $("r_msg").innerHTML = '<span class="spin"></span>Zonnestuur start opnieuw op…';
+  try { localStorage.removeItem("zs_wat"); localStorage.removeItem("zs_vanzelf"); } catch (e) {}
+  await new Promise((r) => setTimeout(r, 4000));
+  for (let i = 0; i < 60; i++) {
+    try { const r = await fetch("api/status", { headers: { "X-Token": token } }); if (r.ok) { location.href = "./"; return; } } catch (e) {}
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+  $("r_msg").innerHTML = 'Het duurt langer dan verwacht. Ververs deze pagina over een minuut.';
 };
 async function hulpStand() {
   let h; try { h = await api("api/hulp"); } catch (e) { return; }

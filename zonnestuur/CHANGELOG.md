@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.72.0
+- Opnieuw beginnen: bij Hulp kun je Zonnestuur terugzetten naar een kale installatie (typ WISSEN). Eerst geeft hij boiler, warmtepomp, laadpaal, batterij en omvormer terug aan hun eigen regeling. Je proefperiode en licentie blijven (de licentie kun je ook wissen). Op de Box kan ook de koppelmotor helemaal leeg.
+- Koppelen: de gekoppelde merken staan nu in groepen: wat Zonnestuur gebruikt (en waarvoor), wat hij kan gebruiken (met een knop Toevoegen) en waar hij niets mee doet. Onderdelen van de koppelmotor zelf en e-mailadressen zie je niet meer. Op je eigen koppelmotor ontkoppel je niet meer vanuit Zonnestuur. 'Alles in één keer koppelen' koppelt alleen nog wat Zonnestuur kan gebruiken, geen camera's of speakers.
+- Inloggen bij een merk: komt je telefoon terug uit het inlogvenster, dan kijkt Zonnestuur meteen of het gelukt is.
+- Alle schermen nagelopen: overal hetzelfde logo, rustige labels zonder hoofdletters, links in de huisstijl, de testfase-balk kleiner (ook in donker), de laadbeurten-pagina in dezelfde kleuren, het overdrachtsrapport leesbaar op de telefoon, en op de telefoon staat het huis nu direct onder de kop.
+
 ## 0.71.1
 - Nieuwe kaart op het dashboard: "Dit weet Zonnestuur nu van je huis". Per punt wat hij geleerd heeft (je ritme, wat er altijd aan staat, hoe je huis op het weer reageert, hoe lang je apparaten nodig hebben) en wat hij daardoor beter doet of wat het je oplevert.
 - Een verband 'warmer = meer verbruik' (koelen) gebruikt Zonnestuur niet meer als rechte lijn: anders zou hij in de winter denken dat kou zuiniger is. Koelen telt nu alleen boven de koelgrens.
