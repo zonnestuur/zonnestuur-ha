@@ -234,7 +234,7 @@ const PILL = { "met de laadpaal": ["Met de laadpaal", "direct"], "rechtstreeks":
 function connected(r) {
   const i = routeInfo(r);
   if (i.kind === "ha") return (OV.domains || []).includes(i.arg);
-  if (i.kind === "hacs") { const c = (OV.custom || {})[i.arg]; return !!c && (OV.domains || []).includes(c.domain); }
+  if (i.kind === "hacs") { const c = (OV.custom || {})[i.arg]; const dom = r.domein || (c && c.domain); return !!dom && (OV.domains || []).includes(dom); }
   if (i.kind === "matter") return (OV.domains || []).includes("matter");
   if (i.kind === "zigbee") return (OV.domains || []).includes("zha");
   return false;
@@ -346,8 +346,9 @@ function watKan(domain) {
 // Onderdelen van de koppelmotor zelf (bluetooth, de Raspberry Pi, …) laten we weg.
 function gekoppeldBlok(ents, merkVan) {
   if (!ents.length) return "";
+  // Merken bij hun merknaam (de titel is vaak een accountnaam of adres); alleen bij 'overig' de eigen naam (bijv. een groep)
   const naam = (e) => { const m = merkVan(e), t = (e.title || "").trim();
-    return t && t.toLowerCase() !== m.toLowerCase() && t.toLowerCase() !== e.domain ? `${m} (${t})` : m; };
+    return e.soort === "overig" && t && t.toLowerCase() !== m.toLowerCase() ? t : m; };
   const kapot = (e) => e.state && e.state !== "loaded" ? ` <span class="tag warn">werkt niet</span>` : "";
   const weg = (e) => e.ontkoppelen ? `<button class="btn ghost small" data-rm="${esc(e.entry_id)}">Ontkoppelen</button>` : "";
   const g = (s) => ents.filter((e) => (e.soort || "overig") === s);

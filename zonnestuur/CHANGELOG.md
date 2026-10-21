@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.72.1
+- Veiligheid: Zonnestuur schakelt nooit meer de aan/uit-knop van een wasmachine, droger of vaatwasser (bijvoorbeeld Miele 'Aan/uit'). Uitzetten brak een lopend programma af. Witgoed gaat alleen via 'start op afstand'. Zo'n knop kun je ook niet meer als apparaat kiezen; oude instellingen worden genegeerd.
+- Koppelen: merken staan bij hun merknaam (niet je accountnaam). Een laadpaal of ander merk dat je zelf al in de koppelmotor had, staat nu ook op 'Gekoppeld'.
+- MQTT: duidelijke uitleg als verbinden niet lukt (ingebouwde broker staat uit, verkeerd adres, verkeerd wachtwoord).
+
 ## 0.72.0
 - Opnieuw beginnen: bij Hulp kun je Zonnestuur terugzetten naar een kale installatie (typ WISSEN). Eerst geeft hij boiler, warmtepomp, laadpaal, batterij en omvormer terug aan hun eigen regeling. Je proefperiode en licentie blijven (de licentie kun je ook wissen). Op de Box kan ook de koppelmotor helemaal leeg.
 - Koppelen: de gekoppelde merken staan nu in groepen: wat Zonnestuur gebruikt (en waarvoor), wat hij kan gebruiken (met een knop Toevoegen) en waar hij niets mee doet. Onderdelen van de koppelmotor zelf en e-mailadressen zie je niet meer. Op je eigen koppelmotor ontkoppel je niet meer vanuit Zonnestuur. 'Alles in één keer koppelen' koppelt alleen nog wat Zonnestuur kan gebruiken, geen camera's of speakers.
