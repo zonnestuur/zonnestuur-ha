@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.72.5
+- Koppelen gaat nu in één keer door: na het inloggen zet Zonnestuur de apparaten van dat merk er meteen in. Wil je er een niet? Dan haal je hem weg bij Instellingen.
+- Koppelschermen vragen eerst alleen wat echt nodig is. De rest staat ingeklapt onder 'Meer instellingen'.
+- Knoppen en sensoren die een merk standaard uit zet (startknop, laadstroom, vermogen) zet Zonnestuur zelf aan.
+
 ## 0.72.4
 - Miele (en andere merken die de startknop standaard uit zetten): Zonnestuur zet die knop nu zelf aan. Daarna kun je de wasmachine en droger met één tik toevoegen.
 

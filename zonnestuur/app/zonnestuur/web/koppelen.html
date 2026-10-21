@@ -563,20 +563,18 @@ async function apparaatKeuze(title, r, kop) {
   }
   if ($("panel").hidden) return;
   if (!v.apparaten.length) return done(title, kop === "Gekoppeld." ? "" : kop);
-  const lijst = v.apparaten.map((a, i) => `<div class="entry"><span><b>${esc(a.name)}</b><span class="wat">Zonnestuur ${esc(a.wat)}</span></span>
-    <button class="btn small" data-app="${i}">Toevoegen</button></div>`).join("");
-  panel(title, `<p class="ok">${esc(kop)}</p><p>Deze apparaten kan Zonnestuur sturen. Tik op <b>Toevoegen</b>, dan regelt Zonnestuur de rest.</p><div class="entries">${lijst}</div>`,
-    [["Klaar", () => { closePanel(); load(); }, "ghost"]]);
-  $("p_body").querySelectorAll("[data-app]").forEach((b) => b.onclick = async () => {
-    const a = v.apparaten[Number(b.dataset.app)];
-    b.disabled = true; b.textContent = "Bezig…";
-    try {
-      await post("api/koppel/apparaat", { entity: a.entity });
-      b.outerHTML = `<span class="ok small" style="white-space:nowrap">✓ Toegevoegd</span>`;
-      if (a.driver === "ha_start_button" && !$("p_body").querySelector(".tip-wit"))
-        $("p_body").insertAdjacentHTML("beforeend", `<p class="small muted tip-wit">Zo gebruik je hem: vul de machine, kies het programma en zet hem op <b>start op afstand</b>. Zonnestuur drukt op start zodra het gunstig is.</p>`);
-    } catch (e) { b.disabled = false; b.textContent = "Toevoegen"; $("p_err").textContent = e.message; }
-  });
+  // Meteen toevoegen: de klant kan een apparaat altijd weer weghalen. Zo is het na het inloggen gewoon klaar.
+  const gelukt = [], mis = [];
+  for (const a of v.apparaten) {
+    try { await post("api/koppel/apparaat", { entity: a.entity }); gelukt.push(a); } catch (e) { mis.push([a, e.message]); }
+  }
+  const wit = gelukt.some((a) => a.driver === "ha_start_button");
+  panel(title, `<p class="ok">${esc(kop)}</p>
+    ${gelukt.length ? `<p>Klaar. Zonnestuur stuurt nu:</p><div class="entries">${gelukt.map((a) => `<div class="entry"><span><b>${esc(a.name)}</b><span class="wat">Zonnestuur ${esc(a.wat)}</span></span><span class="ok small" style="white-space:nowrap">✓ Toegevoegd</span></div>`).join("")}</div>` : ""}
+    ${mis.map(([a, m]) => `<p class="err small">${esc(a.name)}: ${esc(m)}</p>`).join("")}
+    ${wit ? `<p class="small muted">Zo gebruik je de machine: vul hem, kies het programma en zet hem op <b>start op afstand</b>. Zonnestuur drukt op start zodra het gunstig is.</p>` : ""}
+    <p class="small muted">Wil je er een niet? Haal hem weg bij <a href="setup#inst_apparaten">Instellingen</a>.</p>`,
+    [["Klaar", () => { closePanel(); load(); }]]);
 }
 function done(title, extra) {
   FLOW = null;
@@ -601,6 +599,13 @@ function fieldHtml(f, err) {
     <span class="hint">In je netwerk gevonden: ${GEVONDEN.slice(0, 6).map((g) => `<a href="#" data-ip="${esc(g.host)}">${esc(g.host)}${g.name ? " · " + esc(g.name) : ""}</a>`).join(", ")}</span>` : "";
   return `<div class="field">${lab}<input id="${esc(id)}" type="${type}" ${f.step ? `step="${esc(f.step)}"` : ""} value="${esc(v)}" autocomplete="off"${ip}>${help}${lijst}${e}</div>`;
 }
+// Eerst wat echt nodig is; optionele velden (met een goede standaard) ingeklapt, zodat het scherm kort blijft
+function velden(fields, errs) {
+  const nodig = fields.filter((f) => f.required || errs[f.name]), rest = fields.filter((f) => !(f.required || errs[f.name]));
+  if (!nodig.length || !rest.length) return fields.map((f) => fieldHtml(f, errs[f.name])).join("");
+  return nodig.map((f) => fieldHtml(f, errs[f.name])).join("") +
+    `<details class="meer"><summary class="small muted">Meer instellingen (niet nodig)</summary>${rest.map((f) => fieldHtml(f, errs[f.name])).join("")}</details>`;
+}
 function readFields(fields) {
   const out = {};
   fields.forEach((f) => {
@@ -619,7 +624,7 @@ async function showStep(r) {
     const errs = r.errors || {}, names = (r.fields || []).map((f) => f.name);
     // fouten die niet bij een veld horen (algemeen, of een veld dat Zonnestuur niet toont) bovenaan
     const los = Object.entries(errs).filter(([k]) => !names.includes(k)).map(([k, v]) => k === "base" ? v : `${k.replace(/_/g, " ")}: ${v}`);
-    panel(title || "Koppelen", `${r.description ? `<p class="muted">${esc(r.description).replace(/\n/g, "<br>")}</p>` : ""}${los.map((t) => `<p class="err">${esc(t)}</p>`).join("")}${(r.fields || []).map((f) => fieldHtml(f, errs[f.name])).join("")}`,
+    panel(title || "Koppelen", `${r.description ? `<p class="muted">${esc(r.description).replace(/\n/g, "<br>")}</p>` : ""}${los.map((t) => `<p class="err">${esc(t)}</p>`).join("")}${velden(r.fields || [], errs)}`,
       [["Annuleren", closePanel, "ghost"], ["Verder", async () => {
         try { showStep(await post("api/koppel/step", { domain: r.domain, flow_id: r.flow_id, values: readFields(r.fields || []) })); } catch (e) { $("p_err").textContent = e.message; }
       }]]);
