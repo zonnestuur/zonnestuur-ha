@@ -567,7 +567,7 @@ async function apparaatKeuze(title, r, kop) {
     b.disabled = true; b.textContent = "Bezig…";
     try {
       await post("api/koppel/apparaat", { entity: a.entity });
-      b.outerHTML = `<span class="tag ok">Toegevoegd</span>`;
+      b.outerHTML = `<span class="ok small" style="white-space:nowrap">✓ Toegevoegd</span>`;
       if (a.driver === "ha_start_button" && !$("p_body").querySelector(".tip-wit"))
         $("p_body").insertAdjacentHTML("beforeend", `<p class="small muted tip-wit">Zo gebruik je hem: vul de machine, kies het programma en zet hem op <b>start op afstand</b>. Zonnestuur drukt op start zodra het gunstig is.</p>`);
     } catch (e) { b.disabled = false; b.textContent = "Toevoegen"; $("p_err").textContent = e.message; }
@@ -609,7 +609,7 @@ function readFields(fields) {
 }
 async function showStep(r) {
   FLOW = r;
-  const title = r.title || BRAND || (r.domain || "").replace(/_/g, " ");
+  const title = BRAND || r.title || (r.domain || "").replace(/_/g, " ");
   if (r.type === "form") {
     const errs = r.errors || {}, names = (r.fields || []).map((f) => f.name);
     // fouten die niet bij een veld horen (algemeen, of een veld dat Zonnestuur niet toont) bovenaan

@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.72.3
+- Zaptec koppelen: alleen nog e-mailadres en wachtwoord van je Zaptec-account, de rest staat goed.
+- Koppelschermen tonen de merknaam als titel en geen technische namen meer.
+
 ## 0.72.2
 - Koppelen: na het koppelen zie je meteen welke apparaten Zonnestuur van dat merk kan sturen. Eén tik op Toevoegen en hij doet mee.
 - Is een merk al gekoppeld? Dan krijg je geen Engelse foutmelding meer, maar meteen de keuze van je apparaten.
