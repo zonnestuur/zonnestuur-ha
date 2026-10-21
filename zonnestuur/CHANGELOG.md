@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.72.4
+- Miele (en andere merken die de startknop standaard uit zetten): Zonnestuur zet die knop nu zelf aan. Daarna kun je de wasmachine en droger met één tik toevoegen.
+
 ## 0.72.3
 - Zaptec koppelen: alleen nog e-mailadres en wachtwoord van je Zaptec-account, de rest staat goed.
 - Koppelschermen tonen de merknaam als titel en geen technische namen meer.

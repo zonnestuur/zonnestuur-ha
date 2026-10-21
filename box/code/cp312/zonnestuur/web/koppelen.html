@@ -528,7 +528,7 @@ async function job(id, title) {
 }
 // Na het koppelen: geeft deze koppeling een meter door (Tibber Pulse, Zonneplan, Toon…)? Dan meteen aanbieden.
 async function gekoppeld(r) {
-  const title = r.title || BRAND || "Gekoppeld";
+  const title = BRAND || r.title || "Gekoppeld";
   panel(title, `<p class="ok">Gekoppeld.</p><p><span class="spin"></span>Even kijken wat deze koppeling doorgeeft…</p>`, []);
   let v = { meters: [] };
   for (let i = 0; i < 6 && !v.meters.length; i++) {
@@ -552,9 +552,14 @@ async function apparaatKeuze(title, r, kop) {
   FLOW = null;
   panel(title, `<p class="ok">${esc(kop)}</p><p><span class="spin"></span>Even kijken welke apparaten Zonnestuur hiermee kan sturen…</p>`, [["Sluiten", closePanel, "ghost"]]);
   let v = { apparaten: [] };
-  for (let i = 0; i < 4 && !v.apparaten.length && !$("panel").hidden; i++) {
+  let rondes = 4;
+  for (let i = 0; i < rondes && !v.apparaten.length && !$("panel").hidden; i++) {
     try { v = await post("api/koppel/apparaat-voorstel", { entry_id: r.entry_id || "", domain: r.domain || "" }); } catch (e) { break; }
-    if (!v.apparaten.length) await sleep(4000);
+    if (v.wacht) {                                  // startknop stond uit: Zonnestuur heeft hem aangezet, even wachten
+      rondes = i + 14;
+      $("p_body").querySelector("p:last-of-type").innerHTML = `<span class="spin"></span>De startknop van je apparaat staat nog uit. Zonnestuur zet hem aan, dat duurt ongeveer een halve minuut…`;
+    }
+    if (!v.apparaten.length) await sleep(v.wacht ? 5000 : 4000);
   }
   if ($("panel").hidden) return;
   if (!v.apparaten.length) return done(title, kop === "Gekoppeld." ? "" : kop);
