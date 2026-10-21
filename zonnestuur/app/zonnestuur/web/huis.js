@@ -165,9 +165,13 @@
     var u = svg.id || "hz", h = "";
     h += '<defs><linearGradient id="' + u + 'L" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + K.lucht[0] + '"/><stop offset="1" stop-color="' + K.lucht[1] + '"/></linearGradient>' +
       '<radialGradient id="' + u + 'Z"><stop offset="0" stop-color="#fff2b3"/><stop offset=".55" stop-color="#ffb224"/><stop offset="1" stop-color="#ffb224" stop-opacity="0"/></radialGradient>' +
-      '<clipPath id="' + u + 'R"><rect width="' + W + '" height="' + H + '" rx="22"/></clipPath></defs>';
+      '<linearGradient id="' + u + 'G" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' + K.grond + '" stop-opacity="0"/><stop offset=".18" stop-color="' + K.grond + '"/>' +
+      '<stop offset=".82" stop-color="' + K.grond + '"/><stop offset="1" stop-color="' + K.grond + '" stop-opacity="0"/></linearGradient>' +
+      '<clipPath id="' + u + 'R"><rect width="' + W + '" height="' + H + '" rx="' + (svg.getAttribute && svg.getAttribute("data-los") === "1" ? 0 : 22) + '"/></clipPath></defs>';
+    // vrijstaand (bijv. op de Nest Hub): geen eigen lucht en rand, de achtergrond van het scherm is de lucht
+    var los = svg.getAttribute && svg.getAttribute("data-los") === "1";
     h += '<g clip-path="url(#' + u + 'R)">';
-    h += '<rect width="' + W + '" height="' + GR + '" fill="url(#' + u + 'L)"/>';
+    if (!los) h += '<rect width="' + W + '" height="' + GR + '" fill="url(#' + u + 'L)"/>';
     if (K.ster) h += sterren(28, K.ster * (wolken > 80 ? .25 : 1));
 
     // zon of maan
@@ -189,9 +193,14 @@
 
     if (nat) h += regen(Math.round(clamp(18 + (wr.regen || 0) * 14, 18, 70)), wr.wind, wr.t != null && wr.t <= 1);
     // grond, straat en bomen
-    h += '<path d="M0 ' + GR + 'H' + W + 'V' + H + 'H0z" fill="' + K.grond + '"/>';
-    h += '<path d="M0 ' + (GR + 30) + 'H' + W + 'V' + H + 'H0z" fill="' + K.grond2 + '"/>';
-    h += '<path d="M0 ' + GR + 'H' + W + '" stroke="' + inkt + '" stroke-width="1.6"/>';
+    if (los) {                                   // een strook grond die aan de zijkanten en onderaan wegloopt
+      h += '<path d="M0 ' + GR + 'H' + W + 'V' + (GR + 46) + 'H0z" fill="url(#' + u + 'G)"/>';
+      h += '<path d="M40 ' + GR + 'H' + (W - 40) + '" stroke="' + inkt + '" stroke-width="1.6" stroke-opacity=".7"/>';
+    } else {
+      h += '<path d="M0 ' + GR + 'H' + W + 'V' + H + 'H0z" fill="' + K.grond + '"/>';
+      h += '<path d="M0 ' + (GR + 30) + 'H' + W + 'V' + H + 'H0z" fill="' + K.grond2 + '"/>';
+      h += '<path d="M0 ' + GR + 'H' + W + '" stroke="' + inkt + '" stroke-width="1.6"/>';
+    }
     h += boom(28, 1.05, inkt, fase === "nacht" ? "#36503f" : "#8db36e", wr.wind, 0);
     if (!buiten && !bat) h += boom(70, .72, inkt, fase === "nacht" ? "#2f4637" : "#9cc07d", wr.wind, 1);
 
@@ -263,7 +272,7 @@
     if (wr.t != null) weer.push(nl(wr.t, Math.abs(wr.t) < 10 ? 1 : 0) + " °C");
     if (wr.woord) weer.push(wr.woord);
     if (weer.length) h += chip(14, 24, weer.join(" · "), "#ffffff", "start", "weer");
-    if (pr.niveau && s.contract === "dynamic")
+    if (pr.niveau && s.contract === "dynamic" && !los)
       h += chip(W - 14, 24, "Stroom " + pr.niveau + (pr.nu != null ? " · " + nl(pr.nu * 100) + " ct" : ""),
         pr.niveau === "goedkoop" ? "#d8e6ff" : pr.niveau === "duur" ? "#ffd9d2" : "#ffffff", "end", "prijs");
     if (s.has_panels && pv != null && (pv > 50 || fase === "dag")) h += chip(184, nokY - 12, "Zon " + kw(pv) + " kW", pv > 50 ? "#fff1c4" : "#ffffff", "middle", "zon");

@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.75.1
+- Nest Hub: het huis staat nu los op het scherm (de lucht van het scherm is de lucht van het huis), in plaats van als plaatje in een kader.
+
 ## 0.75.0
 - Je huis staat nu ook op de Nest Hub: dezelfde tekening als op Vandaag, met het weer, de zon of de maan en wat er aan staat. Uit te zetten bij Huisscherm.
 - Apparaten op Vandaag zijn korter: bij de auto en de batterij zie je alleen wat nu telt. De uitleg, het uurplan en de cijfers staan onder 'Meer details tonen'.

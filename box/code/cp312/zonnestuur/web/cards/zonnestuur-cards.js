@@ -305,7 +305,8 @@ const ZS_HUB_CSS = `
   .price { text-align: right; }
   .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 46%); align-items: center; }
   .hubhuis { display: grid; gap: 1.2vh; justify-items: end; }
-  .hubhuis .hz { width: 100%; max-height: 46vh; height: auto; border-radius: 18px; display: block; }
+  .hubhuis .hz { width: 100%; max-height: 50vh; height: auto; display: block; overflow: visible;
+    -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent); mask-image: linear-gradient(180deg, #000 82%, transparent); }
   .price.klein b { display: inline; font-size: clamp(22px, 6vh, 44px); margin-right: .3em; }
   .price.klein br { display: none; } .price.klein em { margin: 0 0 0 .5em; }
   .price b { display: block; font: 700 clamp(36px, 11vh, 88px)/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
@@ -722,7 +723,7 @@ class ZonnestuurHubCard extends HTMLElement {
     const prijsHtml = `<b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}`;
     return `<div class="${klas}" style="${stijl}">${top}
       <div class="mid${huis ? " met-huis" : ""}"><div>${head}${planHtml}</div>
-        ${huis ? `<div class="hubhuis"><svg class="hz" viewBox="0 0 440 300" role="img" aria-label="Je huis"></svg><div class="price klein">${prijsHtml}</div></div>`
+        ${huis ? `<div class="hubhuis"><svg class="hz" data-los="1" viewBox="0 0 440 300" role="img" aria-label="Je huis"></svg><div class="price klein">${prijsHtml}</div></div>`
           : `<div class="price">${prijsHtml}</div>`}</div>
       <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
     </div>`;
