@@ -116,3 +116,26 @@ a:not([class]):hover, p a:hover, li a:hover { text-decoration-thickness: 2px; }
   :root:where(:not([data-theme="light"])) .testfase { background: #33280c !important; color: #ffe2a0 !important; border-bottom-color: rgba(255, 210, 120, .18) !important; }
 }
 :root[data-theme="dark"] .testfase { background: #33280c !important; color: #ffe2a0 !important; border-bottom-color: rgba(255, 210, 120, .18) !important; }
+
+/* ---- 0.74: één rustige, verfijnde stijl voor de hele app ---------------------------------------------------
+   Daglicht als ondergrond, inkt voor tekst, zon-geel alleen voor wat aandacht vraagt. Minder lijnen en randen,
+   meer lucht, grote getallen die niet verspringen. */
+:root { --zs-schaduw: 0 1px 2px rgba(19, 32, 43, .04), 0 8px 24px -16px rgba(19, 32, 43, .18); --zs-r: 22px; }
+.card, section.card, article.card { border-radius: var(--zs-r); box-shadow: 0 0 0 1px var(--zs-lijn), var(--zs-schaduw); }
+@media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { --zs-schaduw: 0 1px 0 rgba(255, 255, 255, .03) inset; } }
+:root[data-theme="dark"] { --zs-schaduw: 0 1px 0 rgba(255, 255, 255, .03) inset; }
+/* paginakop: overal even groot */
+main > h1, main > header + h1, .inst-kop h1 { font-size: clamp(34px, 4.4vw, 48px) !important; line-height: 1.02 !important; margin: 18px 0 6px !important; }
+.lead { font-size: 16.5px; max-width: 58ch; }
+/* tussenkoppen op het dashboard: zonder zware streep */
+.sec-head { border-bottom: 0 !important; padding-bottom: 0 !important; margin: 18px 0 2px !important; }
+.sec-head h2 { font-size: clamp(24px, 2.6vw, 30px) !important; }
+.sec-head p { color: var(--zs-ink3); margin: 4px 0 0; }
+/* tweede knop: zacht vlak in plaats van een dikke rand */
+.btn.ghost, .btn.uit, .evc-go.uit { background: var(--zs-zacht) !important; box-shadow: none !important; color: var(--zs-ink) !important; }
+.btn.ghost:hover, .btn.uit:hover { background: color-mix(in srgb, var(--zs-ink) 10%, transparent) !important; }
+.btn { border-radius: 999px; letter-spacing: -.005em; }
+/* getallen springen niet heen en weer als ze veranderen */
+.num, .kpi b, .evc-soc, .dev .watt, .rij b, [class*="bedrag"], .big { font-variant-numeric: tabular-nums; }
+/* rustig bewegen; wie dat liever niet heeft, krijgt niets */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.74.0
+- Nieuwe, rustigere vormgeving over de hele app: overal even grote koppen, zachte knoppen, minder lijnen en randen.
+- Op de computer staan de tabbladen bovenaan in het midden, op de telefoon onderin.
+- Vandaag toont alleen wat nu telt. Prijsgrafieken, wat Zonnestuur leerde en de uitleg bij de auto staan onder 'Meer details tonen'.
+- Heb je al zonnepanelen ingevuld? Dan vraagt Zonnestuur niet meer of je ze hebt, maar stelt hij voor je omvormer te koppelen.
+- Aanmelden als proefhuis staat nu bij Meer.
+
 ## 0.73.2
 - Zonnestuur herkent meer merken in je netwerk, met de nieuwste lijst van netwerkkaarten (ook laadpalen zoals Zaptec en Alfen).
 - Bosch, Siemens en Neff: Zonnestuur ziet aan de naam of het een wasmachine, vaatwasser of droger is (doet mee) of een oven of kookplaat (niet nodig).

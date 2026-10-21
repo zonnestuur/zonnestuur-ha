@@ -851,6 +851,11 @@ async function stapDoen(g, b) {
       if (row && rt) return go(row, rt);
     }
     if (a.type === "lan") return lanKiezen(g);
+    if (a.type === "categorie") {
+      CAT = a.cat; $("cats").querySelectorAll("button").forEach((y) => y.classList.toggle("on", y.dataset.c === CAT));
+      $("soortKies").querySelectorAll("button").forEach((y) => y.classList.toggle("on", y.dataset.cat === CAT));
+      $("q").value = ""; render(); $("anderMerk").open = true; $("anderMerk").scrollIntoView({ block: "start", behavior: "smooth" }); return;
+    }
   } catch (e) { b.disabled = false; b.textContent = KNOP[g.stap] || "Toevoegen"; alertPanel(e.message); }
 }
 function lanKiezen(g) {

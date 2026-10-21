@@ -195,7 +195,7 @@ html, body { overscroll-behavior-y: none; }
   .sec-head h2 { font: 650 clamp(22px, 2.2vw, 28px)/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 0; }
   .sec-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
   #hero { scroll-margin-top: 70px; }
-  .c-stap { display: grid; grid-template-columns: 40px minmax(0, 1fr) 12px; gap: 12px; align-items: center; text-decoration: none; color: inherit;
+  .c-stap { grid-column: 1 / -1; display: grid; grid-template-columns: 40px minmax(0, 1fr) 12px; gap: 12px; align-items: center; text-decoration: none; color: inherit;
     background: var(--sun-soft, rgba(255,178,36,.16)) !important; border-color: transparent !important; }
   .c-stap .st-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--card-solid, #fff); color: var(--sun-ink, #9a5b00); }
   .c-stap .st-ic svg { width: 22px; height: 22px; }
@@ -216,6 +216,8 @@ html, body { overscroll-behavior-y: none; }
   .secnav .viewbtn { border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 13.5px; font-weight: 600; padding: 7px 14px; border-radius: 10px; cursor: pointer; border-left: 1px solid var(--card-line); border-radius: 0 10px 10px 0; white-space: nowrap; }
   .secnav .viewbtn:hover { color: var(--ink); }
   .secnav svg { display: none; }
+  /* eenvoudig: bij de auto alleen het belangrijkste (de uitleg en de tijdlijn staan onder 'Meer details tonen') */
+  body.simple .evc-why:not(:has(a)), body.simple .evc-tl { display: none !important; }
   body.simple .adv, body.simple .dev .strip, body.simple .dev .strip-axis, body.simple .dev .facts .fact.more { display: none !important; }
   .flow { position: relative; }
   .flowpause { position: absolute; right: 4px; top: 4px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--card-line); background: var(--card-solid);
@@ -916,7 +918,7 @@ html, body { overscroll-behavior-y: none; }
     </section>
 
     <!-- geleerd over het huis -->
-    <section class="card c-geleerd" id="geleerd" hidden aria-labelledby="glTitle">
+    <section class="card c-geleerd adv" id="geleerd" hidden aria-labelledby="glTitle">
       <div class="eyebrow">Geleerd over je huis</div>
       <h2 class="sec" id="glTitle">Dit weet Zonnestuur nu van je huis</h2>
       <div class="gl" id="glLijst"></div>
@@ -1002,9 +1004,9 @@ html, body { overscroll-behavior-y: none; }
       <div class="links-row"><a href="opbrengst">Jaaroverzicht</a><a href="vergelijk">Vergelijken</a><a href="rapport">Weekrapport</a><a href="kiosk">Wandscherm</a><a href="widget">Telefoonwidget</a><a href="help#besparing">Zo rekenen we</a></div>
       <svg class="spark" id="spark" viewBox="0 0 300 44" preserveAspectRatio="none" aria-hidden="true" hidden></svg>
     </section>
-    <div class="sec-head" id="s-planning"><h2>Planning</h2><p>Vooruitkijken: wanneer je apparaten draaien en wat de batterij doet, op zon en de goedkoopste uren.</p></div>
+    <div class="sec-head adv" id="s-planning"><h2>Planning</h2><p>Vooruitkijken: wanneer je apparaten draaien en wat de batterij doet, op zon en de goedkoopste uren.</p></div>
     <!-- dagplan -->
-    <section class="card c-plan" aria-labelledby="priceTitle">
+    <section class="card c-plan adv" aria-labelledby="priceTitle">
       <div class="title-row"><div><div class="eyebrow">Stroomprijs en planning</div><h2 class="sec" id="priceTitle">Prijs en planning</h2></div><span class="t-end"><span class="small muted" id="priceNote"></span><a class="help-q" href="help#prijzen" aria-label="Uitleg over de prijzen">?</a></span></div>
       <div class="price-stats" id="priceStats"></div>
       <p class="tik-hint">Tik op een uur of schuif met je vinger om de prijzen te zien.</p>
@@ -1025,7 +1027,7 @@ html, body { overscroll-behavior-y: none; }
       <div class="verw" id="verw" hidden></div>
     </section>
 
-    <div class="sec-head" id="s-apparaten"><h2>Apparaten</h2><p>Bedienen en bijsturen: wat elk apparaat nu doet, en waarom.</p></div>
+    <div class="sec-head" id="s-apparaten"><h2>Je apparaten</h2><p>Wat elk apparaat nu doet, en waarom.</p></div>
     <!-- apparaten -->
     <section class="c-devs" aria-labelledby="devTitle">
       <div class="devs-head" style="justify-content:flex-end;margin-top:-6px"><span id="devTitle" hidden>Apparaten</span><a class="btn-line" href="apparaten" style="text-decoration:none">Apparaten beheren</a></div>
@@ -1417,8 +1419,7 @@ function renderStatus(s) {
   renderPlan(s);
   renderDayTip(s);
   const Lc = s.license || {};
-  const licPill = Lc.plan !== "pro" && !Lc.aangemeld ? `<a class="pill sun" href="instellingen#licCard">Meld je aan als proefhuis: Pro gratis</a>`
-    : Lc.plan === "trial" && Lc.days_left <= 10 ? `<a class="pill sun" href="instellingen#licCard">Proef: nog ${Lc.days_left} ${Lc.days_left === 1 ? "dag" : "dagen"} alles · Pro ${esc(Lc.price)}</a>`
+  const licPill = Lc.plan === "trial" && Lc.days_left <= 10 ? `<a class="pill sun" href="instellingen#licCard">Proef: nog ${Lc.days_left} ${Lc.days_left === 1 ? "dag" : "dagen"} alles · Pro ${esc(Lc.price)}</a>`
     : Lc.plan === "basic" ? `<a class="pill" href="instellingen#licCard">Zonnestuur Basis · alles slim sturen met Pro</a>` : "";
   const sw = H.switches_today || 0, fl = H.failed_today || 0;
   const swPill = sw || fl ? `<a class="pill ${fl ? "warn" : ""}" href="#logTitle">${fl ? `⚠︎ Sturing vandaag: ${fl} van ${sw} schakelingen mislukt` : `✓ Sturing vandaag: ${sw} ${sw === 1 ? "schakeling" : "schakelingen"}, alles gelukt`}</a>` : "";

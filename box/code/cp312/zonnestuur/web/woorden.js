@@ -24,7 +24,7 @@
     ["omvormer", "Het kastje bij je zonnepanelen dat de stroom geschikt maakt voor je huis. Het merk staat op het kastje.", false],
     ["koppelmotor", "Het deel van Zonnestuur dat met de apps en apparaten van andere merken praat.", false]
   ];
-  var NIET = /^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION|BUTTON|A|LABEL|SUMMARY|CODE|PRE|SVG|TITLE|NOSCRIPT)$/;
+  var NIET = /^(SCRIPT|STYLE|TEXTAREA|INPUT|SELECT|OPTION|BUTTON|A|LABEL|SUMMARY|CODE|H1|H2|H3|B|STRONG|PRE|SVG|TITLE|NOSCRIPT)$/;
   var RE = W.map(function (w) {
     var t = w[0].replace(/[-]/g, "\\-");
     return new RegExp("(^|[^A-Za-zÀ-ÿ0-9-])(" + t + ")(?![A-Za-zÀ-ÿ0-9-])", w[2] ? "" : "i");

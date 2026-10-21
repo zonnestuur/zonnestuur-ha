@@ -38,6 +38,8 @@
   a.rij b { font-weight: 650; display: block; }
   a.rij .sub { font-size: 13px; color: var(--ink-2); display: block; }
   a.rij::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--ink-3); border-top: 2px solid var(--ink-3); transform: rotate(45deg); }
+  .proef { display: grid; gap: 2px; padding: 16px 20px; text-decoration: none; color: inherit; background: var(--sun-soft) !important; border-color: transparent !important; }
+  .proef b { font-size: 16px; } .proef span { font-size: 13.5px; color: var(--ink-2); }
   .versie { color: var(--ink-3); font-size: 13px; text-align: center; }
 </style>
 <link rel="stylesheet" href="stijl.css">
@@ -46,6 +48,7 @@
 <main>
   <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
   <h1 class="t">Meer</h1>
+  <a class="card proef" id="proef" href="instellingen#licCard" hidden><b>Word proefhuis: Pro gratis</b><span>Meld je aan, dan krijg je alles van Zonnestuur gratis zolang de testfase duurt.</span></a>
 
   <h2>Wat het oplevert</h2>
   <nav class="card" aria-label="Wat het oplevert">
@@ -74,7 +77,8 @@
 <script>
 (async () => {
   let t = ""; try { t = localStorage.getItem("zs_token") || ""; } catch (e) {}
-  try { const r = await fetch("api/status", { headers: { "X-Token": t } }); const d = await r.json(); if (d.version) document.getElementById("versie").textContent = "Zonnestuur " + d.version; } catch (e) {}
+  try { const r = await fetch("api/status", { headers: { "X-Token": t } }); const d = await r.json(); if (d.version) document.getElementById("versie").textContent = "Zonnestuur " + d.version;
+    const L = d.license || {}; document.getElementById("proef").hidden = !(L.plan !== "pro" && !L.aangemeld); } catch (e) {}
 })();
 </script>
 </body>
