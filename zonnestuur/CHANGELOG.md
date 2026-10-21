@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.70.0
+- Warmtepomp (met buitenlucht): Zonnestuur kijkt nu ook naar de buitentemperatuur. Een warmer uur is zuiniger: dezelfde warmte kost dan minder stroom, ook als de prijs per kWh iets hoger is.
+- Auto en boiler met een klaar-tijd: bij (bijna) gelijke prijs laadt of verwarmt Zonnestuur zo laat mogelijk. De accu staat dan korter vol (goed voor de levensduur) en de boiler verliest minder warmte.
+- Verbruik voorspellen: Zonnestuur toetst elke dag welke voorspelling bij jouw huis het best werkt (je vaste ritme, vorige week of gisteren) en kiest die. Bij Inzicht zie je hoe ver de voorspelling ernaast zit.
+
 ## 0.69.0
 - Zonnestuur huis: bovenaan het dashboard een tekening van jouw huis van nu. Met het echte weer (zon of maan op de goede plek, wolken, regen, wind in de bomen, dag, schemer of nacht), je zonnepanelen, de apparaten binnen die aan staan, de batterij, je auto's op de oprit (met lading) en de stroom van en naar het net. Eronder in één zin wat er gebeurt. Met de knop Schema krijg je het oude stroomschema terug.
 - Geef je huis een eigen naam (potloodje onder de tekening). Zonnepanelen staan alleen op het dak als je ze hebt, de batterij hangt aan de buitenmuur, en een auto staat op de oprit zolang hij laadt of aan de laadpaal hangt.

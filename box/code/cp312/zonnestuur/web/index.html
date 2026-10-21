@@ -2675,6 +2675,7 @@ function drawLearned() {
       ${pvTxt}
       ${Lr.kwh_per_deg_colder != null && Math.abs(Lr.kwh_per_deg_colder) >= 0.05 ? `<div><b>${Lr.kwh_per_deg_colder > 0 ? "+" : "−"}${nl(Math.abs(Lr.kwh_per_deg_colder), 1)} kWh</b><span>per dag per graad ${Lr.kwh_per_deg_colder > 0 ? "kouder" : "warmer"}: zo reageert je huis op het weer</span></div>`
         : Lr.days >= 7 ? `<div><b>–</b><span>weer-effect: ${Lr.temp_points ? "nog geen duidelijk verband met de temperatuur" : "aan het leren"}</span></div>` : ""}
+      ${Lr.mix && Lr.mix.uren ? `<div><b>± ${nl(Lr.mix.fout_w)} W</b><span>zo ver zit de voorspelling per uur ernaast. Hij ${Lr.mix.vorige_week >= 0.5 ? "kijkt vooral naar vorige week" : Lr.mix.profiel >= 0.6 ? "kijkt vooral naar je vaste ritme" : "mengt ritme, vorige week en gisteren"}${Lr.mix.fout_w < Lr.mix.standaard_w ? ` (${nl((1 - Lr.mix.fout_w / Lr.mix.standaard_w) * 100)}% beter)` : ""}</span></div>` : ""}
       ${(Lr.expect || []).map((e) => `<div><b>${nl(e.kwh, 1)} kWh</b><span>verwacht ${e.day}${e.temp != null ? ` bij ${nl(e.temp, 0)} °C` : ""}${e.weather_kwh && Math.abs(e.weather_kwh) >= 0.2 ? ` (weer ${e.weather_kwh > 0 ? "+" : "−"}${nl(Math.abs(e.weather_kwh), 1)})` : ""}</span></div>`).join("")}
     </div>
     <div class="chart" id="learnChart"><svg id="learnSvg" role="img" aria-label="Geleerd eigen verbruik per uur, werkdag en weekend"></svg><div class="tip" id="learnTip"></div></div>
