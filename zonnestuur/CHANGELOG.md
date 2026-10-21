@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.71.1
+- Nieuwe kaart op het dashboard: "Dit weet Zonnestuur nu van je huis". Per punt wat hij geleerd heeft (je ritme, wat er altijd aan staat, hoe je huis op het weer reageert, hoe lang je apparaten nodig hebben) en wat hij daardoor beter doet of wat het je oplevert.
+- Een verband 'warmer = meer verbruik' (koelen) gebruikt Zonnestuur niet meer als rechte lijn: anders zou hij in de winter denken dat kou zuiniger is. Koelen telt nu alleen boven de koelgrens.
+
 ## 0.71.0
 - Zonnestuur leert per dag hoe je huis op het weer reageert: vanaf welke temperatuur je gaat stoken (en koelen), en hoeveel kWh dat per graad kost. Eerder rekende hij met één rechte lijn; die ging mis als een huis in september koelt en in de winter stookt. Te zien bij Inzicht.
 - Staat er ineens meer altijd aan (sluipverbruik deze week duidelijk hoger dan de weken ervoor)? Dan krijg je een tip met wat het per jaar kost en hoe je het vindt.

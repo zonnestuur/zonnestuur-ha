@@ -152,6 +152,13 @@ html, body { overscroll-behavior-y: none; }
   .weg-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-top: 10px; }
   .weg-form label { display: grid; gap: 4px; font-size: 14px; } .weg-form input { font: inherit; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); min-height: 44px; }
   .vm + .vm { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .c-geleerd { grid-column: span 12; }
+  .gl { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+  .gl > div { background: var(--chip); border-radius: 16px; padding: 12px 14px; }
+  .gl b { display: block; font-size: 15px; line-height: 1.3; }
+  .gl p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+  .gl p.dus { color: var(--ink); } .gl p.dus::before { content: "Daardoor: "; font-weight: 650; color: #16733e; }
+  .gl details > summary { cursor: pointer; font-size: 14px; color: var(--ink-2); padding: 8px 2px; min-height: 24px; }
   .c-welcome .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .c-welcome .opts button, .btn-line { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 12px; cursor: pointer;
     border: 1px solid var(--card-line); background: var(--card-solid, var(--chip)); color: var(--ink); }
@@ -884,6 +891,14 @@ html, body { overscroll-behavior-y: none; }
       <h2 class="sec" id="vmTitle">Klopt dit?</h2>
       <div id="vmLijst"></div>
       <p class="small muted" style="margin:8px 0 0">Zonnestuur kijkt naar het patroon van je stroomverbruik. Zeg je ja, dan helpt hij je het apparaat te koppelen.</p>
+    </section>
+
+    <!-- geleerd over het huis -->
+    <section class="card c-geleerd" id="geleerd" hidden aria-labelledby="glTitle">
+      <div class="eyebrow">Geleerd over je huis</div>
+      <h2 class="sec" id="glTitle">Dit weet Zonnestuur nu van je huis</h2>
+      <div class="gl" id="glLijst"></div>
+      <p class="small muted" style="margin:10px 0 0" id="glNote"></p>
     </section>
 
     <!-- nog niets gekoppeld -->
@@ -1861,6 +1876,20 @@ async function vermoedKaart(nu) {
     vermoedKaart(true);
   });
 }
+// Wat Zonnestuur over het huis leerde, en wat hij daardoor beter doet
+let GL_AT = 0;
+async function geleerdKaart() {
+  if (Date.now() - GL_AT < 600000) return; GL_AT = Date.now();
+  let st; try { st = await api("api/geleerd"); } catch (e) { return; }
+  const it = st.items || [];
+  $("geleerd").hidden = !it.length;
+  if (!it.length) return;
+  const blok = (x) => `<div><b>${esc(x.titel)}</b><p>${esc(x.tekst)}</p>${x.daardoor ? `<p class="dus">${esc(x.daardoor)}</p>` : ""}</div>`;
+  const eerst = matchMedia("(max-width: 700px)").matches ? 2 : 3;
+  $("glLijst").innerHTML = it.slice(0, eerst).map(blok).join("")
+    + (it.length > eerst ? `<details style="grid-column:1/-1"><summary>Nog ${it.length - eerst} ${it.length - eerst === 1 ? "ding" : "dingen"} die Zonnestuur leerde</summary><div class="gl">${it.slice(eerst).map(blok).join("")}</div></details>` : "");
+  $("glNote").textContent = `Geleerd uit ${st.dagen} dagen meterdata. Alles blijft in je eigen huis. Hoe langer Zonnestuur meekijkt, hoe beter het klopt.`;
+}
 function evPanel(d) {
   const E = d.ev;
   if (!E.cars.length) {
@@ -2818,6 +2847,7 @@ function renderWelcome(s) {
   $("leeg").hidden = !!s.configured;
   vanzelfKaart();
   vermoedKaart();
+  geleerdKaart();
   wegKaart();
   const card = $("welcome");
   card.hidden = WEL_HIDE || !!s.motivation || !s.configured;
