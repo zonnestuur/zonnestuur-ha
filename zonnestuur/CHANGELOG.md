@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.73.1
+- Een laadpaal die je leverancier al stuurt (Zonnestuur kijkt mee) wordt niet nog eens aangeboden.
+- Duidelijkere uitleg bij gevonden merken (bijv. Bosch/Siemens: 'Start de was of vaat op zon of goedkope stroom').
+
 ## 0.73.0
 - Nieuwe indeling met drie tabbladen onderin: Vandaag, Apparaten en Meer. Overal dezelfde, zodat je nooit meer zoekt.
 - Apparaten: alles op één plek. Wat meedoet, wat Zonnestuur in je huis vond (met één knop: Toevoegen, Koppelen of Inloggen), je meter, zonnepanelen en stroomprijs. Een ander merk zoeken kan onderaan.
