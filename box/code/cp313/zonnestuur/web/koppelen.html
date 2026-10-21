@@ -564,8 +564,8 @@ async function apparaatKeuze(title, r, kop) {
   if ($("panel").hidden) return;
   if (!v.apparaten.length) return done(title, kop === "Gekoppeld." ? "" : kop);
   // Meteen toevoegen: de klant kan een apparaat altijd weer weghalen. Zo is het na het inloggen gewoon klaar.
-  const gelukt = [], mis = [];
-  for (const a of v.apparaten) {
+  const gelukt = [], mis = [], los = v.apparaten.filter((a) => !a.zeker);
+  for (const a of v.apparaten.filter((x) => x.zeker)) {
     try { await post("api/koppel/apparaat", { entity: a.entity }); gelukt.push(a); } catch (e) { mis.push([a, e.message]); }
   }
   const wit = gelukt.some((a) => a.driver === "ha_start_button");
@@ -573,8 +573,15 @@ async function apparaatKeuze(title, r, kop) {
     ${gelukt.length ? `<p>Klaar. Zonnestuur stuurt nu:</p><div class="entries">${gelukt.map((a) => `<div class="entry"><span><b>${esc(a.name)}</b><span class="wat">Zonnestuur ${esc(a.wat)}</span></span><span class="ok small" style="white-space:nowrap">✓ Toegevoegd</span></div>`).join("")}</div>` : ""}
     ${mis.map(([a, m]) => `<p class="err small">${esc(a.name)}: ${esc(m)}</p>`).join("")}
     ${wit ? `<p class="small muted">Zo gebruik je de machine: vul hem, kies het programma en zet hem op <b>start op afstand</b>. Zonnestuur drukt op start zodra het gunstig is.</p>` : ""}
-    <p class="small muted">Wil je er een niet? Haal hem weg bij <a href="setup#inst_apparaten">Instellingen</a>.</p>`,
+    ${los.length ? `<p>${gelukt.length ? "Ook gevonden" : "Gevonden"}: schakelaars. Zet Zonnestuur deze aan bij zon? Kies alleen wat echt stroom gebruikt (een boiler, een stekker).</p>
+      <div class="entries">${los.map((a, i) => `<div class="entry"><span><b>${esc(a.name)}</b></span><button class="btn ghost small" data-los="${i}">Toevoegen</button></div>`).join("")}</div>` : ""}
+    ${gelukt.length ? `<p class="small muted">Wil je er een niet? Haal hem weg bij <a href="setup#inst_apparaten">Instellingen</a>.</p>` : ""}`,
     [["Klaar", () => { closePanel(); load(); }]]);
+  $("p_body").querySelectorAll("[data-los]").forEach((b) => b.onclick = async () => {
+    b.disabled = true;
+    try { await post("api/koppel/apparaat", { entity: los[Number(b.dataset.los)].entity }); b.outerHTML = `<span class="ok small" style="white-space:nowrap">✓ Toegevoegd</span>`; }
+    catch (e) { b.disabled = false; $("p_err").textContent = e.message; }
+  });
 }
 function done(title, extra) {
   FLOW = null;

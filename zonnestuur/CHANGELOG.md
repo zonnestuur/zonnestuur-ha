@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.72.6
+- Na het koppelen komen alleen apparaten waarvan zeker is dat ze bij Zonnestuur horen er meteen in: witgoed met een startknop, laadpalen en boilers of warmtepompen. Losse schakelaars kies je zelf.
+- Koelkasten, vriezers en ovens worden nooit meer als warmtepomp aangeboden.
+
 ## 0.72.5
 - Koppelen gaat nu in één keer door: na het inloggen zet Zonnestuur de apparaten van dat merk er meteen in. Wil je er een niet? Dan haal je hem weg bij Instellingen.
 - Koppelschermen vragen eerst alleen wat echt nodig is. De rest staat ingeklapt onder 'Meer instellingen'.
