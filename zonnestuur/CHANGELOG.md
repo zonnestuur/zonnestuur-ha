@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.72.2
+- Koppelen: na het koppelen zie je meteen welke apparaten Zonnestuur van dat merk kan sturen. Eén tik op Toevoegen en hij doet mee.
+- Is een merk al gekoppeld? Dan krijg je geen Engelse foutmelding meer, maar meteen de keuze van je apparaten.
+- De aan/uit-knop van een wasmachine of droger wordt nooit meer aangeboden (alleen 'start op afstand').
+- Hulp op afstand kan nu ook meehelpen met koppelen.
+
 ## 0.72.1
 - Veiligheid: Zonnestuur schakelt nooit meer de aan/uit-knop van een wasmachine, droger of vaatwasser (bijvoorbeeld Miele 'Aan/uit'). Uitzetten brak een lopend programma af. Witgoed gaat alleen via 'start op afstand'. Zo'n knop kun je ook niet meer als apparaat kiezen; oude instellingen worden genegeerd.
 - Koppelen: merken staan bij hun merknaam (niet je accountnaam). Een laadpaal of ander merk dat je zelf al in de koppelmotor had, staat nu ook op 'Gekoppeld'.

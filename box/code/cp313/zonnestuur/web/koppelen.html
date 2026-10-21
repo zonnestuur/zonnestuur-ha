@@ -329,6 +329,8 @@ ${ROUTER.soort === "fritzbox" && (ROUTER.nodig || ROUTER.fout) ? `<div class="on
     catch (e) { $("knx_msg").innerHTML = `<span class="err">${esc(e.message)}</span>`; }
     $("knx_go").disabled = false;
   };
+  el.querySelectorAll("[data-kies]").forEach((b) => b.onclick = () => { BRAND = b.dataset.naam;
+    apparaatKeuze(b.dataset.naam, { entry_id: b.dataset.kies, domain: b.dataset.dom }, "Gekoppeld."); });
   el.querySelectorAll("[data-rm]").forEach((b) => b.onclick = async () => {
     b.disabled = true; try { await post("api/koppel/remove", { entry_id: b.dataset.rm }); await load(); } catch (e) { alertPanel(e.message); }
   });
@@ -355,7 +357,7 @@ function gekoppeldBlok(ents, merkVan) {
   const gebr = g("gebruikt"), kan = g("nuttig"), rest = g("overig");
   let h = "";
   if (gebr.length) h += `<div class="kgroep"><b>Zonnestuur gebruikt</b>${gebr.map((e) => `<div class="entry"><span>${esc(naam(e))}${kapot(e)}<span class="wat">voor ${esc(e.gebruikt.join(", "))}</span></span>${weg(e)}</div>`).join("")}</div>`;
-  if (kan.length) h += `<div class="kgroep"><b>Kan Zonnestuur gebruiken</b><p class="small muted" style="margin:2px 0 4px">Gekoppeld, maar nog niet in Zonnestuur gezet. Kies hem bij Apparaat toevoegen.</p>${kan.map((e) => `<div class="entry"><span>${esc(naam(e))}${kapot(e)}${watKan(e.domain) ? `<span class="wat">${esc(watKan(e.domain))}</span>` : ""}</span><a class="btn small" href="setup#toevoegen">Toevoegen</a>${weg(e)}</div>`).join("")}</div>`;
+  if (kan.length) h += `<div class="kgroep"><b>Kan Zonnestuur gebruiken</b><p class="small muted" style="margin:2px 0 4px">Gekoppeld, maar nog niet in Zonnestuur gezet. Tik op Toevoegen.</p>${kan.map((e) => `<div class="entry"><span>${esc(naam(e))}${kapot(e)}${watKan(e.domain) ? `<span class="wat">${esc(watKan(e.domain))}</span>` : ""}</span><button class="btn small" data-kies="${esc(e.entry_id)}" data-dom="${esc(e.domain)}" data-naam="${esc(naam(e))}">Toevoegen</button>${weg(e)}</div>`).join("")}</div>`;
   if (rest.length) h += `<details class="kgroep"><summary class="small"><b>Zonnestuur doet hier niets mee (${rest.length})</b></summary><p class="small muted" style="margin:4px 0">Bijvoorbeeld camera's, speakers of lampen. Dat is prima: ze zitten Zonnestuur niet in de weg.</p>${rest.map((e) => `<div class="entry"><span>${esc(naam(e))}${kapot(e)}</span>${weg(e)}</div>`).join("")}</details>`;
   const geenKnop = ents.some((e) => e.ontkoppelen === false && e.soort !== "systeem") && !ents.some((e) => e.ontkoppelen);
   return `<div class="gekop">${h}${geenKnop ? `<p class="small muted" style="margin:8px 0 0">Dit is je eigen koppelmotor. Ontkoppelen doe je daar zelf: misschien gebruik je een koppeling ook voor iets anders.</p>` : ""}</div>`;
@@ -391,6 +393,7 @@ function goButton(info, ri, j, rt) {
   if (rt && rt.handmatig) return "";                 // geen config-flow: kan niet met een knop (zie de uitleg)
   if (info.kind === "zonnestuur") return `<a class="btn small" href="${zsLink(info.arg)}">Instellen</a>`;
   if (info.kind === "relais" || info.kind === "meten") return `<a class="btn ghost small" href="setup#toevoegen">Stekker toevoegen</a>`;
+  if ((info.kind === "ha" || info.kind === "hacs") && rt && connected(rt)) return `<button class="btn small" data-go="${ri},${j}">Apparaten kiezen</button>`;
   return `<button class="btn small" data-go="${ri},${j}">Koppelen</button>`;
 }
 
@@ -459,6 +462,11 @@ async function go(row, rt) {
   const info = routeInfo(rt, row);
   BRAND = row.merk;
   try {
+    // Al gekoppeld: niet opnieuw inloggen, meteen de apparaten van dit merk laten kiezen
+    if ((info.kind === "ha" || info.kind === "hacs") && connected(rt)) {
+      const dom = info.kind === "ha" ? rt.route.slice(3) : (rt.domein || ((OV.custom || {})[info.arg] || {}).domain || "");
+      if (dom) return apparaatKeuze(row.merk, { domain: dom }, "Dit merk is al gekoppeld.");
+    }
     if (info.kind === "ha") { showStep(await starten(row.merk, rt.route)); return; }
     if (info.kind === "hacs") {
       const have = (OV.custom || {})[info.arg];
@@ -527,7 +535,7 @@ async function gekoppeld(r) {
     try { v = await post("api/koppel/meter-voorstel", { entry_id: r.entry_id || "", domain: r.domain || "" }); } catch (e) { break; }
     if (!v.meters.length) await sleep(4000);
   }
-  if (!v.meters.length) return done(title);
+  if (!v.meters.length) return apparaatKeuze(title, r, "Gekoppeld.");
   const m = v.meters[0], w = Number(m.state);
   const nu = isFinite(w) && m.state !== "" ? ` Nu: <b>${Math.round(m.unit === "kW" ? w * 1000 : w)} W</b>.` : "";
   panel(title, `<p class="ok">Gekoppeld.</p><p>Hiermee ziet Zonnestuur je <b>stroomverbruik en teruglevering</b> live (${esc(m.name)}).${nu}</p>
@@ -538,6 +546,32 @@ async function gekoppeld(r) {
           [["Sluiten", closePanel, "ghost"], ["Naar het dashboard", () => { location.href = "./"; }]]);
       } catch (e) { $("p_err").textContent = e.message; }
     }]]);
+}
+// Na het koppelen (of als het merk al gekoppeld was): welke apparaten van dit merk zet Zonnestuur aan? Eén tik per apparaat.
+async function apparaatKeuze(title, r, kop) {
+  FLOW = null;
+  panel(title, `<p class="ok">${esc(kop)}</p><p><span class="spin"></span>Even kijken welke apparaten Zonnestuur hiermee kan sturen…</p>`, [["Sluiten", closePanel, "ghost"]]);
+  let v = { apparaten: [] };
+  for (let i = 0; i < 4 && !v.apparaten.length && !$("panel").hidden; i++) {
+    try { v = await post("api/koppel/apparaat-voorstel", { entry_id: r.entry_id || "", domain: r.domain || "" }); } catch (e) { break; }
+    if (!v.apparaten.length) await sleep(4000);
+  }
+  if ($("panel").hidden) return;
+  if (!v.apparaten.length) return done(title, kop === "Gekoppeld." ? "" : kop);
+  const lijst = v.apparaten.map((a, i) => `<div class="entry"><span><b>${esc(a.name)}</b><span class="wat">Zonnestuur ${esc(a.wat)}</span></span>
+    <button class="btn small" data-app="${i}">Toevoegen</button></div>`).join("");
+  panel(title, `<p class="ok">${esc(kop)}</p><p>Deze apparaten kan Zonnestuur sturen. Tik op <b>Toevoegen</b>, dan regelt Zonnestuur de rest.</p><div class="entries">${lijst}</div>`,
+    [["Klaar", () => { closePanel(); load(); }, "ghost"]]);
+  $("p_body").querySelectorAll("[data-app]").forEach((b) => b.onclick = async () => {
+    const a = v.apparaten[Number(b.dataset.app)];
+    b.disabled = true; b.textContent = "Bezig…";
+    try {
+      await post("api/koppel/apparaat", { entity: a.entity });
+      b.outerHTML = `<span class="tag ok">Toegevoegd</span>`;
+      if (a.driver === "ha_start_button" && !$("p_body").querySelector(".tip-wit"))
+        $("p_body").insertAdjacentHTML("beforeend", `<p class="small muted tip-wit">Zo gebruik je hem: vul de machine, kies het programma en zet hem op <b>start op afstand</b>. Zonnestuur drukt op start zodra het gunstig is.</p>`);
+    } catch (e) { b.disabled = false; b.textContent = "Toevoegen"; $("p_err").textContent = e.message; }
+  });
 }
 function done(title, extra) {
   FLOW = null;
@@ -612,8 +646,12 @@ async function showStep(r) {
       }]]);
   } else if (r.type === "abort") {
     FLOW = null;
-    const known = ["already_configured", "single_instance_allowed", "already_in_progress"].includes(r.reason);
-    panel(title || "Koppelen", `<p class="${known ? "ok" : ""}">${esc(r.description || r.reason)}</p>`);
+    if (["already_configured", "single_instance_allowed", "already_configured_device", "already_configured_account"].includes(r.reason))
+      return apparaatKeuze(title || "Koppelen", { domain: r.domain }, "Dit merk is al gekoppeld.");
+    panel(title || "Koppelen", `<p>${esc(r.description || r.reason)}</p>`,
+      [["Sluiten", closePanel, "ghost"], ["Opnieuw proberen", async () => {
+        try { showStep(await starten(title, "ha:" + r.domain)); } catch (e) { $("p_err").textContent = e.message; }
+      }]]);
   } else { alertPanel(r.error || "Onverwacht antwoord"); }
 }
 async function poll(r) {
