@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.70.1
+- Laadt een leverancier je auto (Zonnestuur kijkt alleen mee), dan telt dat laden niet meer mee als 'eigen verbruik van het huis'. Het geleerde verbruiksprofiel en de voorspelling kloppen daardoor beter.
+
 ## 0.70.0
 - Warmtepomp (met buitenlucht): Zonnestuur kijkt nu ook naar de buitentemperatuur. Een warmer uur is zuiniger: dezelfde warmte kost dan minder stroom, ook als de prijs per kWh iets hoger is.
 - Auto en boiler met een klaar-tijd: bij (bijna) gelijke prijs laadt of verwarmt Zonnestuur zo laat mogelijk. De accu staat dan korter vol (goed voor de levensduur) en de boiler verliest minder warmte.
