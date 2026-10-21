@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.71.0
+- Zonnestuur leert per dag hoe je huis op het weer reageert: vanaf welke temperatuur je gaat stoken (en koelen), en hoeveel kWh dat per graad kost. Eerder rekende hij met één rechte lijn; die ging mis als een huis in september koelt en in de winter stookt. Te zien bij Inzicht.
+- Staat er ineens meer altijd aan (sluipverbruik deze week duidelijk hoger dan de weken ervoor)? Dan krijg je een tip met wat het per jaar kost en hoe je het vindt.
+- Is je verbruik overdag al uren zo laag als 's nachts, dan vraagt Zonnestuur: "Ben je weg?" Met één tik zet je de boiler dan uit tot je terug bent. Hij zet nooit zelf iets uit op een vermoeden.
+
 ## 0.70.1
 - Laadt een leverancier je auto (Zonnestuur kijkt alleen mee), dan telt dat laden niet meer mee als 'eigen verbruik van het huis'. Het geleerde verbruiksprofiel en de voorspelling kloppen daardoor beter.
 

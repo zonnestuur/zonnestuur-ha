@@ -1826,7 +1826,10 @@ async function wegKaart(nu) {
     return;
   }
   const d = new Date(Date.now() + 3 * 86400000), ds = d.toISOString().slice(0, 10);
-  el.innerHTML = `<details class="weg"><summary><b>Een paar dagen weg?</b> <span class="small muted">Dan hoeft de boiler niet warm te blijven.</span></summary>
+  const vm = st.vermoeden;
+  el.innerHTML = `<details class="weg"${vm ? " open" : ""}><summary><b>${vm ? "Ben je weg?" : "Een paar dagen weg?"}</b> <span class="small muted">${vm
+      ? `Sinds ${esc(dag(vm.sinds))} is je verbruik zo laag als 's nachts. Dan hoeft de boiler niet warm te blijven.`
+      : "Dan hoeft de boiler niet warm te blijven."}</span></summary>
     <div class="weg-form"><label>Ik ben weer thuis op<input type="date" id="wegDag" value="${ds}" min="${new Date().toISOString().slice(0, 10)}"></label>
     <label>om<input type="time" id="wegUur" value="18:00"></label><button type="button" class="btn-line on-sun" id="wegGo">Zet klaar</button></div>
     <p class="small" id="wegMsg" role="status" style="margin:6px 0 0"></p></details>`;
@@ -2673,7 +2676,10 @@ function drawLearned() {
       ${Lr.day_kwh.weekend != null ? `<div><b>${nl(Lr.day_kwh.weekend, 1)} kWh</b><span>op een weekenddag</span></div>` : ""}
       ${Lr.peak ? `<div><b>${String(Lr.peak.hour).padStart(2, "0")}:00</b><span>hier piekt je verbruik meestal (${nl(Lr.peak.w)} W)</span></div>` : ""}
       ${pvTxt}
-      ${Lr.kwh_per_deg_colder != null && Math.abs(Lr.kwh_per_deg_colder) >= 0.05 ? `<div><b>${Lr.kwh_per_deg_colder > 0 ? "+" : "−"}${nl(Math.abs(Lr.kwh_per_deg_colder), 1)} kWh</b><span>per dag per graad ${Lr.kwh_per_deg_colder > 0 ? "kouder" : "warmer"}: zo reageert je huis op het weer</span></div>`
+      ${Lr.sluip && Lr.sluip.nu && Lr.sluip.eerder && Lr.sluip.nu - Lr.sluip.eerder >= 40 ? `<div><b>+ ${nl(Lr.sluip.nu - Lr.sluip.eerder)} W</b><span>staat er sinds kort meer altijd aan (eerst ${nl(Lr.sluip.eerder)} W, nu ${nl(Lr.sluip.nu)} W)</span></div>` : ""}
+      ${Lr.signatuur ? (Lr.signatuur.kwh_per_graad_kouder ? `<div><b>+ ${nl(Lr.signatuur.kwh_per_graad_kouder, 1)} kWh</b><span>per dag per graad kouder, onder ${nl(Lr.signatuur.stookgrens, 1)} °C (stoken)</span></div>` : "")
+        + (Lr.signatuur.kwh_per_graad_warmer ? `<div><b>+ ${nl(Lr.signatuur.kwh_per_graad_warmer, 1)} kWh</b><span>per dag per graad warmer, boven ${nl(Lr.signatuur.koelgrens, 1)} °C (koelen)</span></div>` : "")
+      : Lr.kwh_per_deg_colder != null && Math.abs(Lr.kwh_per_deg_colder) >= 0.05 ? `<div><b>${Lr.kwh_per_deg_colder > 0 ? "+" : "−"}${nl(Math.abs(Lr.kwh_per_deg_colder), 1)} kWh</b><span>per dag per graad ${Lr.kwh_per_deg_colder > 0 ? "kouder" : "warmer"}: zo reageert je huis op het weer</span></div>`
         : Lr.days >= 7 ? `<div><b>–</b><span>weer-effect: ${Lr.temp_points ? "nog geen duidelijk verband met de temperatuur" : "aan het leren"}</span></div>` : ""}
       ${Lr.mix && Lr.mix.uren ? `<div><b>± ${nl(Lr.mix.fout_w)} W</b><span>zo ver zit de voorspelling per uur ernaast. Hij ${Lr.mix.vorige_week >= 0.5 ? "kijkt vooral naar vorige week" : Lr.mix.profiel >= 0.6 ? "kijkt vooral naar je vaste ritme" : "mengt ritme, vorige week en gisteren"}${Lr.mix.fout_w < Lr.mix.standaard_w ? ` (${nl((1 - Lr.mix.fout_w / Lr.mix.standaard_w) * 100)}% beter)` : ""}</span></div>` : ""}
       ${(Lr.expect || []).map((e) => `<div><b>${nl(e.kwh, 1)} kWh</b><span>verwacht ${e.day}${e.temp != null ? ` bij ${nl(e.temp, 0)} °C` : ""}${e.weather_kwh && Math.abs(e.weather_kwh) >= 0.2 ? ` (weer ${e.weather_kwh > 0 ? "+" : "−"}${nl(Math.abs(e.weather_kwh), 1)})` : ""}</span></div>`).join("")}
