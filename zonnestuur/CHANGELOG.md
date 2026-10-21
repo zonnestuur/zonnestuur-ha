@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.72.8
+- Hulp op afstand kan zien wat de Box in je netwerk herkent, zodat we het zoeken naar apparaten kunnen verbeteren.
+
 ## 0.72.7
 - Na het koppelen van een laadpaal biedt Zonnestuur het laadvermogen niet meer aan als meter. Alleen echte meters (zoals Tibber Pulse of HomeWizard) worden nog aangeboden, en alleen als je nog geen meter hebt.
 - Gewone namen: 'Laadpaal Haardijk 3' in plaats van 'Haardijk 3 Beschikbare stroom', 'Wasmachine' in plaats van 'Wasmachine Starten'.
