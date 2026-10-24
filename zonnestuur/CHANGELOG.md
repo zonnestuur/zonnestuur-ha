@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.78.2
+- SPRSUN-warmtepomp: werkt nu ook met de wifi-module van SPRSUN zelf, naast de SPRSUN-app. Voeg in de module één extra verbinding toe (Tcp Server, poort 8899); verder hoeft er niets te veranderen.
+- Alfen en SPRSUN toevoegen vanaf Apparaten opent nu meteen het goede formulier.
+
 ## 0.78.1
 - Besparing klopt beter: bij een warmtepomp of boiler die ook zelf opwarmt, telt alleen het opwarmen dat Zonnestuur heeft verschoven. Eerder telde ook het gewone opwarmen mee, en dat gaf soms een 'besparing' onder nul.
 - Geen zonnepanelen? Dan is je maanddoel altijd in euro's (er stond soms '100% zelf gebruikt').
