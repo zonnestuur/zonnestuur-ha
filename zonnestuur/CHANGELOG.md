@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.78.3
+- SPRSUN toevoegen: nieuwe knop 'Controleren' leest de warmtepomp alleen uit en zegt in gewone taal wat er mis is (module niet bereikbaar, of de warmtepomp antwoordt niet).
+
 ## 0.78.2
 - SPRSUN-warmtepomp: werkt nu ook met de wifi-module van SPRSUN zelf, naast de SPRSUN-app. Voeg in de module één extra verbinding toe (Tcp Server, poort 8899); verder hoeft er niets te veranderen.
 - Alfen en SPRSUN toevoegen vanaf Apparaten opent nu meteen het goede formulier.

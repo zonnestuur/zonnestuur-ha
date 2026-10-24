@@ -2150,7 +2150,7 @@ async function settings() {
       : t === "homey" ? `<div class="field"><label for="x_a">Apparaat in Homey</label><select id="x_a">${hd.map((x, i) => `<option value="${i}">${esc(x.name)} (${x.driver === "homey_setpoint" ? "temperatuur" : "aan/uit"})</option>`).join("") || "<option>koppel eerst Homey hierboven</option>"}</select></div>`
       : t === "hapower" ? f("x_a", "Vermogen-instelling (number.…)", "", 'placeholder="bijv. number.boiler_vermogen"') + `<div class="field" style="flex:0 1 110px"><label for="x_u">Eenheid</label><select id="x_u"><option>W</option><option>%</option></select></div>` + f("x_b", "Schakelaar (optioneel)", "", 'placeholder="switch.…"') + f("x_c", "Vermogensmeting (optioneel)", "", 'placeholder="sensor.…"')
       : t === "alfen" ? f("x_a", "IP-adres van de laadpaal", "", 'placeholder="192.168.1.50"') + `<div class="field" style="flex:0 1 100px"><label for="x_ph">Fasen</label><select id="x_ph"><option>1</option><option selected>3</option></select></div>` + f("x_min", "Min. A", "6", 'type="number"') + f("x_max", "Max. A", "16", 'type="number"')
-      : t === "sprsun" ? f("x_a", "IP-adres van de RS485-module", "", 'placeholder="192.168.1.60" inputmode="decimal"') + f("x_pt", "Poort", "8899", 'type="number" step="1"') + f("x_tn", "Normale boilertemperatuur (°C)", "50", 'type="number" step="1"') + f("x_tb", "Boilertemperatuur bij zon (°C)", "55", 'type="number" step="1"')
+      : t === "sprsun" ? f("x_a", "IP-adres van de RS485-module", "", 'placeholder="192.168.1.60" inputmode="decimal"') + f("x_pt", "Poort", "8899", 'type="number" step="1"') + `<div class="field" style="flex:0 0 auto"><button class="btn ghost" type="button" id="x_test">Controleren</button></div><p class="small" id="x_testres" aria-live="polite"></p>` + f("x_tn", "Normale boilertemperatuur (°C)", "50", 'type="number" step="1"') + f("x_tb", "Boilertemperatuur bij zon (°C)", "55", 'type="number" step="1"')
       : t === "ocpp" ? listOr("x_a", "Naam (ID) van de laadpaal", cps.map((c) => c.id), "zoals ingesteld in de laadpaal") + `<div class="field" style="flex:0 1 100px"><label for="x_ph">Fasen</label><select id="x_ph"><option>1</option><option selected>3</option></select></div>` + f("x_min", "Min. A", "6", 'type="number"') + f("x_max", "Max. A", "16", 'type="number"')
       : ""}${pw}</div>
       ${t === "mqttfree" ? `<div class="row">${f("x_d", "Topic met vermogen (optioneel)", "")}${f("x_e", "JSON-veld vermogen", "")}${f("x_on", "Bericht aan", "ON")}${f("x_off", "Bericht uit", "OFF")}</div>` : ""}
@@ -2165,6 +2165,19 @@ async function settings() {
     if (t === "sgready" || t === "sprsun") $("x_kind").value = "heatpump";
   };
   $("x_type").onchange = addFields;
+  document.addEventListener("click", async (ev) => {
+    if (!ev.target || ev.target.id !== "x_test") return;
+    const res = $("x_testres"), knop = ev.target;
+    knop.disabled = true; res.textContent = "Bezig met uitlezen…";
+    try {
+      const r = await (await fetch("api/setup/sprsun-test", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ host: $("x_a").value.trim(), port: Number($("x_pt").value) || 8899 }) })).json();
+      const g = (v, e) => (v === null || v === undefined ? "?" : String(v).replace(".", ",") + e);
+      res.textContent = r.ok ? `Gelukt. Boiler ${g(r.boiler_temp, " °C")}, warm water ingesteld op ${g(r.warmwater_setpoint, " °C")}, vermogen ${g(r.vermogen_w, " W")}. Kloppen deze getallen? Dan kun je opslaan.`
+        : (r.fout || "Dat lukte niet.");
+    } catch (e) { res.textContent = "Dat lukte niet: " + e.message; }
+    knop.disabled = false;
+  });
   addFields();
   const relaySpec = (p) => { const t = $(p + "_t").value, a = $(p + "_a").value.trim(), ch = Number($(p + "_c").value) || 0;
     return t === "ha_switch" ? { driver: "ha_switch", params: { entity: a } } : t === "z2m" ? { driver: "mqtt_switch", params: { profile: "zigbee2mqtt", name: a } } : { driver: t, host: a, switch_id: ch }; };
