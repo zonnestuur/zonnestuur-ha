@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.79.1
+- 'Instellen' in de instelhulp (bijv. bij SPRSUN) stuurde je terug naar stap 1. Nu opent het formulier meteen, ook als Zonnestuur nog niet klaar is ingesteld. Na het toevoegen ga je direct naar de pagina van het apparaat.
+- Antwoordt de warmtepomp niet, dan zegt de bediening dat nu duidelijk en wat je kunt controleren.
+
 ## 0.79.0
 - SPRSUN-warmtepomp: eigen bediening in Zonnestuur, zoals in de SPRSUN-app. Op de pagina van de warmtepomp: aan/uit, stand, temperaturen voor warm water, verwarming en koeling, ventilator en pomp, en de actuele temperaturen. Getest op een echte SPRSUN.
 - Kies je zelf een warmwatertemperatuur, dan wordt dat de gewone temperatuur; Zonnestuur zet hem bij zon of goedkope stroom een paar graden hoger.

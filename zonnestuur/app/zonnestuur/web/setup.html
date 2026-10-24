@@ -2224,7 +2224,12 @@ async function settings() {
     const next = JSON.parse(JSON.stringify(CFG));
     if (SYSX[t]) next[t] = sysConf(t);                    // de koppeling meteen bewaren (anders kent Zonnestuur het systeem nog niet)
     next.devices.push({ id, ...KIND_DEFAULTS[kind], ...dev, priority: CFG.devices.length + 1 });
-    try { CFG = await postCfg(next); toast(`${name} toegevoegd`); settings(); } catch (e) { $("x_res").textContent = e.message; }
+    next.ingericht = true;                                // niet terug naar de instelhulp na het toevoegen
+    try {
+      CFG = await postCfg(next); toast(`${name} toegevoegd`);
+      if (!CFG.configured || t === "sprsun") { location.href = "apparaat?id=" + encodeURIComponent(id); return; }   // meteen naar het nieuwe apparaat
+      settings();
+    } catch (e) { $("x_res").textContent = e.message; }
   };
   $("p1test").onclick = async () => {
     const m = meterFromForm();
@@ -2549,7 +2554,10 @@ async function editDevice(i) {
     if (CFG.contract) Object.assign(W.contract, CFG.contract);
     if (CFG.has_ha) W.ha.url = CFG.homeassistant?.url || "";
     if (MODE === "settings") {
-      if (!CFG.configured) { location.href = "setup"; return; }
+      // Iets toevoegen (bijv. vanuit de instelhulp of Apparaten) mag ook als Zonnestuur nog niet klaar is ingesteld;
+      // anders stuurde 'Instellen' je terug naar stap 1 van de instelhulp.
+      const gericht = ["toevoegen", "onderdeel", "apparaat", "omvormer", "batterij"].some((k) => new URLSearchParams(location.search).get(k));
+      if (!CFG.configured && !gericht) { location.href = "setup"; return; }
       document.title = "Zonnestuur · instellingen"; settings();
     } else {
       if (W.addOnly && !CFG.configured) W.addOnly = false;
