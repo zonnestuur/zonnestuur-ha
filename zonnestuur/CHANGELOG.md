@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.80.3
+- SPRSUN: instellingen worden nu op dezelfde manier naar de warmtepomp gestuurd als gebouwbeheersystemen dat doen, zodat de regelaar ze ook echt overneemt.
+
 ## 0.80.2
 - SPRSUN: hulp op afstand kan meer waarden uit de warmtepomp lezen (alleen lezen), om storingen sneller te vinden.
 
