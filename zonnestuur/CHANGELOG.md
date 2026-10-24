@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.80.4
+- SPRSUN: 'opnieuw starten bij' kan ook 1 graad zijn, en Zonnestuur laat die instelling dan zo.
+
 ## 0.80.3
 - SPRSUN: instellingen worden nu op dezelfde manier naar de warmtepomp gestuurd als gebouwbeheersystemen dat doen, zodat de regelaar ze ook echt overneemt.
 
