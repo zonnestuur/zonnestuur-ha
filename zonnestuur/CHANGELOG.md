@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.79.2
+- SPRSUN: is de warmtepomp niet bereikbaar, dan zegt de apparaatkaart nu wat je kunt nakijken (wifimodule aan, IP-adres, Protocol op 'Modbus').
+
 ## 0.79.1
 - 'Instellen' in de instelhulp (bijv. bij SPRSUN) stuurde je terug naar stap 1. Nu opent het formulier meteen, ook als Zonnestuur nog niet klaar is ingesteld. Na het toevoegen ga je direct naar de pagina van het apparaat.
 - Antwoordt de warmtepomp niet, dan zegt de bediening dat nu duidelijk en wat je kunt controleren.
