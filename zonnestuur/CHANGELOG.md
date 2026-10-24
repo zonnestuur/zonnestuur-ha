@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.77.2
+- Nest Hub: de prijsblokjes per uur zijn terug. Goedkope uren zijn groen, het goedkoopste blok licht op met de tijden erboven, dure uren zijn rood.
+
 ## 0.77.1
 - Nest Hub: het huis staat weer los op het scherm, zonder vierkant kader, en is groter.
 
