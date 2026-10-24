@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.78.4
+- Instelhulp: bij een SPRSUN-warmtepomp of Alfen-laadpaal staat nu een knop 'Instellen' om het IP-adres in te vullen (er stond 'zoekt hem zelf').
+- Hulp op afstand kan bij een warmtepomp met Modbus meeluisteren wat er over de draad gaat (alleen lezen).
+
 ## 0.78.3
 - SPRSUN toevoegen: nieuwe knop 'Controleren' leest de warmtepomp alleen uit en zegt in gewone taal wat er mis is (module niet bereikbaar, of de warmtepomp antwoordt niet).
 

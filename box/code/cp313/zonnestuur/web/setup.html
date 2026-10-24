@@ -522,6 +522,9 @@ function planVoor(k) {
   const koppel = `<a class="btn small" href="koppelen?q=${encodeURIComponent(keuze.merk === "anders" ? w[2] : keuze.merk)}" target="_blank" rel="noopener">${keuze.merk === "anders" ? "Merk opzoeken" : "Koppelen"}</a>`;
   if (!rij || !rij.routes || !rij.routes.length) return [naam, "vraag", "Zoek je merk op in de lijst; daar staat hoe je hem koppelt.", koppel];
   const r = rij.routes.find((x) => !x.storing) || rij.routes[0], soort = r.route.split(":")[0], wat = r.route.split(":")[1] || "";
+  if (soort === "zonnestuur" && (wat === "sprsun" || wat === "alfen")) return [naam, "onderdeel",
+    `Vul het IP-adres in van de ${wat === "sprsun" ? "wifi-module van de warmtepomp" : "laadpaal"} en druk op Controleren.${r.nodig ? " Nodig: " + esc(r.nodig) + "." : ""}`,
+    `<a class="btn small" href="instellingen?toevoegen=${wat}&onderdeel=addCard" target="_blank" rel="noopener">Instellen</a>`];
   if (soort === "zonnestuur" && !["sg_ready", "laadpaal", "ocpp", "shelly"].includes(wat)) return [naam, "wifi",
     `Zonnestuur zoekt hem zelf in je wifi.${r.nodig ? " Nodig: " + esc(r.nodig) + "." : ""} Niet gevonden? Vul hieronder het IP-adres in (met uitleg hoe je dat vindt).`, ""];
   if (soort === "relais" || wat === "sg_ready" || wat === "shelly") return [naam, "onderdeel", `Hiervoor is een slimme schakelaar nodig: ${esc(r.nodig || "een Shelly-relais")}. Heb je die al? Dan vindt Zonnestuur hem zelf in je wifi.`, ""];
