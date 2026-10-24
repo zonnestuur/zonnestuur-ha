@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.77.4
+- Auto's van Volkswagen, Audi, Seat, Cupra en Škoda: nieuwe koppeling via het EU Data Act-portaal van de fabrikant (accupercentage en actieradius). De oude koppelingen worden sinds juni 2026 door de fabrikant geblokkeerd.
+
 ## 0.77.3
 - Meekijken bij laden: is het accupercentage van de auto al lang niet bijgewerkt (bijvoorbeeld omdat Tibber niets nieuws kreeg), dan zegt Zonnestuur hoe oud het is.
 
