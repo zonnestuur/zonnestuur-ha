@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.80.5
+- SPRSUN: in de eco-stand volgt de warmtepomp voor warm water zijn stooklijn en niet de ingestelde temperatuur. Daardoor warmde hij in goedkope uren niet op. Zonnestuur zet die lijn nu mee, en dan werkt het (getest).
+
 ## 0.80.4
 - SPRSUN: 'opnieuw starten bij' kan ook 1 graad zijn, en Zonnestuur laat die instelling dan zo.
 

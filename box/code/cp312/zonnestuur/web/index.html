@@ -2240,7 +2240,7 @@ function bedieningTekenen(box, d, r) {
         .filter((x) => x[1] !== null && x[1] !== undefined).map(([n, v, e]) => `<span><span class="muted">${n}</span> <b>${typeof v === "number" ? g(v, e) : esc(v)}</b></span>`).join("")}</div>
       ${["warmwater", "verwarming"].map((n) => { const L = (r.stooklijnen || {})[n]; if (!L || L.x.some((v) => v === null)) return "";
         return `<div class="bd-lijn"><b class="small">Stooklijn ${n === "warmwater" ? "warm water" : "verwarming"} (eco-stand)</b>
-          <p class="small muted" style="margin:2px 0 6px">Bij deze buitentemperatuur maakt hij het water zo warm. Lager = zuiniger.</p>
+          <p class="small muted" style="margin:2px 0 6px">${n === "warmwater" ? "Deze lijn zet Zonnestuur zelf gelijk aan de warmwatertemperatuur hierboven (in de eco-stand volgt de warmtepomp deze lijn)." : "Bij deze buitentemperatuur maakt hij het water zo warm. Lager = zuiniger."}</p>
           <div class="bd-punten">${L.x.map((x, i) => `<label class="small">Buiten <input type="number" step="1" data-lx="${n}" value="${x}" aria-label="Buiten punt ${i + 1}"> °C → water <input type="number" step="1" data-ly="${n}" value="${L.y[i]}" aria-label="Water punt ${i + 1}"> °C</label>`).join("")}</div>
           <button class="btn ghost small" type="button" data-lijn="${n}">Stooklijn opslaan</button></div>`; }).join("")}
     </details>
