@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.76.1
+- Home: de kaart Dynamische tarieven laat nu de prijs per uur zien als lijn, met nu en het goedkoopste blok.
+- Home: je apparaten in het kort (wat elk nu doet). Tik erop voor de knoppen.
+- Laadpalen en auto's met alleen een knop "start laden" en "stop laden" (bijvoorbeeld Renault) worden nu ook gevonden en gestuurd.
+
 ## 0.76.0
 - Nieuw ontwerp voor de hele app: donkerblauw, rustig en overal hetzelfde. Licht kan nog bij Meer → Weergave.
 - Vijf vaste tabbladen: Home, Apparaten, Tarieven, Inzichten en Meer. Ze werken nu ook binnen de app van de koppelmotor.
