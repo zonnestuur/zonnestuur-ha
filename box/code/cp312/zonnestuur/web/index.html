@@ -1095,6 +1095,7 @@ html, body { overscroll-behavior-y: none; }
   .lbl.amber { background: color-mix(in srgb, var(--zs-amber) 18%, transparent); color: var(--zs-amber); }
   .lbl.rood { background: color-mix(in srgb, #f87171 18%, transparent); color: #f87171; }
   .mw { font: 700 15px/1 "Inter Tight", Inter, sans-serif; white-space: nowrap; }
+  .evc-oud { margin: 6px 16px 0; padding: 9px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.4; background: color-mix(in srgb, var(--zs-amber, #d97706) 14%, transparent); color: var(--zs-ink); }
   .mrij .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); }
 </style>
 <link rel="stylesheet" href="stijl.css">
@@ -1940,7 +1941,8 @@ function renderMiniApps(s) {
   });
   (s.batteries || []).forEach((b) => { const p = b.power_w || 0;
     rij.push([`apparaat?id=bat-${encodeURIComponent(b.id)}`, "battery", b.name, !b.online ? "Geen verbinding" : p > 30 ? "Laden" : p < -30 ? "Levert" : "", !b.online ? "rood" : "groen", b.soc != null ? nl(b.soc) + "%" : ""]); });
-  (s.waarnemen || []).forEach((w) => rij.push([`apparaat?id=obs-${encodeURIComponent(w.id)}`, "ev", w.naam, (w.power_w || 0) > 300 ? "Laden" : "", "groen", w.soc != null ? nl(w.soc) + "%" : esc(w.wie || "") + " stuurt"]));
+  (s.waarnemen || []).forEach((w) => rij.push([`apparaat?id=obs-${encodeURIComponent(w.id)}`, "ev", w.naam, (w.power_w || 0) > 300 ? "Laden" : w.soc_oud_u >= 12 ? oudTekst(w.soc_oud_u) + " oud" : "",
+    (w.power_w || 0) > 300 ? "groen" : "amber", w.soc != null ? nl(w.soc) + "%" : esc(w.wie || "") + " stuurt"]));
   el.hidden = !rij.length;
   const IKN = { heatpump: DEV_ICONS.heatpump, boiler: DEV_ICONS.boiler, ev: DEV_ICONS.ev, generic: DEV_ICONS.generic, battery: '<rect x="7" y="4.5" width="10" height="16" rx="2.5"/><path d="M10 2.5h4"/><path d="M12.5 8.5l-2 4h3l-2 4"/>' };
   const html = rij.slice(0, 5).map(([href, k, n, lbl, cls, w]) => `<a class="mrij" href="${href}"><span class="mic ${KL[k] || "grijs"}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IKN[k] || IKN.generic}</svg></span>
@@ -2013,6 +2015,7 @@ function obsCard(s, w) {
   obsFill(el, w);
   return el;
 }
+const oudTekst = (u) => u >= 48 ? Math.round(u / 24) + " dagen" : u >= 24 ? "een dag" : Math.round(u) + " uur";
 function obsFill(el, w) {
   const pw = w.power_w || 0, laadt = pw > 300, erin = laadt || w.plug === true;
   const wie = esc(w.wie);
@@ -2022,7 +2025,8 @@ function obsFill(el, w) {
   const q = (a, b, c, cls) => `<div class="evc-q"><span>${a}</span><b>${esc(b)}</b><small class="${cls || ""}">${esc(c)}</small></div>`;
   const zs = w.zs || "Zonnestuur rekent elke nacht uit wat hij zelf had gedaan.";
   el.querySelector('[data-o="hero"]').innerHTML = `<div class="evc-name">${esc(w.naam)}</div><div class="evc-sub">${st}</div>
-    <div class="evc-soc">${w.soc != null ? Math.round(w.soc) + "%" : laadt ? nl(pw / 1000, 1) + "<small>kW</small>" : "–"}${w.soc != null ? `<small>${w.bereik_km != null ? "± " + w.bereik_km + " km" : "accu"}</small>` : ""}</div>`;
+    <div class="evc-soc">${w.soc != null ? Math.round(w.soc) + "%" : laadt ? nl(pw / 1000, 1) + "<small>kW</small>" : "–"}${w.soc != null ? `<small>${w.bereik_km != null ? "± " + w.bereik_km + " km" : "accu"}</small>` : ""}</div>
+    ${w.soc != null && w.soc_oud_u >= 12 ? `<div class="evc-oud">Dit percentage is ${oudTekst(w.soc_oud_u)} oud: ${esc(w.wie)} kreeg sindsdien niets nieuws van de auto. Open de app van je auto om het te verversen.</div>` : ""}`;
   el.querySelector('[data-o="pic"]').className = "evc-pic " + (laadt ? "laadt" : erin ? "erin" : "los");
   el.querySelector('[data-o="bat"]').innerHTML = w.soc != null ? `<div class="evc-bat" role="img" aria-label="Accu ${Math.round(w.soc)}%"><i style="width:${Math.max(0, Math.min(100, w.soc))}%"></i></div>` : "";
   el.querySelector('[data-o="story"]').innerHTML =

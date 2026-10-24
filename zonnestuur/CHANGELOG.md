@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.77.3
+- Meekijken bij laden: is het accupercentage van de auto al lang niet bijgewerkt (bijvoorbeeld omdat Tibber niets nieuws kreeg), dan zegt Zonnestuur hoe oud het is.
+
 ## 0.77.2
 - Nest Hub: de prijsblokjes per uur zijn terug. Goedkope uren zijn groen, het goedkoopste blok licht op met de tijden erboven, dure uren zijn rood.
 

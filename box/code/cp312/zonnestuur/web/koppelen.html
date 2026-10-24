@@ -1001,7 +1001,7 @@ async function huisLaden(zoek) {
         cls: !b.online ? "rood" : Math.abs(p) > 30 ? "groen" : "", extra: b.soc != null ? Math.round(b.soc) + "%" : "" };
     });
     (st.waarnemen || []).forEach((w) => { STAND[w.id] = { kw: kwt(w.power_w || 0), label: (w.power_w || 0) > 300 ? "Laden" : "", cls: "groen",
-      extra: w.soc != null ? Math.round(w.soc) + "% · " + (w.wie || "") + " stuurt" : (w.wie || "") + " stuurt" }; });
+      extra: w.soc != null ? Math.round(w.soc) + "%" + (w.soc_oud_u >= 12 ? ` (${w.soc_oud_u >= 48 ? Math.round(w.soc_oud_u / 24) + " dagen" : "1 dag"} oud)` : "") + " · " + (w.wie || "") + " stuurt" : (w.wie || "") + " stuurt" }; });
     const pv = st.inverter && st.inverter.pv_w != null ? st.inverter.pv_w : st.forecast_now_w;
     STAND._zon = st.has_panels ? { kw: kwt(pv || 0), label: (pv || 0) > 50 ? "Actief" : "", cls: "groen", extra: st.solar_kwp ? String(st.solar_kwp).replace(".", ",") + " kWp" : "" } : null;
   } catch (e) {}
