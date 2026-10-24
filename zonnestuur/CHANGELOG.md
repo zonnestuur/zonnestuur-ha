@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.77.1
+- Nest Hub: het huis staat weer los op het scherm, zonder vierkant kader, en is groter.
+
 ## 0.77.0
 - Het scherm op de Nest Hub heeft nu dezelfde stijl als de app: donkerblauw, het huis in een kader met labels (net, batterij, auto, zon) en de stroomprijs per uur als lijn met het goedkoopste blok en een stip op nu.
 

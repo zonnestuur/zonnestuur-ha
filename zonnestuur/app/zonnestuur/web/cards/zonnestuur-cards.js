@@ -360,12 +360,14 @@ const ZS_HUB_CSS = `
   .plan { gap: .45em 1.2em; }
   .plan .pl { text-transform: none; letter-spacing: 0; font-size: .8em; color: var(--ink3); }
   .plan .pi { display: inline-flex; align-items: baseline; gap: .1em; padding: .3em .75em; border-radius: 12px; background: rgba(160,190,235,.08); box-shadow: inset 0 0 0 1px var(--lijn); }
-  .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 44%); }
+  .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 50%); }
   .hubhuis { position: relative; justify-items: stretch; }
   .mid { min-height: 0; }
-  .hstage { position: relative; border-radius: 24px; overflow: hidden; background: var(--lucht, #3a4a7a); box-shadow: 0 0 0 1px var(--lijn), 0 24px 48px -24px rgba(0,0,0,.7);
-    height: min(40vh, 100%); aspect-ratio: 440 / 300; max-width: 100%; justify-self: end; }
-  .hubhuis .hstage .hz { width: 100%; height: 100%; max-height: none; -webkit-mask-image: none; mask-image: none; display: block; }
+  /* het huis staat los op het scherm (geen kader): de achtergrond van het scherm is de lucht */
+  .hstage { position: relative; height: 46vh; aspect-ratio: 440 / 300; max-width: 100%; justify-self: end; margin: -1vh 0 -2vh; }
+  .hubhuis .hstage .hz { width: 100%; height: 100%; max-height: none; display: block; overflow: visible;
+    -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent); mask-image: linear-gradient(180deg, #000 80%, transparent); }
+  .hch.zon, .hch.bat { top: 0; } .hch.net, .hch.auto { bottom: 2%; }
   .hubhuis { justify-items: end; }
   .hubhuis .price.klein { justify-self: end; }
   .hstage .hz .hz-labels, .hstage .hz > rect[fill="none"] { display: none; }
@@ -779,7 +781,7 @@ class ZonnestuurHubCard extends HTMLElement {
     const prijsHtml = `<b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}`;
     return `<div class="${klas}" style="${stijl}">${top}
       <div class="mid${huis ? " met-huis" : ""}"><div>${head}${planHtml}</div>
-        ${huis ? `<div class="hubhuis"><div class="hstage" style="--lucht:${zsLucht(a.huis.z)}"><svg class="hz" viewBox="0 0 440 300" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div><div class="price klein">${prijsHtml}</div></div>`
+        ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" viewBox="0 0 440 300" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div><div class="price klein">${prijsHtml}</div></div>`
           : `<div class="price">${prijsHtml}</div>`}</div>
       <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
     </div>`;
