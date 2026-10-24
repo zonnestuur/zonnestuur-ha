@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.78.0
+- Alle koppelingen nagelopen, ook op wat gebruikers melden. Werkt een koppeling bij de fabrikant even niet (zoals Kia en Hyundai sinds 22 oktober), dan staat dat er nu duidelijk bij en raadt Zonnestuur een andere manier aan.
+- SolarEdge: de oude cloudkoppeling stopt op 3 november. Nieuw: koppelen via je eigen netwerk, ook voor de batterij.
+- Nieuw: Zonneplan (prijzen), Sofar en my-PV via de koppelmotor.
+- Marstek: zegt het nu meteen als de Open API vanzelf uitging (bekende fout in de Marstek-software), en vraagt de batterij minder vaak uit.
+- HomeWizard-batterij: stond hij op 'slim' van HomeWizard zelf, dan zet Zonnestuur dat terug als hij loslaat.
+- Een extra koppeling die een nieuwere koppelmotor nodig heeft, krijgt vooraf een duidelijke melding.
+
 ## 0.77.4
 - Auto's van Volkswagen, Audi, Seat, Cupra en Škoda: nieuwe koppeling via het EU Data Act-portaal van de fabrikant (accupercentage en actieradius). De oude koppelingen worden sinds juni 2026 door de fabrikant geblokkeerd.
 

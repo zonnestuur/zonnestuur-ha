@@ -260,7 +260,7 @@ function plaatje(soort, x) {
   return src ? `<figure class="stap-beeld"><img src="${src}" alt="${esc(alt)}" loading="lazy"><figcaption>${esc(alt)}</figcaption></figure>` : "";
 }
 function handleiding(x) {
-  const r = (x.routes || []).find((r) => r.zeker) || (x.routes || [])[0] || {};
+  const r = (x.routes || []).find((r) => r.zeker && !r.storing) || (x.routes || [])[0] || {};
   const soort = String(r.route || "").split(":")[0];
   const stappen = (STAP[soort] || STAP.ha)(x.merk, r);
   return `<details class="merk"><summary>${esc(x.merk)}<span>${esc(x.categorie)}</span></summary>

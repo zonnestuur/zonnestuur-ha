@@ -112,6 +112,8 @@ html, body { overscroll-behavior-y: none; }
   .kgroep { display: grid; gap: 8px; }
   .kgroep > b, .kgroep > summary { font-size: 14px; }
   .tag.warn { color: #b42318; }
+  .rn.storing, .tag.storing { color: #9a4a06; font-weight: 600; }
+  :root[data-theme="dark"] .rn.storing, :root[data-theme="dark"] .tag.storing { color: #fbbf24; }
   .entry span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .count { font-size: 13px; color: var(--ink-3); margin-top: 12px; }
   .more { margin: 12px auto 0; display: block; }
@@ -521,7 +523,8 @@ function render() {
   $("count").textContent = !rows.length ? "Niets gevonden. Probeer een ander woord, of kies een soort." : CAT && !words.length ? "De meest voorkomende merken staan bovenaan." : `${rows.length} gevonden.`;
   const routeHtml = (r, rt, j) => {
     const info = routeInfo(rt, r);
-    return `<div class="route"><div class="rt">${esc(info.label)}${rt.zeker === false ? '<span class="tag">nog niet bevestigd</span>' : ""}${connected(rt) ? '<span class="tag ok">gekoppeld</span>' : ""}</div>
+    return `<div class="route"><div class="rt">${esc(info.label)}${rt.storing ? '<span class="tag storing">werkt nu even niet</span>' : rt.zeker === false ? '<span class="tag">nog niet bevestigd</span>' : ""}${connected(rt) ? '<span class="tag ok">gekoppeld</span>' : ""}</div>
+      ${rt.storing ? `<div class="rn storing">${esc(rt.storing)}</div>` : ""}
       ${rt.nodig ? `<div class="rn">Nodig: ${esc(rt.nodig)}</div>` : ""}
       ${rt.sturen ? `<div class="rs">Zonnestuur kan dan: ${esc(rt.sturen)}</div>` : ""}
       ${rt.handmatig ? `<div class="rs">${esc(rt.uitleg || "Dit kan nog niet met een knop.")}${safeUrl(rt.link) ? ` <a href="${esc(rt.link)}" target="_blank" rel="noopener">Uitleg</a>` : ""}</div>` : ""}
@@ -530,7 +533,7 @@ function render() {
   $("results").innerHTML = !iets ? "" : rows.slice(0, LIMIT).map((r) => {
     const rts = routesOf(r), on = rts.some(connected);
     // de beste manier voorop; andere manieren ingeklapt (de meeste mensen hebben er één nodig)
-    const best = Math.max(0, rts.findIndex(connected) >= 0 ? rts.findIndex(connected) : rts.findIndex((x) => !x.handmatig));
+    const best = Math.max(0, rts.findIndex(connected) >= 0 ? rts.findIndex(connected) : (rts.findIndex((x) => !x.handmatig && !x.storing) >= 0 ? rts.findIndex((x) => !x.handmatig && !x.storing) : rts.findIndex((x) => !x.handmatig)));
     const rest = rts.map((rt, j) => [rt, j]).filter(([, j]) => j !== best);
     return `<details class="brandrow"><summary><span class="bname">${esc(r.merk)}</span>
       ${on ? '<span class="pill direct">Gekoppeld</span>' : ""}
