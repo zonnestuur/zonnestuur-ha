@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.77.0
+- Het scherm op de Nest Hub heeft nu dezelfde stijl als de app: donkerblauw, het huis in een kader met labels (net, batterij, auto, zon) en de stroomprijs per uur als lijn met het goedkoopste blok en een stip op nu.
+
 ## 0.76.1
 - Home: de kaart Dynamische tarieven laat nu de prijs per uur zien als lijn, met nu en het goedkoopste blok.
 - Home: je apparaten in het kort (wat elk nu doet). Tik erop voor de knoppen.
