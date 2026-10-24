@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.80.2
+- SPRSUN: hulp op afstand kan meer waarden uit de warmtepomp lezen (alleen lezen), om storingen sneller te vinden.
+
 ## 0.80.1
 - SPRSUN: in een goedkoop uur begon de warmtepomp soms niet, omdat het vat nog niet koud genoeg was om opnieuw te starten. Zonnestuur laat hem nu tijdens goedkope uren al bij 2 graden verschil beginnen en zet daarna jouw eigen instelling terug.
 - Wifi-modules die maar één verbinding tegelijk aankunnen (zoals de SPRSUN-module) geven geen 'geen verbinding' meer als de app en de sturing tegelijk vragen.
