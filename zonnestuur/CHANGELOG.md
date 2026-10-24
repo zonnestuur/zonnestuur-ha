@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.80.1
+- SPRSUN: in een goedkoop uur begon de warmtepomp soms niet, omdat het vat nog niet koud genoeg was om opnieuw te starten. Zonnestuur laat hem nu tijdens goedkope uren al bij 2 graden verschil beginnen en zet daarna jouw eigen instelling terug.
+- Wifi-modules die maar één verbinding tegelijk aankunnen (zoals de SPRSUN-module) geven geen 'geen verbinding' meer als de app en de sturing tegelijk vragen.
+- Verwarming: rolluiken, lampen en camera-schakelaars worden niet meer als pomp of klep aangeboden.
+
 ## 0.80.0
 - Nieuw: Verwarming (Apparaten → Verwarming). Voeg per ruimte je thermostaat toe (Tado, Nest, Netatmo, Honeywell, radiatorknoppen en meer, via de koppelmotor), of een temperatuursensor met de pomp of klep van je vloerverwarming. Meerdere ruimtes kan ook.
 - Je kiest hoe warm het overdag en 's nachts moet zijn en een ondergrens. Met een dynamisch contract maakt Zonnestuur het in goedkope uren iets warmer (warmte opslaan in je huis) en in dure uren iets minder, nooit onder je grens.
