@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.78.1
+- Besparing klopt beter: bij een warmtepomp of boiler die ook zelf opwarmt, telt alleen het opwarmen dat Zonnestuur heeft verschoven. Eerder telde ook het gewone opwarmen mee, en dat gaf soms een 'besparing' onder nul.
+- Geen zonnepanelen? Dan is je maanddoel altijd in euro's (er stond soms '100% zelf gebruikt').
+- Valt de verbinding met de warmtepomp weg, dan zie je dat meteen. Zonnestuur probeert hem dan niet meer elke 10 seconden aan te zetten.
+
 ## 0.78.0
 - Alle koppelingen nagelopen, ook op wat gebruikers melden. Werkt een koppeling bij de fabrikant even niet (zoals Kia en Hyundai sinds 22 oktober), dan staat dat er nu duidelijk bij en raadt Zonnestuur een andere manier aan.
 - SolarEdge: de oude cloudkoppeling stopt op 3 november. Nieuw: koppelen via je eigen netwerk, ook voor de batterij.
