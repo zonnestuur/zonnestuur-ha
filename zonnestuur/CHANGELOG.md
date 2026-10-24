@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.79.0
+- SPRSUN-warmtepomp: eigen bediening in Zonnestuur, zoals in de SPRSUN-app. Op de pagina van de warmtepomp: aan/uit, stand, temperaturen voor warm water, verwarming en koeling, ventilator en pomp, en de actuele temperaturen. Getest op een echte SPRSUN.
+- Kies je zelf een warmwatertemperatuur, dan wordt dat de gewone temperatuur; Zonnestuur zet hem bij zon of goedkope stroom een paar graden hoger.
+
 ## 0.78.4
 - Instelhulp: bij een SPRSUN-warmtepomp of Alfen-laadpaal staat nu een knop 'Instellen' om het IP-adres in te vullen (er stond 'zoekt hem zelf').
 - Hulp op afstand kan bij een warmtepomp met Modbus meeluisteren wat er over de draad gaat (alleen lezen).

@@ -1097,6 +1097,16 @@ html, body { overscroll-behavior-y: none; }
   .mw { font: 700 15px/1 "Inter Tight", Inter, sans-serif; white-space: nowrap; }
   .evc-oud { margin: 6px 16px 0; padding: 9px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.4; background: color-mix(in srgb, var(--zs-amber, #d97706) 14%, transparent); color: var(--zs-ink); }
   .mrij .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); }
+  .bediening .bd-rij { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--zs-lijn, var(--line)); }
+  .bediening .bd-stap { display: inline-flex; align-items: center; gap: 10px; }
+  .bediening .bd-stap .btn { min-width: 40px; min-height: 40px; padding: 0; font-size: 20px; border-radius: 12px; }
+  .bediening .bd-stap b { min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
+  .bediening { margin-top: 14px; }
+  .bediening select { max-width: 60%; width: auto; min-width: 170px; min-height: 40px; padding: 6px 12px; border-radius: 12px;
+    background: var(--zs-vlak, #0f1c2f); color: inherit; border: 1px solid var(--zs-lijn, rgba(140,172,220,.25)); font: inherit; }
+  .bediening .bd-rij > span:first-child, .bediening .bd-rij > label { flex: 1 1 auto; }
+  .bediening .bd-meet > span { white-space: nowrap; }
+  .bediening .bd-meet { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 10px 0 4px; border-top: 1px solid var(--zs-lijn, var(--line)); }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -2177,6 +2187,57 @@ function apparaatAlleen(s, wrap) {
   document.title = "Zonnestuur " + naam.toLowerCase();
   if ($("appInst")) $("appInst").href = b ? "instellingen?onderdeel=batCard" : w ? "instellingen?onderdeel=obsCard" : `instellingen?apparaat=${encodeURIComponent(APP_ID)}`;
   if (!deze) wrap.innerHTML = `<div class="card"><p>Dit apparaat bestaat niet (meer). <a href="apparaten">Naar Apparaten</a></p></div>`;
+  if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
+}
+// ---- Bediening van de warmtepomp zelf (zoals in de app van het merk), alleen op de apparaatpagina
+let BED_BEZIG = false, BED_T = 0, BED_LAST = null;
+async function bedieningPost(id, body) {
+  const r = await fetch(`api/device/${encodeURIComponent(id)}/bediening`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+  return r.json();
+}
+function bedieningKlaar(wrap, d) {
+  let box = $("bediening");
+  if (!box) {                                        // als eigen kaart onder de apparaatkaart (wordt bij opnieuw tekenen weer gemaakt)
+    box = document.createElement("article");
+    box.id = "bediening"; box.className = "card bediening";
+    box.innerHTML = `<h2 class="t">Bediening</h2><p class="small muted">Bezig met uitlezen…</p>`;
+    wrap.appendChild(box);
+    if (BED_LAST) bedieningTekenen(box, d, BED_LAST);
+  }
+  if (Date.now() - BED_T > 30000 && !BED_BEZIG && !box.contains(document.activeElement)) {
+    BED_T = Date.now();
+    bedieningPost(d.id, {}).then((r) => { BED_LAST = r; bedieningTekenen($("bediening") || box, d, r); }).catch(() => {});
+  }
+}
+function bedieningTekenen(box, d, r) {
+  if (!r.ok) { box.innerHTML = `<h2 class="t">Bediening</h2><p class="small">${esc(r.fout || "Uitlezen lukte niet.")}</p>`; return; }
+  const g = (v, e) => (v === null || v === undefined ? "–" : String(v).replace(".", ",") + e);
+  const stap = (naam, label) => r[naam] === null || r[naam] === undefined ? "" :
+    `<div class="bd-rij"><span>${label}</span><span class="bd-stap"><button class="btn ghost small" type="button" data-bd="${naam}" data-d="-1" aria-label="${label} lager">−</button>
+     <b>${g(r[naam], " °C")}</b><button class="btn ghost small" type="button" data-bd="${naam}" data-d="1" aria-label="${label} hoger">+</button></span></div>`;
+  const kies = (naam, label) => !r[naam] ? "" : `<div class="bd-rij"><label for="bd_${naam}">${label}</label><select id="bd_${naam}" data-bdk="${naam}">${
+    Object.entries(r.keuzes[naam]).map(([k, v]) => `<option value="${k}" ${Number(k) === r[naam].waarde ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></div>`;
+  box.innerHTML = `<h2 class="t">Bediening</h2>
+    <p class="small muted">${r.status ? "Toestand: " + esc(r.status) : ""}${r.vermogen_w > 50 ? ` · draait (${g(Math.round(r.vermogen_w), " W")})` : ""}</p>
+    ${r.aan === null ? "" : `<label class="check-row"><input type="checkbox" id="bd_aan" ${r.aan ? "checked" : ""}> Warmtepomp aan</label>`}
+    ${stap("warmwater", "Warm water")}${r.warmwater_nu ? `<p class="small muted" style="margin:-4px 0 6px">Nu tijdelijk ${g(r.warmwater_nu, " °C")}: Zonnestuur slaat goedkope of zonnige stroom op in het warme water.</p>` : ""}${stap("verwarming", "Verwarming")}${stap("koeling", "Koeling")}
+    ${kies("modus", "Stand")}${kies("ventilator", "Ventilator")}${kies("pomp", "Pomp")}
+    <div class="bd-meet small">${[["Boiler", r.boiler], ["Aanvoer", r.aanvoer], ["Retour", r.retour], ["Buiten", r.buiten]].filter((x) => x[1] !== null && x[1] !== undefined)
+      .map(([n, v]) => `<span><span class="muted">${n}</span> <b>${g(v, " °C")}</b></span>`).join("")}</div>
+    <p class="small muted">Zonnestuur zet het warme water bij zon of goedkope stroom een paar graden hoger en daarna terug naar wat je hier kiest.</p>
+    <p class="small" id="bd_res" aria-live="polite"></p>`;
+  const zet = async (naam, waarde) => {
+    BED_BEZIG = true; $("bd_res").textContent = "Bezig…";
+    try {
+      const n = await bedieningPost(d.id, { naam, waarde });
+      if (n.ok) { BED_LAST = n; bedieningTekenen(box, d, n); $("bd_res").textContent = "Opgeslagen in de warmtepomp."; }
+      else $("bd_res").textContent = n.fout || "Dat lukte niet.";
+    } catch (e) { $("bd_res").textContent = "Dat lukte niet: " + e.message; }
+    BED_BEZIG = false; BED_T = Date.now();
+  };
+  box.querySelectorAll("[data-bd]").forEach((b) => (b.onclick = () => zet(b.dataset.bd, Number(r[b.dataset.bd]) + Number(b.dataset.d))));
+  box.querySelectorAll("[data-bdk]").forEach((s) => (s.onchange = () => zet(s.dataset.bdk, Number(s.value))));
+  if ($("bd_aan")) $("bd_aan").onchange = (e) => zet("aan", e.target.checked);
 }
 function renderDevices(s) {
   const wrap = $("devices");
