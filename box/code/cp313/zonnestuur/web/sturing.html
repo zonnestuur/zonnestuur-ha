@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur slimme sturing</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 720px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 48px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  .terug { color: var(--zs-ink2); text-decoration: none; font-weight: 600; font-size: 14.5px; display: inline-block; padding: 4px 2px; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 16px; }
+  h2 { font: 650 17px/1.3 "Inter Tight", Inter, sans-serif; margin: 22px 4px 8px; }
+  .lijst { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 20px; box-shadow: 0 0 0 1px var(--zs-lijn); overflow: hidden; }
+  .rij { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 2px 14px; align-items: center; padding: 13px 16px; border-top: 1px solid var(--zs-lijn); min-height: 62px; cursor: pointer; }
+  .rij:first-child { border-top: 0; }
+  .rij .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--zs-zacht); color: var(--k, var(--zs-ink2)); }
+  .rij .ic svg { width: 22px; height: 22px; }
+  .rij b { display: block; font-weight: 650; }
+  .rij .s { display: block; font-size: 13.5px; color: var(--zs-ink2); line-height: 1.4; }
+  /* schakelaar */
+  .sw { position: relative; width: 52px; height: 32px; flex: none; }
+  .sw input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; width: 100%; height: 100%; -webkit-appearance: none; appearance: none; }
+  .sw span { position: absolute; inset: 0; border-radius: 99px; background: var(--zs-zacht); box-shadow: inset 0 0 0 1.5px var(--zs-lijn); transition: background .15s; pointer-events: none; }
+  .sw span::after { content: ""; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.35); transition: transform .15s; }
+  .sw input:checked + span { background: var(--zs-groen); box-shadow: none; }
+  .sw input:checked + span::after { transform: translateX(20px); }
+  .sw input:focus-visible + span { outline: 2px solid var(--zs-knop); outline-offset: 2px; }
+  .keuze { display: grid; gap: 8px; padding: 6px 16px 16px 70px; }
+  .keuze label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border-radius: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); cursor: pointer; }
+  .keuze label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
+  .keuze b { font-weight: 650; } .keuze span span { display: block; font-size: 13px; color: var(--zs-ink2); }
+  @media (max-width: 520px) { .keuze { padding-left: 16px; } }
+  .uitleg { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; margin: 22px 0 0; padding: 16px; border-radius: 18px;
+    background: color-mix(in srgb, var(--zs-knop) 14%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--zs-knop) 30%, transparent); font-size: 14.5px; }
+  .uitleg svg { width: 24px; height: 24px; color: #93c5fd; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  a.rij { text-decoration: none; color: inherit; }
+  .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); margin-right: 6px; }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <a class="terug" href="tarieven">← Tarieven</a>
+  <h1>Slimme sturing</h1>
+  <div id="inhoud"><p>Laden…</p></div>
+  <div class="uitleg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>
+    <span>Zonnestuur zet je apparaten eerst aan op je eigen zonnestroom, dan in de goedkoopste uren, en zorgt dat alles op tijd klaar is. Wat elk apparaat doet, stel je in bij <a href="apparaten">Apparaten</a>.</span></div>
+</main>
+<p class="melding" id="melding" role="status" hidden></p>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p, o = {}) {
+  o.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, o.headers || {});
+  const r = await fetch(p, o);
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Bewaren lukte niet (" + r.status + ")");
+  return d;
+}
+const IC = {
+  bat: '<rect x="7" y="4.5" width="10" height="16" rx="2.5"/><path d="M10 2.5h4"/><path d="M12.5 8.5l-2 4h3l-2 4"/>',
+  net: '<path d="M12 2.5 7 21.5M12 2.5l5 19M5 8.5h14M4 14.5h16M9 2.5h6"/>',
+  geld: '<circle cx="12" cy="12" r="8.5"/><path d="M15 8.5a3.5 3.5 0 1 0 0 7M8 11h5M8 13.5h5"/>',
+  zoek: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+  hulp: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17h.01"/>',
+  bel: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  zon: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+  zeker: '<path d="M13 3 6 13h5l-1 8 7-10h-5z"/>',
+  was: '<rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/>',
+  rapport: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+};
+const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
+let CFG = null;
+// [pad in de instellingen, icoon, kleur, titel, uitleg, omgekeerd]
+function schakel(id, k, kleur, titel, uitleg, aan) {
+  return `<label class="rij" style="--k:${kleur}"><span class="ic">${svg(k)}</span><span><b>${esc(titel)}</b><span class="s">${esc(uitleg)}</span></span>
+    <span class="sw"><input type="checkbox" role="switch" data-k="${id}" ${aan ? "checked" : ""} aria-label="${esc(titel)}"><span></span></span></label>`;
+}
+function teken() {
+  const C = CFG, B = (C.batteries || [])[0], N = C.notify || {};
+  let h = "";
+  if (B) {
+    h += `<h2>Thuisbatterij</h2><div class="lijst">
+      <div class="rij" style="--k:#34d399;cursor:default"><span class="ic">${svg("bat")}</span><span><b>Wat wil je met de batterij?</b><span class="s">Zonnestuur rekent elk kwartier uit wat het meeste oplevert.</span></span><span></span></div>
+      <div class="keuze" role="radiogroup" aria-label="Doel van de batterij">
+        ${[["zelf", "Maximaal zelfverbruik", "Alleen eigen zon opslaan en 's avonds zelf gebruiken"], ["slim", "Slim besparen (aanbevolen)", "Eigen zon eerst, en goedkope stroom inslaan als dat duidelijk loont"], ["max", "Zo veel mogelijk verdienen", "Ook verkopen bij hoge prijzen"]]
+          .map(([v, t, u]) => `<label><input type="radio" name="doel" value="${v}" ${(B.goal || "slim") === v ? "checked" : ""}><span><b>${t}</b><span>${u}</span></span></label>`).join("")}
+      </div>
+      ${schakel("bat.grid_charge", "geld", "#60a5fa", "Goedkope stroom inslaan", "De batterij mag van het net laden als stroom goedkoop is", B.grid_charge !== false)}
+      ${schakel("bat.grid_export", "net", "#2dd4bf", "Verkopen bij hoge prijs", "De batterij mag terugleveren als dat meer oplevert dan zelf gebruiken", !!B.grid_export)}
+    </div>`;
+  }
+  h += `<h2>Je huis</h2><div class="lijst">
+    ${schakel("auto_vinden", "zoek", "#fbbf24", "Apparaten vanzelf vinden", "Zonnestuur zoekt in je huis en zet je meter en zonnepanelen zelf goed", C.auto_vinden !== false)}
+    <a class="rij" href="instellingen#inst_meter" style="--k:#f87171"><span class="ic">${svg("zeker")}</span><span><b>Hoofdzekering bewaken</b><span class="s">${C.fuse_a ? `Aan: ${C.fuse_phases === 1 ? "1" : "3"} × ${C.fuse_a} A. Zonnestuur zorgt dat de stoppen niet doorslaan.` : "Uit. Vul je aansluiting in, dan let Zonnestuur op als de auto en de warmtepomp tegelijk draaien."}</span></span><span class="pijl"></span></a>
+    ${schakel("meekijken", "hulp", "#a78bfa", "Hulp op afstand", "Zonnestuur mag tijdens de testfase meekijken als er iets misgaat", C.meekijken !== false)}
+  </div>`;
+  h += `<h2>Meldingen</h2><div class="lijst">
+    ${schakel("notify.alerts", "bel", "#f87171", "Storingen", "Als de meter of een apparaat niet reageert, of warm water in gevaar komt", N.alerts !== false)}
+    ${schakel("notify.tips", "zon", "#fbbf24", "Kansen", "Morgen veel zon of negatieve prijzen (hoogstens één per dag)", N.tips !== false)}
+    ${schakel("notify.appliances", "was", "#60a5fa", "Wasmachine en vaatwasser", "Hoe laat hij start als je hem klaarzet, en wanneer hij begint", N.appliances !== false)}
+    ${schakel("notify.reports", "rapport", "#34d399", "Weekrapport", "Op zondagavond wat je die week bespaarde", N.reports !== false)}
+  </div>`;
+  $("inhoud").innerHTML = h;
+  $("inhoud").querySelectorAll("[data-k]").forEach((i) => i.onchange = () => bewaar(i.dataset.k, i.checked, i));
+  $("inhoud").querySelectorAll('input[name="doel"]').forEach((i) => i.onchange = () => bewaar("bat.goal", i.value, i));
+}
+let mt = null;
+function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 2200); }
+async function bewaar(k, v, el) {
+  const C = JSON.parse(JSON.stringify(CFG));
+  const [a, b] = k.split(".");
+  if (a === "bat") C.batteries[0][b] = v;
+  else if (a === "notify") { C.notify = C.notify || {}; C.notify[b] = v; }
+  else C[a] = v;
+  try { await api("api/config", { method: "POST", body: JSON.stringify(C) }); CFG = C; melding("Bewaard"); }
+  catch (e) { melding(e.message); if (el.type === "checkbox") el.checked = !v; else teken(); }
+}
+(async () => { try { CFG = await api("api/config"); teken(); } catch (e) { $("inhoud").innerHTML = `<p>${esc(e.message)}</p>`; } })();
+</script>
+</body>
+</html>

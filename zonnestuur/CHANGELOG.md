@@ -1,5 +1,14 @@
 # Wijzigingen
 
+## 0.76.0
+- Nieuw ontwerp voor de hele app: donkerblauw, rustig en overal hetzelfde. Licht kan nog bij Meer → Weergave.
+- Vijf vaste tabbladen: Home, Apparaten, Tarieven, Inzichten en Meer. Ze werken nu ook binnen de app van de koppelmotor.
+- Home: je huis met zwevende labels (zon, batterij, huisverbruik, net en auto), drie tegels (opbrengst, verbruik en batterij), een kaart met de tarieven en de planning voor de komende 24 uur.
+- Apparaten: elk apparaat met een gekleurd icoon, wat het nu verbruikt en een label (Actief, Laden, Wacht op zon). Tik erop voor alle knoppen. Toevoegen gaat in drie stappen: soort, merk, klaar.
+- Nieuw: Tarieven (prijs per uur met de goedkoopste uren, morgen en de week) en Slimme sturing (schakelaars voor de batterij, vanzelf vinden en meldingen).
+- Inzichten: de verdeling van je zonnestroom, je besparing en de CO₂-besparing per dag, week of maand. De grafieken en het logboek staan eronder.
+- Instellingen is nu een overzicht met rijen. Tik op een onderdeel en je ziet alleen de instellingen daarvan. Aan/uit-vragen zijn schakelaars.
+
 ## 0.75.1
 - Nest Hub: het huis staat nu los op het scherm (de lucht van het scherm is de lucht van het huis), in plaats van als plaatje in een kader.
 

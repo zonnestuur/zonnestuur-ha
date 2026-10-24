@@ -221,6 +221,13 @@ html, body { overscroll-behavior-y: none; }
   /* batterij in eenvoudig: alleen hoe vol, wat hij nu doet en waarom (het uurplan en de cijfers staan in de details) */
   body.simple .bplan, body.simple .bplan + .strip-axis, body.simple .bkeys, body.simple .kv4, body.simple .kv4 + p,
   body.simple .facts .fact:nth-child(n+2) { display: none !important; }
+  /* eenvoudig: één tip en één mededeling tegelijk (waarschuwingen altijd) */
+  body.simple #hTips > :nth-child(n+2), body.simple #pills > :not(.warn) ~ :not(.warn) { display: none !important; }
+  .sec-head.kop-link { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+  .sec-head.kop-link p { flex-basis: 100%; }
+  .kop-a { font-weight: 650; font-size: 15px; color: var(--ink); text-decoration: none; padding: 8px 14px; border-radius: 99px; background: var(--chip); min-height: 36px; display: inline-flex; align-items: center; }
+  .kop-a:hover { background: var(--seg); }
+  .kop-a:focus-visible { outline: 2px solid var(--net); outline-offset: 2px; }
   body.simple .adv, body.simple .dev .strip, body.simple .dev .strip-axis, body.simple .dev .facts .fact.more { display: none !important; }
   .flow { position: relative; }
   .flowpause { position: absolute; right: 4px; top: 4px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--card-line); background: var(--card-solid);
@@ -847,64 +854,299 @@ html, body { overscroll-behavior-y: none; }
   .evviz.lineart.plugged .led { fill: var(--glow); }
   .evviz.lineart.charging .socln { stroke: var(--glow); filter: drop-shadow(0 0 3px var(--glow)); }
   .evviz.lineart.charging .hl { stroke: var(--glow); }
+
+  /* ===== 0.76: nieuwe indeling. Vandaag = nu en straks, Inzicht = terugkijken ===== */
+  body.v-vandaag .adv, body.v-vandaag .app, body.v-inzicht .nu, body.v-inzicht .app, body.v-apparaat .nu, body.v-apparaat .adv { display: none !important; }
+  .vd { grid-column: 1 / -1; display: grid; gap: 14px; min-width: 0; }
+  @media (min-width: 1000px) { .vd { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; } }
+  .vd-zij { display: grid; gap: 14px; min-width: 0; align-content: start; }
+  .vd > *, .vd-zij > * { grid-column: auto !important; order: 0 !important; margin: 0 !important; min-width: 0; }
+  @media (min-width: 1000px) { .vd > .vd-zij { grid-column: 2 !important; grid-row: 1 / span 2; } .vd > .c-hero, .vd > #planCard { grid-column: 1 !important; } }
+  body.v-vandaag #dagplan { display: none !important; }
+  .vd .c-hero { margin: 0; }
+  .vd .hero-grid { display: flex !important; flex-direction: column; gap: 12px; align-items: stretch !important; }
+  .vd .hero-grid > * { order: 0 !important; }
+  .vd .hero-tekst { display: block !important; }
+  .vd .headline { font-size: clamp(32px, 4vw, 46px) !important; margin: 6px 0 6px !important; }
+  .vd .subline { margin: 0 0 4px; max-width: 46ch; }
+  .vd .verdict { margin: 10px 0 0; }
+  .vd .flow { margin: 0 !important; }
+  /* drie cijfers in één vlak */
+  .cijfers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--zs-vlak); border-radius: var(--zs-r);
+    box-shadow: 0 0 0 1px var(--zs-lijn), var(--zs-schaduw); overflow: hidden; }
+  .cf { display: grid; gap: 3px; align-content: start; padding: 14px 14px 15px 16px; text-decoration: none; color: inherit; min-width: 0; }
+  .cf + .cf { border-left: 1px solid var(--zs-lijn); }
+  .cf .l { font-size: 13px; color: var(--zs-ink3); font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cf .v { font: 700 clamp(21px, 5.4vw, 28px)/1.1 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; white-space: nowrap; }
+  .cf .v small { font-size: .56em; font-weight: 600; color: var(--zs-ink2); letter-spacing: 0; }
+  .cf .v.goed { color: var(--good); }
+  .cf .d { font-size: 12.5px; color: var(--zs-ink2); display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cf .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .cf .dot.cheap { background: var(--cheap); } .cf .dot.mid { background: var(--mid); } .cf .dot.dear { background: var(--dear); }
+  a.cf:hover .v { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  a.cf:focus-visible { outline: 2px solid var(--zs-blauw); outline-offset: -3px; border-radius: var(--zs-r); }
+  /* wat aandacht vraagt: rustige regels, hooguit één tip */
+  .aandacht { display: grid; gap: 8px; }
+  .aandacht:not(:has(.pill, .htip, .daytip:not([hidden]))) { display: none; }
+  .aandacht .pills { display: grid; gap: 8px; margin: 0; }
+  .aandacht .pills:empty, .aandacht .htips:empty { display: none; }
+  .aandacht .pill { display: block; white-space: normal; border-radius: 16px; padding: 11px 14px; font-size: 14px; line-height: 1.4; font-weight: 500;
+    background: var(--zs-vlak); box-shadow: 0 0 0 1px var(--zs-lijn); color: var(--zs-ink2); text-decoration: none; }
+  .aandacht .pill.warn { color: var(--zs-ink); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--dear) 55%, transparent); }
+  .aandacht .htips { margin: 0; }
+  /* de dagstrook */
+  .c-plan24 .title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .strook { margin: 14px 0 2px; }
+  .strook .kols { display: flex; align-items: flex-end; gap: 2px; height: 70px; padding-top: 12px; }
+  .strook .k { flex: 1 1 0; position: relative; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+  .strook .k .p { display: block; width: 64%; min-width: 3px; border-radius: 3px 3px 1px 1px; background: var(--mid); position: relative; z-index: 1; }
+  .strook .k.cheap .p { background: var(--cheap); } .strook .k.dear .p { background: var(--dear); }
+  .strook .k .zon { position: absolute; left: -1px; right: -1px; bottom: 0; background: color-mix(in srgb, var(--sun) 30%, transparent); border-radius: 3px 3px 0 0; }
+  .strook .k .g { position: absolute; left: 50%; top: -12px; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: var(--zs-ink); }
+  .strook .k .g.z { background: var(--sun-ink, #9a5b00); }
+  .strook .k.nu::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--zs-ink); }
+  .strook .tijden { position: relative; height: 18px; margin-top: 8px; font-size: 12px; color: var(--zs-ink3); font-variant-numeric: tabular-nums; }
+  .strook .tijden span { position: absolute; top: 0; }
+  .strook .leg { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--zs-ink2); margin-top: 4px; }
+  .strook .lg { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .strook .lg.cheap { background: var(--cheap); } .strook .lg.dear { background: var(--dear); }
+  .strook .lg.zon { background: color-mix(in srgb, var(--sun) 50%, transparent); } .strook .lg.gp { background: var(--zs-ink); border-radius: 50%; width: 8px; height: 8px; }
+  .strook-zin:empty { display: none; }
+  body.v-vandaag .plan24 { margin-top: 10px; }
+  .plan24.kort li { grid-template-columns: 58px minmax(0, 1fr) auto !important; gap: 0 12px !important; padding: 11px 2px !important; align-items: start; }
+  .plan24.kort li > * { grid-column: auto !important; }
+  .plan24.kort .t { display: grid !important; font: 650 15px/1.3 "Inter Tight", Inter, sans-serif; color: var(--zs-ink) !important; font-variant-numeric: tabular-nums; }
+  .plan24.kort .t small { display: block !important; font: 500 12.5px/1.3 Inter, sans-serif; color: var(--zs-ink3); }
+  .plan24.kort .w { font-size: 15px; line-height: 1.35; display: block; }
+  .plan24.kort .w b { font-weight: 650; }
+  .plan24.kort .w span { display: block; font-size: 13px; color: var(--zs-ink2); margin-top: 1px; }
+  .plan24.kort .w .ic { display: inline-block !important; width: 8px; height: 8px; border-radius: 50%; margin: 0 7px 1px 0; vertical-align: middle; position: static; }
+  .plan24.kort .c { display: block !important; font: 650 14px/1.3 Inter, sans-serif; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .vd .hero-grid .flow { max-width: none !important; width: 100%; }
+  .vd .hero-tekst > * { max-width: none; }
+  body.v-vandaag .devs > article.rij.dicht > .evc-hero { padding: 0 !important; }
+  body.v-vandaag .devs > article.rij.dicht > .rij-knop { top: 50%; transform: translateY(-50%); }
+  /* apparaten als één lijst met regels die openklappen */
+  body.v-vandaag .c-devs { margin-top: 0; }
+  body.v-vandaag .devs { display: block; background: var(--zs-vlak); border-radius: var(--zs-r); box-shadow: 0 0 0 1px var(--zs-lijn), var(--zs-schaduw); overflow: hidden; }
+  body.v-vandaag .devs:empty { display: none; }
+  body.v-vandaag .devs > article.rij { background: transparent !important; box-shadow: none !important; border: 0 !important; border-radius: 0 !important;
+    margin: 0 !important; position: relative; border-top: 1px solid var(--zs-lijn) !important; animation: none !important; }
+  body.v-vandaag .devs > article.rij:first-child { border-top: 0 !important; }
+  body.v-vandaag .devs > article.rij.dicht { display: block !important; padding: 14px 54px 14px 16px !important; }
+  body.v-vandaag .devs > article.rij.dicht > :not(.dev-head):not(.evc-hero):not(.weg-blok):not(.rij-knop) { display: none !important; }
+  body.v-vandaag .devs > article.rij:not(.dicht) { padding-right: 18px; }
+  body.v-vandaag .devs > article.rij > .dev-head, body.v-vandaag .devs > article.rij > .evc-hero { cursor: pointer; padding-right: 40px; margin: 0; }
+  body.v-vandaag .devs > article.rij.dicht > .dev-head, body.v-vandaag .devs > article.rij.dicht > .evc-hero { padding-right: 0; }
+  .rij-knop { position: absolute; top: 12px; right: 8px; z-index: 2; width: 40px; height: 40px; border-radius: 50%; border: 0; background: transparent; display: grid;
+    place-items: center; cursor: pointer; color: var(--zs-ink3); padding: 0; min-width: 40px; min-height: 40px; }
+  .rij-knop:hover { background: var(--chip); }
+  .rij-knop:focus-visible { outline: 2px solid var(--zs-blauw); outline-offset: 0; }
+  .rij-pijl { width: 9px; height: 9px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .18s; }
+  .rij:not(.dicht) .rij-pijl { transform: translateY(2px) rotate(-135deg); }
+  /* de auto als regel: zelfde opbouw als de andere apparaten */
+  body.v-vandaag .rij > .evc-hero { display: grid !important; grid-template-columns: 40px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 1px; align-items: center; }
+  body.v-vandaag .rij > .evc-hero::before { content: ""; grid-column: 1; grid-row: 1 / span 2; width: 40px; height: 40px; border-radius: 12px; background-color: var(--chip);
+    background-repeat: no-repeat; background-position: center; background-size: 22px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8794' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 16V11l2-5h10l2 5v5M3.5 16h17M7 16v2M17 16v2M6 11h12'/%3E%3C/svg%3E"); }
+  body.v-vandaag .rij > .evc-hero .evc-name { grid-column: 2; grid-row: 1; font-size: 16px; }
+  body.v-vandaag .rij > .evc-hero .evc-sub { grid-column: 2; grid-row: 2; }
+  body.v-vandaag .rij > .evc-hero .evc-soc { grid-column: 3; grid-row: 1 / span 2; font-size: 22px; }
+  body.v-vandaag .rij > .evc-hero .evc-soc small { font-size: 12px; }
+  body.v-vandaag .rij > .dev-head .dev-state { white-space: normal; }
+  body.v-vandaag .rij > .seg { max-width: 560px; }
+  /* Inzicht */
+  .pagina-kop { grid-column: 1 / -1; margin: 6px 4px 2px; }
+  .pagina-kop h1 { font-size: clamp(34px, 4.4vw, 48px); line-height: 1.02; margin: 0 0 6px; }
+  .pagina-kop p { margin: 0; color: var(--zs-ink2); max-width: 60ch; }
+  .inzicht-links { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--zs-vlak); border-radius: var(--zs-r);
+    box-shadow: 0 0 0 1px var(--zs-lijn), var(--zs-schaduw); overflow: hidden; }
+  .inzicht-links a { display: grid; gap: 2px; padding: 14px 16px; text-decoration: none; color: inherit; min-height: 64px; }
+  .inzicht-links a + a { border-left: 1px solid var(--zs-lijn); }
+  .inzicht-links b { font-weight: 650; } .inzicht-links span { font-size: 13px; color: var(--zs-ink2); }
+  .inzicht-links a:hover b { text-decoration: underline; }
+  @media (max-width: 700px) { .inzicht-links { grid-template-columns: 1fr 1fr; } .inzicht-links a:nth-child(3) { border-left: 0; } .inzicht-links a:nth-child(n+3) { border-top: 1px solid var(--zs-lijn); } }
+  .c-bespaard { grid-column: 1 / -1; }
+  .c-bespaard .hsave { margin: 0; padding: 0; background: none; box-shadow: none; }
+  body.v-inzicht .c-geleerd { grid-column: 1 / -1; }
+  body.v-inzicht #hTips { display: none; }
+
+  /* ===== 0.76b: Home volgens het ontwerp (donker, huis met labels, drie tegels, tarieven) ===== */
+  .kop-home { padding: 8px 2px 14px !important; align-items: center; gap: 4px !important; }
+  .brand.groot { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; min-width: 0; }
+  .brand.groot .logo { width: 54px; height: 54px; flex: none; }
+  .brand.groot .merk { display: grid; gap: 3px; min-width: 0; }
+  .brand.groot .merk b { font: 760 clamp(28px, 7.6vw, 36px)/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; }
+  .brand.groot .merk small { font-size: 14.5px; color: var(--zs-ink2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kop-home .icon-btn { width: 44px; height: 44px; border: 0 !important; background: transparent !important; box-shadow: none !important; color: var(--zs-ink); display: grid; place-items: center; }
+  .kop-home .icon-btn svg { width: 25px; height: 25px; }
+  .kop-home .icon-btn:hover { background: var(--zs-zacht) !important; }
+  @media (min-width: 900px) { .brand.groot .merk small { display: none; } .brand.groot .logo { width: 38px; height: 38px; } .brand.groot .merk b { font-size: 23px; } }
+  .status-pil { display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px 10px 16px; border-radius: 99px; background: var(--zs-zacht);
+    box-shadow: 0 0 0 1px var(--zs-lijn); color: var(--zs-ink); text-decoration: none; font-weight: 550; font-size: 15px; margin: 0 0 16px; max-width: 100%; }
+  .status-pil i { width: 10px; height: 10px; border-radius: 50%; background: var(--zs-groen); box-shadow: 0 0 0 4px color-mix(in srgb, var(--zs-groen) 22%, transparent); flex: none; }
+  .status-pil.let i { background: var(--zs-amber); box-shadow: 0 0 0 4px color-mix(in srgb, var(--zs-amber) 22%, transparent); }
+  .status-pil span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .status-pil svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; opacity: .7; }
+  .status-pil:hover span { text-decoration: underline; text-underline-offset: 3px; }
+  /* het huis met zwevende labels */
+  body.v-vandaag .c-hero { background: transparent !important; box-shadow: none !important; padding: 0 !important; border-radius: 0 !important; overflow: visible; }
+  body.v-vandaag .hero-tekst { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  body.v-vandaag .c-hero .flowbar, body.v-vandaag #huisZin { display: none !important; }
+  /* boven het huis meer lucht (in de kleur van de lucht nu), zodat de labels er rustig in passen */
+  body.v-vandaag .flow { position: relative; display: grid; align-content: end; aspect-ratio: 440 / 372; background: var(--lucht, #3a4a7a); border-radius: 26px; overflow: hidden;
+    box-shadow: 0 0 0 1px var(--zs-lijn), 0 30px 60px -30px rgba(0, 0, 0, .7); }
+  @media (min-width: 1000px) { body.v-vandaag .flow { aspect-ratio: 440 / 340; } }
+  body.v-vandaag .flow .hz { display: block !important; border-radius: 0; }
+  body.v-vandaag .flow > :not(.hz):not(.hchips) { display: none !important; }
+  body.v-vandaag .flow .hz > rect[fill="none"], body.v-vandaag .flow .hz .hz-labels { display: none; }
+  .hchips { position: absolute; inset: 0; pointer-events: none; }
+  .hchip { position: absolute; display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 14px; background: rgba(8, 17, 31, .8);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: #fff; box-shadow: 0 0 0 1.5px var(--k, rgba(255,255,255,.2)), 0 10px 24px -12px rgba(0, 0, 0, .7); }
+  .hchip small { display: block; font-size: 11.5px; color: rgba(255, 255, 255, .78); font-weight: 550; line-height: 1.2; white-space: nowrap; }
+  .hchip b { display: block; font: 700 16px/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.01em; white-space: nowrap; }
+  .hchip .hi { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--k) 22%, transparent); color: var(--k); flex: none; }
+  .hchip .hi svg { width: 18px; height: 18px; }
+  .hchip.zon { --k: #fbbf24; } .hchip.bat { --k: #34d399; } .hchip.huis { --k: #93c5fd; } .hchip.net { --k: #2dd4bf; } .hchip.auto { --k: #c4b5fd; }
+  .hchip.tl { left: 3%; top: 5%; } .hchip.tr { right: 3%; top: 5%; } .hchip.mr { right: 3%; top: 39%; } .hchip.bl { left: 3%; bottom: 6%; } .hchip.br { right: 3%; bottom: 6%; }
+  @media (max-width: 420px) { .hchip { padding: 5px 9px 5px 5px; gap: 6px; } .hchip .hi { width: 26px; height: 26px; } .hchip b { font-size: 14.5px; } .hchip small { font-size: 10.5px; } }
+  /* drie tegels */
+  .tegels3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .tegel { display: grid; align-content: start; gap: 3px; padding: 14px 12px 12px; border-radius: 20px; background: var(--zs-kaart, var(--zs-vlak)); box-shadow: 0 0 0 1px var(--zs-lijn);
+    text-decoration: none; color: inherit; min-width: 0; }
+  .tegel:hover { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--zs-ink) 30%, transparent); }
+  .tegel .ti { width: 34px; height: 34px; display: grid; place-items: center; margin: 0 0 8px -2px; }
+  .tegel .ti svg { width: 32px; height: 32px; }
+  .ti.zon { color: #fbbf24; } .ti.huis { color: #60a5fa; } .ti.bat { color: #34d399; } .ti.blad { color: #34d399; }
+  .tegel .l { font-size: 13px; color: var(--zs-ink2); font-weight: 550; line-height: 1.25; }
+  .tegel .v { font: 700 clamp(19px, 5.4vw, 26px)/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; white-space: nowrap; margin-top: 2px; }
+  .tegel .v small { font-size: .62em; font-weight: 650; letter-spacing: 0; }
+  .tegel .v.goed { color: var(--zs-groen); }
+  .tegel .d { font-size: 12.5px; color: var(--zs-ink2); line-height: 1.3; }
+  .tegel .vt { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; min-height: 20px; }
+  .trend { font-size: 13px; font-weight: 700; white-space: nowrap; } .trend.op { color: var(--zs-groen); } .trend.af { color: #60a5fa; }
+  .lijntje { height: 20px; flex: 1 1 auto; max-width: 72px; min-width: 30px; }
+  .balk { display: block; height: 10px; border-radius: 99px; background: var(--zs-zacht); margin-top: 10px; overflow: hidden; }
+  .balk i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #22c55e, #5eead4); }
+  /* tarieven */
+  .tarkaart { display: grid !important; grid-template-columns: 46px minmax(0, 1fr) auto 10px; align-items: center; gap: 12px; padding: 16px !important; text-decoration: none; color: inherit; }
+  .tarkaart .ti { width: 46px; height: 46px; border-radius: 50%; background: color-mix(in srgb, var(--zs-groen) 16%, transparent); color: var(--zs-groen); display: grid; place-items: center; margin: 0; }
+  .tarkaart .ti svg { width: 24px; height: 24px; }
+  .tarkaart .tt b { display: block; font-size: 16px; font-weight: 650; }
+  .tarkaart .tt span { display: block; font-size: 14px; color: var(--zs-ink2); line-height: 1.35; }
+  .prijspil { font: 700 15px/1 "Inter Tight", Inter, sans-serif; padding: 9px 12px; border-radius: 99px; white-space: nowrap; font-variant-numeric: tabular-nums;
+    background: color-mix(in srgb, var(--zs-groen) 16%, transparent); color: var(--zs-groen); }
+  .prijspil.mid { background: color-mix(in srgb, var(--zs-amber) 16%, transparent); color: var(--zs-amber); }
+  .prijspil.dear { background: color-mix(in srgb, #f87171 18%, transparent); color: #f87171; }
+  .prijspil small { font-size: 12px; font-weight: 600; }
+  .tarkaart .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); }
+  .tarkaart:hover b { text-decoration: underline; text-underline-offset: 3px; }
+  .terug { color: var(--zs-ink2); text-decoration: none; font-weight: 600; font-size: 14.5px; flex-basis: 100%; }
+  body.v-apparaat .sec-head.kop-link { margin-top: 4px !important; }
+  body.v-apparaat .sec-head h2 { font-size: clamp(30px, 4vw, 40px) !important; }
+  body.v-apparaat .devs { display: block; }
+  body.v-apparaat .devs > article { max-width: 820px; }
+  body.v-apparaat .status-pil, body.v-inzicht .status-pil { display: none; }
+
+  /* Inzichten */
+  body.v-inzicht .grid > * { order: 0 !important; }
+  .inz-top { grid-column: 1 / -1; display: grid; gap: 14px; }
+  .seg3 { display: flex; gap: 4px; padding: 4px; border-radius: 99px; background: var(--zs-zacht); box-shadow: 0 0 0 1px var(--zs-lijn); max-width: 520px; }
+  .seg3 button { flex: 1 1 0; font: 600 14.5px/1 Inter, sans-serif; color: var(--zs-ink2); background: none; border: 0; padding: 11px 8px; border-radius: 99px; cursor: pointer; min-height: 40px; }
+  .seg3 button[aria-pressed="true"] { background: var(--zs-knop); color: var(--zs-knop-ink); }
+  .donutkaart h2 { margin: 0 0 10px; }
+  .donut-rij { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; align-items: center; }
+  .donut svg { width: 150px; height: 150px; display: block; }
+  .donut .d-v { fill: var(--zs-ink); font: 750 17px "Inter Tight", Inter, sans-serif; } .donut .d-l { fill: var(--zs-ink2); font: 500 11.5px Inter, sans-serif; }
+  .dlegenda { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .dlegenda li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 14.5px; }
+  .dlegenda i { width: 12px; height: 12px; border-radius: 50%; } .dlegenda span { color: var(--zs-ink2); } .dlegenda b { font-variant-numeric: tabular-nums; }
+  @media (max-width: 420px) { .donut-rij { grid-template-columns: 124px minmax(0, 1fr); gap: 14px; } .donut svg { width: 124px; height: 124px; } }
+  .inz-tegels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .inz-t { display: grid; gap: 3px; align-content: start; padding: 16px !important; }
+  .inz-t .ti { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 8px; color: #fff; }
+  .inz-t .ti svg { width: 24px; height: 24px; }
+  .inz-t .ti.blad { background: linear-gradient(145deg, #047857, #34d399); } .inz-t .ti.co2 { background: linear-gradient(145deg, #15803d, #86efac); }
+  .inz-t .l { font-size: 14px; color: var(--zs-ink2); font-weight: 600; }
+  .inz-t .v { font: 750 26px/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; }
+  .inz-t .v small { font-size: .6em; }
+  .inz-t .d { font-size: 13px; color: var(--zs-ink2); } .inz-t .d i { font-style: normal; }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
 <body>
 <main>
-  <header class="top">
-    <div class="brand">
-      <svg viewBox="0 0 32 32" aria-hidden="true">
-        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffcf5c"/><stop offset="1" stop-color="#ff8a00"/></linearGradient></defs>
-        <circle cx="16" cy="16" r="7" fill="url(#lg)"/>
-        <path d="M16 3v3M16 26v3M3 16h3M26 16h3M6.8 6.8l2.1 2.1M23.1 23.1l2.1 2.1M6.8 25.2l2.1-2.1M23.1 8.9l2.1-2.1" stroke="url(#lg)" stroke-width="2.2" stroke-linecap="round"/>
+  <header class="top kop-home">
+    <a class="brand groot" href="./" aria-label="Zonnestuur, home">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="#fbbf24" stroke-width="3.2" stroke-linecap="round">
+        <path d="M11 33a13 13 0 0 1 26 0"/><path d="M24 7v5M8.5 13.5l3.5 3.5M39.5 13.5 36 17M3 33h5M40 33h5"/><path d="M7 39h34" stroke-opacity=".55"/>
       </svg>
-      Zonnestuur
-    </div>
-    <div class="spacer"></div>
-    <span class="live" id="live" role="status"><i></i><span id="clock">verbinden…</span></span>
-    <a class="icon-btn" href="hulp#meld" aria-label="Feedback geven" title="Feedback geven"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.5a7.5 7.5 0 0 1-11.2 6.5L4 20l1.1-4.4A7.5 7.5 0 1 1 20 12.5z"/><path d="M9 11h6M9 14h4"/></svg></a>
-    <a class="icon-btn" href="help" aria-label="Uitleg" title="Uitleg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8"/><path d="M12 17.2h.01"/></svg></a>
-    <a class="icon-btn" href="instellingen" aria-label="Instellingen" title="Instellingen">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span class="merk"><b>Zonnestuur</b><small>Slimme energie. Meer uit je zon.</small></span>
     </a>
-    <button class="icon-btn" id="themeBtn" aria-label="Wissel licht of donker">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-    </button>
+    <div class="spacer"></div>
+    <span class="live" id="live" role="status" hidden><i></i><span id="clock">verbinden…</span></span>
+    <a class="icon-btn blijf" href="instellingen#notifyCard" aria-label="Meldingen" title="Meldingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></a>
+    <a class="icon-btn blijf" href="instellingen" aria-label="Instellingen" title="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
+    <button class="icon-btn" id="themeBtn" hidden aria-label="Wissel licht of donker"></button>
   </header>
+  <a class="status-pil nu" id="statusPil" href="hulp"><i></i><span>Even kijken…</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
 
-  <nav class="secnav" aria-label="Onderdelen" id="secnav">
-    <a href="#hero" data-s="hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span>Nu</span></a><a href="#s-planning" data-s="s-planning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Planning</span></a><a href="#s-apparaten" data-s="s-apparaten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg><span>Apparaten</span></a><a href="#s-inzicht" data-s="s-inzicht" class="adv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Inzicht</span></a>
-  </nav>
   <div class="grid">
-    <!-- nu -->
+    <!-- Inzicht: paginakop -->
+    <header class="pagina-kop adv"><h1 class="t">Inzichten</h1><p>Terugkijken: wat Zonnestuur opleverde, waar je stroom heen ging en wat hij over je huis leerde.</p></header>
+    <section class="inz-top adv" aria-label="Overzicht">
+      <div class="seg3" role="group" aria-label="Periode" id="inzSeg"><button type="button" data-p="today" aria-pressed="true">Vandaag</button><button type="button" data-p="week" aria-pressed="false">Deze week</button><button type="button" data-p="month" aria-pressed="false">Deze maand</button></div>
+      <div class="card donutkaart" id="donutKaart"><h2 class="sec">Energieverdeling</h2><div class="donut-rij"><div class="donut" id="donut"></div><ul class="dlegenda" id="dLegenda"></ul></div><p class="small muted" id="donutNote"></p></div>
+      <div class="inz-tegels"><div class="card inz-t" id="inzBesp"></div><div class="card inz-t" id="inzCo2"></div></div>
+    </section>
+    <nav class="inzicht-links adv" aria-label="Overzichten">
+      <a href="opbrengst"><b>Jaaroverzicht</b><span>per maand</span></a><a href="rapport"><b>Weekrapport</b><span>laatste 7 dagen</span></a>
+      <a href="vergelijk"><b>Vergelijken</b><span>met je leverancier</span></a><a href="laadtijdlijn"><b>Laadbeurten</b><span>wanneer en voor welke prijs</span></a>
+    </nav>
+    <section class="card c-bespaard adv" aria-label="Bespaard"><div class="hsave" id="hSave" hidden></div><div class="htips" id="hTips"></div></section>
+
+    <!-- Vandaag: nu -->
+    <div class="vd nu">
     <section class="card c-hero" id="hero" aria-labelledby="headline">
       <div class="hero-grid">
-        <div>
+        <div class="hero-tekst">
           <div class="hero-date" id="heroDate">&nbsp;</div>
-          <div class="verdict" id="verdict" hidden role="status"></div>
           <h1 class="headline" id="headline">Even kijken…</h1>
           <p class="subline" id="subline">&nbsp;</p>
+          <div class="verdict" id="verdict" hidden role="status"></div>
           <p class="nextwin" id="nextWin" hidden></p>
-          <div class="daytip" id="dayTip" hidden role="note"></div>
-          <div class="hsave" id="hSave" hidden></div>
-          <div class="htips" id="hTips"></div>
-          <div class="pills" id="pills"></div>
-          <div class="kpis" id="kpis"></div>
         </div>
-        <div class="flow huis-aan"><svg id="huisSvg" class="hz" viewBox="0 0 440 300" role="img" aria-label="Je huis van nu"></svg><svg id="flowSvg" viewBox="0 0 440 300" role="img" aria-label="Energiestroom tussen zon, net, huis, batterij en apparaten"></svg>
+        <div class="flow huis-aan"><svg id="huisSvg" class="hz" viewBox="0 0 440 300" role="img" aria-label="Je huis van nu"></svg><div class="hchips" id="huisChips" aria-hidden="true"></div><svg id="flowSvg" viewBox="0 0 440 300" role="img" aria-label="Energiestroom tussen zon, net, huis, batterij en apparaten"></svg>
           <p class="hz-zin" id="huisZin" aria-hidden="true"></p>
           <form class="hz-naamform" id="huisNaamForm" hidden><label for="huisNaam">Naam van je huis</label><input id="huisNaam" maxlength="28" placeholder="Bijvoorbeeld: Huize Zonnig" autocomplete="off"><button type="submit" class="btn">Bewaar</button></form>
           <div class="flowbar"><div class="seg two" role="group" aria-label="Weergave"><button type="button" data-hv="huis" class="active" aria-pressed="true">Huis</button><button type="button" data-hv="schema" aria-pressed="false">Schema</button></div><button type="button" class="flowpause" id="huisNaamKnop" aria-label="Geef je huis een naam" title="Geef je huis een naam"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg></button><button type="button" class="flowpause" id="flowPause" aria-pressed="false" aria-label="Animatie pauzeren" title="Animatie pauzeren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></div>
       </div>
     </section>
-
-    <!-- Apparaten: nog één stap (alles wat gevonden is staat op de pagina Apparaten) -->
+    <div class="vd-zij">
+      <section class="tegels3" id="cijfers" aria-label="Kerncijfers"></section>
+      <a class="card tarkaart" id="tarKaart" href="tarieven" hidden></a>
+      <div class="aandacht" id="aandacht"><div class="pills" id="pills"></div><div class="htips" id="vTip"></div><div class="daytip" id="dayTip" hidden role="note"></div><div class="kpis" id="kpis" hidden></div></div>
+      <div id="weg" hidden></div>
+      <!-- Apparaten: nog één stap (alles wat gevonden is staat op de pagina Apparaten) -->
     <a class="card c-stap" id="huisStap" href="apparaten" hidden><span class="st-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M16.5 13.5v6M13.5 16.5h6"/></svg></span>
       <span><b id="hsTitel"></b><span class="small muted" id="hsSub"></span></span><span class="st-pijl" aria-hidden="true"></span></a>
 
+
+    </div>
+    <!-- plan komende 24 uur -->
+    <section class="card c-plan24" id="planCard" hidden aria-labelledby="planTitle">
+      <div class="title-row"><h2 class="sec" id="planTitle">De komende 24 uur</h2><a class="help-q" href="help#plan" aria-label="Uitleg over de planning">?</a></div>
+      <div class="strook" id="strook" aria-hidden="true"></div>
+      <p class="small muted strook-zin" id="planNote"></p>
+      <div class="wx" id="wxRow" hidden></div>
+      <div class="dagplan" id="dagplan" hidden></div>
+      <ol class="plan24" id="planList"></ol>
+      <button class="btn-line" id="planMore" hidden style="margin-top:10px">Toon alles</button>
+    </section>
+    </div>
+
     <!-- vanzelf gevonden -->
-    <section class="card c-welcome" id="vanzelf" hidden aria-labelledby="vzTitle">
+    <section class="card c-welcome nu" id="vanzelf" hidden aria-labelledby="vzTitle">
       <div class="eyebrow">Vanzelf gevonden</div>
       <h2 class="sec" id="vzTitle">Zonnestuur heeft dit al voor je gekoppeld</h2>
       <ul class="small" id="vzLijst" style="margin:6px 0 0;padding-left:18px"></ul>
@@ -913,7 +1155,7 @@ html, body { overscroll-behavior-y: none; }
     </section>
 
     <!-- gezien aan de meter -->
-    <section class="card c-welcome" id="vermoed" hidden aria-labelledby="vmTitle">
+    <section class="card c-welcome nu" id="vermoed" hidden aria-labelledby="vmTitle">
       <div class="eyebrow">Gezien aan je meter</div>
       <h2 class="sec" id="vmTitle">Klopt dit?</h2>
       <div id="vmLijst"></div>
@@ -929,7 +1171,7 @@ html, body { overscroll-behavior-y: none; }
     </section>
 
     <!-- nog niets gekoppeld -->
-    <section class="card c-welcome" id="leeg" hidden aria-labelledby="leegTitle">
+    <section class="card c-welcome nu" id="leeg" hidden aria-labelledby="leegTitle">
       <div class="eyebrow">Bijna klaar</div>
       <h2 class="sec" id="leegTitle">Koppel je eerste apparaat</h2>
       <p class="small muted" style="margin:4px 0 0">Zonnestuur stuurt pas als er iets te sturen is: een boiler, warmtepomp, laadpaal, auto of thuisbatterij.</p>
@@ -937,7 +1179,7 @@ html, body { overscroll-behavior-y: none; }
     </section>
 
     <!-- kennismaking -->
-    <section class="card c-welcome" id="welcome" hidden aria-labelledby="welTitle">
+    <section class="card c-welcome nu" id="welcome" hidden aria-labelledby="welTitle">
       <div class="eyebrow">Welkom</div>
       <h2 class="sec" id="welTitle">Wat vind je het belangrijkst?</h2>
       <p class="small muted" style="margin:4px 0 0">Dan laat Zonnestuur je dat als eerste zien en stelt hij een doel voor deze maand voor. Later aan te passen bij Instellingen.</p>
@@ -946,7 +1188,7 @@ html, body { overscroll-behavior-y: none; }
     </section>
 
     <!-- auto laden -->
-    <section class="card c-welcome c-evoffer" id="evOffer" hidden aria-labelledby="evTitle">
+    <section class="card c-welcome c-evoffer nu" id="evOffer" hidden aria-labelledby="evTitle">
       <div class="evo">
         <div class="evo-viz" id="evoViz" aria-hidden="true"></div>
         <div class="evo-main">
@@ -966,15 +1208,6 @@ html, body { overscroll-behavior-y: none; }
           <p class="small muted" id="evRes" role="status"></p>
         </div>
       </div>
-    </section>
-
-    <!-- plan komende 24 uur -->
-    <section class="card c-plan24" id="planCard" hidden aria-labelledby="planTitle">
-      <div class="title-row"><div><div class="eyebrow">Plan</div><h2 class="sec" id="planTitle">Komende 24 uur</h2></div><span class="t-end"><span class="small muted" id="planNote"></span><a class="help-q" href="help#plan" aria-label="Uitleg over de planning">?</a></span></div>
-      <div class="wx" id="wxRow"></div>
-      <div class="dagplan" id="dagplan" hidden></div>
-      <ol class="plan24" id="planList"></ol>
-      <button class="btn-line" id="planMore" hidden style="margin-top:10px">Toon alles</button>
     </section>
 
     <!-- zonnecoach -->
@@ -1030,11 +1263,10 @@ html, body { overscroll-behavior-y: none; }
       <div class="verw" id="verw" hidden></div>
     </section>
 
-    <div class="sec-head" id="s-apparaten"><h2>Je apparaten</h2><p>Wat elk apparaat nu doet, en waarom.</p></div>
+    <div class="sec-head kop-link app" id="s-apparaten"><h2>Je apparaten</h2><a class="kop-a" href="apparaten">Beheren</a><p>Wat elk apparaat nu doet, en waarom.</p></div>
     <!-- apparaten -->
-    <section class="c-devs" aria-labelledby="devTitle">
-      <div class="devs-head" style="justify-content:flex-end;margin-top:-6px"><span id="devTitle" hidden>Apparaten</span><a class="btn-line" href="apparaten" style="text-decoration:none">Apparaten beheren</a></div>
-      <div id="weg" hidden></div>
+    <section class="c-devs app" aria-labelledby="devTitle">
+      <span id="devTitle" hidden>Apparaten</span>
       <div class="devs" id="devices"></div>
     </section>
 
@@ -1045,7 +1277,7 @@ html, body { overscroll-behavior-y: none; }
       <div id="logBody"><div class="empty">Laden…</div></div>
     </section>
 
-    <div class="sec-head adv" id="s-inzicht"><h2>Inzicht</h2><p>Terugkijken: wat er gebruikt is, waar je stroom heen ging en wat Zonnestuur over je huis geleerd heeft.</p></div>
+    <div class="sec-head adv" id="s-inzicht"><h2>Verbruik en je huis</h2><p>Terugkijken: wat er gebruikt is, waar je stroom heen ging en wat Zonnestuur over je huis geleerd heeft.</p></div>
     <!-- vandaag -->
     <section class="card c-today adv" aria-labelledby="todayTitle">
       <div class="title-row"><span class="eyebrow" id="todayTitle">Vandaag · gestuurde apparaten</span><span class="small muted" id="todayNote"></span></div>
@@ -1095,7 +1327,6 @@ html, body { overscroll-behavior-y: none; }
       <div id="cmpBody"><button class="btn-line" id="cmpBtn" style="margin-top:12px">Uitrekenen</button></div>
     </section>
   </div>
-  <button type="button" class="detailknop" id="viewBtn" aria-pressed="false"><span>Meer details tonen</span></button>
 
   <footer><span id="foot"></span><span><a href="kiosk" style="color:inherit">Wandscherm</a> · Zonnestuur · lokaal, zonder cloud</span></footer>
 </main>
@@ -1121,22 +1352,28 @@ let token = "";
 try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
 
 // eenvoudig / uitgebreid, en animatie pauzeren
+// Twee weergaven van dezelfde pagina: Vandaag (/) is wat er nu gebeurt, Inzicht (/inzicht) is terugkijken.
+const VIEW = /\/inzicht\/?$/.test(location.pathname) ? "inzicht" : /\/apparaat\/?$/.test(location.pathname) ? "apparaat" : "vandaag";
+const APP_ID = new URLSearchParams(location.search).get("id") || "";
+document.body.classList.add("v-" + VIEW);
+if (VIEW === "inzicht") document.title = "Zonnestuur inzichten";
+if (VIEW === "apparaat") {
+  document.title = "Zonnestuur apparaat";
+  const kop = document.querySelector("#s-apparaten");
+  kop.innerHTML = `<a class="terug" href="apparaten">← Apparaten</a><h2 id="appNaam">Apparaat</h2><a class="kop-a" id="appInst" href="instellingen?apparaat=${encodeURIComponent(APP_ID)}">Instellingen</a>`;
+}
 (function () {
-  const vb = $("viewBtn"), fp = $("flowPause"), flow = fp.closest(".flow");
-  let simple = false, paused = false;
-  // Op de telefoon standaard eenvoudig (alleen wat nu telt); je eigen keuze blijft bewaard
-  simple = true;                        // standaard alleen wat nu telt; grafieken en logboek via 'Meer details tonen'
-  try { const v = localStorage.getItem("zs_simple"); if (v !== null) simple = v === "1"; paused = localStorage.getItem("zs_flowpause") === "1"; } catch (e) {}
+  const fp = $("flowPause"), flow = fp.closest(".flow");
+  let paused = false;
+  const simple = VIEW === "vandaag";
+  try { paused = localStorage.getItem("zs_flowpause") === "1"; } catch (e) {}
   const show = () => {
     document.body.classList.toggle("simple", simple);
-    (vb.querySelector("span") || vb).textContent = simple ? "Meer details tonen" : "Minder tonen"; vb.setAttribute("aria-pressed", String(!simple));
-    vb.title = simple ? "Toon alles: grafieken, logboek en inzicht" : "Toon alleen wat nu belangrijk is";
     flow.classList.toggle("paused", paused); fp.setAttribute("aria-pressed", String(paused));
     fp.setAttribute("aria-label", paused ? "Animatie hervatten" : "Animatie pauzeren"); fp.title = fp.getAttribute("aria-label");
     fp.innerHTML = paused ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>'
       : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
   };
-  vb.addEventListener("click", () => { simple = !simple; try { localStorage.setItem("zs_simple", simple ? "1" : "0"); } catch (e) {} show(); if (!simple) drawCharts(); });
   // Huis (tekening) of Schema (stroomschema); keuze blijft bewaard
   let hv = "huis";
   try { hv = localStorage.getItem("zs_huisweergave") || "huis"; } catch (e) {}
@@ -1344,6 +1581,7 @@ function renderTips(s) {
   for (const c of ((COACH && COACH.tips) || []).filter((x) => x.eur_year > 0).slice(0, 3 - out.length))
     out.push(`<a class="htip" href="#coachTitle"><span class="ti"><svg viewBox="0 0 24 24">${TIP_IC.tip}</svg></span><span><b>${esc(c.title)}</b></span><span class="g">+ € ${nl(c.eur_year)}/jaar</span></a>`);
   $("hTips").innerHTML = out.join("");
+  $("vTip").innerHTML = out[0] || "";
 }
 function renderDayTip(s) {
   const t = s.today_tip, el = $("dayTip");
@@ -1360,7 +1598,19 @@ function renderPlan(s) {
   card.hidden = false;
   if (!(P.items || []).length) { $("planList").innerHTML = `<li><span class="w" style="grid-column:1/-1">Voorlopig niets gepland. Zonnestuur kijkt elk kwartier opnieuw.</span></li>`; $("planMore").hidden = true; $("planNote").textContent = ""; return; }
   const today = new Date(s.now).getDate();
-  const items = PLAN_ALL ? P.items : P.items.slice(0, 6);
+  const maxN = VIEW === "vandaag" ? 3 : 6;
+  const items = PLAN_ALL ? P.items : P.items.slice(0, maxN);
+  $("planList").classList.toggle("kort", VIEW === "vandaag");
+  if (VIEW === "vandaag") {
+    // korte regels: tijd, wat er gebeurt, waarmee en wat het ongeveer kost
+    $("planList").innerHTML = items.map((it) => {
+      const a = new Date(it.start), b = new Date(it.end), morgen = a.getDate() !== today;
+      const bron = it.kind === "battery" ? "" : it.source === "zon" ? "op eigen zon" : it.price != null ? `goedkoop, ${eur3(it.price).replace(/(,\d\d)\d$/, "$1")} per kWh` : "";
+      const kost = it.eur != null && it.eur > 0.005 ? `± ${eur(it.eur)}` : "";
+      return `<li class="${it.now ? "now" : ""}"><span class="t">${hhmm(a)}<small>${it.now ? "nu" : morgen ? "morgen" : "tot " + hhmm(b)}</small></span>
+        <span class="w"><i class="ic ${it.kind === "battery" ? "batt" : it.source}" aria-hidden="true"></i><b>${esc(it.name)}</b> ${esc(it.what)}${bron ? `<span>${esc(bron)}</span>` : ""}</span><span class="c">${kost}</span></li>`;
+    }).join("");
+  } else
   $("planList").innerHTML = items.map((it) => {
     const a = new Date(it.start), b = new Date(it.end);
     const day = a.getDate() !== today ? "morgen" : "vandaag";
@@ -1371,10 +1621,36 @@ function renderPlan(s) {
       <span class="w"><b>${esc(it.name)}</b> ${esc(it.what)}<span>${esc(cap(it.why))}</span></span>
       <span class="c">${cost}${it.price != null ? `${eur3(it.price)}/kWh` : ""}</span></li>`;
   }).join("");
-  $("planMore").hidden = P.items.length <= 6;
+  $("planMore").hidden = P.items.length <= maxN;
   $("planMore").textContent = PLAN_ALL ? "Minder tonen" : `Toon alles (${P.items.length})`;
   const total = P.items.reduce((a, it) => a + (it.eur || 0), 0);
-  $("planNote").textContent = total > 0.01 && !DAGPLAN ? `Geschatte kosten: ± ${eur(total)}` : "";
+  if (!DAGPLAN) $("planNote").textContent = total > 0.01 ? `Geschatte kosten: ± ${eur(total)}` : "";
+}
+// De dagstrook: per uur de prijs (hoogte en kleur), de verwachte zon erachter en wat er gepland staat.
+// Eén plaatje voor 'wanneer is stroom goedkoop, wanneer schijnt de zon en wat doet Zonnestuur dan'.
+function renderStrook(s) {
+  const el = $("strook"); if (!el) return;
+  const nu = Date.now() / 1000;
+  const sl = (PRICES && PRICES.slots || []).filter((r) => r.end > nu).slice(0, 24);
+  if (sl.length < 4) { el.hidden = true; return; }
+  el.hidden = false;
+  const vast = PRICES.type === "fixed";
+  const ps = sl.map((r) => r.all_in), lo = Math.min(...ps), hi = Math.max(...ps), span = Math.max(0.005, hi - lo);
+  const avg = PRICES.avg_today != null ? PRICES.avg_today : ps.reduce((a, b) => a + b, 0) / ps.length;
+  const pvMax = Math.max(1, ...sl.map((r) => r.pv_w || 0));
+  const plan = (s.plan && s.plan.items) || [];
+  const kol = sl.map((r, i) => {
+    const t = new Date(r.ts * 1000), cls = vast ? "mid" : priceClass(r.all_in, avg);
+    const h = vast ? 40 : 22 + 78 * (r.all_in - lo) / span;
+    const zon = s.has_panels && r.pv_w > 50 ? Math.round(100 * r.pv_w / pvMax) : 0;
+    const wat = plan.filter((it) => new Date(it.start) / 1000 < r.end && new Date(it.end) / 1000 > r.ts);
+    const label = `${hhmm(t)}: ${vast ? "" : eur3(r.all_in) + " per kWh, " + CLASS_WORD[cls]}${zon ? ", zon" : ""}${wat.length ? ", gepland: " + wat.map((x) => x.name).join(", ") : ""}`;
+    return `<div class="k ${cls}${i === 0 ? " nu" : ""}" title="${esc(label)}">${zon ? `<i class="zon" style="height:${zon}%"></i>` : ""}<i class="p" style="height:${h.toFixed(0)}%"></i>${wat.length ? `<b class="g ${wat.some((x) => x.source === "zon") ? "z" : ""}"></b>` : ""}</div>`;
+  }).join("");
+  const tijden = [0, 6, 12, 18].filter((i) => i < sl.length).map((i) => `<span style="left:${(100 * i / sl.length).toFixed(1)}%">${i ? hhmm(new Date(sl[i].ts * 1000)) : "nu"}</span>`).join("");
+  const goedkoop = vast ? "" : '<span><i class="lg cheap"></i>goedkoop</span><span><i class="lg dear"></i>duur</span>';
+  el.innerHTML = `<div class="kols">${kol}</div><div class="tijden">${tijden}</div>
+    <div class="leg">${goedkoop}${s.has_panels ? '<span><i class="lg zon"></i>zon</span>' : ""}${plan.length ? '<span><i class="lg gp"></i>gepland</span>' : ""}</div>`;
 }
 // De gezamenlijke planning in één regel + een kleine grafiek: wat je de komende 24 uur van het net haalt en teruglevert
 let DAGPLAN = null;
@@ -1389,6 +1665,13 @@ function renderDagplan() {
     return v >= 0 ? `<rect class="af" x="${i * 10 + 1}" y="${(mid - h).toFixed(1)}" width="8" height="${h.toFixed(1)}" rx="1"><title>${hhmm(new Date(u.uur))}: ${nl(v, 2)} kWh van het net</title></rect>`
       : `<rect class="tr" x="${i * 10 + 1}" y="${mid.toFixed(1)}" width="8" height="${h.toFixed(1)}" rx="1"><title>${hhmm(new Date(u.uur))}: ${nl(-v, 2)} kWh terug</title></rect>`;
   }).join("");
+  if (VIEW === "vandaag") {
+    const delen = [];
+    if (D.zelf_pct != null && D.terug_kwh + D.afname_kwh > 0) delen.push(`${D.zelf_pct}% van je zon zelf gebruikt`);
+    delen.push(`± ${eur(Math.max(0, D.kosten_eur))} aan stroom`);
+    $("planNote").textContent = "Verwacht: " + delen.join(", ") + ". Apparaten, auto en batterij zijn samen gepland.";
+    return;
+  }
   const zelf = D.zelf_pct != null ? `<span><b>${D.zelf_pct}%</b> van je zon zelf gebruikt</span>` : "";
   el.innerHTML = `<div class="som"><span>Van het net <b>${nl(D.afname_kwh, 1)} kWh</b></span><span>Terug <b>${nl(D.terug_kwh, 1)} kWh</b></span>${zelf}<span>Stroom <b>± ${eur(Math.max(0, D.kosten_eur))}</b></span></div>
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Verwacht van het net en terug per uur, komende 24 uur"><line class="ax" x1="0" x2="${W}" y1="${mid}" y2="${mid}"/>${bars}</svg>
@@ -1431,28 +1714,18 @@ function renderStatus(s) {
   $("pills").innerHTML = licPill + swPill + meetPill + (s.problems || []).map((p) => p.link ? `<a class="pill" href="${esc(p.link)}">${esc(p.text)}</a>` : `<span class="pill ${p.level === "warn" ? "warn" : ""}">${p.level === "warn" ? "⚠︎ " : ""}${esc(p.text)}</span>`).join("");
   renderWelcome(s);
 
-  // kerncijfers
-  const bat = (s.batteries || [])[0];
-  const g = s.grid_w;
-  const cur = PRICES && PRICES.type !== "fixed" && PRICES.slots ? PRICES.slots.find((r) => Date.now() / 1000 >= r.ts && Date.now() / 1000 < r.end) : null;
-  const avgT = PRICES && PRICES.slots && PRICES.slots.length ? PRICES.slots.filter((r) => r.ts < PRICES.start + 86400).reduce((a, r, _, arr) => a + r.all_in / arr.length, 0) : null;
-  const k = [];
-  k.push(["Bij de meter", g == null ? "–" : `${kw(g)}<small>kW</small>`, g == null ? (s.strategy === "price" ? "geen meter nodig" : "geen meterdata") : g < -30 ? "↗ naar het net" : g > 30 ? "↙ van het net" : "in balans"]);
-  k.push(["Stroomprijs nu", `${eur3(s.price_now)}`, s.contract === "dynamic" ? (cur && avgT != null ? `${CLASS_WORD[priceClass(cur.all_in, avgT)]} · gem. ${nl(avgT, 3)}` : "dynamisch") : "vast tarief"]);
-  const sc = COACH && COACH.scores;
-  if (s.has_panels && sc && (sc.today.self_use_pct != null || sc.week.self_use_pct != null)) {
-    const td = sc.today.self_use_pct, wk = sc.week.self_use_pct;
-    k.push(["Zon zelf gebruikt", td != null ? `${nl(td)}<small>%</small>` : `${nl(wk)}<small>%</small>`, td != null ? `vandaag · deze week ${wk != null ? nl(wk) + "%" : "–"}` : "deze week"]);
-  } else if (!s.has_panels && sc && sc.cheap_pct_week != null) k.push(["In goedkope uren", `${nl(sc.cheap_pct_week)}<small>%</small>`, "van je stroom, deze week"]);
-  else if (bat) k.push(["Batterij", bat.soc == null ? "–" : `${nl(bat.soc)}<small>%</small>`, bat.online ? BACT[bat.action] || "" : "niet bereikbaar"]);
-  else if (s.has_panels) k.push(["Uit eigen zon", pct(s.month.solar_pct || 0), `${nl(s.month.kwh_solar, 1)} kWh deze maand`]);
-  else k.push(["Slim gestuurd", `${nl(s.month.kwh, 1)}<small>kWh</small>`, "deze maand in goedkope uren"]);
-  $("kpis").innerHTML = k.map(([a, b, c]) => `<div class="kpi"><div class="k">${a}</div><div class="v">${b}</div><div class="d">${c}</div></div>`).join("");
+  renderCijfers(s);
+  renderTarKaart(s);
+  renderStatusPil(s);
+  renderStrook(s);
 
   renderSave(s);
   renderTips(s);
   renderFlow(s);
   if (window.zsHuis) try { window.zsHuis.teken($("huisSvg"), s, $("huisZin")); } catch (e) { console.warn("huis", e); }
+  try { renderChips(s); } catch (e) { console.warn("labels", e); }
+  { const f = ((s.huis || {}).zon || {}).fase || "dag", w = ((s.huis || {}).weer || {}).wolken;
+    $("hero").style.setProperty("--lucht", f === "nacht" ? "#0b1630" : f === "schemer" ? "#3a4a7a" : w != null && w >= 75 ? "#b8c4ce" : "#9fd0f0"); }
   renderDevices(s);
   renderBattery(s);
 
@@ -1485,6 +1758,119 @@ function renderStatus(s) {
   drawLanes();
   const lk = JSON.stringify(s.learned || {});
   if (lk !== LEARN_KEY) { LEARN_KEY = lk; drawLearned(); }
+}
+
+// ---------- Home: status, labels bij het huis, drie tegels en de tarievenkaart ----------
+const SVGI = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const HI = {
+  zon: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+  bat: '<rect x="7" y="4.5" width="10" height="16" rx="2.5"/><path d="M10 2.5h4"/><path d="M12.5 8.5l-2 4h3l-2 4"/>',
+  huis: '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/>',
+  net: '<path d="M12 2.5 7 21.5M12 2.5l5 19M5 8.5h14M4 14.5h16M9 2.5h6"/>',
+  auto: '<path d="M5 16V11l2-5h10l2 5v5"/><path d="M3.5 16h17v3h-17z"/><path d="M6 11h12"/>',
+  blad: '<path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15"/><path d="M5 19 13 11"/>',
+};
+function renderStatusPil(s) {
+  const el = $("statusPil"); if (!el) return;
+  const warn = (s.problems || []).filter((p) => p.level === "warn");
+  el.classList.toggle("let", warn.length > 0);
+  el.querySelector("span").textContent = warn.length ? warn[0].text : s.configured ? "Alles werkt zoals het hoort" : "Nog niet ingesteld: koppel je eerste apparaat";
+  el.href = warn.length ? "hulp" : s.configured ? "hulp" : "apparaten";
+}
+function renderChips(s) {
+  const el = $("huisChips"); if (!el) return;
+  const bat = (s.batteries || [])[0];
+  const pv = s.inverter && s.inverter.pv_w != null ? s.inverter.pv_w : s.forecast_now_w;
+  const g = s.grid_w, bp = bat && bat.online ? (bat.power_w || 0) : 0;
+  const ev = (s.devices || []).filter((d) => d.kind === "ev" && d.power_w > 300).reduce((a, d) => a + d.power_w, 0)
+    + (s.waarnemen || []).filter((w) => (w.power_w || 0) > 300).reduce((a, w) => a + w.power_w, 0);
+  // huisverbruik alleen als de opwek gemeten is (of er geen panelen zijn): met de zonvoorspelling klopt het niet
+  const pvGemeten = !s.has_panels || (s.inverter && s.inverter.pv_w != null);
+  const huis = g == null || !pvGemeten ? null : Math.max(0, (s.has_panels ? s.inverter.pv_w : 0) + g - bp - ev);
+  const auto = (s.devices || []).find((d) => d.kind === "ev" && d.ev && d.ev.cars && d.ev.cars.length);
+  const autoSoc = auto ? (auto.ev.cars.find((c) => c.id === auto.ev.active) || auto.ev.cars[0] || {}).soc : null;
+  const kwT = (w) => nl(Math.abs(w || 0) / 1000, 1) + " kW";
+  const c = [];
+  if (s.has_panels) c.push(["zon", "tl", "Zonnepanelen", pv == null ? "–" : kwT(pv)]);
+  if (bat) c.push(["bat", "tr", "Batterij", bp > 30 ? "+" + kwT(bp) : bp < -30 ? "−" + kwT(bp) : nl(bat.soc || 0) + "%"]);
+  if (huis != null) c.push(["huis", bat ? "mr" : "tr", "Huisverbruik", kwT(huis)]);
+  if (g != null) c.push(["net", "bl", g < -30 ? "Terugleveren" : "Van het net", kwT(g)]);
+  if (ev > 0) c.push(["auto", "br", "Auto laden", kwT(ev)]);
+  else if (auto && autoSoc != null) c.push(["auto", "br", auto.name, nl(autoSoc) + "%"]);
+  el.innerHTML = c.map(([k, plek, l, v]) => `<div class="hchip ${k} ${plek}"><span class="hi">${SVGI(HI[k])}</span><span><small>${esc(l)}</small><b class="num">${esc(v)}</b></span></div>`).join("");
+}
+// kleine lijn van de laatste dagen (voor de tegels)
+function lijntje(vals, kleur) {
+  const v = vals.filter((x) => x != null); if (v.length < 3) return "";
+  const lo = Math.min(...v), hi = Math.max(...v), sp = Math.max(1e-6, hi - lo);
+  const pts = v.map((x, i) => `${(i / (v.length - 1) * 60).toFixed(1)},${(18 - (x - lo) / sp * 16).toFixed(1)}`).join(" ");
+  return `<svg class="lijntje" viewBox="0 0 60 20" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${kleur}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function trend(nu, toen) {
+  if (nu == null || toen == null || toen <= 0.05) return "";
+  const p = Math.round((nu / toen - 1) * 100); if (!isFinite(p) || p === 0) return "";
+  return `<span class="trend ${p > 0 ? "op" : "af"}">${p > 0 ? "↑" : "↓"} ${Math.abs(p)}%</span>`;
+}
+function renderCijfers(s) {
+  const el = $("cijfers"); if (!el) return;
+  if (!s.configured) { el.hidden = true; return; }
+  el.hidden = false;
+  const sc = COACH && COACH.scores, dagen = (sc && sc.days) || [];
+  const gister = dagen.length > 1 ? dagen[dagen.length - 2] : null;
+  const k = [];
+  if (s.has_panels) {
+    const t = sc ? sc.today : null;
+    const verwacht = TODAY && TODAY.forecast ? TODAY.forecast.reduce((a, f) => a + (f.pv_w || 0), 0) / 1000 * ((TODAY.forecast[1] ? TODAY.forecast[1].ts - TODAY.forecast[0].ts : 3600) / 3600) : null;
+    k.push(`<a class="tegel" href="inzicht"><span class="ti zon">${SVGI(HI.zon)}</span><span class="l">Opbrengst vandaag</span><b class="v num">${t ? nl(t.pv_kwh, 1) : "–"}<small> kWh</small></b>
+      <span class="d">${verwacht != null ? `Verwacht ${nl(verwacht, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(t && t.pv_kwh, gister && gister.pv_kwh)}${lijntje(dagen.slice(-7).map((x) => x.pv_kwh), "var(--zs-groen)")}</span></a>`);
+  }
+  const tv = sc ? sc.today : null, verbruik = tv ? (tv.import_kwh || 0) + (tv.own_kwh || 0) : null;
+  k.push(`<a class="tegel" href="inzicht"><span class="ti huis">${SVGI(HI.huis)}</span><span class="l">Verbruik vandaag</span><b class="v num">${verbruik != null ? nl(verbruik, 1) : "–"}<small> kWh</small></b>
+    <span class="d">${tv ? `Van het net ${nl(tv.import_kwh || 0, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(verbruik, gister ? (gister.import_kwh || 0) + (gister.own_kwh || 0) : null)}${lijntje(dagen.slice(-7).map((x) => (x.import_kwh || 0) + (x.own_kwh || 0)), "var(--zs-blauw)")}</span></a>`);
+  const bat = (s.batteries || [])[0];
+  if (bat) {
+    const soc = Math.max(0, Math.min(100, bat.soc || 0));
+    k.push(`<a class="tegel" href="apparaat?id=bat-${encodeURIComponent(bat.id)}"><span class="ti bat">${SVGI(HI.bat)}</span><span class="l">Batterij</span><b class="v num">${bat.soc == null ? "–" : nl(bat.soc)}<small>%</small></b>
+      <span class="d">${bat.kwh != null ? nl(bat.kwh, 1) + " kWh" : "&nbsp;"}</span><span class="balk" role="img" aria-label="Batterij ${nl(soc)} procent"><i style="width:${soc}%"></i></span></a>`);
+  } else {
+    const V = s.value || { month: { eur: s.month.eur_saved } };
+    k.push(`<a class="tegel" href="inzicht"><span class="ti blad">${SVGI(HI.blad)}</span><span class="l">Bespaard</span><b class="v num goed">${eur(V.month.eur)}</b>
+      <span class="d">deze maand</span></a>`);
+  }
+  el.innerHTML = k.join("");
+}
+// Goedkoopste aaneengesloten blok van 3 uur in de rest van vandaag (of morgen)
+function goedkoopBlok() {
+  const nu = Date.now() / 1000;
+  const sl = (PRICES && PRICES.slots || []).filter((r) => r.end > nu);
+  if (sl.length < 3) return null;
+  let best = null;
+  for (let i = 0; i + 3 <= Math.min(sl.length, 24); i++) {
+    const g = (sl[i].all_in + sl[i + 1].all_in + sl[i + 2].all_in) / 3;
+    if (!best || g < best.p) best = { p: g, van: sl[i].ts, tot: sl[i + 2].end };
+  }
+  return best;
+}
+function renderTarKaart(s) {
+  const el = $("tarKaart"); if (!el) return;
+  if (!s.configured) { el.hidden = true; return; }
+  el.hidden = false;
+  const nu = Date.now() / 1000;
+  const cur = PRICES && PRICES.slots ? PRICES.slots.find((r) => nu >= r.ts && nu < r.end) : null;
+  const avg = PRICES && PRICES.avg_today != null ? PRICES.avg_today : null;
+  const cls = cur && avg != null ? priceClass(cur.all_in, avg) : "mid";
+  const prijs = s.price_now != null ? s.price_now : cur ? cur.all_in : null;
+  let zin;
+  if (s.contract !== "dynamic") zin = "Vast tarief: Zonnestuur stuurt op je eigen zon.";
+  else {
+    const b = goedkoopBlok();
+    if (b) { const a = new Date(b.van * 1000), e = new Date(b.tot * 1000), morgen = a.toDateString() !== new Date().toDateString();
+      zin = `${morgen ? "Morgen" : "Vandaag"} laag: ${hhmm(a)}–${hhmm(e)}`; }
+    else zin = "De prijzen van morgen komen rond 13:00.";
+  }
+  el.className = "card tarkaart " + cls;
+  el.innerHTML = `<span class="ti blad">${SVGI(HI.blad)}</span><span class="tt"><b>${s.contract === "dynamic" ? "Dynamische tarieven" : "Je stroomprijs"}</b><span>${esc(zin)}</span></span>
+    ${prijs != null ? `<span class="prijspil ${cls}">${eur3(prijs).replace(/(,\d\d)\d$/, "$1")}<small> /kWh</small></span>` : ""}<span class="pijl" aria-hidden="true"></span>`;
 }
 
 // ---------- energiestroom ----------
@@ -1582,7 +1968,7 @@ function batteryCard(s, b) {
   const el = document.createElement("article");
   const pw = b.power_w || 0;
   el.className = "card dev bat" + (Math.abs(pw) > 30 ? " on" : "");
-  el.id = "battDev";
+  el.id = "battDev"; el.dataset.id = "bat-" + b.id;
   if (!b.online) {
     el.innerHTML = `<div class="dev-head"><div class="dev-ico"><svg viewBox="0 0 24 24">${BAT_ICO}</svg></div><div><div class="dev-name"><i class="lamp uit" title="Niet bereikbaar"></i>${esc(b.name)}</div>
       <div class="dev-state">Geen verbinding</div></div></div>
@@ -1666,6 +2052,53 @@ function devTip(s, d) {
   if (!fits) return "";
   return `<div class="devtip">${t.id === "weer-vandaag" ? "Vandaag is de beste dag van de komende dagen" : "Vandaag is goedkoper dan morgen"}: ${d.kind === "ev" ? "laat de auto vandaag laden" : "zet hem vandaag aan"}.</div>`;
 }
+// Eén korte regel per apparaat: wat hij nu doet, of wanneer hij aan de beurt is.
+function korteStand(s, d, state) {
+  if (!d.online || d.mode !== "auto" || (d.on && d.power_w > 50)) return `${state}${d.reason ? " · " + d.reason : ""}`;
+  const it = ((s.plan && s.plan.items) || []).find((x) => x.device === d.id);
+  if (it) {
+    const a = new Date(it.start), dag = a.toDateString() === new Date(s.now).toDateString() ? "" : "morgen ";
+    return `Gepland ${dag}${hhmm(a)}–${hhmm(new Date(it.end))} · ${it.source === "zon" ? "op eigen zon" : "goedkope stroom"}`;
+  }
+  return `${state}${d.reason ? " · " + d.reason : ""}`;
+}
+// Vandaag: elk apparaat is een korte regel; tik erop en de knoppen en uitleg klappen open.
+const OPEN_DEV = new Set();
+try { JSON.parse(sessionStorage.getItem("zs_open") || "[]").forEach((x) => OPEN_DEV.add(x)); } catch (e) {}
+function rijen(wrap) {
+  if (VIEW !== "vandaag") return;
+  wrap.querySelectorAll(":scope > article").forEach((el) => {
+    const id = el.dataset.id || el.id || "";
+    const kop = el.querySelector(":scope > .dev-head, :scope > .evc-hero");
+    if (!kop || !id) return;
+    const open = OPEN_DEV.has(id);
+    el.classList.add("rij"); el.classList.toggle("dicht", !open);
+    if (!el.querySelector(":scope > .rij-knop")) el.insertAdjacentHTML("afterbegin", `<button type="button" class="rij-knop" aria-expanded="${open}" aria-label="Meer over dit apparaat"><span class="rij-pijl" aria-hidden="true"></span></button>`);
+    const knop = el.querySelector(":scope > .rij-knop");
+    const wissel = () => {
+      const nu = !OPEN_DEV.has(id);
+      if (nu) OPEN_DEV.add(id); else OPEN_DEV.delete(id);
+      el.classList.toggle("dicht", !nu); knop.setAttribute("aria-expanded", String(nu));
+      try { sessionStorage.setItem("zs_open", JSON.stringify([...OPEN_DEV])); } catch (e) {}
+      if (nu) el.querySelectorAll(".evc-pic img").forEach((i) => { i.loading = "eager"; });
+    };
+    knop.onclick = wissel;
+    kop.onclick = (e) => { if (!e.target.closest("a, button, select, input, label")) wissel(); };
+  });
+}
+// De pagina van één apparaat: alleen die kaart, met de naam als kop
+function apparaatAlleen(s, wrap) {
+  const arts = [...wrap.querySelectorAll(":scope > article")];
+  const deze = arts.find((a) => (a.dataset.id || a.id) === APP_ID) || arts.find((a) => a.dataset.id === "bat-" + APP_ID || a.dataset.id === "obs-" + APP_ID);
+  arts.forEach((a) => { if (a !== deze) a.remove(); });
+  const d = s.devices.find((x) => x.id === APP_ID), b = (s.batteries || []).find((x) => "bat-" + x.id === APP_ID || x.id === APP_ID),
+    w = (s.waarnemen || []).find((x) => "obs-" + x.id === APP_ID || x.id === APP_ID);
+  const naam = d ? d.name : b ? b.name : w ? w.naam : "Apparaat niet gevonden";
+  if ($("appNaam")) $("appNaam").textContent = naam;
+  document.title = "Zonnestuur " + naam.toLowerCase();
+  if ($("appInst")) $("appInst").href = b ? "instellingen?onderdeel=batCard" : w ? "instellingen?onderdeel=obsCard" : `instellingen?apparaat=${encodeURIComponent(APP_ID)}`;
+  if (!deze) wrap.innerHTML = `<div class="card"><p>Dit apparaat bestaat niet (meer). <a href="apparaten">Naar Apparaten</a></p></div>`;
+}
 function renderDevices(s) {
   const wrap = $("devices");
   // Niet opnieuw tekenen terwijl je een keuzelijst of veld op een kaart gebruikt (anders klapt hij dicht)
@@ -1706,8 +2139,8 @@ function renderDevices(s) {
     el.innerHTML = isEvCard ? evCard(s, d) : `
       <div class="dev-head">
         <div class="dev-ico"><svg viewBox="0 0 24 24">${DEV_ICONS[d.kind] || DEV_ICONS.generic}</svg></div>
-        <div style="min-width:0"><div class="dev-name"><i class="lamp ${d.online || (d.reason || "").startsWith("wacht") ? "ok" : "uit"}" title="${d.online ? "Verbonden" : "Niet bereikbaar"}"></i>${esc(d.name)}</div><div class="dev-state">${state} · ${esc(d.reason)}</div></div>
-        <div class="dev-power"><div class="v num">${kw(d.power_w)}</div><div class="small muted">kW</div></div>
+        <div style="min-width:0"><div class="dev-name"><i class="lamp ${d.online || (d.reason || "").startsWith("wacht") ? "ok" : "uit"}" title="${d.online ? "Verbonden" : "Niet bereikbaar"}"></i>${esc(d.name)}</div><div class="dev-state">${esc(korteStand(s, d, state))}</div></div>
+        ${running || VIEW !== "vandaag" ? `<div class="dev-power"><div class="v num">${kw(d.power_w)}</div><div class="small muted">kW</div></div>` : ""}
       </div>
       ${!d.online && !(d.reason || "").startsWith("wacht") ? `<div class="weg-blok"><b>Niet bereikbaar.</b> Zonnestuur probeert het steeds opnieuw; tot die tijd draait het apparaat zoals het zelf staat.
         <div class="weg-acts"><button class="btn-line" data-check="${esc(d.id)}">Opnieuw verbinden</button><a class="small" href="hulp">Hulp</a></div><p class="small" role="status" data-checkres></p></div>` : ""}
@@ -1768,6 +2201,8 @@ function renderDevices(s) {
   for (const b of s.batteries || []) { const bc = batteryCard(s, b); if (again) bc.classList.add("again"); wrap.appendChild(bc); }
   for (const w of s.waarnemen || []) { try { const oc = obsCard(s, w); if (again) oc.classList.add("again"); wrap.appendChild(oc); } catch (e) { zsFout(e, "meekijkkaart"); } }
   wrap.querySelectorAll(".evc-pic img").forEach((i) => { const o = oudeFoto.get(i.closest("article").dataset.id); if (o && o.complete) i.replaceWith(o); });
+  if (VIEW === "apparaat") apparaatAlleen(s, wrap);
+  rijen(wrap);
 }
 
 // ---------- witgoed: programma kiezen ----------
@@ -1873,6 +2308,9 @@ async function wegKaart(nu) {
   if (!nu && Date.now() - WEG_AT < 300000) return; WEG_AT = Date.now();
   let st; try { st = await api("api/afwezig"); } catch (e) { return; }
   const el = $("weg"); el.hidden = !(st.actief || st.kan); if (el.hidden) return;
+  // in de eenvoudige weergave alleen als je weg bent, als het erop lijkt, of als je hem via Meer opent
+  const gevraagd = location.hash === "#weg";
+  el.classList.toggle("adv", !st.actief && !st.vermoeden && !gevraagd);
   const dag = (iso) => new Date(iso).toLocaleString("nl-NL", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
   if (st.actief) {
     el.innerHTML = `<div class="weg on"><div><b>Je bent weg tot ${esc(dag(st.tot))}</b>
@@ -1883,13 +2321,14 @@ async function wegKaart(nu) {
   }
   const d = new Date(Date.now() + 3 * 86400000), ds = d.toISOString().slice(0, 10);
   const vm = st.vermoeden;
-  el.innerHTML = `<details class="weg"${vm ? " open" : ""}><summary><b>${vm ? "Ben je weg?" : "Een paar dagen weg?"}</b> <span class="small muted">${vm
+  el.innerHTML = `<details class="weg"${vm || gevraagd ? " open" : ""}><summary><b>${vm ? "Ben je weg?" : "Een paar dagen weg?"}</b> <span class="small muted">${vm
       ? `Sinds ${esc(dag(vm.sinds))} is je verbruik zo laag als 's nachts. Dan hoeft de boiler niet warm te blijven.`
       : "Dan hoeft de boiler niet warm te blijven."}</span></summary>
     <div class="weg-form"><label>Ik ben weer thuis op<input type="date" id="wegDag" value="${ds}" min="${new Date().toISOString().slice(0, 10)}"></label>
     <label>om<input type="time" id="wegUur" value="18:00"></label><button type="button" class="btn-line on-sun" id="wegGo">Zet klaar</button></div>
     <p class="small" id="wegMsg" role="status" style="margin:6px 0 0"></p></details>`;
   $("wegGo").onclick = () => wegPost({ tot: $("wegDag").value + "T" + ($("wegUur").value || "18:00") + ":00" });
+  if (gevraagd && !el.dataset.gezien) { el.dataset.gezien = "1"; setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 300); }
 }
 async function wegPost(body) {
   try {
@@ -2880,7 +3319,7 @@ function drawCoach() {
     es.forEach((e) => { if (e.isIntersecting) links.forEach((a) => a.classList.toggle("on", a.dataset.s === e.target.id)); });
   }, { rootMargin: "-40% 0px -55% 0px" });
   links.forEach((a) => { const t = document.getElementById(a.dataset.s); if (t) io.observe(t); });
-  links[0].classList.add("on");
+  if (links[0]) links[0].classList.add("on");
 })();
 // ---------- kennismaking ----------
 let WEL_HIDE = false;
@@ -2992,8 +3431,54 @@ async function loadCompare() {
 }
 $("cmpBtn").addEventListener("click", loadCompare);
 
+
+// ---------- Inzichten: energieverdeling, besparing en CO2 per periode ----------
+let INZ_P = "", INZ_GEKOZEN = false;
+function renderInzicht() {
+  if (VIEW !== "inzicht" || !STATUS) return;
+  const s = STATUS, sc = COACH && COACH.scores;
+  // nog geen zon vandaag (ochtend, of een grijze dag): begin bij deze week
+  if (!INZ_GEKOZEN) INZ_P = sc && sc.today && sc.today.pv_kwh > 0.2 ? "today" : "week";
+  const P = INZ_P;
+  document.querySelectorAll("#inzSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === P)));
+  const t = sc && sc[P];
+  const bat = (s.batteries || [])[0];
+  const bp = bat && (P === "today" ? bat.today : P === "month" ? bat.month : null);
+  const batZon = bp ? Math.max(0, (bp.charged_kwh || 0) - (bp.grid_kwh || 0)) : 0;
+  const evZon = P === "month" ? (s.devices || []).filter((d) => d.kind === "ev").reduce((a, d) => a + ((d.month || {}).kwh_solar || 0), 0) : 0;
+  const kaart = $("donutKaart");
+  if (!s.has_panels || !t || !(t.pv_kwh > 0.05)) {
+    kaart.querySelector("#donut").innerHTML = ""; $("dLegenda").innerHTML = "";
+    $("donutNote").textContent = s.has_panels ? "Nog geen zonnestroom in deze periode." : "Zonder zonnepanelen is er geen opbrengst om te verdelen.";
+  } else {
+    const terug = t.export_kwh || 0, eigen = Math.max(0, t.own_kwh || 0);
+    const b = Math.min(batZon, eigen), e = Math.min(evZon, eigen - b), direct = Math.max(0, eigen - b - e);
+    const delen = [["Direct verbruik", direct, "#fbbf24"], ["Batterij", b, "#34d399"], ["Auto laden", e, "#a78bfa"], ["Teruglevering", terug, "#3b82f6"]].filter((x) => x[1] > 0.01);
+    const tot = delen.reduce((a, x) => a + x[1], 0) || 1;
+    let hoek = -90; const R = 52, C = 2 * Math.PI * R;
+    let bogen = "", off = 0;
+    delen.forEach(([, v, k]) => { const l = v / tot * C; bogen += `<circle r="${R}" cx="70" cy="70" fill="none" stroke="${k}" stroke-width="16" stroke-dasharray="${Math.max(0, l - 3).toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(${hoek} 70 70)"/>`; off += l; });
+    $("donut").innerHTML = `<svg viewBox="0 0 140 140" role="img" aria-label="Verdeling van ${nl(t.pv_kwh, 1)} kWh zonnestroom">${bogen}
+      <text x="70" y="68" text-anchor="middle" class="d-v">${nl(t.pv_kwh, 1)} kWh</text><text x="70" y="86" text-anchor="middle" class="d-l">opbrengst</text></svg>`;
+    $("dLegenda").innerHTML = delen.map(([l, v, k]) => `<li><i style="background:${k}"></i><span>${l}</span><b>${Math.round(v / tot * 100)}%</b></li>`).join("");
+    $("donutNote").textContent = t.measured ? "" : "Geschat: zonder opwek-sensor rekent Zonnestuur met de zonvoorspelling.";
+  }
+  // besparing en CO2, met de vorige periode erbij
+  const V = s.value || {}, H = MONTH || [];
+  const som = (a, b) => H.slice(a, b).reduce((x, d) => x + (d.eur_saved || 0), 0);
+  const nu = P === "today" ? (V.today || {}).eur : P === "month" ? (V.month || {}).eur : som(-7);
+  const toen = P === "today" ? (H.length > 1 ? H[H.length - 2].eur_saved : null) : P === "week" ? (H.length >= 14 ? som(-14, -7) : null) : null;
+  const vgl = { today: "t.o.v. gisteren", week: "t.o.v. vorige week", month: "" }[P];
+  const pct = toen != null && toen > 0.05 && nu != null ? Math.round((nu / toen - 1) * 100) : null;
+  $("inzBesp").innerHTML = `<span class="ti blad">${SVGI(HI.blad)}</span><span class="l">Besparing</span><b class="v num">${eur(nu || 0)}</b>
+    <span class="d">${pct != null && pct !== 0 ? `<i class="trend ${pct > 0 ? "op" : "af"}">${pct > 0 ? "↑" : "↓"} ${Math.abs(pct)}%</i> ${vgl}` : P === "month" && V.year ? `${eur(V.year.eur)} dit jaar` : "&nbsp;"}</span>`;
+  const kg = (t ? t.own_kwh || 0 : 0) * 0.3;
+  $("inzCo2").innerHTML = `<span class="ti co2">${SVGI('<path d="M12 21V12"/><path d="M12 12c-4 0-7-3-7-7 4 0 7 3 7 7zM12 14c3.5 0 6-2.5 6-6-3.5 0-6 2.5-6 6z"/>')}</span><span class="l">CO₂ bespaard</span><b class="v num">${nl(kg, 1)}<small> kg</small></b>
+    <span class="d">door ${nl(t ? t.own_kwh || 0 : 0, 1)} kWh eigen zon</span>`;
+}
+document.querySelectorAll("#inzSeg button").forEach((b) => b.addEventListener("click", () => { INZ_P = b.dataset.p; INZ_GEKOZEN = true; renderInzicht(); }));
 function drawCharts() {                     // één kapotte tekening mag de rest niet tegenhouden
-  for (const f of [drawCoach, drawToday, drawMonth, drawPrices, drawUsage, drawInsight, drawLanes, drawLearned, drawLog]) {
+  for (const f of [renderInzicht, drawCoach, drawToday, drawMonth, drawPrices, drawUsage, drawInsight, drawLanes, drawLearned, drawLog]) {
     try { f(); } catch (e) { console.error(f.name, e); zsFout(e, f.name + "\n" + (e.stack || "")); }
   }
 }

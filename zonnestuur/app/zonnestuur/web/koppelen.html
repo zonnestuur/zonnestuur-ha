@@ -139,6 +139,102 @@ html, body { overscroll-behavior-y: none; }
   .kies { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 10px 0; }
   .kies button { font: inherit; font-weight: 600; padding: 14px 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--card-solid); color: var(--ink); cursor: pointer; }
   .kies button.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink) inset; }
+
+  /* ===== 0.76: Apparaten als rustige lijsten ===== */
+  main { max-width: 720px; }
+  .kop { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 4px 0 18px; }
+  .kop h1 { margin: 0 0 6px !important; }
+  .zoekregel { margin: 0; color: var(--ink-2); font-size: 14.5px; display: block; }
+  .zoekregel .spin { display: inline-block; vertical-align: -2px; margin-right: 6px !important; }
+  .zoekregel .spin { margin: 0; width: 15px; height: 15px; flex: none; }
+  .zoekregel #zTekst { flex: 0 1 auto; min-width: 0; }
+  .linkknop { font: inherit; font-weight: 650; color: var(--ink); background: none; border: 0; padding: 6px 2px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; min-height: 32px; }
+  .btn.plus { flex: none; gap: 6px; padding: 11px 18px 11px 14px; }
+  .btn.plus svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; }
+  @media (max-width: 520px) { .btn.plus { display: none; } }
+  main { display: flex; flex-direction: column; }
+  main > * { order: 2; } main > .top, main > .kop { order: 0; } .gevonden, #meterKaart { order: 1 !important; } .groep.eerst { order: 1 !important; }
+  #beheerGroep, .ook { order: 3 !important; }
+  .groep { margin: 0 0 22px; }
+  .groep > h2 { font: 650 17px/1.3 "Inter Tight", Inter, sans-serif; letter-spacing: -.01em; margin: 0 4px 8px; }
+  .groep-uitleg { margin: -4px 4px 10px; font-size: 14px; color: var(--ink-2); }
+  .lijst { background: var(--card-solid); border-radius: 20px; box-shadow: 0 0 0 1px var(--line), var(--zs-schaduw, var(--shadow)); overflow: hidden; }
+  .lijst .rij, .lijst .rij-uit > summary, .lijst .rij-uit.knop { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 2px 14px; align-items: center;
+    padding: 13px 16px; border: 0; border-top: 1px solid var(--line); min-height: 64px; text-decoration: none; color: inherit; width: 100%; text-align: left;
+    font: inherit; background: none; }
+  .lijst > :first-child, .lijst > :first-child > summary { border-top: 0 !important; }
+  .lijst .rij-uit { border-top: 1px solid var(--line); } .lijst .rij-uit > summary { border-top: 0; list-style: none; cursor: pointer; }
+  .lijst .rij-uit > summary::-webkit-details-marker { display: none; }
+  .lijst .rij-uit.knop { cursor: pointer; }
+  .lijst .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--chip); color: var(--ink-2); }
+  .lijst .ic svg { width: 21px; height: 21px; }
+  .lijst b { font-weight: 650; display: block; overflow-wrap: anywhere; }
+  .lijst .sub { font-size: 13.5px; color: var(--ink-2); display: block; line-height: 1.4; }
+  .lijst .let-op { font-style: normal; font-weight: 650; color: var(--warn); }
+  a.rij.link:hover b, button.rij.link:hover b, .rij-uit > summary:hover b, .rij-uit.knop:hover b { text-decoration: underline; text-underline-offset: 3px; }
+  .rij.link, .rij-uit.knop { cursor: pointer; }
+  .pijl, .rij-uit > summary::after, .rij-uit.knop::after { width: 8px; height: 8px; border-right: 2px solid var(--ink-3); border-top: 2px solid var(--ink-3); transform: rotate(45deg); margin-right: 4px; }
+  .rij-uit > summary::after { content: ""; transform: rotate(135deg); transition: transform .18s; } .rij-uit[open] > summary::after { transform: rotate(-45deg); }
+  .rij-uit.knop::after { content: ""; }
+  .rij-uit #state { padding: 0 16px 16px 70px; }
+  @media (max-width: 520px) { .rij-uit #state { padding-left: 16px; } }
+  .plusrij .ic { background: var(--ink); color: var(--card-solid); }
+  .plusrij b { color: var(--ink); }
+  .gevonden .lijst { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--sun) 55%, transparent), var(--zs-schaduw, var(--shadow)); }
+  .gevonden .ic { background: var(--sun-soft); color: var(--sun-ink); }
+  .ook { margin: -8px 6px 22px; }
+  /* het toevoegblad: over de hele pagina, op de telefoon van onder naar boven */
+  body.blad-open { overflow: hidden; }
+  .blad { position: fixed; inset: 0; z-index: 60; background: rgba(8, 12, 16, .42); display: flex; align-items: flex-end; justify-content: center; }
+  .blad-in { background: var(--bg); width: min(720px, 100%); height: min(92vh, 100%); overflow-y: auto; overscroll-behavior: contain;
+    border-radius: 24px 24px 0 0; padding: 0 16px calc(24px + env(safe-area-inset-bottom)); box-shadow: 0 -20px 60px -20px rgba(0,0,0,.4);
+    animation: blad .22s ease-out; }
+  @keyframes blad { from { transform: translateY(24px); opacity: .6; } }
+  @media (min-width: 760px) { .blad { align-items: center; } .blad-in { border-radius: 24px; height: min(86vh, 900px); padding: 0 24px 24px; } }
+  .blad-kop { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 4px;
+    padding: 14px 0 10px; background: var(--bg); }
+  .blad-kop h2 { margin: 0; text-align: center; font-size: 18px; }
+  .terugknop, .sluitknop { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--chip); color: var(--ink); display: grid; place-items: center; cursor: pointer; padding: 0; }
+  .sluitknop { grid-column: 3; } .terugknop[hidden] + h2 { grid-column: 2; }
+  .terugknop svg, .sluitknop svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .blad-vraag { margin: 6px 2px 10px; font-weight: 650; }
+  .tegels { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .tegels button { font: inherit; font-weight: 650; font-size: 15px; display: grid; gap: 10px; justify-items: start; text-align: left; padding: 14px; border-radius: 18px; border: 0;
+    background: var(--card-solid); color: var(--ink); cursor: pointer; box-shadow: 0 0 0 1px var(--line); min-height: 104px; align-content: space-between; }
+  .tegels button:hover { box-shadow: 0 0 0 1.5px var(--ink); }
+  .tegels .ti { width: 40px; height: 40px; border-radius: 12px; background: var(--chip); display: grid; place-items: center; color: var(--ink-2); }
+  .tegels .ti svg { width: 22px; height: 22px; }
+  .zoekveld { margin: 0 0 6px; }
+  .count { margin: 8px 4px; }
+  details.brandrow { border-radius: 16px; border: 0; box-shadow: 0 0 0 1px var(--line); }
+  details.brandrow[open] { box-shadow: 0 0 0 1.5px var(--ink); }
+  details.brandrow summary { min-height: 60px; }
+  .routes { border-top: 1px solid var(--line); }
+  .route .rt { font-weight: 650; }
+  details.anders > summary { font-size: 14px; font-weight: 600; color: var(--ink-2); cursor: pointer; padding: 10px 0 4px; }
+  .panel { z-index: 70; }
+
+  /* ===== 0.76b: apparaten volgens het ontwerp ===== */
+  .kop { align-items: center; }
+  .kop > div { flex: 1; min-width: 0; }
+  .tandwiel { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); flex: none; }
+  .tandwiel svg { width: 25px; height: 25px; } .tandwiel:hover { background: var(--chip); }
+  .lijst .app-rij { min-height: 76px; }
+  .lijst .ic.vol { width: 48px; height: 48px; border-radius: 14px; color: #fff; }
+  .lijst .ic.vol svg { width: 26px; height: 26px; }
+  .lijst .app-rij, .lijst .plusrij { grid-template-columns: 48px minmax(0, 1fr) auto; }
+  .ic.paars { background: linear-gradient(145deg, #6d28d9, #a78bfa); } .ic.blauw { background: linear-gradient(145deg, #1d4ed8, #60a5fa); }
+  .ic.groen { background: linear-gradient(145deg, #047857, #34d399); } .ic.indigo { background: linear-gradient(145deg, #1e3a8a, #3b82f6); }
+  .ic.grijs { background: linear-gradient(145deg, #334155, #94a3b8); }
+  .app-rij b { display: flex !important; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lbl { font: 700 11.5px/1 Inter, sans-serif; font-style: normal; padding: 5px 8px; border-radius: 99px; background: var(--chip); color: var(--ink-2); }
+  .lbl.groen { background: color-mix(in srgb, var(--zs-groen, #16a34a) 18%, transparent); color: var(--zs-groen, #16a34a); }
+  .lbl.amber { background: color-mix(in srgb, var(--zs-amber, #d97706) 18%, transparent); color: var(--zs-amber, #d97706); }
+  .lbl.rood { background: color-mix(in srgb, #f87171 18%, transparent); color: #f87171; }
+  .app-rij .sub { display: flex !important; gap: 14px; margin-top: 3px; }
+  .app-rij .kw { font: 700 15.5px/1.3 "Inter Tight", Inter, sans-serif; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .lijst .plusrij .ic { width: 48px; height: 48px; border-radius: 14px; background: color-mix(in srgb, var(--zs-knop, #2f7cf6) 18%, transparent); color: var(--zs-knop, #2f7cf6); }
+  .lijst { background: var(--zs-kaart, var(--card-solid)); }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -147,44 +243,60 @@ html, body { overscroll-behavior-y: none; }
   <header class="top">
     <a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a>
   </header>
-  <h1 class="t">Apparaten</h1>
-  <p class="lead" id="lead">Alles wat Zonnestuur in je huis vond, op één plek.</p>
-
-  <section class="card zoek" id="zoekKaart" aria-live="polite"><div class="zrij"><span class="spin" id="zSpin" hidden></span><span id="zTekst">Even kijken…</span>
-    <button class="btn ghost small" type="button" id="zoekNu">Opnieuw zoeken</button></div></section>
-
-  <p class="small muted" id="ookGezien" hidden style="margin:10px 4px 0"></p>
-  <section class="card" id="stapKaart" hidden><h2 class="t">Nog één stap</h2>
-    <p class="small muted" style="margin:-2px 0 10px">Gevonden in je huis. Eén tik en het doet mee.</p><div class="rijen" id="stappen"></div></section>
-
-  <section class="card" id="meeKaart"><h2 class="t">Doet mee</h2><div class="rijen" id="mee"></div></section>
-
-  <section class="card" id="basisKaart"><h2 class="t">Basis</h2><div class="rijen" id="basis"></div></section>
-
-  <details class="card zonder" id="anderMerk"><summary><h2 class="t">Ander merk toevoegen</h2><span class="small muted">Staat je apparaat er niet bij? Zoek het merk.</span></summary>
-  <div style="margin-top:12px">
-  <p class="small muted" style="margin:0 0 4px">Wat wil je toevoegen?</p>
-  <div class="kies" id="soortKies">
-    <button type="button" data-cat="Laadpaal">Laadpaal</button><button type="button" data-cat="Elektrische auto">Auto</button>
-    <button type="button" data-cat="Warmtepomp">Warmtepomp</button><button type="button" data-cat="Warm water">Boiler</button>
-    <button type="button" data-cat="Thuisbatterij">Thuisbatterij</button><button type="button" data-cat="Omvormer">Zonnepanelen</button>
-    <button type="button" data-cat="Witgoed">Wasmachine of vaatwasser</button><button type="button" data-cat="Slimme meter / P1">Meter</button>
+  <div class="kop">
+    <div><h1 class="t">Apparaten</h1>
+      <p class="zoekregel" id="zoekKaart" aria-live="polite"><span class="spin" id="zSpin" hidden></span><span id="zTekst">Even kijken…</span>
+        <button class="linkknop" type="button" id="zoekNu">Opnieuw zoeken</button></p></div>
+    <a class="tandwiel" href="instellingen" aria-label="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
+    <button class="btn plus" type="button" id="toevoegKnop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Toevoegen</button>
   </div>
-  <div class="field" style="margin:0"><label for="q">Of zoek het merk</label>
-      <input id="q" type="search" placeholder="Bijv. Daikin, Tesla, Miele, Shelly, warmtepomp" autocomplete="off"></div>
-    <div class="chips" id="cats"></div>
-    <p class="count" id="count"></p>
-  <div class="results" id="results"></div>
-  <button class="btn ghost more" id="more" hidden>Meer tonen</button>
-  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px">
-    <div style="flex:1;min-width:200px"><b>Apparaat met een Matter-logo?</b><p class="small muted" style="margin:2px 0 0">Dan scan je alleen de QR-code; het merk maakt niet uit.</p></div>
-    <button class="btn ghost" type="button" id="matterAltijd">QR-code scannen</button></div>
-  </div></details>
 
-  <details class="card zonder" id="beheer"><summary><h2 class="t">Koppelingen beheren</h2><span class="small muted">Welke merken gekoppeld zijn, en ontkoppelen.</span></summary>
-    <section id="state" style="margin-top:12px"></section></details>
+  <section class="groep gevonden" id="stapKaart" hidden><h2>Gevonden in je huis</h2>
+    <p class="groep-uitleg">Eén tik en het doet mee.</p><div class="lijst" id="stappen"></div></section>
   <section class="card" id="meterKaart" hidden></section>
+
+  <section class="groep" id="meeKaart"><h2>Je apparaten</h2><div class="lijst" id="mee"></div></section>
+
+  <section class="groep" id="basisKaart"><h2>Je huis</h2><p class="groep-uitleg">Wat Zonnestuur nodig heeft om goed te kunnen plannen.</p><div class="lijst" id="basis"></div></section>
+
+  <p class="small muted ook" id="ookGezien" hidden></p>
+
+  <section class="groep" id="beheerGroep"><h2>Meer</h2>
+    <div class="lijst">
+      <details class="rij-uit" id="beheer"><summary><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><span><b>Gekoppelde merken</b><span class="sub">Welke merken gekoppeld zijn, en ontkoppelen</span></span></summary>
+        <section id="state"></section></details>
+      <button type="button" class="rij-uit knop" id="matterAltijd"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM18 14h2M14 18v2"/></svg></span><span><b>Matter-apparaat</b><span class="sub">Scan de QR-code met het Matter-logo; het merk maakt niet uit</span></span></button>
+    </div>
+  </section>
 </main>
+
+<div class="blad" id="anderMerk" hidden role="dialog" aria-modal="true" aria-labelledby="t_titel">
+  <div class="blad-in">
+    <div class="blad-kop"><button type="button" class="terugknop" id="t_terug" hidden aria-label="Andere soort kiezen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2 class="t" id="t_titel">Apparaat toevoegen</h2><button type="button" class="sluitknop" id="t_dicht" aria-label="Sluiten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="t_soort">
+      <p class="blad-vraag">Wat wil je toevoegen?</p>
+      <div class="tegels" id="soortKies">
+        <button type="button" data-cat="Laadpaal" data-ic="laad"><span class="ti"></span>Laadpaal</button>
+        <button type="button" data-cat="Elektrische auto" data-ic="ev"><span class="ti"></span>Auto</button>
+        <button type="button" data-cat="Warmtepomp" data-ic="heatpump"><span class="ti"></span>Warmtepomp</button>
+        <button type="button" data-cat="Warm water" data-ic="boiler"><span class="ti"></span>Boiler</button>
+        <button type="button" data-cat="Thuisbatterij" data-ic="battery"><span class="ti"></span>Thuisbatterij</button>
+        <button type="button" data-cat="Omvormer" data-ic="zon"><span class="ti"></span>Zonnepanelen</button>
+        <button type="button" data-cat="Witgoed" data-ic="was"><span class="ti"></span>Wasmachine of vaatwasser</button>
+        <button type="button" data-cat="Slimme meter / P1" data-ic="meter"><span class="ti"></span>Slimme meter</button>
+        <button type="button" data-cat="Slimme stekker en relais" data-ic="stekker"><span class="ti"></span>Slimme stekker</button>
+        <button type="button" data-cat="" data-ic="meer"><span class="ti"></span>Iets anders</button>
+      </div>
+    </div>
+    <div class="field zoekveld"><label for="q" id="q_label">Of zoek het merk</label>
+      <input id="q" type="search" placeholder="Bijv. Daikin, Tesla, Miele, Shelly" autocomplete="off"></div>
+    <div class="chips" id="cats" hidden></div>
+    <p class="count" id="count"></p>
+    <div class="results" id="results"></div>
+    <button class="btn ghost more" id="more" hidden>Meer tonen</button>
+  </div>
+</div>
 
 <div class="panel" id="panel" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="p_title">
   <h2 class="t" id="p_title"></h2><div id="p_body"></div><p class="err" id="p_err" role="alert"></p>
@@ -404,24 +516,29 @@ function render() {
   const order = { groot: 0, middel: 1, klein: 2 };
   const rows = LIST.filter((r) => (!CAT || r.categorie === CAT) && words.every((w) => (r.merk + " " + r.producten + " " + r.categorie).toLowerCase().includes(w)))
     .sort((a, b) => (order[a.aandeel_nl] ?? 3) - (order[b.aandeel_nl] ?? 3) || a.merk.localeCompare(b.merk));
-  $("count").textContent = rows.length === LIST.length ? `${LIST.length} merken en apparaten. De meest voorkomende staan bovenaan.` : `${rows.length} gevonden.`;
-  $("results").innerHTML = rows.slice(0, LIMIT).map((r, i) => {
-    const p = PILL[r.zonnestuur] || ["", ""];
-    const on = routesOf(r).some(connected);
+  const iets = !!CAT || words.length > 0;
+  $("count").hidden = !iets; $("results").hidden = !iets;
+  $("count").textContent = !rows.length ? "Niets gevonden. Probeer een ander woord, of kies een soort." : CAT && !words.length ? "De meest voorkomende merken staan bovenaan." : `${rows.length} gevonden.`;
+  const routeHtml = (r, rt, j) => {
+    const info = routeInfo(rt, r);
+    return `<div class="route"><div class="rt">${esc(info.label)}${rt.zeker === false ? '<span class="tag">nog niet bevestigd</span>' : ""}${connected(rt) ? '<span class="tag ok">gekoppeld</span>' : ""}</div>
+      ${rt.nodig ? `<div class="rn">Nodig: ${esc(rt.nodig)}</div>` : ""}
+      ${rt.sturen ? `<div class="rs">Zonnestuur kan dan: ${esc(rt.sturen)}</div>` : ""}
+      ${rt.handmatig ? `<div class="rs">${esc(rt.uitleg || "Dit kan nog niet met een knop.")}${safeUrl(rt.link) ? ` <a href="${esc(rt.link)}" target="_blank" rel="noopener">Uitleg</a>` : ""}</div>` : ""}
+      <div class="go">${goButton(info, LIST.indexOf(r), j, rt)}</div></div>`;
+  };
+  $("results").innerHTML = !iets ? "" : rows.slice(0, LIMIT).map((r) => {
+    const rts = routesOf(r), on = rts.some(connected);
+    // de beste manier voorop; andere manieren ingeklapt (de meeste mensen hebben er één nodig)
+    const best = Math.max(0, rts.findIndex(connected) >= 0 ? rts.findIndex(connected) : rts.findIndex((x) => !x.handmatig));
+    const rest = rts.map((rt, j) => [rt, j]).filter(([, j]) => j !== best);
     return `<details class="brandrow"><summary><span class="bname">${esc(r.merk)}</span>
-      <span class="pill ${on ? "direct" : p[1]}">${on ? "Gekoppeld" : esc(p[0])}</span>
-      <span class="bmeta">${esc(r.categorie)} · ${esc(r.producten)}</span></summary>
-      <div class="routes">${routesOf(r).map((rt, j) => {
-        const info = routeInfo(rt, r);
-        const tech = "";
-        return `<div class="route"><div class="rt">${j === 0 ? "" : "Of: "}${esc(info.label)}${tech}${rt.zeker === false ? '<span class="tag">nog niet bevestigd</span>' : ""}${connected(rt) ? '<span class="tag ok">gekoppeld</span>' : ""}</div>
-          <div class="rn"><b>Nodig:</b> ${esc(rt.nodig || "niets extra")}</div>
-          ${rt.sturen ? `<div class="rs">Zonnestuur kan dan: ${esc(rt.sturen)}</div>` : ""}
-          ${rt.handmatig ? `<div class="rs"><b>Met de hand:</b> ${esc(rt.uitleg || "dit kan nog niet met een knop")}${safeUrl(rt.link) ? ` <a href="${esc(rt.link)}" target="_blank" rel="noopener">Uitleg</a>` : ""}</div>` : ""}
-          <div class="go">${goButton(info, LIST.indexOf(r), j, rt)}</div></div>`;
-      }).join("")}</div></details>`;
+      ${on ? '<span class="pill direct">Gekoppeld</span>' : ""}
+      <span class="bmeta">${esc(r.producten)}</span></summary>
+      <div class="routes">${rts.length ? routeHtml(r, rts[best], best) : '<p class="small muted">Nog geen koppeling bekend.</p>'}
+        ${rest.length ? `<details class="anders"><summary>${rest.length === 1 ? "Andere manier" : `Andere manieren (${rest.length})`}</summary>${rest.map(([rt, j]) => routeHtml(r, rt, j)).join("")}</details>` : ""}</div></details>`;
   }).join("");
-  $("more").hidden = rows.length <= LIMIT;
+  $("more").hidden = !iets || rows.length <= LIMIT;
   $("results").querySelectorAll("[data-go]").forEach((b) => b.onclick = () => { const [ri, j] = b.dataset.go.split(",").map(Number); go(LIST[ri], routesOf(LIST[ri])[j]); });
 }
 function goButton(info, ri, j, rt) {
@@ -759,6 +876,26 @@ async function enodeChoose(kind, title) {
   }
 }
 
+// ---------- toevoegen: soort -> merk -> koppelen ----------
+function openToevoegen(cat) {
+  $("anderMerk").hidden = false; document.body.classList.add("blad-open");
+  const t = [...$("soortKies").querySelectorAll("[data-cat]")].find((b) => b.dataset.cat === cat);
+  kiesSoort(cat || "", t ? t.textContent.trim() : cat || "");
+  setTimeout(() => $("t_dicht").focus(), 50);
+}
+function sluitToevoegen() {
+  $("anderMerk").hidden = true; document.body.classList.remove("blad-open");
+  if (location.hash === "#toevoegen") history.replaceState(null, "", location.pathname + location.search);
+}
+function kiesSoort(cat, label) {
+  CAT = cat; LIMIT = 40;
+  $("t_soort").hidden = !!cat; $("t_terug").hidden = !cat;
+  $("t_titel").textContent = cat ? label : "Apparaat toevoegen";
+  $("q_label").textContent = cat ? "Kies het merk, of zoek het" : "Of zoek het merk";
+  $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.c === CAT));
+  render();
+  $("anderMerk").scrollTop = 0;
+}
 // ---------- laden ----------
 async function load() {
   try { OV = await api("api/koppel"); } catch (e) { OV = { error: e.message }; }
@@ -777,10 +914,14 @@ const IC = {
   stekker: '<path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/>',
   merk: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
   ok: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  meer: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  laad: '<rect x="6" y="3" width="9" height="18" rx="2"/><path d="M10.5 8l-2 3.5h4l-2 3.5"/><path d="M15 10h2a2 2 0 0 1 2 2v4a1.5 1.5 0 0 0 3 0V9"/>',
+  was: '<rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M7 6.5h2"/>',
 };
 const ico = (k, cls = "") => `<span class="ic ${cls}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[k] || IC.generic}</svg></span>`;
 const KNOP = { toevoegen: "Toevoegen", koppelen: "Koppelen", inloggen: "Inloggen", kiezen: "Kiezen" };
-let HUIS = null, HUIS_BEZIG = false;
+let HUIS = null, HUIS_BEZIG = false, STAND = {};
 function soortIcoon(g) {
   const t = (g.uitleg + " " + g.naam).toLowerCase();
   if (g.actie.type === "meter" || g.actie.type === "meter_lan") return "meter";
@@ -795,20 +936,31 @@ function huisTekenen() {
   const h = HUIS; if (!h) return;
   const g = h.gevonden || [];
   $("zSpin").hidden = !h.zoekt;
-  $("zTekst").textContent = h.zoekt ? "Zonnestuur zoekt in je huis… (± 1 minuut)"
-    : h.gezocht_s == null ? "Zonnestuur heeft nog niet gezocht."
-    : `Laatst gezocht ${h.gezocht_s < 90 ? "net" : Math.round(h.gezocht_s / 60) + " min geleden"}. ${g.length ? `${g.length} ${g.length === 1 ? "ding" : "dingen"} gevonden die nog één stap nodig ${g.length === 1 ? "heeft" : "hebben"}.` : "Niets nieuws gevonden."}`;
+  $("zTekst").textContent = h.zoekt ? "Zonnestuur zoekt in je huis… dat duurt ongeveer een minuut."
+    : h.gezocht_s == null ? "Zonnestuur heeft nog niet in je huis gezocht."
+    : `Zonnestuur zocht ${h.gezocht_s < 90 ? "net" : Math.round(h.gezocht_s / 60) + " min geleden"} in je huis${g.length ? "" : " en vond niets nieuws"}.`;
+  $("zoekNu").hidden = !!h.zoekt;
   $("zoekNu").disabled = !!h.zoekt;
   $("stapKaart").hidden = !g.length;
-  $("stappen").innerHTML = g.map((x, i) => `<div class="rij">${ico(soortIcoon(x), "let")}<span><b>${esc(x.naam)}</b><span class="sub">${esc(x.uitleg || "")}${x.stap === "inloggen" && x.nodig ? `. ${esc(x.nodig)}` : ""}</span></span>
+  $("stappen").innerHTML = g.map((x, i) => `<div class="rij">${ico(soortIcoon(x))}<span><b>${esc(x.naam)}</b><span class="sub">${esc(x.uitleg || "")}${x.stap === "inloggen" && x.nodig ? `. ${esc(x.nodig)}` : ""}</span></span>
     ${x.stap === "vraag" ? `<span class="act" style="display:flex;gap:6px"><button class="btn small" data-vm="${i}" data-a="ja">Ja</button><button class="btn ghost small" data-vm="${i}" data-a="nee">Nee</button></span>`
       : `<button class="btn small act" data-stap="${i}">${KNOP[x.stap] || "Toevoegen"}</button>`}</div>`).join("");
   const mee = h.doet_mee || [];
-  $("mee").innerHTML = mee.length ? mee.map((d) => `<div class="rij">${ico(d.kind, "ok")}<span><b>${esc(d.naam)}</b><span class="sub">${esc(d.soort)}${d.leverancier ? ` · ${esc(d.leverancier)} stuurt, Zonnestuur kijkt mee` : ""}</span></span>
-    ${d.driver === "batterij" ? `<a class="act" href="instellingen#batCard">Aanpassen</a>` : d.driver === "meekijken" ? `<a class="act" href="vergelijk">Bekijken</a>` : `<a class="act" href="instellingen?apparaat=${encodeURIComponent(d.id)}">Aanpassen</a>`}</div>`).join("")
-    : `<p class="leeg">${g.length ? "Nog niets. Kies hierboven wat mee mag doen." : "Nog niets. Zonnestuur zoekt vanzelf; staat je apparaat er niet bij, kies dan hieronder het merk."}</p>`;
-  $("basis").innerHTML = (h.basis || []).map((b) => `<div class="rij">${ico(b.soort, b.ok ? "ok" : "let")}<span><b>${esc(b.naam)}</b><span class="sub">${esc(b.tekst)}</span></span>
-    <a class="act" href="instellingen#${b.soort === "meter" ? "inst_meter" : b.soort === "zon" ? "inst_zon" : "inst_meter"}">${b.ok ? "Aanpassen" : "Instellen"}</a></div>`).join("");
+  const PIJL = '<span class="pijl" aria-hidden="true"></span>';
+  const naarMee = (d) => d.driver === "batterij" ? `apparaat?id=bat-${encodeURIComponent(d.id)}` : d.driver === "meekijken" ? `apparaat?id=obs-${encodeURIComponent(d.id)}`
+    : `apparaat?id=${encodeURIComponent(d.id)}`;
+  const KLEUR = { heatpump: "paars", boiler: "blauw", ev: "groen", battery: "groen", zon: "indigo", generic: "grijs" };
+  const rijHtml = (href, kind, naam, st) => `<a class="rij link app-rij" href="${href}"><span class="ic vol ${KLEUR[kind] || "grijs"}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[kind] || IC.generic}</svg></span>
+    <span><b>${esc(naam)}${st && st.label ? ` <i class="lbl ${st.cls}">${esc(st.label)}</i>` : ""}</b><span class="sub">${st ? `<span class="kw">${esc(st.kw)}</span>${st.extra ? `<span>${esc(st.extra)}</span>` : ""}` : ""}</span></span>${PIJL}</a>`;
+  const zon = STAND._zon;
+  $("mee").innerHTML = (mee.length || zon ? mee.map((d) => rijHtml(naarMee(d), d.kind, d.naam, STAND[d.id] || { kw: "", label: "", extra: d.soort })).join("")
+      + (zon ? rijHtml("instellingen?onderdeel=inst_zon,feedCard", "zon", "Zonnepanelen", zon) : "") : "")
+    + `<button type="button" class="rij link plusrij${mee.length ? "" : " leegrij"}" id="plusRij">${ico("plus")}<span><b>${mee.length ? "Apparaat toevoegen" : "Voeg je eerste apparaat toe"}</b><span class="sub">${mee.length ? "Laadpaal, boiler, warmtepomp, batterij of wasmachine" : g.length ? "Of kies hierboven wat Zonnestuur gevonden heeft." : "Zonnestuur zoekt ook vanzelf in je huis."}</span></span>${PIJL}</button>`;
+  $("plusRij").onclick = () => openToevoegen("");
+  const NAAR_BASIS = { meter: "inst_meter", zon: "inst_zon,feedCard", prijs: "inst_contract" };
+  $("basis").innerHTML = (h.basis || []).filter((b) => b.soort !== "zon" || !STAND._zon).map((b) => `<a class="rij link" href="instellingen?onderdeel=${NAAR_BASIS[b.soort] || "inst_meter"}">${ico(b.soort)}<span><b>${esc(b.naam)}</b><span class="sub">${b.ok ? "" : '<i class="let-op">Nog instellen · </i>'}${esc(b.tekst)}</span></span>${PIJL}</a>`).join("");
+  // ontbreekt er iets aan de basis (bijv. geen meter), dan staat 'Je huis' bovenaan
+  $("basisKaart").classList.toggle("eerst", (h.basis || []).some((b) => !b.ok));
   const nn = h.niet_nodig || [];
   $("ookGezien").hidden = !nn.length && !h.netwerk_aantal;
   $("ookGezien").innerHTML = `${h.netwerk_aantal ? `Zonnestuur zag ${h.netwerk_aantal} apparaten in je netwerk.` : ""} ${nn.length ? `Niet nodig voor Zonnestuur: ${nn.map(esc).join(", ")}.` : ""}`;
@@ -818,7 +970,7 @@ function huisTekenen() {
     try { await post("api/meterpatroon", { soort: x.actie.soort, antwoord: b.dataset.a }); } catch (e) {}
     if (b.dataset.a === "ja" && x.actie.cat) {
       CAT = x.actie.cat; $("cats").querySelectorAll("button").forEach((y) => y.classList.toggle("on", y.dataset.c === CAT));
-      $("q").value = ""; render(); $("anderMerk").open = true; $("anderMerk").scrollIntoView({ block: "start", behavior: "smooth" });
+      $("q").value = ""; openToevoegen(CAT);
     }
     huisLaden(false);
   });
@@ -827,6 +979,32 @@ async function huisLaden(zoek) {
   if (HUIS_BEZIG && !zoek) return;
   HUIS_BEZIG = true;
   try { HUIS = await api("api/koppel/huis" + (zoek === "nu" ? "?zoek=1&nu=1" : zoek ? "?zoek=1" : "")); } catch (e) { $("zTekst").textContent = e.message; return; }
+  finally { HUIS_BEZIG = false; }
+  // wat elk apparaat nu doet: vermogen, een label (Actief, Laden, Wacht op zon) en een korte regel
+  try { const st = await api("api/status"); STAND = { _s: st };
+    const kwt = (w) => (Math.abs(w || 0) / 1000).toLocaleString("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " kW";
+    const tijd = (iso) => new Date(iso).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+    (st.devices || []).forEach((d) => {
+      const aan = d.on && d.power_w > 50, plan = ((st.plan && st.plan.items) || []).find((x) => x.device === d.id);
+      const car = d.ev && d.ev.cars && (d.ev.cars.find((c) => c.id === d.ev.active) || d.ev.cars[0]);
+      let label = "", cls = "";
+      if (!d.online && !(d.reason || "").startsWith("wacht")) { label = "Geen verbinding"; cls = "rood"; }
+      else if (aan) { label = d.kind === "ev" ? "Laden" : "Actief"; cls = "groen"; }
+      else if (d.mode === "off") { label = "Uit"; cls = ""; }
+      else if (plan) { label = plan.source === "zon" ? "Wacht op zon" : "Gepland"; cls = "amber"; }
+      const extra = car && car.soc != null ? Math.round(car.soc) + "%" : plan && !aan ? "Start om " + tijd(plan.start) : d.reason ? d.reason.charAt(0).toUpperCase() + d.reason.slice(1) : "";
+      STAND[d.id] = { kw: kwt(aan ? d.power_w : 0), label, cls, extra };
+    });
+    (st.batteries || []).forEach((b) => {
+      const p = b.power_w || 0;
+      STAND[b.id] = { kw: (p < -30 ? "−" : "") + kwt(p), label: !b.online ? "Geen verbinding" : p > 30 ? "Laden" : p < -30 ? "Levert" : "Rust",
+        cls: !b.online ? "rood" : Math.abs(p) > 30 ? "groen" : "", extra: b.soc != null ? Math.round(b.soc) + "%" : "" };
+    });
+    (st.waarnemen || []).forEach((w) => { STAND[w.id] = { kw: kwt(w.power_w || 0), label: (w.power_w || 0) > 300 ? "Laden" : "", cls: "groen",
+      extra: w.soc != null ? Math.round(w.soc) + "% · " + (w.wie || "") + " stuurt" : (w.wie || "") + " stuurt" }; });
+    const pv = st.inverter && st.inverter.pv_w != null ? st.inverter.pv_w : st.forecast_now_w;
+    STAND._zon = st.has_panels ? { kw: kwt(pv || 0), label: (pv || 0) > 50 ? "Actief" : "", cls: "groen", extra: st.solar_kwp ? String(st.solar_kwp).replace(".", ",") + " kWp" : "" } : null;
+  } catch (e) {}
   finally { HUIS_BEZIG = false; }
   huisTekenen();
   if (HUIS.zoekt) { await sleep(4000); return huisLaden(false); }
@@ -854,7 +1032,7 @@ async function stapDoen(g, b) {
     if (a.type === "categorie") {
       CAT = a.cat; $("cats").querySelectorAll("button").forEach((y) => y.classList.toggle("on", y.dataset.c === CAT));
       $("soortKies").querySelectorAll("button").forEach((y) => y.classList.toggle("on", y.dataset.cat === CAT));
-      $("q").value = ""; render(); $("anderMerk").open = true; $("anderMerk").scrollIntoView({ block: "start", behavior: "smooth" }); return;
+      $("q").value = ""; openToevoegen(CAT); return;
     }
   } catch (e) { b.disabled = false; b.textContent = KNOP[g.stap] || "Toevoegen"; alertPanel(e.message); }
 }
@@ -905,13 +1083,16 @@ async function meterAanbod() {
   }
   render();
   $("zoekNu").onclick = () => huisLaden("nu");
-  $("soortKies").querySelectorAll("[data-cat]").forEach((b) => b.onclick = () => {
-    const aan = CAT !== b.dataset.cat; CAT = aan ? b.dataset.cat : ""; LIMIT = 40;
-    $("soortKies").querySelectorAll("button").forEach((x) => x.classList.toggle("on", aan && x === b));
-    $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.c === CAT));
-    render(); $("results").scrollIntoView({ block: "start", behavior: "smooth" });
+  $("soortKies").querySelectorAll("[data-cat]").forEach((b) => {
+    b.querySelector(".ti").innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[b.dataset.ic] || IC.generic}</svg>`;
+    b.onclick = () => { if (b.dataset.cat) kiesSoort(b.dataset.cat, b.textContent.trim()); else { $("q").focus(); } };
   });
-  if (qp.get("q") || qp.get("cat")) $("anderMerk").open = true;
+  $("toevoegKnop").onclick = () => openToevoegen("");
+  $("t_dicht").onclick = sluitToevoegen;
+  $("t_terug").onclick = () => kiesSoort("", "");
+  $("anderMerk").addEventListener("keydown", (e) => { if (e.key === "Escape" && $("panel").hidden) sluitToevoegen(); });
+  if (qp.get("q") || qp.get("cat")) openToevoegen(CAT);
+  if (location.hash === "#toevoegen") openToevoegen("");
   if (qp.get("q")) { const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start" }); } }   // vanuit het eerste instellen: meteen open
   await load();
   huisLaden(true);

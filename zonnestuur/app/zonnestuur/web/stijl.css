@@ -14,23 +14,23 @@
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
-    --zs-dag: #0d151d; --zs-vlak: #15202b; --zs-ink: #eef3f7; --zs-ink2: #a8b4bf; --zs-ink3: #8693a0; --zs-lijn: rgba(238, 243, 247, .10);
-    --zs-blauw: #5b8cff; --zs-zacht: rgba(238, 243, 247, .06);
-    --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: rgba(238, 243, 247, .04);
+    --zs-dag: #08111f; --zs-vlak: #0f1c2f; --zs-ink: #eef3fa; --zs-ink2: #a6b5ca; --zs-ink3: #8597ae; --zs-lijn: rgba(140, 172, 220, .15);
+    --zs-blauw: #3b82f6; --zs-zacht: rgba(160, 190, 235, .08);
+    --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: rgba(160, 190, 235, .05);
     --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn); --shadow: 0 0 0 1px var(--zs-lijn);
     --ink: var(--zs-ink); --ink-2: var(--zs-ink2); --ink-3: var(--zs-ink3);
-    --net: var(--zs-blauw); --cheap: var(--zs-blauw); --chip: var(--zs-zacht); --seg: rgba(238, 243, 247, .07); --seg-on: rgba(238, 243, 247, .14);
+    --net: var(--zs-blauw); --cheap: var(--zs-blauw); --chip: var(--zs-zacht); --seg: rgba(160, 190, 235, .08); --seg-on: var(--zs-blauw);
     --aura-1: transparent; --aura-2: transparent; --aura-3: transparent;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --zs-dag: #0d151d; --zs-vlak: #15202b; --zs-ink: #eef3f7; --zs-ink2: #a8b4bf; --zs-ink3: #8693a0; --zs-lijn: rgba(238, 243, 247, .10);
-  --zs-blauw: #5b8cff; --zs-zacht: rgba(238, 243, 247, .06);
-  --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: rgba(238, 243, 247, .04);
+  --zs-dag: #08111f; --zs-vlak: #0f1c2f; --zs-ink: #eef3fa; --zs-ink2: #a6b5ca; --zs-ink3: #8597ae; --zs-lijn: rgba(140, 172, 220, .15);
+  --zs-blauw: #3b82f6; --zs-zacht: rgba(160, 190, 235, .08);
+  --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: rgba(160, 190, 235, .05);
   --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn); --shadow: 0 0 0 1px var(--zs-lijn);
   --ink: var(--zs-ink); --ink-2: var(--zs-ink2); --ink-3: var(--zs-ink3);
-  --net: var(--zs-blauw); --cheap: var(--zs-blauw); --chip: var(--zs-zacht); --seg: rgba(238, 243, 247, .07); --seg-on: rgba(238, 243, 247, .14);
+  --net: var(--zs-blauw); --cheap: var(--zs-blauw); --chip: var(--zs-zacht); --seg: rgba(160, 190, 235, .08); --seg-on: var(--zs-blauw);
   --aura-1: transparent; --aura-2: transparent; --aura-3: transparent;
 }
 
@@ -139,3 +139,54 @@ main > h1, main > header + h1, .inst-kop h1 { font-size: clamp(34px, 4.4vw, 48px
 .num, .kpi b, .evc-soc, .dev .watt, .rij b, [class*="bedrag"], .big { font-variant-numeric: tabular-nums; }
 /* rustig bewegen; wie dat liever niet heeft, krijgt niets */
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* 0.76: eigen vinkjes en keuzerondjes, overal gelijk (de iPhone tekent ze in donker anders als zwarte bolletjes) */
+input[type="checkbox"]:not(.schakel input):not(.sw input):not([hidden]), input[type="radio"]:not(.schakel input):not(.sw input):not([hidden]) {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px; min-width: 22px; min-height: 22px; margin: 0; padding: 0; flex: none;
+  display: inline-grid; place-items: center; vertical-align: -5px; cursor: pointer;
+  border: 1.75px solid color-mix(in srgb, var(--zs-ink) 38%, transparent); border-radius: 7px; background: var(--zs-vlak);
+  transition: background-color .12s, border-color .12s; }
+input[type="radio"]:not(.schakel input):not(.sw input):not([hidden]) { border-radius: 50%; }
+input[type="checkbox"]:not(.schakel input):not(.sw input)::after { content: ""; width: 5px; height: 10px; border: solid #fff; border-width: 0 2.4px 2.4px 0;
+  transform: translateY(-1px) rotate(45deg) scale(.4); opacity: 0; transition: transform .12s, opacity .12s; }
+input[type="radio"]:not(.schakel input):not(.sw input)::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; transform: scale(.4); opacity: 0; transition: transform .12s, opacity .12s; }
+input[type="checkbox"]:not(.schakel input):not(.sw input):checked, input[type="radio"]:not(.schakel input):not(.sw input):checked { background: var(--zs-blauw); border-color: var(--zs-blauw); }
+input[type="checkbox"]:not(.schakel input):not(.sw input):checked::after { opacity: 1; transform: translateY(-1px) rotate(45deg) scale(1); }
+input[type="radio"]:not(.schakel input):not(.sw input):checked::after { opacity: 1; transform: scale(1); }
+input[type="checkbox"]:not(.schakel input):not(.sw input):focus-visible, input[type="radio"]:not(.schakel input):not(.sw input):focus-visible { outline: 2px solid var(--zs-blauw); outline-offset: 2px; }
+input[type="checkbox"]:not(.schakel input):not(.sw input):disabled, input[type="radio"]:not(.schakel input):not(.sw input):disabled { opacity: .45; cursor: default; }
+@media (prefers-reduced-motion: reduce) { input[type="checkbox"]::after, input[type="radio"]::after { transition: none !important; } }
+
+/* ===== 0.76: het nieuwe ontwerp (donkerblauw, zoals het ontwerp van Zonnestuur) =====================================
+   Donker is de standaard (zie pagina_html); licht kan nog met de knop. Accentkleuren met een vaste betekenis:
+   blauw = kiezen en goedkoop, groen = actief en besparing, amber = zon en wachten, paars = warmtepomp, turkoois = prijslijn. */
+:root { --zs-groen: #16a34a; --zs-amber: #d97706; --zs-paars: #7c3aed; --zs-teal: #0d9488; --zs-knop: var(--zs-ink); --zs-knop-ink: var(--zs-vlak);
+  --zs-kaart: var(--zs-vlak); --zs-gloed: none; --zs-accent: #1d4ed8; }
+@media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) {
+  --zs-groen: #34d399; --zs-amber: #fbbf24; --zs-paars: #a78bfa; --zs-teal: #2dd4bf; --zs-knop: #2563eb; --zs-knop-ink: #fff; --zs-accent: #60a5fa;
+  --zs-kaart: linear-gradient(180deg, #12223a 0%, #0e1a2d 100%);
+  --zs-gloed: radial-gradient(1100px 520px at 50% -160px, #17305a 0%, rgba(23, 48, 90, 0) 70%);
+  --good: #34d399; --sun: #fbbf24; --mid: #64748b; } }
+:root[data-theme="dark"] {
+  --zs-groen: #34d399; --zs-amber: #fbbf24; --zs-paars: #a78bfa; --zs-teal: #2dd4bf; --zs-knop: #2563eb; --zs-knop-ink: #fff; --zs-accent: #60a5fa;
+  --zs-kaart: linear-gradient(180deg, #12223a 0%, #0e1a2d 100%);
+  --zs-gloed: radial-gradient(1100px 520px at 50% -160px, #17305a 0%, rgba(23, 48, 90, 0) 70%);
+  --good: #34d399; --sun: #fbbf24; --mid: #64748b; }
+body { background: var(--zs-gloed), var(--zs-dag) !important; background-repeat: no-repeat !important; }
+.card, section.card, article.card { background: var(--zs-kaart); }
+.btn, .btn-line.on-sun, .evc-go { background: var(--zs-knop) !important; color: var(--zs-knop-ink) !important; border-color: var(--zs-knop) !important; }
+.seg button.active, .seg button.on, .chips button.on, .days button.on { background: var(--zs-knop) !important; color: var(--zs-knop-ink) !important; border-color: var(--zs-knop) !important; }
+:root[data-theme="dark"] .testfase { background: #1a2436 !important; color: #c9d6e8 !important; border-bottom-color: rgba(140, 172, 220, .15) !important; }
+:root[data-theme="dark"] .testfase strong { color: #fbbf24; }
+.btn.danger { background: color-mix(in srgb, #ef4444 16%, transparent) !important; color: #f87171 !important; border-color: transparent !important; }
+:root:not([data-theme="dark"]) .btn.danger { color: #b42318 !important; }
+/* aan/uit-vragen (label.check-row) als schakelaar, zoals op Slimme sturing */
+label.check-row > input[type="checkbox"]:not([hidden]) { width: 46px !important; min-width: 46px !important; height: 28px !important; min-height: 28px !important;
+  border-radius: 99px !important; border: 0 !important; background: var(--zs-zacht) !important; box-shadow: inset 0 0 0 1.5px var(--zs-lijn); place-items: center start !important;
+  padding: 0 3px !important; flex: none; }
+label.check-row > input[type="checkbox"]:not([hidden])::after { width: 22px !important; height: 22px !important; border: 0 !important; border-radius: 50% !important; background: #fff !important;
+  transform: none !important; opacity: 1 !important; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); transition: transform .15s !important; }
+label.check-row > input[type="checkbox"]:not([hidden]):checked { background: var(--zs-groen, #16a34a) !important; box-shadow: none; }
+label.check-row > input[type="checkbox"]:not([hidden]):checked::after { transform: translateX(18px) !important; }
+label.check-row:has(> input[type="checkbox"]:not([hidden])) { display: block !important; position: relative; padding: 6px 62px 6px 0 !important; min-height: 40px; }
+label.check-row:has(> input[type="checkbox"]:not([hidden])) > input[type="checkbox"] { position: absolute !important; right: 0; top: 6px; margin: 0 !important; }

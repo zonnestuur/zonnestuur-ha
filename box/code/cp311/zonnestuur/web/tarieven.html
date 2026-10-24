@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur tarieven</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 760px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 48px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  .kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 2px 14px; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 0; }
+  .info { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--zs-ink); text-decoration: none; }
+  .info svg { width: 24px; height: 24px; }
+  .seg { display: flex; gap: 4px; padding: 4px; border-radius: 99px; background: var(--zs-zacht); box-shadow: 0 0 0 1px var(--zs-lijn); margin: 0 0 16px; }
+  .seg button { flex: 1 1 0; font: 600 14.5px/1 Inter, sans-serif; color: var(--zs-ink2); background: none; border: 0; padding: 11px 8px; border-radius: 99px; cursor: pointer; min-height: 40px; }
+  .seg button[aria-pressed="true"] { background: var(--zs-knop); color: var(--zs-knop-ink); }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin: 0 0 14px; }
+  .prijskop { display: flex; align-items: center; gap: 10px; color: var(--zs-ink2); font-weight: 600; }
+  .prijskop svg { width: 26px; height: 26px; color: #60a5fa; }
+  .prijsrij { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 10px 0 4px; }
+  .groot { font: 760 clamp(34px, 9vw, 44px)/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .groot small { font-size: .45em; font-weight: 600; color: var(--zs-ink2); letter-spacing: 0; }
+  .badge { font: 700 13px/1 Inter, sans-serif; padding: 7px 11px; border-radius: 99px; white-space: nowrap; }
+  .badge.cheap { background: color-mix(in srgb, var(--zs-groen) 18%, transparent); color: var(--zs-groen); }
+  .badge.mid { background: color-mix(in srgb, var(--zs-amber) 18%, transparent); color: var(--zs-amber); }
+  .badge.dear { background: color-mix(in srgb, #f87171 20%, transparent); color: #f87171; }
+  .sub { color: var(--zs-ink2); font-size: 14px; margin: 0; }
+  .grafiek { position: relative; margin-top: 14px; }
+  .grafiek svg { display: block; width: 100%; height: 210px; overflow: visible; }
+  .grafiek .as { fill: var(--zs-ink3); font: 500 11.5px Inter, sans-serif; }
+  .grafiek .raster { stroke: var(--zs-lijn); }
+  .callout { position: absolute; transform: translate(-50%, -100%); padding: 7px 10px; border-radius: 12px; background: var(--zs-vlak); color: var(--zs-ink);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--zs-teal) 55%, transparent), 0 10px 24px -12px rgba(0,0,0,.6); font-size: 12.5px; line-height: 1.3; text-align: center; white-space: nowrap; pointer-events: none; }
+  .callout b { display: block; font-size: 14.5px; }
+  .rij { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto 10px; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+  .rij .ic { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--zs-zacht); }
+  .rij .ic svg { width: 24px; height: 24px; }
+  .rij b { display: block; font-weight: 650; }
+  .rij .s { display: block; font-size: 13.5px; color: var(--zs-ink2); line-height: 1.4; }
+  .rij .w { font: 700 20px/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); }
+  a.kaart:hover b { text-decoration: underline; text-underline-offset: 3px; }
+  .actief { font: 700 12px/1 Inter, sans-serif; padding: 6px 9px; border-radius: 99px; background: color-mix(in srgb, var(--zs-groen) 18%, transparent); color: var(--zs-groen); }
+  .week { display: grid; gap: 8px; margin-top: 12px; }
+  .dag { display: grid; grid-template-columns: 86px minmax(0, 1fr) 64px; gap: 10px; align-items: center; font-size: 14px; }
+  .dag .bar { position: relative; height: 10px; border-radius: 99px; background: var(--zs-zacht); }
+  .dag .bar i { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, var(--zs-teal), #60a5fa); }
+  .dag .bar em { position: absolute; top: -3px; width: 3px; height: 16px; border-radius: 2px; background: var(--zs-ink); }
+  .dag b { text-align: right; font-variant-numeric: tabular-nums; }
+  .dag small { display: block; color: var(--zs-ink3); font-size: 12px; }
+  .leeg { color: var(--zs-ink2); }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <div class="kop"><h1>Tarieven</h1><a class="info" href="help#prijzen" aria-label="Uitleg over de prijzen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></a></div>
+  <div class="seg" role="group" aria-label="Periode"><button type="button" data-p="vandaag" aria-pressed="true">Vandaag</button><button type="button" data-p="morgen" aria-pressed="false">Morgen</button><button type="button" data-p="week" aria-pressed="false">Deze week</button></div>
+
+  <section class="kaart" id="prijsKaart" aria-live="polite">
+    <div class="prijskop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V14M9 20V9M14 20v-4M19 20V5"/><path d="M4 11l5-4 5 3 5-6"/></svg><span id="pkTitel">Dynamische stroomprijs</span></div>
+    <div class="prijsrij"><span class="groot" id="pkNu">–</span><span class="badge" id="pkBadge" hidden></span></div>
+    <p class="sub" id="pkSub">&nbsp;</p>
+    <div class="grafiek" id="grafiek"></div>
+    <div class="week" id="week" hidden></div>
+  </section>
+
+  <section class="kaart" id="terugKaart" hidden>
+    <div class="rij"><span class="ic" style="color:#60a5fa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 6 13h5l-1 8 7-10h-5z"/></svg></span>
+      <span><b>Terugleververgoeding</b><span class="s" id="tvTekst">Wat je nu krijgt voor stroom die je teruglevert</span></span><span class="w" id="tvWaarde">–</span><span></span></div>
+  </section>
+
+  <a class="kaart rij" href="sturing" id="sturingKaart"><span class="ic" style="color:var(--zs-groen)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 3 3V3zM15 3a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-3 3V3z"/></svg></span>
+    <span><b>Slimme sturing <span class="actief">Actief</span></b><span class="s" id="stTekst">Zonnestuur zet je apparaten aan op de goedkoopste momenten en bij genoeg zon.</span></span><span></span><span class="pijl" aria-hidden="true"></span></a>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const nl = (v, d = 0) => (v ?? 0).toLocaleString("nl-NL", { minimumFractionDigits: d, maximumFractionDigits: d });
+const eur2 = (v) => (v < 0 ? "−€ " : "€ ") + nl(Math.abs(v), 2);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const hhmm = (t) => new Date(t * 1000).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p) { const r = await fetch(p, { headers: { "X-Token": token } }); if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p); } return r.json(); }
+let P = null, PER = "vandaag";
+function niveau(p, avg) { const band = Math.max(0.01, Math.abs(avg) * 0.15); return p <= avg - band ? "cheap" : p >= avg + band ? "dear" : "mid"; }
+const WOORD = { cheap: "Laag", mid: "Normaal", dear: "Hoog" };
+let VERWACHT = false;
+function dagSlots(dag) {           // 0 = vandaag, 1 = morgen (nog niet bekend: de verwachting uit het weer)
+  const s0 = P.start + dag * 86400;
+  const sl = (P.slots || []).filter((r) => r.ts >= s0 && r.ts < s0 + 86400);
+  VERWACHT = false;
+  if (dag === 1 && sl.length < 20) {
+    const v = ((P.verwachting || {}).dagen || [])[0];
+    if (v && (v.uren || []).length) { VERWACHT = true; return v.uren.map((u) => ({ ts: u.ts, end: u.ts + 3600, all_in: u.all_in })); }
+  }
+  return sl;
+}
+function goedkoopste(sl, n = 3) {
+  let best = null;
+  for (let i = 0; i + n <= sl.length; i++) { const g = sl.slice(i, i + n).reduce((a, r) => a + r.all_in, 0) / n; if (!best || g < best.p) best = { p: g, i, van: sl[i].ts, tot: sl[i + n - 1].end }; }
+  return best;
+}
+function grafiek(sl) {
+  const box = $("grafiek"); if (!sl.length) { box.innerHTML = '<p class="leeg">De prijzen van morgen komen rond 13:00.</p>'; return; }
+  const W = 340, H = 210, L = 38, R = 6, T = 14, B = 24;
+  const ps = sl.map((r) => r.all_in), hi = Math.max(0.3, Math.ceil(Math.max(...ps) * 10) / 10), lo = Math.min(0, Math.floor(Math.min(...ps) * 10) / 10);
+  const x = (i) => L + (W - L - R) * (i + .5) / sl.length, y = (v) => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+  const pts = sl.map((r, i) => [x(i), y(r.all_in)]);
+  // vloeiende lijn (Catmull-Rom)
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`; }
+  const vlak = d + ` L${pts[pts.length - 1][0]},${y(lo)} L${pts[0][0]},${y(lo)} Z`;
+  let rast = "";
+  for (let v = lo; v <= hi + 1e-9; v += 0.1) rast += `<line class="raster" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text class="as" x="${L - 6}" y="${y(v) + 4}" text-anchor="end">€ ${nl(v, 2)}</text>`;
+  let tijden = "";
+  sl.forEach((r, i) => { const h = new Date(r.ts * 1000).getHours(); if (h % 6 === 0) tijden += `<text class="as" x="${x(i)}" y="${H - 6}" text-anchor="middle">${String(h).padStart(2, "0")}:00</text>`; });
+  const b = goedkoopste(sl), nu = Date.now() / 1000, ni = sl.findIndex((r) => nu >= r.ts && nu < r.end);
+  const band = b ? `<rect x="${x(b.i) - (W - L - R) / sl.length / 2}" y="${T}" width="${(W - L - R) / sl.length * 3}" height="${H - T - B}" fill="var(--zs-teal)" opacity=".13" rx="6"/>` : "";
+  const mid = b ? b.i + 1 : 0;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Stroomprijs per uur">
+    <defs><linearGradient id="gv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--zs-teal)" stop-opacity=".38"/><stop offset="1" stop-color="var(--zs-teal)" stop-opacity="0"/></linearGradient></defs>
+    ${rast}${band}<path d="${vlak}" fill="url(#gv)"/><path d="${d}" fill="none" stroke="var(--zs-teal)" stroke-width="2.6" stroke-linecap="round"/>
+    ${b ? `<line x1="${x(mid)}" x2="${x(mid)}" y1="${y(sl[mid].all_in)}" y2="${y(lo)}" stroke="var(--zs-teal)" stroke-dasharray="3 4"/><circle cx="${x(mid)}" cy="${y(sl[mid].all_in)}" r="6" fill="var(--zs-teal)" stroke="var(--zs-vlak)" stroke-width="3"/>` : ""}
+    ${ni >= 0 ? `<circle cx="${x(ni)}" cy="${y(sl[ni].all_in)}" r="4.5" fill="var(--zs-ink)"/><text class="as" x="${x(ni)}" y="${y(sl[ni].all_in) - 10}" text-anchor="middle" style="fill:var(--zs-ink)">nu</text>` : ""}
+    ${tijden}</svg>
+    ${b ? `<div class="callout" style="left:${(x(mid) / W * 100).toFixed(1)}%;top:${(y(sl[mid].all_in) / H * 210 - 16).toFixed(0)}px">${hhmm(b.van)} – ${hhmm(b.tot)}<b>${eur2(b.p)}</b></div>` : ""}`;
+}
+function tekenWeek() {
+  const V = P.verwachting || {}, rijen = [];
+  [0, 1].forEach((dg) => { const sl = dagSlots(dg); if (sl.length >= 20) { const ps = sl.map((r) => r.all_in);
+    rijen.push({ dag: dg ? "Morgen" : "Vandaag", gem: ps.reduce((a, b) => a + b, 0) / ps.length, min: Math.min(...ps), max: Math.max(...ps), zeker: true }); } });
+  (V.dagen || []).forEach((d) => { if (rijen.length >= 7) return; const t = new Date(d.dag + "T12:00");
+    rijen.push({ dag: t.toLocaleDateString("nl-NL", { weekday: "long" }), gem: d.gem, min: d.min, max: d.max, zeker: false, reden: d.reden }); });
+  if (!rijen.length) { $("week").innerHTML = '<p class="leeg">Nog geen verwachting: Zonnestuur leert de prijzen eerst een paar weken.</p>'; return; }
+  const lo = Math.min(...rijen.map((r) => r.min)), hi = Math.max(...rijen.map((r) => r.max)), sp = Math.max(0.01, hi - lo);
+  $("week").innerHTML = rijen.map((r) => `<div class="dag"><span>${esc(r.dag.charAt(0).toUpperCase() + r.dag.slice(1))}<small>${r.zeker ? "bekend" : "verwachting"}</small></span>
+    <span class="bar" title="${esc(r.reden || "")}"><i style="left:${(r.min - lo) / sp * 100}%;width:${Math.max(3, (r.max - r.min) / sp * 100)}%"></i><em style="left:${(r.gem - lo) / sp * 100}%"></em></span>
+    <b>${eur2(r.gem)}</b></div>`).join("") + '<p class="sub" style="margin-top:6px">De balk loopt van de laagste tot de hoogste prijs; het streepje is het gemiddelde. Dagen zonder beursprijs schat Zonnestuur uit wind, zon en temperatuur.</p>';
+}
+function teken() {
+  document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === PER)));
+  if (!P) return;
+  if (P.type !== "dynamic") {
+    $("pkTitel").textContent = "Je stroomprijs (vast)"; $("pkNu").innerHTML = `${eur2(P.import)}<small> /kWh</small>`; $("pkBadge").hidden = true;
+    $("pkSub").textContent = "Met een vast tarief kost stroom altijd hetzelfde. Zonnestuur stuurt dan op je eigen zon."; $("grafiek").innerHTML = ""; $("week").hidden = true;
+    document.querySelector(".seg").hidden = true;
+    $("terugKaart").hidden = false; $("tvWaarde").textContent = eur2(P.net_feed_in); $("tvTekst").textContent = "Per kWh die je teruglevert, na aftrek van terugleverkosten";
+    return;
+  }
+  const week = PER === "week"; $("week").hidden = !week; $("grafiek").hidden = week;
+  const nu = Date.now() / 1000, avg = P.avg_today;
+  if (week) {
+    $("pkTitel").textContent = "Stroomprijs deze week"; const V = P.verwachting || {};
+    $("pkNu").innerHTML = V.gem7 != null ? `${eur2(V.gem7)}<small> gemiddeld</small>` : "–"; $("pkBadge").hidden = true;
+    $("pkSub").textContent = "Gemiddeld per dag, met de laagste en hoogste prijs."; tekenWeek();
+  } else {
+    const sl = dagSlots(PER === "morgen" ? 1 : 0);
+    const cur = PER === "vandaag" ? sl.find((r) => nu >= r.ts && nu < r.end) : null;
+    const gem = sl.length ? sl.reduce((a, r) => a + r.all_in, 0) / sl.length : null;
+    const toon = cur ? cur.all_in : gem;
+    $("pkTitel").textContent = PER === "morgen" ? (VERWACHT ? "Verwachte prijs morgen" : "Stroomprijs morgen") : "Dynamische stroomprijs";
+    $("pkNu").innerHTML = toon != null ? `${eur2(toon)}<small> /kWh${cur ? "" : " gemiddeld"}</small>` : "–";
+    const cls = cur && avg != null ? niveau(cur.all_in, avg) : null;
+    $("pkBadge").hidden = !cls; if (cls) { $("pkBadge").className = "badge " + cls; $("pkBadge").textContent = WOORD[cls]; }
+    const b = goedkoopste(sl.filter((r) => PER !== "vandaag" || r.end > nu));
+    $("pkSub").textContent = !sl.length ? "" : b ? `Goedkoopst ${PER === "morgen" ? "morgen" : "vandaag"}: ${hhmm(b.van)} tot ${hhmm(b.tot)}, gemiddeld ${eur2(b.p)} per kWh. Alles inclusief belasting.` : "Alles inclusief belasting.";
+    if (VERWACHT) $("pkSub").textContent += " De beurs geeft de echte prijzen rond 13:00; dit is de verwachting uit wind, zon en temperatuur.";
+    grafiek(sl);
+  }
+  const cur = (P.slots || []).find((r) => nu >= r.ts && nu < r.end);
+  $("terugKaart").hidden = !cur || cur.feed_in == null;
+  if (cur && cur.feed_in != null) $("tvWaarde").textContent = eur2(cur.feed_in);
+}
+document.querySelectorAll(".seg button").forEach((b) => b.onclick = () => { PER = b.dataset.p; teken(); });
+(async () => { try { P = await api("api/prices"); } catch (e) { $("pkSub").textContent = "Prijzen ophalen lukte niet. Probeer het zo opnieuw."; } teken(); })();
+setInterval(async () => { try { P = await api("api/prices"); teken(); } catch (e) {} }, 300000);
+</script>
+</body>
+</html>

@@ -184,10 +184,14 @@ html, body { overscroll-behavior-y: none; }
   .inst-kop .btn { flex: none; }
   .settings.met-nav { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 8px 28px; align-items: start; }
   .settings.met-nav > :first-child { grid-column: 1 / -1; }
+  body.focus .settings > .inst-kop { margin-bottom: 8px; flex-wrap: wrap; justify-content: flex-start; }
+  body.focus .settings > .inst-kop .terug { flex-basis: 100%; }
+  body.focus .inst-inhoud > section > h2:first-child { display: none; }
+  .terug { display: inline-block; color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 14.5px; padding: 4px 2px; margin-bottom: 2px; }
   .inst-nav { position: sticky; top: 16px; display: grid; gap: 4px; margin-top: 14px; }
   .inst-nav button { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 11px 14px; border-radius: 12px; border: 0; background: none; color: var(--ink-2); cursor: pointer; }
   .inst-nav button:hover { background: var(--chip); color: var(--ink); }
-  .inst-nav button.on { background: var(--ink); color: var(--bg); }
+  .inst-nav button.on { background: var(--zs-knop, var(--ink)); color: var(--zs-knop-ink, var(--bg)); }
   .tiles.wat { grid-template-columns: repeat(3, 1fr); margin-top: 6px; }
   .tile.on { border-color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
   .plan { display: grid; gap: 8px; margin-bottom: 6px; }
@@ -241,6 +245,23 @@ html, body { overscroll-behavior-y: none; }
   details.gevorderd { margin-top: 12px; border-top: 1px solid var(--line, rgba(0,0,0,.08)); padding-top: 10px; }
   details.gevorderd > summary { cursor: pointer; min-height: 32px; }
   details.gevorderd .field { margin-top: 10px; }
+
+  /* 0.76b: instellingen als menu met rijen, in dezelfde stijl als Apparaten */
+  .inst-menu { display: grid; gap: 0; }
+  .inst-g { font: 650 17px/1.3 "Inter Tight", Inter, sans-serif !important; margin: 20px 4px 8px !important; }
+  .inst-lijst { background: var(--zs-kaart, var(--card)); border-radius: 20px; box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
+  .inst-rij { display: grid; grid-template-columns: 44px minmax(0, 1fr) 12px; gap: 2px 14px; align-items: center; padding: 13px 16px; border-top: 1px solid var(--line); min-height: 66px; text-decoration: none; color: inherit; }
+  .inst-rij:first-child { border-top: 0; }
+  .inst-rij .ic { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; color: #fff; }
+  .inst-rij .ic svg { width: 23px; height: 23px; }
+  .inst-rij b { display: block; font-weight: 650; }
+  .inst-rij .sub { display: block; font-size: 13.5px; color: var(--ink-2); line-height: 1.4; }
+  .inst-rij:hover b { text-decoration: underline; text-underline-offset: 3px; }
+  .inst-rij .pijl { width: 8px; height: 8px; border-right: 2px solid var(--ink-3); border-top: 2px solid var(--ink-3); transform: rotate(45deg); }
+  .ic.paars { background: linear-gradient(145deg, #6d28d9, #a78bfa); } .ic.blauw { background: linear-gradient(145deg, #1d4ed8, #60a5fa); }
+  .ic.groen { background: linear-gradient(145deg, #047857, #34d399); } .ic.indigo { background: linear-gradient(145deg, #1e3a8a, #3b82f6); }
+  .ic.grijs { background: linear-gradient(145deg, #334155, #94a3b8); } .ic.amber { background: linear-gradient(145deg, #b45309, #fbbf24); }
+  .ic.rood { background: linear-gradient(145deg, #b91c1c, #f87171); }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -1674,7 +1695,8 @@ function groepeer() {
     const g = GROEPEN.find(([, , ts]) => ts.some((x) => t.startsWith(x)));
     return g ? g[0] : "koppelingen";
   };
-  secs.forEach((x) => { x.dataset.groep = welke(x); });
+  secs.forEach((x) => { x.dataset.groep = welke(x);
+    if (!x.id) { const t = ((x.querySelector("h2") || {}).textContent || "").trim(); if (t) x.id = "inst_" + t.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30); } });
   // (?) bij elk onderdeel: korte uitleg in het help-centrum
   const UITLEG = [["Apparaten", "apparaten"], ["Thuisbatterij", "batterij"], ["Omvormer", "omvormer"], ["Energiecontract", "dynamisch"], ["Jouw doel", "beslissen"],
     ["Meldingen", "meldingen"], ["Huisscherm", "hub"], ["Wandscherm", "hub"], ["Een merk koppelen", "koppelen"], ["Meekijken", "vergelijken"],
@@ -1691,7 +1713,8 @@ function groepeer() {
   });
   const kop = root.firstElementChild, save = root.querySelector(":scope > .actions");
   const nav = document.createElement("nav"); nav.className = "inst-nav"; nav.setAttribute("aria-label", "Onderdelen van de instellingen");
-  nav.innerHTML = GROEPEN.map(([id, t]) => `<button type="button" data-g="${id}">${t}</button>`).join("");
+  // 'Je huis' (meter, zonnepanelen, batterij, apparaten) staat bij Apparaten; hier alleen wat over het hele huis gaat
+  nav.innerHTML = GROEPEN.filter(([id]) => id !== "huis").map(([id, t]) => `<button type="button" data-g="${id}">${t}</button>`).join("");
   const inh = document.createElement("div"); inh.className = "inst-inhoud";
   secs.forEach((x) => inh.appendChild(x));
   if (save) { save.classList.add("savebar"); inh.appendChild(save); }
@@ -1727,15 +1750,65 @@ function groepeer() {
     if (scroll) window.scrollTo({ top: 0 });
   };
   nav.onclick = (e) => { const b = e.target.closest("button[data-g]"); if (b) toon(b.dataset.g, true); };
-  let start = "huis";
+  let start = "geld";
   try { start = sessionStorage.getItem("zs_inst") || start; } catch (e) {}
-  const doel = location.hash && document.querySelector(location.hash);
-  if (doel && doel.dataset && doel.dataset.groep) start = doel.dataset.groep;
-  else if (doel && doel.closest && doel.closest("section[data-groep]")) start = doel.closest("section[data-groep]").dataset.groep;
-  toon(start, false);
-  window.toonGroep = (g) => toon(g, false);
-  window.onhashchange = () => { const d = location.hash && document.querySelector(location.hash); const sec = d && d.closest && d.closest("section[data-groep]");
-    if (sec) { toon(sec.dataset.groep, false); d.scrollIntoView({ block: "start" }); } };
+  if (start === "huis") start = "geld";
+  // Vanaf Apparaten: alleen de instellingen van dat ene onderdeel (meter, zonnepanelen, batterij of een apparaat)
+  const qf = new URLSearchParams(location.search);
+  const focus = qf.get("onderdeel") ? qf.get("onderdeel").split(",") : qf.get("apparaat") ? ["editCard"] : null;
+  if (focus) {
+    document.body.classList.add("focus");
+    zk.hidden = true; nav.hidden = true;
+    secs.forEach((x) => x.classList.toggle("weg", !focus.includes(x.id)));
+    if (save) save.classList.toggle("weg", focus[0] === "editCard");
+    const eerste = secs.find((x) => x.id === focus[0]), h1 = kop.querySelector("h1");
+    if (h1) h1.textContent = focus[0] === "editCard" ? "Apparaat instellen" : (((eerste && eerste.querySelector("h2")) || {}).textContent || "Instellingen").replace(/\?\s*$/, "").trim();
+    if (eerste && eerste.querySelector("h2")) eerste.querySelector("h2").hidden = true;
+    const vanInst = qf.get("van") === "inst";
+    kop.insertAdjacentHTML("afterbegin", `<a class="terug" href="${vanInst ? "instellingen" : focus[0] === "editCard" && qf.get("apparaat") ? "apparaat?id=" + encodeURIComponent(qf.get("apparaat")) : "apparaten"}">← ${vanInst ? "Instellingen" : focus[0] === "editCard" ? "Terug" : "Apparaten"}</a>`);
+    window.toonGroep = () => {};
+    return;
+  }
+  // Een link naar een onderdeel (instellingen#licCard): meteen alleen dat onderdeel openen
+  const naarOnderdeel = (hash) => {
+    let d = null; try { d = hash && document.querySelector(hash); } catch (e) {}
+    const sec = d && (d.matches("section[data-groep]") ? d : d.closest && d.closest("section[data-groep]"));
+    if (!sec) return false;
+    location.replace("instellingen?onderdeel=" + encodeURIComponent(sec.id) + "&van=inst" + (d !== sec ? hash : "")); return true;
+  };
+  if (naarOnderdeel(location.hash)) return;
+  // Het menu: per groep een rij per onderdeel (zoals de rest van de app); tik = alleen dat onderdeel
+  const ICO = [[/^Energiecontract/, "€", "groen"], [/^Jouw doel/, "◎", "paars"], [/^Meten/, "▥", "blauw"], [/^Meldingen/, "bel", "rood"], [/^Huisscherm/, "scherm", "blauw"],
+    [/^Wandscherm/, "scherm", "indigo"], [/^Sensoren/, "raster", "grijs"], [/^Zonnestuur Pro/, "ster", "amber"], [/^Hulp/, "?", "paars"], [/^Installateur/, "sleutel", "grijs"],
+    [/^Beveiliging/, "slot", "grijs"], [/^Thuisbatterij/, "bat", "groen"], [/^Zonnepanelen/, "zon", "amber"], [/^Meter/, "meter", "blauw"], [/^Omvormer/, "zon", "amber"], [/^Apparaten/, "raster", "blauw"]];
+  const PAD = { "€": '<circle cx="12" cy="12" r="8.5"/><path d="M15 8.5a3.5 3.5 0 1 0 0 7M8 11h5M8 13.5h5"/>', "◎": '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+    "▥": '<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>', bel: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+    scherm: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6M12 16v4"/>', raster: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+    ster: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>', "?": '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17h.01"/>',
+    sleutel: '<circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l2 2"/>', slot: '<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
+    bat: '<rect x="7" y="4.5" width="10" height="16" rx="2.5"/><path d="M10 2.5h4"/>', zon: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+    meter: '<path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-5"/>', tand: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>' };
+  const titel = (x) => ((x.querySelector("h2") || {}).textContent || "").replace(/\?\s*$/, "").trim();
+  const subVan = (x) => { const p = x.querySelector(":scope > p.small, :scope > p.muted, :scope > p"); const t = p ? p.textContent.trim() : ""; return t.length > 90 ? t.slice(0, 88).replace(/\s+\S*$/, "") + "…" : t; };
+  const menu = document.createElement("div"); menu.className = "inst-menu";
+  const GRP = [["geld", "Energie"], ["huis", "Je huis"], ["schermen", "Meldingen en schermen"], ["account", "Pro en hulp"], ["koppelingen", "Voor gevorderden"]];
+  menu.innerHTML = GRP.map(([g, t]) => {
+    const items = secs.filter((x) => x.dataset.groep === g && !x.hidden && x.id && x.id !== "editCard" && titel(x));
+    if (!items.length) return "";
+    return `<h2 class="inst-g">${t}</h2><div class="inst-lijst">${items.map((x) => {
+      const n = titel(x), m = ICO.find(([re]) => re.test(n)) || [null, "tand", "grijs"];
+      const href = x.id === "inst_apparaten" ? "apparaten" : "instellingen?onderdeel=" + encodeURIComponent(x.id) + "&van=inst";
+      return `<a class="inst-rij" href="${href}"><span class="ic ${m[2]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${PAD[m[1]]}</svg></span>
+        <span><b>${esc(n)}</b>${subVan(x) ? `<span class="sub">${esc(subVan(x))}</span>` : ""}</span><span class="pijl" aria-hidden="true"></span></a>`;
+    }).join("")}</div>`;
+  }).join("");
+  nav.hidden = true; nav.after(menu);
+  const menuToon = () => { secs.forEach((x) => x.classList.add("weg")); menu.hidden = false; if (save) save.classList.add("weg"); };
+  const zoekIn = zk.querySelector("input"), oud = zoekIn.oninput;
+  zoekIn.oninput = (e) => { const q = e.target.value.trim(); if (q.length < 2) { leeg.hidden = true; inh.classList.remove("zoekt"); menuToon(); return; } menu.hidden = true; oud(e); };
+  menuToon();
+  window.toonGroep = () => {};
+  window.onhashchange = () => { naarOnderdeel(location.hash); };
 }
 async function settings() {
   await loadSuppliers();
@@ -1754,17 +1827,17 @@ async function settings() {
       <a class="btn ghost small" href="apparaten">Naar Apparaten</a>
     </section>
     <section class="card" id="editCard" hidden></section>
-    <section class="card"><h2 class="t">Energiecontract</h2>
+    <section class="card" id="inst_contract"><h2 class="t">Energiecontract</h2>
       <div class="chips" id="ctype"><button data-v="fixed" class="${c.type === "fixed" ? "on" : ""}">Vast of variabel</button><button data-v="dynamic" class="${c.type === "dynamic" ? "on" : ""}">Dynamisch</button></div>
       <div id="cbox">${contractHtml(c)}</div>
     </section>
     <section class="card" id="inst_zon"><h2 class="t">Zonnepanelen</h2>
       <label class="check-row" style="margin:-4px 0 12px"><input type="checkbox" id="s_haspan" ${s.has_panels === false ? "" : "checked"}> Ik heb zonnepanelen <span class="muted">(uit = alles in de goedkoopste uren, met dynamisch contract)</span></label>
-      <div class="row">
+      <div id="panVelden"><div class="row">
         <div class="field"><label for="s_kwp">Piekvermogen (kWp)</label><input id="s_kwp" type="number" step="0.1" value="${s.kwp}"></div>
         <div class="field"><label for="s_or">Richting</label><select id="s_or">${Object.keys(ORIENT).map((o) => `<option ${o === orient ? "selected" : ""}>${o}</option>`).join("")}</select></div>
         <div class="field"><label for="s_rg">Provincie</label><select id="s_rg">${Object.keys(REGIONS).map((r) => `<option ${r === nearestRegion(s.latitude, s.longitude) ? "selected" : ""}>${r}</option>`).join("")}</select></div>
-      </div>
+      </div></div>
       <div class="row"><div class="field"><label for="s_base">Sluipverbruik huis (W)</label><input id="s_base" type="number" step="10" value="${s.base_load_w}"><span class="hint">Alleen voor de eerste dagen: daarna leert Zonnestuur je verbruik per uur zelf.</span></div>
         ${CFG.has_ha ? `<div class="field"><label for="s_pv">Opwek-sensor (optioneel)</label><input id="s_pv" list="s_pvl" placeholder="sensor.…" value="${esc(s.pv_entity || "")}"><datalist id="s_pvl"></datalist><span class="hint">Met je echte opwek stelt Zonnestuur de zonvoorspelling bij voor jouw dak.</span></div>` : ""}</div>
     </section>
@@ -2151,6 +2224,8 @@ async function settings() {
     } catch (e) { $("s_hares").textContent = e.message; }
   };
   licenseCard();
+  // zonder zonnepanelen hoeven vermogen, richting en provincie niet
+  if ($("s_haspan") && $("panVelden")) { const pv = () => { $("panVelden").hidden = !$("s_haspan").checked; if ($("s_pv")) $("s_pv").closest(".field").hidden = !$("s_haspan").checked; }; $("s_haspan").addEventListener("change", pv); pv(); }
   const bindBattery = () => {
     if ($("b_on")) $("b_on").onchange = () => { $("b_form").hidden = !$("b_on").checked; };
     const st = () => { const v = $("b_st") ? $("b_st").value : "zonnestuur"; document.querySelectorAll("[data-st]").forEach((x) => { x.hidden = !x.dataset.st.split(" ").includes(v); }); };
