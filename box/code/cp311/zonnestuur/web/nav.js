@@ -8,7 +8,7 @@
   var pad = location.pathname.replace(/\/+$/, "").split("/").pop() || "";
   var zoek = location.search;
   var tab = (pad === "" || pad === "index.html") ? "home"
-    : (pad === "apparaten" || pad === "koppelen" || pad === "apparaat" || (pad === "instellingen" && /[?&](apparaat|onderdeel)=/.test(zoek) && !/[?&]van=inst/.test(zoek))) ? "apparaten"
+    : (pad === "apparaten" || pad === "koppelen" || pad === "apparaat" || pad === "verwarming" || (pad === "instellingen" && /[?&](apparaat|onderdeel)=/.test(zoek) && !/[?&]van=inst/.test(zoek))) ? "apparaten"
     : /^(tarieven|sturing)$/.test(pad) ? "tarieven"
     : /^(inzicht|opbrengst|rapport|vergelijk|laadtijdlijn)$/.test(pad) ? "inzicht" : "meer";
   var ICON = {

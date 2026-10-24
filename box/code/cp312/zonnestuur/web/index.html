@@ -1100,6 +1100,11 @@ html, body { overscroll-behavior-y: none; }
   .bediening .bd-rij { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--zs-lijn, var(--line)); }
   .bediening .bd-stap { display: inline-flex; align-items: center; gap: 10px; }
   .bediening .bd-stap .btn { min-width: 40px; min-height: 40px; padding: 0; font-size: 20px; border-radius: 12px; }
+  .bediening .bd-zuinig { margin-top: 10px; } .bediening .bd-zuinig summary { cursor: pointer; font-weight: 650; padding: 8px 0; min-height: 32px; }
+  .bediening .bd-lijn { border-top: 1px solid var(--zs-lijn, var(--line)); padding: 10px 0; }
+  .bediening .bd-punten { display: grid; gap: 6px; margin-bottom: 8px; }
+  .bediening .bd-lijn .btn { padding: 9px 16px; min-height: 40px; font-size: 14px; }
+  .bediening .bd-punten input { width: 64px; font: inherit; padding: 6px 8px; border-radius: 10px; border: 0; box-shadow: inset 0 0 0 1.5px var(--zs-lijn, var(--line)); background: var(--zs-vlak, transparent); color: inherit; }
   .bediening .bd-stap b { min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
   .bediening { margin-top: 14px; }
   .bediening select { max-width: 60%; width: auto; min-width: 170px; min-height: 40px; padding: 6px 12px; border-radius: 12px;
@@ -2190,7 +2195,7 @@ function apparaatAlleen(s, wrap) {
   if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
 }
 // ---- Bediening van de warmtepomp zelf (zoals in de app van het merk), alleen op de apparaatpagina
-let BED_BEZIG = false, BED_T = 0, BED_LAST = null;
+let BED_BEZIG = false, BED_T = 0, BED_LAST = null, BED_ZUINIG_OPEN = false;
 async function bedieningPost(id, body) {
   const r = await fetch(`api/device/${encodeURIComponent(id)}/bediening`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
   return r.json();
@@ -2224,7 +2229,21 @@ function bedieningTekenen(box, d, r) {
     ${kies("modus", "Stand")}${kies("ventilator", "Ventilator")}${kies("pomp", "Pomp")}
     <div class="bd-meet small">${[["Boiler", r.boiler], ["Aanvoer", r.aanvoer], ["Retour", r.retour], ["Buiten", r.buiten]].filter((x) => x[1] !== null && x[1] !== undefined)
       .map(([n, v]) => `<span><span class="muted">${n}</span> <b>${g(v, " °C")}</b></span>`).join("")}</div>
+    ${r.element ? `<p class="small" style="color:var(--zs-amber,#d97706)"><b>Het elektrische element staat aan.</b> Dat verbruikt veel meer stroom dan de warmtepomp zelf.</p>` : ""}
     <p class="small muted">Zonnestuur zet het warme water bij zon of goedkope stroom een paar graden hoger en daarna terug naar wat je hier kiest.</p>
+    <details class="bd-zuinig"><summary>Zuiniger instellen</summary>
+      <p class="small muted">Hoe groter het verschil, hoe minder vaak de warmtepomp start. Dat is zuiniger en beter voor de compressor; het water wordt wel iets kouder voor hij weer begint.</p>
+      ${stap("verschil_warmwater", "Opnieuw starten bij warm water")}${stap("verschil_verwarming", "Opnieuw starten bij verwarming")}
+      <div class="bd-meet small">${[["Compressor gevraagd", r.compressor_gevraagd, " %"], ["Compressor nu", r.compressor_nu, " %"], ["Stroom", r.stroom_a, " A"],
+        ["Elektrisch element", r.element === null || r.element === undefined ? null : r.element ? "aan" : "uit", ""],
+        ["Driewegklep", r.driewegklep === null || r.driewegklep === undefined ? null : r.driewegklep ? "warm water" : "verwarming", ""]]
+        .filter((x) => x[1] !== null && x[1] !== undefined).map(([n, v, e]) => `<span><span class="muted">${n}</span> <b>${typeof v === "number" ? g(v, e) : esc(v)}</b></span>`).join("")}</div>
+      ${["warmwater", "verwarming"].map((n) => { const L = (r.stooklijnen || {})[n]; if (!L || L.x.some((v) => v === null)) return "";
+        return `<div class="bd-lijn"><b class="small">Stooklijn ${n === "warmwater" ? "warm water" : "verwarming"} (eco-stand)</b>
+          <p class="small muted" style="margin:2px 0 6px">Bij deze buitentemperatuur maakt hij het water zo warm. Lager = zuiniger.</p>
+          <div class="bd-punten">${L.x.map((x, i) => `<label class="small">Buiten <input type="number" step="1" data-lx="${n}" value="${x}" aria-label="Buiten punt ${i + 1}"> °C → water <input type="number" step="1" data-ly="${n}" value="${L.y[i]}" aria-label="Water punt ${i + 1}"> °C</label>`).join("")}</div>
+          <button class="btn ghost small" type="button" data-lijn="${n}">Stooklijn opslaan</button></div>`; }).join("")}
+    </details>
     <p class="small" id="bd_res" aria-live="polite"></p>`;
   const zet = async (naam, waarde) => {
     BED_BEZIG = true; $("bd_res").textContent = "Bezig…";
@@ -2238,6 +2257,11 @@ function bedieningTekenen(box, d, r) {
   box.querySelectorAll("[data-bd]").forEach((b) => (b.onclick = () => zet(b.dataset.bd, Number(r[b.dataset.bd]) + Number(b.dataset.d))));
   box.querySelectorAll("[data-bdk]").forEach((s) => (s.onchange = () => zet(s.dataset.bdk, Number(s.value))));
   if ($("bd_aan")) $("bd_aan").onchange = (e) => zet("aan", e.target.checked);
+  box.querySelectorAll("[data-lijn]").forEach((b) => (b.onclick = () => {
+    const n = b.dataset.lijn, x = [...box.querySelectorAll(`[data-lx="${n}"]`)].map((i) => Number(i.value)), y = [...box.querySelectorAll(`[data-ly="${n}"]`)].map((i) => Number(i.value));
+    zet("stooklijn_" + n, { x, y });
+  }));
+  const zu = box.querySelector(".bd-zuinig"); if (zu) { zu.open = !!BED_ZUINIG_OPEN; zu.ontoggle = () => { BED_ZUINIG_OPEN = zu.open; }; }
 }
 function renderDevices(s) {
   const wrap = $("devices");

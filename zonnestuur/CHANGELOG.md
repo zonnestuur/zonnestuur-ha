@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.80.0
+- Nieuw: Verwarming (Apparaten → Verwarming). Voeg per ruimte je thermostaat toe (Tado, Nest, Netatmo, Honeywell, radiatorknoppen en meer, via de koppelmotor), of een temperatuursensor met de pomp of klep van je vloerverwarming. Meerdere ruimtes kan ook.
+- Je kiest hoe warm het overdag en 's nachts moet zijn en een ondergrens. Met een dynamisch contract maakt Zonnestuur het in goedkope uren iets warmer (warmte opslaan in je huis) en in dure uren iets minder, nooit onder je grens.
+- Zonnestuur leert per ruimte hoe snel hij opwarmt en afkoelt, en begint 's ochtends precies op tijd, het liefst in een goedkoper uur. Zelf aan de thermostaat gedraaid? Dan wacht Zonnestuur tot de volgende dag/nacht-wissel (hoogstens 3 uur).
+- SPRSUN: 'Zuiniger instellen' op de pagina van de warmtepomp: na hoeveel graden hij opnieuw start, de stooklijnen (eco-stand) voor warm water en verwarming, en meten hoe hard de compressor werkt en of het elektrische element aan staat.
+
 ## 0.79.2
 - SPRSUN: is de warmtepomp niet bereikbaar, dan zegt de apparaatkaart nu wat je kunt nakijken (wifimodule aan, IP-adres, Protocol op 'Modbus').
 

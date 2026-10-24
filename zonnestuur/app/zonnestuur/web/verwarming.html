@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur verwarming</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 760px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  .terug { color: var(--zs-ink2); text-decoration: none; font-weight: 600; font-size: 14.5px; display: inline-block; padding: 4px 2px; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 60ch; }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin-bottom: 14px; }
+  .kop { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; align-items: start; }
+  .kop h2 { font: 680 19px/1.25 "Inter Tight", Inter, sans-serif; margin: 0; }
+  .kop .sub { color: var(--zs-ink2); font-size: 14px; }
+  .temp { font: 720 44px/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; text-align: right; font-variant-numeric: tabular-nums; }
+  .temp small { font-size: 18px; font-weight: 600; color: var(--zs-ink2); }
+  .pil { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; font-size: 13px; font-weight: 650; background: var(--zs-zacht); }
+  .pil.stookt { background: color-mix(in srgb, #fb923c 22%, transparent); color: #fdba74; }
+  .pil.fout { background: color-mix(in srgb, #f87171 20%, transparent); color: #fca5a5; }
+  [data-theme="light"] .pil.stookt { color: #c2410c; } [data-theme="light"] .pil.fout { color: #b91c1c; }
+  .waarom { margin: 10px 0 0; font-size: 14.5px; }
+  /* plan: 24 staafjes */
+  .plan { margin: 16px 0 4px; }
+  .balken { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; align-items: end; height: 74px; }
+  .balken i { display: block; border-radius: 4px 4px 2px 2px; background: color-mix(in srgb, var(--zs-ink2) 35%, transparent); min-height: 6px; }
+  .balken i.w { background: #fb923c; } .balken i.m { background: #60a5fa; } .balken i.o { background: #fbbf24; }
+  .balken i.nu { outline: 2px solid var(--zs-ink); outline-offset: 1px; }
+  .uren { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 12px; color: var(--zs-ink3, var(--zs-ink2)); margin-top: 4px; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--zs-ink2); margin-top: 8px; }
+  .legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .geleerd { margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: var(--zs-zacht); font-size: 14px; }
+  .geleerd b { font-weight: 650; }
+  .balk { height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--zs-ink2) 25%, transparent); margin-top: 8px; overflow: hidden; }
+  .balk span { display: block; height: 100%; background: var(--zs-groen, #34d399); }
+  .stand { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .stand button { flex: 1 1 0; min-width: 96px; }
+  .btn { font: inherit; font-weight: 650; font-size: 15px; border: 0; cursor: pointer; padding: 12px 20px; border-radius: 999px; min-height: 46px; }
+  .btn.small { font-size: 14px; padding: 9px 14px; min-height: 40px; }
+  .stand .btn.on, .stand .btn.ghost.on { background: var(--zs-knop) !important; color: #fff !important; }
+  details.inst { margin-top: 12px; }
+  details.inst summary { cursor: pointer; font-weight: 650; padding: 6px 2px; min-height: 32px; }
+  .velden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+  .velden .breed { grid-column: 1 / -1; }
+  label.v { display: grid; gap: 4px; font-size: 13.5px; color: var(--zs-ink2); font-weight: 600; }
+  label.v input, label.v select { font: inherit; color: var(--zs-ink); background: var(--zs-vlak); border: 0; box-shadow: inset 0 0 0 1.5px var(--zs-lijn); border-radius: 12px; padding: 10px 12px; min-height: 44px; width: 100%; }
+  .hint { font-size: 13px; color: var(--zs-ink2); margin: 2px 0 0; }
+  .keuzes { display: grid; gap: 8px; }
+  .keuzes label { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); cursor: pointer; font-size: 14.5px; }
+  .keuzes label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
+  .keuzes small { color: var(--zs-ink2); }
+  .knoppen { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .fout { color: #fca5a5; font-size: 14px; margin-top: 8px; } [data-theme="light"] .fout { color: #b91c1c; }
+  .leeg { text-align: center; padding: 28px 18px; }
+  .leeg svg { width: 44px; height: 44px; color: #fb923c; }
+  .plus { width: 100%; min-height: 54px; font-weight: 650; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  @media (max-width: 520px) { .velden { grid-template-columns: 1fr 1fr; } .temp { font-size: 38px; } }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <a class="terug" href="apparaten">← Apparaten</a>
+  <h1>Verwarming</h1>
+  <p class="intro">Zonnestuur stookt per ruimte een beetje extra als stroom goedkoop is en iets minder als hij duur is. Het leert hoe snel je huis opwarmt, zodat het 's ochtends precies op tijd warm is.</p>
+  <div id="lijst"><p>Laden…</p></div>
+  <section class="kaart" id="nieuw" hidden></section>
+  <button class="btn ghost plus" id="plus" type="button" hidden>Ruimte toevoegen</button>
+</main>
+<p class="melding" id="melding" role="status" hidden></p>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p, o = {}) {
+  o.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, o.headers || {});
+  const r = await fetch(p, o);
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+const post = (p, b) => api(p, { method: "POST", body: JSON.stringify(b || {}) });
+const graad = (x, d = 1) => x == null ? "–" : Number(x).toLocaleString("nl-NL", { minimumFractionDigits: d, maximumFractionDigits: d });
+let mt = null;
+function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 2400); }
+const THERMO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></svg>';
+let DATA = { ruimtes: [] }, KAND = null, OPEN = null;
+
+function planHtml(r) {
+  const p = r.plan || [];
+  if (!p.length) return "";
+  const ds = p.map((x) => x.doel), lo = Math.min(...ds, r.nacht) - 0.5, hi = Math.max(...ds, r.dag) + 0.3;
+  const nu = new Date().getHours();
+  const bars = p.map((x, i) => {
+    const h = 12 + 88 * (x.doel - lo) / Math.max(0.5, hi - lo);
+    const cls = /goedkope/.test(x.waarom) ? "w" : /dure/.test(x.waarom) ? "m" : /op tijd/.test(x.waarom) ? "o" : "";
+    const t = new Date(x.van);
+    return `<i class="${cls}${i === 0 ? " nu" : ""}" style="height:${h.toFixed(0)}%" title="${String(t.getHours()).padStart(2, "0")}:00 · ${graad(x.doel)} °C${x.waarom ? " · " + esc(x.waarom) : ""}"></i>`;
+  }).join("");
+  const lab = [0, 6, 12, 18].map((k) => `<span>${String((nu + k) % 24).padStart(2, "0")}:00</span>`).join("");
+  return `<div class="plan" aria-label="Plan voor de komende 24 uur"><div class="balken">${bars}</div><div class="uren">${lab}</div>
+    <div class="legenda"><span style="--c:#fb923c">Goedkoop: warmte opslaan</span><span style="--c:#60a5fa">Duur: iets minder</span><span style="--c:#fbbf24">Op tijd warm</span></div></div>`;
+}
+function geleerdHtml(r) {
+  const g = r.geleerd || {};
+  if (g.ok) {
+    const af = g.afkoelen ? `Zonder stoken koelt hij nu ongeveer ${graad(g.afkoelen)} °C per uur af.` : "Zonder stoken blijft hij nu lang warm.";
+    return `<div class="geleerd"><b>Geleerd:</b> deze ruimte warmt ongeveer <b>${graad(g.opwarmen)} °C per uur</b> op. ${af} Daarmee rekent Zonnestuur uit wanneer hij moet beginnen.</div>`;
+  }
+  const pct = Math.min(100, Math.round(100 * Math.min(g.stoken || 0, g.nodig || 40) / (g.nodig || 40) / 2 + 100 * Math.min(g.rust || 0, g.nodig || 40) / (g.nodig || 40) / 2));
+  return `<div class="geleerd"><b>Aan het leren</b> hoe snel deze ruimte opwarmt en afkoelt. Dat duurt een paar dagen met gewoon stoken. Tot die tijd rekent Zonnestuur voorzichtig.
+    <div class="balk" aria-label="${pct}% geleerd"><span style="width:${pct}%"></span></div></div>`;
+}
+function kaartHtml(r) {
+  const nu = r.nu || {};
+  const status = r.fout ? `<span class="pil fout">Geen verbinding</span>` : r.modus === "uit" ? `<span class="pil">Zonnestuur stuurt niet</span>`
+    : nu.stookt ? `<span class="pil stookt">Stookt</span>` : `<span class="pil">Doel ${graad(nu.doel)} °C</span>`;
+  const waarom = r.fout ? esc(r.fout) : r.modus === "uit" ? "De thermostaat doet het zelf." : nu.waarom
+    ? `Nu ${graad(nu.doel)} °C: ${esc(nu.waarom)}.` : nu.doel != null ? `Nu ${graad(nu.doel)} °C.` : "";
+  return `<section class="kaart" id="k-${r.id}">
+    <div class="kop"><div><h2>${esc(r.naam)}</h2><div class="sub">${r.soort === "thermostaat" ? "Thermostaat" : "Sensor met " + (r.schakelaars.length === 1 ? "schakelaar" : r.schakelaars.length + " schakelaars")} · dag ${graad(r.dag)} °C, nacht ${graad(r.nacht)} °C</div>
+      <div style="margin-top:8px">${status}</div></div>
+      <div class="temp">${graad(nu.temp)}<small> °C</small></div></div>
+    <p class="waarom">${waarom}</p>
+    ${r.modus !== "uit" ? planHtml(r) : ""}
+    ${geleerdHtml(r)}
+    <div class="stand" role="group" aria-label="Stand">
+      <button class="btn ghost small ${r.modus === "auto" ? "on" : ""}" data-stand="auto" data-id="${r.id}" type="button">Automatisch</button>
+      <button class="btn ghost small ${r.modus === "vast" ? "on" : ""}" data-stand="vast" data-id="${r.id}" type="button">Vast ${r.modus === "vast" ? graad(r.vast) + " °C" : ""}</button>
+      <button class="btn ghost small ${r.modus === "uit" ? "on" : ""}" data-stand="uit" data-id="${r.id}" type="button">Niet sturen</button>
+    </div>
+    <details class="inst" ${OPEN === r.id ? "open" : ""}><summary>Instellingen</summary>${formHtml(r)}</details>
+  </section>`;
+}
+function velden(r) {
+  const f = (k, l, v, x = "") => `<label class="v">${l}<input id="${k}" ${x} value="${esc(v)}"></label>`;
+  return `<div class="velden">
+    ${f("f_dag", "Overdag (°C)", r.dag, 'type="number" step="0.5" min="5" max="30" inputmode="decimal"')}
+    ${f("f_nacht", "'s Nachts (°C)", r.nacht, 'type="number" step="0.5" min="5" max="30" inputmode="decimal"')}
+    ${f("f_dagvan", "Warm vanaf", r.dag_van, 'type="time"')}
+    ${f("f_nachtvan", "Koeler vanaf", r.nacht_van, 'type="time"')}
+    ${f("f_min", "Nooit kouder dan (°C)", r.minimaal, 'type="number" step="0.5" min="5" max="30" inputmode="decimal"')}
+    <label class="v">Slim op de stroomprijs<select id="f_slim"><option value="1" ${r.slim ? "selected" : ""}>Aan</option><option value="0" ${r.slim ? "" : "selected"}>Uit</option></select></label>
+    ${f("f_omhoog", "Goedkoop: tot zoveel warmer", r.omhoog, 'type="number" step="0.5" min="0" max="3" inputmode="decimal"')}
+    ${f("f_omlaag", "Duur: tot zoveel minder", r.omlaag, 'type="number" step="0.5" min="0" max="3" inputmode="decimal"')}
+  </div><p class="hint">Bij een vast contract stookt Zonnestuur gewoon volgens dag en nacht, en leert het wel wanneer hij moet beginnen.</p>`;
+}
+function bronHtml(r) {
+  if (!KAND) return `<p class="hint">Zonnestuur zoekt je thermostaten…</p>`;
+  if (KAND.ok === false) return `<p class="fout">${esc(KAND.error || "De koppelmotor is niet bereikbaar.")}</p>`;
+  const th = KAND.thermostaten || [], se = KAND.sensoren || [], sc = KAND.schakelaars || [];
+  const soort = r.soort || (th.length ? "thermostaat" : "sensor");
+  return `<div class="keuzes" style="margin-top:12px" role="radiogroup" aria-label="Hoe wordt deze ruimte verwarmd?">
+      <label><input type="radio" name="f_soort" value="thermostaat" ${soort === "thermostaat" ? "checked" : ""}><span><b>Met een thermostaat</b><br><small>Zonnestuur zet de temperatuur op de thermostaat (Tado, Nest, Netatmo, Honeywell, radiatorknop…)</small></span><span></span></label>
+      <label><input type="radio" name="f_soort" value="sensor" ${soort === "sensor" ? "checked" : ""}><span><b>Met een temperatuursensor en een pomp of klep</b><br><small>Zonnestuur is zelf de thermostaat en zet de pomp of klep aan en uit</small></span><span></span></label>
+    </div>
+    <div id="f_th" ${soort === "thermostaat" ? "" : "hidden"} style="margin-top:12px">${th.length ? `<label class="v">Thermostaat<select id="f_climate">${th.map((x) => `<option value="${esc(x.entity)}" ${x.entity === r.climate ? "selected" : ""}>${esc(x.naam)}${x.temp != null ? " · " + graad(x.temp) + " °C" : ""}</option>`).join("")}</select></label>`
+      : `<p class="hint">Zonnestuur ziet nog geen thermostaat. Koppel eerst het merk bij <a href="apparaten">Apparaten</a> → Apparaat toevoegen.</p>`}
+      ${se.length ? `<label class="v" style="margin-top:10px">Andere sensor voor de temperatuur (niet verplicht)<select id="f_sensor_th"><option value="">De thermostaat zelf</option>${se.map((x) => `<option value="${esc(x.entity)}" ${x.entity === r.sensor ? "selected" : ""}>${esc(x.naam)} · ${graad(x.temp)} °C</option>`).join("")}</select></label>` : ""}</div>
+    <div id="f_se" ${soort === "sensor" ? "" : "hidden"} style="margin-top:12px">
+      <label class="v">Temperatuursensor in de ruimte<select id="f_sensor">${se.map((x) => `<option value="${esc(x.entity)}" ${x.entity === r.sensor ? "selected" : ""}>${esc(x.naam)} · ${graad(x.temp)} °C</option>`).join("") || '<option value="">Geen sensor gevonden</option>'}</select></label>
+      <p class="hint" style="margin-top:10px">Wat moet er aan als het te koud is?</p>
+      <div class="keuzes">${sc.slice(0, 30).map((x) => `<label><input type="checkbox" name="f_sch" value="${esc(x.entity)}" ${(r.schakelaars || []).includes(x.entity) ? "checked" : ""}><span>${esc(x.naam)}</span><small>${x.aan ? "aan" : "uit"}</small></label>`).join("") || '<p class="hint">Geen schakelaars gevonden.</p>'}</div>
+    </div>`;
+}
+function formHtml(r) {
+  return `<div data-form="${esc(r.id || "")}">
+    ${r.id ? "" : `<label class="v breed">Naam van de ruimte<input id="f_naam" value="${esc(r.naam || "")}" placeholder="bijv. Woonkamer" autocomplete="off"></label>`}
+    ${bronHtml(r)}
+    ${velden(r)}
+    <div class="knoppen"><button class="btn" type="button" data-bewaar="${esc(r.id || "")}">${r.id ? "Opslaan" : "Ruimte toevoegen"}</button>
+      ${r.id ? `<button class="btn ghost" type="button" data-weg="${esc(r.id)}">Verwijderen</button>` : `<button class="btn ghost" type="button" id="annuleer">Annuleren</button>`}</div>
+    <p class="fout" data-fout hidden></p></div>`;
+}
+function teken() {
+  const rs = DATA.ruimtes || [];
+  $("lijst").innerHTML = rs.length ? rs.map(kaartHtml).join("")
+    : `<section class="kaart leeg">${THERMO}<h2 style="font:680 19px/1.3 'Inter Tight',Inter,sans-serif;margin:8px 0 4px">Nog geen ruimte</h2>
+       <p class="intro" style="margin:0 auto 14px">Voeg je thermostaat toe, of een temperatuursensor met de pomp van je vloerverwarming. Heb je er meer, voeg dan elke ruimte apart toe.</p>
+       <button class="btn" type="button" id="eerste">Ruimte toevoegen</button></section>`;
+  $("plus").hidden = !rs.length || !$("nieuw").hidden;
+  if ($("eerste")) $("eerste").onclick = nieuw;
+  koppel(document);
+}
+function waarden(box, r) {
+  const g = (id) => box.querySelector("#" + id);
+  const num = (id) => Number(String(g(id).value).replace(",", "."));
+  const soort = (box.querySelector('input[name="f_soort"]:checked') || {}).value || "thermostaat";
+  const uit = Object.assign({}, r, { soort, dag: num("f_dag"), nacht: num("f_nacht"), dag_van: g("f_dagvan").value, nacht_van: g("f_nachtvan").value,
+    minimaal: num("f_min"), slim: g("f_slim").value === "1", omhoog: num("f_omhoog"), omlaag: num("f_omlaag") });
+  if (g("f_naam")) uit.naam = g("f_naam").value.trim();
+  if (soort === "thermostaat") { uit.climate = g("f_climate") ? g("f_climate").value : ""; uit.sensor = g("f_sensor_th") ? g("f_sensor_th").value : ""; uit.schakelaars = []; }
+  else { uit.sensor = g("f_sensor") ? g("f_sensor").value : ""; uit.schakelaars = [...box.querySelectorAll('input[name="f_sch"]:checked')].map((x) => x.value); uit.climate = ""; }
+  ["nu", "fout", "geleerd", "plan", "comfort_nu"].forEach((k) => delete uit[k]);
+  return uit;
+}
+function koppel(root) {
+  root.querySelectorAll("[data-form]").forEach((box) => {
+    box.querySelectorAll('input[name="f_soort"]').forEach((i) => i.onchange = () => {
+      box.querySelector("#f_th").hidden = i.value !== "thermostaat" || !i.checked;
+      box.querySelector("#f_se").hidden = i.value !== "sensor" || !i.checked;
+    });
+  });
+  root.querySelectorAll("[data-bewaar]").forEach((b) => b.onclick = async () => {
+    const box = b.closest("[data-form]"), id = b.dataset.bewaar;
+    const r = id ? (DATA.ruimtes || []).find((x) => x.id === id) : NIEUW;
+    const fout = box.querySelector("[data-fout]");
+    b.disabled = true;
+    try {
+      await post("api/verwarming/ruimte", { ruimte: waarden(box, r) });
+      melding(id ? "Opgeslagen" : "Ruimte toegevoegd");
+      $("nieuw").hidden = true; OPEN = null; await laad();
+    } catch (e) { fout.textContent = e.message; fout.hidden = false; }
+    finally { b.disabled = false; }
+  });
+  root.querySelectorAll("[data-weg]").forEach((b) => b.onclick = async () => {
+    if (!confirm("Deze ruimte verwijderen? Zonnestuur zet de thermostaat terug op de gewone temperatuur.")) return;
+    try { await post(`api/verwarming/ruimte/${b.dataset.weg}/weg`); melding("Verwijderd"); await laad(); } catch (e) { melding(e.message); }
+  });
+  root.querySelectorAll("[data-stand]").forEach((b) => b.onclick = async () => {
+    const r = (DATA.ruimtes || []).find((x) => x.id === b.dataset.id), modus = b.dataset.stand, body = { modus };
+    if (modus === "vast") {
+      const v = prompt("Welke temperatuur moet het blijven? (°C)", graad(r.vast || r.dag));
+      if (v == null) return;
+      body.temp = Number(String(v).replace(",", "."));
+    }
+    try { await post(`api/verwarming/ruimte/${r.id}/stand`, body); melding(modus === "uit" ? "Zonnestuur stuurt deze ruimte niet meer" : "Bewaard"); await laad(); }
+    catch (e) { melding(e.message); }
+  });
+  root.querySelectorAll("details.inst").forEach((d) => d.ontoggle = () => { if (d.open) OPEN = d.closest(".kaart").id.slice(2); else if (OPEN === d.closest(".kaart").id.slice(2)) OPEN = null; });
+}
+let NIEUW = null;
+function nieuw() {
+  NIEUW = { naam: "", soort: "", dag: 20.5, nacht: 18, dag_van: "07:00", nacht_van: "22:30", minimaal: 16, slim: true, omhoog: 1, omlaag: 0.5, schakelaars: [] };
+  const box = $("nieuw");
+  box.innerHTML = `<div class="kop"><div><h2>Ruimte toevoegen</h2><div class="sub">Bijvoorbeeld de woonkamer, of de hele benedenverdieping.</div></div><span></span></div>${formHtml(NIEUW)}`;
+  box.hidden = false; $("plus").hidden = true;
+  koppel(box);
+  $("annuleer").onclick = () => { box.hidden = true; teken(); };
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (!KAND) kandidaten().then(() => { if (!box.hidden) nieuw(); });
+}
+async function kandidaten() { try { KAND = await api("api/verwarming/kandidaten"); } catch (e) { KAND = { ok: false, error: e.message }; } }
+async function laad() {
+  try { DATA = await api("api/verwarming"); } catch (e) { $("lijst").innerHTML = `<p class="fout">${esc(e.message)}</p>`; return; }
+  const bezig = document.activeElement && document.activeElement.closest && document.activeElement.closest("[data-form]");
+  if (!bezig) teken();
+}
+$("plus").onclick = nieuw;
+(async () => {
+  await Promise.all([laad(), kandidaten()]);
+  teken();
+  if (/[?&]nieuw=1/.test(location.search)) nieuw();
+  setInterval(() => { if ($("nieuw").hidden && !document.querySelector("details.inst[open]")) laad(); }, 60000);
+})();
+</script>
+</body>
+</html>

@@ -227,6 +227,7 @@ html, body { overscroll-behavior-y: none; }
   .lijst .app-rij, .lijst .plusrij { grid-template-columns: 48px minmax(0, 1fr) auto; }
   .ic.paars { background: linear-gradient(145deg, #6d28d9, #a78bfa); } .ic.blauw { background: linear-gradient(145deg, #1d4ed8, #60a5fa); }
   .ic.groen { background: linear-gradient(145deg, #047857, #34d399); } .ic.indigo { background: linear-gradient(145deg, #1e3a8a, #3b82f6); }
+  .ic.amber { background: linear-gradient(145deg, #c2410c, #fb923c); }
   .ic.grijs { background: linear-gradient(145deg, #334155, #94a3b8); }
   .app-rij b { display: flex !important; align-items: center; gap: 8px; flex-wrap: wrap; }
   .lbl { font: 700 11.5px/1 Inter, sans-serif; font-style: normal; padding: 5px 8px; border-radius: 99px; background: var(--chip); color: var(--ink-2); }
@@ -909,6 +910,7 @@ const IC = {
   ev: '<path d="M5 16V9l2-4h10l2 4v7"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="16" r="1.5"/><circle cx="16.5" cy="16" r="1.5"/>',
   boiler: '<rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 9v5"/>',
   heatpump: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="9" cy="12" r="3"/><path d="M15 10h3M15 14h3"/>',
+  thermo: '<path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/>',
   generic: '<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 6h2"/>',
   battery: '<rect x="4" y="7" width="15" height="10" rx="2"/><path d="M21 10v4M8 10v4M11 10v4"/>',
   meter: '<path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-5"/>',
@@ -952,12 +954,13 @@ function huisTekenen() {
   const PIJL = '<span class="pijl" aria-hidden="true"></span>';
   const naarMee = (d) => d.driver === "batterij" ? `apparaat?id=bat-${encodeURIComponent(d.id)}` : d.driver === "meekijken" ? `apparaat?id=obs-${encodeURIComponent(d.id)}`
     : `apparaat?id=${encodeURIComponent(d.id)}`;
-  const KLEUR = { heatpump: "paars", boiler: "blauw", ev: "groen", battery: "groen", zon: "indigo", generic: "grijs" };
+  const KLEUR = { thermo: "amber", heatpump: "paars", boiler: "blauw", ev: "groen", battery: "groen", zon: "indigo", generic: "grijs" };
   const rijHtml = (href, kind, naam, st) => `<a class="rij link app-rij" href="${href}"><span class="ic vol ${KLEUR[kind] || "grijs"}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[kind] || IC.generic}</svg></span>
     <span><b>${esc(naam)}${st && st.label ? ` <i class="lbl ${st.cls}">${esc(st.label)}</i>` : ""}</b><span class="sub">${st ? `<span class="kw">${esc(st.kw)}</span>${st.extra ? `<span>${esc(st.extra)}</span>` : ""}` : ""}</span></span>${PIJL}</a>`;
   const zon = STAND._zon;
   $("mee").innerHTML = (mee.length || zon ? mee.map((d) => rijHtml(naarMee(d), d.kind, d.naam, STAND[d.id] || { kw: "", label: "", extra: d.soort })).join("")
       + (zon ? rijHtml("instellingen?onderdeel=inst_zon,feedCard", "zon", "Zonnepanelen", zon) : "") : "")
+    + (STAND._verw ? rijHtml("verwarming", "thermo", "Verwarming", STAND._verw.leeg ? { kw: "", label: "", extra: "Thermostaat koppelen: slim stoken op goedkope uren" } : STAND._verw) : "")
     + `<button type="button" class="rij link plusrij${mee.length ? "" : " leegrij"}" id="plusRij">${ico("plus")}<span><b>${mee.length ? "Apparaat toevoegen" : "Voeg je eerste apparaat toe"}</b><span class="sub">${mee.length ? "Laadpaal, boiler, warmtepomp, batterij of wasmachine" : g.length ? "Of kies hierboven wat Zonnestuur gevonden heeft." : "Zonnestuur zoekt ook vanzelf in je huis."}</span></span>${PIJL}</button>`;
   $("plusRij").onclick = () => openToevoegen("");
   const NAAR_BASIS = { meter: "inst_meter", zon: "inst_zon,feedCard", prijs: "inst_contract" };
@@ -1006,6 +1009,14 @@ async function huisLaden(zoek) {
     (st.waarnemen || []).forEach((w) => { STAND[w.id] = { kw: kwt(w.power_w || 0), label: (w.power_w || 0) > 300 ? "Laden" : "", cls: "groen",
       extra: w.soc != null ? Math.round(w.soc) + "%" + (w.soc_oud_u >= 12 ? ` (${w.soc_oud_u >= 48 ? Math.round(w.soc_oud_u / 24) + " dagen" : "1 dag"} oud)` : "") + " · " + (w.wie || "") + " stuurt" : (w.wie || "") + " stuurt" }; });
     const pv = st.inverter && st.inverter.pv_w != null ? st.inverter.pv_w : st.forecast_now_w;
+    try {                                                     // verwarming per ruimte
+      const vw = await api("api/verwarming"), rs = vw.ruimtes || [];
+      const g1 = (x) => x == null ? "–" : x.toLocaleString("nl-NL", { maximumFractionDigits: 1 }) + " °C";
+      STAND._verw = rs.length ? { kw: rs.length === 1 ? g1(rs[0].nu && rs[0].nu.temp) : "",
+        label: rs.some((r) => r.fout) ? "Geen verbinding" : rs.some((r) => r.nu && r.nu.stookt) ? "Stookt" : "",
+        cls: rs.some((r) => r.fout) ? "rood" : "amber",
+        extra: rs.length === 1 ? (rs[0].nu && rs[0].nu.doel != null ? "Doel " + g1(rs[0].nu.doel) : "") : rs.map((r) => r.naam + " " + g1(r.nu && r.nu.temp)).join(" · ") } : { leeg: true };
+    } catch (e) { STAND._verw = null; }
     STAND._zon = st.has_panels ? { kw: kwt(pv || 0), label: (pv || 0) > 50 ? "Actief" : "", cls: "groen", extra: st.solar_kwp ? String(st.solar_kwp).replace(".", ",") + " kWp" : "" } : null;
   } catch (e) {}
   finally { HUIS_BEZIG = false; }
