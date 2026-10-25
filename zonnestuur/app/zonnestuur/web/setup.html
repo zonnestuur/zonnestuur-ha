@@ -1615,7 +1615,7 @@ const GROEPEN = [
   ["geld", "Prijs en doel", ["Energiecontract", "Jouw doel", "Meten wat Zonnestuur oplevert"]],
   ["schermen", "Schermen en meldingen", ["Meldingen en weekrapport", "Huisscherm en radio", "Wandscherm", "Sensoren voor je dashboard"]],
   ["account", "Pro en hulp", ["Zonnestuur Pro", "Hulp en problemen", "Installateur", "Beveiliging"]],
-  ["koppelingen", "Voor gevorderden", ["Andere systemen", "Een merk koppelen", "Auto's via de cloud", "Apparaat toevoegen via een ander systeem", "Koppelmotor", "Eigen domoticaserver"]],
+  ["koppelingen", "Voor gevorderden", ["Andere systemen", "Apparaat via MQTT, ESPHome of Homey", "Auto's via de cloud", "Koppelmotor", "Eigen domoticaserver"]],
 ];
 // (i) bij elke instelling zonder uitleg: één zin in gewone taal, met een link naar de uitleg van dat onderdeel
 const VELD_UITLEG = [
@@ -1741,7 +1741,7 @@ function groepeer() {
     if (!x.id) { const t = ((x.querySelector("h2") || {}).textContent || "").trim(); if (t) x.id = "inst_" + t.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30); } });
   // (?) bij elk onderdeel: korte uitleg in het help-centrum
   const UITLEG = [["Apparaten", "apparaten"], ["Thuisbatterij", "batterij"], ["Omvormer", "omvormer"], ["Energiecontract", "dynamisch"], ["Jouw doel", "beslissen"],
-    ["Meldingen", "meldingen"], ["Huisscherm", "hub"], ["Wandscherm", "hub"], ["Een merk koppelen", "koppelen"], ["Meekijken", "vergelijken"],
+    ["Meldingen", "meldingen"], ["Huisscherm", "hub"], ["Wandscherm", "hub"], ["Meekijken", "vergelijken"],
     ["Meten wat Zonnestuur oplevert", "besparing"], ["Installateur", "overdracht"], ["Zonnepanelen", "beslissen"]];
   zetInfo(secs, UITLEG);
   // onderdelen die later verschijnen (Pro, meter, formulieren) krijgen ook hun (i)
@@ -2027,7 +2027,7 @@ async function settings() {
       <div class="row" style="margin-top:8px"><div class="field" style="flex:0 1 140px"><label for="o_port">Poort</label><input id="o_port" type="number" value="${CFG.ocpp?.port || 8887}"></div></div>
       <p class="small muted" id="o_res">Stel in de laadpaal (app of installateur) de OCPP-server in op <b>ws://${esc(location.hostname)}:${CFG.ocpp?.port || 8887}/<i>naam-van-je-laadpaal</i></b> (OCPP 1.6J).</p>
     </section>
-    <section class="card" id="koppelCard"><h2 class="t">Een merk koppelen</h2>
+    <section class="card" id="koppelCard" hidden><h2 class="t">Een merk koppelen</h2>
       <p class="small muted" style="margin-top:-4px">Warmtepomp, airco, laadpaal, auto, witgoed, stekkers: zoek je merk en zie meteen wat er nodig is. Ruim 400 merken.</p>
       <a class="btn" href="koppelen">Merk zoeken en koppelen</a>
     </section>
@@ -2054,7 +2054,7 @@ async function settings() {
       <p class="small muted" style="margin-top:-4px">Het Zonnestuur-scherm op je Google Nest Hub of tv, en je favoriete zender op vaste tijden. Ook voor Nest Mini en Google Home (alleen radio).</p>
       <a class="btn" href="huisscherm">Scherm of speaker instellen</a>
     </section>
-    <section class="card" id="addCard"><h2 class="t">Apparaat toevoegen via een ander systeem</h2>
+    <section class="card" id="addCard"><h2 class="t">Apparaat via MQTT, ESPHome of Homey</h2>
       <p class="small muted" style="margin-top:-4px">MQTT, ESPHome, Homey, Domoticz, openHAB, ioBroker, OCPP of SG-ready: voor apparaten die niet via de koppelmotor of de netwerkscan gaan.</p>
       <div class="row"><div class="field"><label for="x_type">Koppeling</label><select id="x_type">${ADD_TYPES.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}</select></div>
         <div class="field"><label for="x_name">Naam</label><input id="x_name" placeholder="bijv. Boiler"></div>

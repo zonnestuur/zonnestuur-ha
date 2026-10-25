@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.81.6
+- Lukt koppelen niet, dan staat er wat je kunt doen en een knop "Hulp vragen", in plaats van een technische melding.
+- Instellingen: de dubbele ingang "Een merk koppelen" is weg (dat doe je bij Apparaten); "Apparaat toevoegen via een ander systeem" heet nu "Apparaat via MQTT, ESPHome of Homey".
+
 ## 0.81.5
 - Auto: Zonnestuur gebruikt het tijdstip waarop de auto zijn accupercentage doorgaf (als de koppeling dat meegeeft) en telt alles wat daarna geladen is erbij.
 - Opgelost: bij het terugkijken in de geschiedenis kreeg Zonnestuur maar één dag in plaats van de hele periode (ook bij het herkennen van 1 of 3 fasen van de laadpaal).

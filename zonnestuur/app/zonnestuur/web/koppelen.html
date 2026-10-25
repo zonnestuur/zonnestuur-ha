@@ -828,7 +828,11 @@ function panel(title, body, acts) {
   });
 }
 function busy(text) { panel($("p_title").textContent || "Koppelen", `<p><span class="spin"></span>${esc(text)}</p>`, [["Sluiten", closePanel, "ghost"]]); }
-function alertPanel(msg) { panel("Dat lukte niet", `<p>${esc(msg)}</p>`); }
+// Mislukt: zeg wat er aan de hand is, en bied altijd hulp aan (meekijken op afstand) in plaats van een doodlopende melding
+function alertPanel(msg) {
+  panel("Dat lukte niet", `<p>${esc(msg)}</p><p class="small muted">Wil je dat we meekijken? Dan zien we wat er misgaat en lossen we het samen op.</p>`,
+    [["Sluiten", closePanel, "ghost"], ["Hulp vragen", () => { location.href = "hulp#helpmij"; }]]);
+}
 async function closePanel() {
   if (FLOW && FLOW.flow_id) { try { await post("api/koppel/abort", { flow_id: FLOW.flow_id }); } catch (e) {} }
   FLOW = null; $("panel").hidden = true; load(); huisLaden(false);
