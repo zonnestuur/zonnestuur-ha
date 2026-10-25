@@ -298,7 +298,7 @@ const ZS_HUB_CSS = `
   .kick { font-size: clamp(16px, 3.4vh, 26px); color: var(--g); font-weight: 600; display: flex; align-items: center; gap: 10px; }
   .kick svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .h { font: 750 clamp(44px, 15vh, 120px)/0.95 "Inter Tight", Inter, sans-serif; letter-spacing: -.045em; margin: 1.2vh 0 0; }
-  .h small { display: block; font-size: .5em; font-weight: 600; color: var(--ink2); letter-spacing: -.03em; margin-top: 1.4vh; }
+  .h small { display: block; font-size: min(.5em, 3.6vw); font-weight: 600; color: var(--ink2); letter-spacing: -.03em; margin-top: 1.4vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   .do { margin-top: 3vh; font-size: clamp(16px, 3.6vh, 28px); color: var(--ink); display: flex; gap: 12px; align-items: center; }
   .do span { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 30%; background: color-mix(in srgb, var(--g) 20%, transparent); color: var(--g); flex: none; }
   .do svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -745,7 +745,19 @@ class ZonnestuurHubCard extends HTMLElement {
   }
   render(a) {
     const C = a.cheap || {}, P = a.price || {}, H = P.h || [], now = Date.now() / 1000;
-    const on = !!C.on, nx = C.next;
+    const on = !!C.on;
+    // Geen 'goedkoop' blok (alle uren boven het gemiddelde van vandaag)? Dan toch het goedkoopste blok van 3 uur dat nog komt
+    let nx = C.next;
+    if (!on && !nx) {
+      const kom = H.filter((r) => r[0] + 3600 > now);
+      let best = null;
+      for (let i = 0; i + 3 <= kom.length; i++) { const g = (kom[i][1] + kom[i + 1][1] + kom[i + 2][1]) / 3; if (!best || g < best.g - 1e-6) best = { g, i }; }
+      if (best) {
+        const v = new Date(kom[best.i][0] * 1000), t = new Date((kom[best.i + 2][0] + 3600) * 1000), hm = (d) => d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+        nx = { from: hm(v), until: hm(t), from_ts: kom[best.i][0], until_ts: kom[best.i + 2][0] + 3600, min: Math.min(kom[best.i][1], kom[best.i + 1][1], kom[best.i + 2][1]),
+               day: v.toDateString() !== new Date().toDateString(), zelf: true };
+      }
+    }
     const clock = new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
     const pnow = C.price ?? P.now;
     const under = on && C.avg ? Math.round((1 - pnow / C.avg) * 100) : null;
@@ -767,8 +779,8 @@ class ZonnestuurHubCard extends HTMLElement {
       ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.bolt}</svg>Stroom is nu goedkoop</div><div class="h">tot ${zsEsc(C.until)}<small>${zsHubLeft(C.until_ts - now)}</small></div>
          ${this._witgoed().some((w) => !w.nu) || !tip ? "" : `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(tip)}</div>`}`
       : nx
-        ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Nu duur · goedkoop vanaf" : "Goedkope stroom vanaf"}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
-        : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Stroom is nu duur" : "Nog even wachten"}</div><div class="h">Geen goedkoop blok<small>Prijzen voor morgen komen rond 13:00</small></div>`;
+        ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${nx.zelf ? (piek ? "Nu duur · het goedkoopst vanaf" : "Het goedkoopst vanaf") : piek ? "Nu duur · goedkoop vanaf" : "Goedkope stroom vanaf"}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
+        : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Stroom is nu duur" : "Nog even wachten"}</div><div class="h">Wacht even<small>De prijzen van morgen komen rond 13:00</small></div>`;
     // Wat Zonnestuur straks doet (per apparaat de eerste keer), zodat je ziet dat het geregeld is
     const gezien = new Set(), plan = (a.plan || []).filter((x) => !gezien.has(x.n) && gezien.add(x.n)).slice(0, 3);
     const planHtml = plan.length && this._config.plan !== false ? `<div class="plan"><span class="pl">${on ? "Nu en straks" : "Zonnestuur regelt"}</span>${plan.map((x) =>

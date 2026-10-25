@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.81.7
+- Huisscherm: geen tekst meer over andere tekst. Is er geen goedkoop blok meer vandaag, dan toont het scherm het goedkoopste moment dat nog komt (bijv. 'morgen 02:00').
+
 ## 0.81.6
 - Lukt koppelen niet, dan staat er wat je kunt doen en een knop "Hulp vragen", in plaats van een technische melding.
 - Instellingen: de dubbele ingang "Een merk koppelen" is weg (dat doe je bij Apparaten); "Apparaat toevoegen via een ander systeem" heet nu "Apparaat via MQTT, ESPHome of Homey".
