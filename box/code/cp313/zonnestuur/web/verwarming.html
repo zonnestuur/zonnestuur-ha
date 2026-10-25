@@ -75,7 +75,8 @@
   <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
   <a class="terug" href="apparaten">← Apparaten</a>
   <h1>Verwarming</h1>
-  <p class="intro">Zonnestuur stookt per ruimte een beetje extra als stroom goedkoop is en iets minder als hij duur is. Het leert hoe snel je huis opwarmt, zodat het 's ochtends precies op tijd warm is.</p>
+  <p class="intro">Zonnestuur leert hoe snel je huis opwarmt, zodat het 's ochtends precies op tijd warm is. Verwarm je met stroom, dan slaat hij warmte op als stroom goedkoop is of van je eigen panelen komt.</p>
+  <section class="kaart" id="huisBron" hidden></section>
   <div id="lijst"><p>Laden…</p></div>
   <section class="kaart" id="nieuw" hidden></section>
   <button class="btn ghost plus" id="plus" type="button" hidden>Ruimte toevoegen</button>
@@ -101,19 +102,20 @@ const THERMO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 let DATA = { ruimtes: [] }, KAND = null, OPEN = null;
 
 function planHtml(r) {
-  const p = r.plan || [];
+  const p = r.plan || [], koelt = !!(r.nu || {}).koelt;
   if (!p.length) return "";
-  const ds = p.map((x) => x.doel), lo = Math.min(...ds, r.nacht) - 0.5, hi = Math.max(...ds, r.dag) + 0.3;
+  const ds = p.map((x) => x.doel), lo = Math.min(...ds, koelt ? r.koel : r.nacht) - 0.5, hi = Math.max(...ds, koelt ? r.koel : r.dag) + 0.3;
   const nu = new Date().getHours();
   const bars = p.map((x, i) => {
     const h = 12 + 88 * (x.doel - lo) / Math.max(0.5, hi - lo);
-    const cls = /goedkope/.test(x.waarom) ? "w" : /dure/.test(x.waarom) ? "m" : /op tijd/.test(x.waarom) ? "o" : "";
+    const cls = /goedkope|zonnestroom|alvast/.test(x.waarom) ? "w" : /dure|cv-ketel/.test(x.waarom) ? "m" : /op tijd/.test(x.waarom) ? "o" : "";
     const t = new Date(x.van);
     return `<i class="${cls}${i === 0 ? " nu" : ""}" style="height:${h.toFixed(0)}%" title="${String(t.getHours()).padStart(2, "0")}:00 · ${graad(x.doel)} °C${x.waarom ? " · " + esc(x.waarom) : ""}"></i>`;
   }).join("");
   const lab = [0, 6, 12, 18].map((k) => `<span>${String((nu + k) % 24).padStart(2, "0")}:00</span>`).join("");
   return `<div class="plan" aria-label="Plan voor de komende 24 uur"><div class="balken">${bars}</div><div class="uren">${lab}</div>
-    <div class="legenda"><span style="--c:#fb923c">Goedkoop: warmte opslaan</span><span style="--c:#60a5fa">Duur: iets minder</span><span style="--c:#fbbf24">Op tijd warm</span></div></div>`;
+    <div class="legenda">${koelt ? `<span style="--c:#fb923c">Goedkoop: alvast koelen</span><span style="--c:#60a5fa">Duur: iets minder koelen</span>`
+      : `<span style="--c:#fb923c">Goedkoop of zon: warmte opslaan</span><span style="--c:#60a5fa">Duur: iets minder</span><span style="--c:#fbbf24">Op tijd warm</span>`}</div></div>`;
 }
 function geleerdHtml(r) {
   const g = r.geleerd || {};
@@ -132,10 +134,11 @@ function kaartHtml(r) {
   const waarom = r.fout ? esc(r.fout) : r.modus === "uit" ? "De thermostaat doet het zelf." : nu.waarom
     ? `Nu ${graad(nu.doel)} °C: ${esc(nu.waarom)}.` : nu.doel != null ? `Nu ${graad(nu.doel)} °C.` : "";
   return `<section class="kaart" id="k-${r.id}">
-    <div class="kop"><div><h2>${esc(r.naam)}</h2><div class="sub">${r.soort === "thermostaat" ? "Thermostaat" : "Sensor met " + (r.schakelaars.length === 1 ? "schakelaar" : r.schakelaars.length + " schakelaars")} · dag ${graad(r.dag)} °C, nacht ${graad(r.nacht)} °C</div>
+    <div class="kop"><div><h2>${esc(r.naam)}</h2><div class="sub">${r.soort === "thermostaat" ? "Thermostaat" : "Sensor met " + (r.schakelaars.length === 1 ? "schakelaar" : r.schakelaars.length + " schakelaars")} · ${(r.nu || {}).koelt ? "koelt tot " + graad(r.koel) + " °C" : "dag " + graad(r.dag) + " °C, nacht " + graad(r.nacht) + " °C"}</div>
       <div style="margin-top:8px">${status}</div></div>
       <div class="temp">${graad(nu.temp)}<small> °C</small></div></div>
     <p class="waarom">${waarom}</p>
+    ${r.modus !== "uit" && r.slim_uitleg && (r.bron || (r.nu || {}).koelt || !(DATA.warmte || {}).bron) ? `<p class="hint">${esc(r.slim_uitleg)}</p>` : ""}
     ${r.modus !== "uit" ? planHtml(r) : ""}
     ${geleerdHtml(r)}
     <div class="stand" role="group" aria-label="Stand">
@@ -157,7 +160,9 @@ function velden(r) {
     <label class="v">Slim op de stroomprijs<select id="f_slim"><option value="1" ${r.slim ? "selected" : ""}>Aan</option><option value="0" ${r.slim ? "" : "selected"}>Uit</option></select></label>
     ${f("f_omhoog", "Goedkoop: tot zoveel warmer", r.omhoog, 'type="number" step="0.5" min="0" max="3" inputmode="decimal"')}
     ${f("f_omlaag", "Duur: tot zoveel minder", r.omlaag, 'type="number" step="0.5" min="0" max="3" inputmode="decimal"')}
-  </div><p class="hint">Bij een vast contract stookt Zonnestuur gewoon volgens dag en nacht, en leert het wel wanneer hij moet beginnen.</p>`;
+    <label class="v breed">Warmte in deze ruimte komt van<select id="f_bron"><option value="">Zoals de rest van het huis</option>${Object.entries(DATA.bronnen || {}).map(([k, v]) => `<option value="${k}" ${r.bron === k ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></label>
+    ${f("f_koel", "Airco koelt tot (°C)", r.koel ?? 24, 'type="number" step="0.5" min="16" max="30" inputmode="decimal"')}
+  </div><p class="hint">Heeft deze ruimte een airco en de rest van het huis een cv-ketel? Kies dan hier Airco.</p>`;
 }
 function bronHtml(r) {
   if (!KAND) return `<p class="hint">Zonnestuur zoekt je thermostaten…</p>`;
@@ -186,7 +191,54 @@ function formHtml(r) {
       ${r.id ? `<button class="btn ghost" type="button" data-weg="${esc(r.id)}">Verwijderen</button>` : `<button class="btn ghost" type="button" id="annuleer">Annuleren</button>`}</div>
     <p class="fout" data-fout hidden></p></div>`;
 }
+const BRON_UITLEG = {
+  gas: "De gasprijs is de hele dag gelijk. Zonnestuur zorgt dat het op tijd warm is, maar verschuift niet.",
+  hybride: "Zonnestuur stookt extra als stroom goedkoop is of van de zon komt, en laat de cv-ketel het doen als gas goedkoper is.",
+  warmtepomp: "Zonnestuur slaat warmte op in goedkope uren en met zonnestroom, en rekent met kou buiten (dan is hij minder zuinig).",
+  bodem: "Zonnestuur slaat warmte op in goedkope uren en met zonnestroom.",
+  airco: "Zonnestuur verwarmt of koelt alvast als stroom goedkoop is of van de zon komt.",
+  elektrisch: "Zonnestuur stookt extra in goedkope uren en met zonnestroom.",
+  warmtenet: "De prijs is de hele dag gelijk. Zonnestuur zorgt dat het op tijd warm is, maar verschuift niet.",
+};
+let BRON_OPEN = false;
+function huisBronTekenen() {
+  const w = DATA.warmte || {}, b = DATA.bronnen || {}, box = $("huisBron");
+  const keuze = w.bron || "";
+  const geraden = !keuze && w.geraden ? w.geraden : "";
+  box.hidden = !(DATA.ruimtes || []).length && !keuze;
+  if (keuze && !BRON_OPEN) {
+    box.innerHTML = `<div class="kop"><div><h2>Je huis: ${esc(b[keuze] || keuze)}</h2><div class="sub">${esc(BRON_UITLEG[keuze] || "")}</div></div>
+      <button class="btn ghost small" type="button" id="h_wijzig">Wijzigen</button></div>`;
+    $("h_wijzig").onclick = () => { BRON_OPEN = true; huisBronTekenen(); };
+    return;
+  }
+  box.innerHTML = `<div class="kop"><div><h2>Hoe wordt je huis verwarmd?</h2>
+      <div class="sub">${keuze ? esc(BRON_UITLEG[keuze] || "") : geraden ? "Zonnestuur denkt: " + esc(b[geraden] || geraden) + ". Klopt dat? Kies het hieronder." : "Kies wat je hebt. Daarmee weet Zonnestuur of slim stoken iets oplevert."}</div></div><span></span></div>
+    <div class="keuzes" style="margin-top:12px" role="radiogroup" aria-label="Hoe wordt je huis verwarmd?">
+      ${Object.entries(b).map(([k, v]) => `<label><input type="radio" name="h_bron" value="${k}" ${keuze === k ? "checked" : ""}><span>${esc(v)}</span><span></span></label>`).join("")}
+    </div>
+    <div class="velden" id="h_extra">
+      <label class="v" ${["warmtepomp", "hybride"].includes(keuze) ? "" : "hidden"} id="h_afg">Warmte in huis via<select id="h_afgifte"><option value="radiator" ${w.afgifte !== "vloer" ? "selected" : ""}>Radiatoren</option><option value="vloer" ${w.afgifte === "vloer" ? "selected" : ""}>Vloerverwarming</option></select></label>
+      <label class="v" ${["gas", "hybride"].includes(keuze) ? "" : "hidden"} id="h_gas">Gasprijs per m³ (€)<input id="h_gasprijs" type="number" step="0.01" min="0.2" max="6" inputmode="decimal" value="${esc(w.gasprijs ?? 1.75)}"></label>
+    </div>
+    <div class="knoppen"><button class="btn" type="button" id="h_bewaar">Opslaan</button>${keuze ? '<button class="btn ghost" type="button" id="h_terug">Annuleren</button>' : ""}</div>
+    <p class="fout" id="h_fout" hidden></p>`;
+  box.querySelectorAll('input[name="h_bron"]').forEach((i) => i.onchange = () => {
+    $("h_afg").hidden = !["warmtepomp", "hybride"].includes(i.value);
+    $("h_gas").hidden = !["gas", "hybride"].includes(i.value);
+  });
+  if ($("h_terug")) $("h_terug").onclick = () => { BRON_OPEN = false; huisBronTekenen(); };
+  $("h_bewaar").onclick = async () => {
+    const k = (box.querySelector('input[name="h_bron"]:checked') || {}).value || "";
+    if (!k) { $("h_fout").textContent = "Kies eerst hoe je huis verwarmd wordt."; $("h_fout").hidden = false; return; }
+    try {
+      await post("api/verwarming/warmte", { bron: k, afgifte: $("h_afgifte").value, gasprijs: $("h_gasprijs").value });
+      BRON_OPEN = false; melding("Opgeslagen"); await laad();
+    } catch (e) { $("h_fout").textContent = e.message; $("h_fout").hidden = false; }
+  };
+}
 function teken() {
+  huisBronTekenen();
   const rs = DATA.ruimtes || [];
   $("lijst").innerHTML = rs.length ? rs.map(kaartHtml).join("")
     : `<section class="kaart leeg">${THERMO}<h2 style="font:680 19px/1.3 'Inter Tight',Inter,sans-serif;margin:8px 0 4px">Nog geen ruimte</h2>
@@ -201,11 +253,12 @@ function waarden(box, r) {
   const num = (id) => Number(String(g(id).value).replace(",", "."));
   const soort = (box.querySelector('input[name="f_soort"]:checked') || {}).value || "thermostaat";
   const uit = Object.assign({}, r, { soort, dag: num("f_dag"), nacht: num("f_nacht"), dag_van: g("f_dagvan").value, nacht_van: g("f_nachtvan").value,
-    minimaal: num("f_min"), slim: g("f_slim").value === "1", omhoog: num("f_omhoog"), omlaag: num("f_omlaag") });
+    minimaal: num("f_min"), slim: g("f_slim").value === "1", omhoog: num("f_omhoog"), omlaag: num("f_omlaag"),
+    bron: g("f_bron") ? g("f_bron").value : (r.bron || ""), koel: g("f_koel") ? num("f_koel") : (r.koel ?? 24) });
   if (g("f_naam")) uit.naam = g("f_naam").value.trim();
   if (soort === "thermostaat") { uit.climate = g("f_climate") ? g("f_climate").value : ""; uit.sensor = g("f_sensor_th") ? g("f_sensor_th").value : ""; uit.schakelaars = []; }
   else { uit.sensor = g("f_sensor") ? g("f_sensor").value : ""; uit.schakelaars = [...box.querySelectorAll('input[name="f_sch"]:checked')].map((x) => x.value); uit.climate = ""; }
-  ["nu", "fout", "geleerd", "plan", "comfort_nu"].forEach((k) => delete uit[k]);
+  ["nu", "fout", "geleerd", "plan", "comfort_nu", "warmtebron", "bron_geraden", "slim_uitleg"].forEach((k) => delete uit[k]);
   return uit;
 }
 function koppel(root) {
@@ -245,7 +298,7 @@ function koppel(root) {
 }
 let NIEUW = null;
 function nieuw() {
-  NIEUW = { naam: "", soort: "", dag: 20.5, nacht: 18, dag_van: "07:00", nacht_van: "22:30", minimaal: 16, slim: true, omhoog: 1, omlaag: 0.5, schakelaars: [] };
+  NIEUW = { naam: "", soort: "", dag: 20.5, nacht: 18, dag_van: "07:00", nacht_van: "22:30", minimaal: 16, slim: true, omhoog: 1, omlaag: 0.5, schakelaars: [], bron: "", koel: 24 };
   const box = $("nieuw");
   box.innerHTML = `<div class="kop"><div><h2>Ruimte toevoegen</h2><div class="sub">Bijvoorbeeld de woonkamer, of de hele benedenverdieping.</div></div><span></span></div>${formHtml(NIEUW)}`;
   box.hidden = false; $("plus").hidden = true;
@@ -257,7 +310,7 @@ function nieuw() {
 async function kandidaten() { try { KAND = await api("api/verwarming/kandidaten"); } catch (e) { KAND = { ok: false, error: e.message }; } }
 async function laad() {
   try { DATA = await api("api/verwarming"); } catch (e) { $("lijst").innerHTML = `<p class="fout">${esc(e.message)}</p>`; return; }
-  const bezig = document.activeElement && document.activeElement.closest && document.activeElement.closest("[data-form]");
+  const bezig = document.activeElement && document.activeElement.closest && document.activeElement.closest("[data-form], #huisBron");
   if (!bezig) teken();
 }
 $("plus").onclick = nieuw;
@@ -265,7 +318,7 @@ $("plus").onclick = nieuw;
   await Promise.all([laad(), kandidaten()]);
   teken();
   if (/[?&]nieuw=1/.test(location.search)) nieuw();
-  setInterval(() => { if ($("nieuw").hidden && !document.querySelector("details.inst[open]")) laad(); }, 60000);
+  setInterval(() => { if ($("nieuw").hidden && !document.querySelector("details.inst[open]") && !BRON_OPEN) laad(); }, 60000);
 })();
 </script>
 </body>

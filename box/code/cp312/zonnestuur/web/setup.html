@@ -184,6 +184,7 @@ html, body { overscroll-behavior-y: none; }
   .inst-kop .btn { flex: none; }
   .settings.met-nav { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 8px 28px; align-items: start; }
   .settings.met-nav > :first-child { grid-column: 1 / -1; }
+  body.focus .settings.met-nav { grid-template-columns: minmax(0, 760px); }
   body.focus .settings > .inst-kop { margin-bottom: 8px; flex-wrap: wrap; justify-content: flex-start; }
   body.focus .settings > .inst-kop .terug { flex-basis: 100%; }
   body.focus .inst-inhoud > section > h2:first-child { display: none; }
@@ -608,7 +609,7 @@ function zoeken() {
     <div class="bar"><span id="scanBar"></span></div>
     <div id="plan"></div>
     <div id="found"></div>
-    ${W.addOnly || W.wat ? "" : `<label class="check-row" style="margin-top:16px"><input type="checkbox" id="noPanels" ${W.noPanels ? "checked" : ""}> Ik heb geen zonnepanelen <span class="muted">— dan is geen meter nodig en draait alles in de goedkoopste uren (dynamisch contract nodig)</span></label>`}
+    ${W.addOnly || W.wat ? "" : `<label class="check-row" style="margin-top:16px"><input type="checkbox" id="noPanels" ${W.noPanels ? "checked" : ""}> Ik heb geen zonnepanelen <span class="muted">— dan is geen meter nodig en draait alles in de goedkoopste uren (dynamisch contract, of vast met dubbeltarief)</span></label>`}
     <details id="manual"><summary>Staat je apparaat er niet bij? Vul het IP-adres in</summary>
       <p class="small" style="margin:10px 0 6px">Elk apparaat in je wifi heeft een eigen nummer: het <b>IP-adres</b>. Het ziet er zo uit: <b>192.168.1.50</b> (vier getallen met punten). Zo vind je het:</p>
       <ol class="small ipuitleg">
@@ -1032,6 +1033,18 @@ function contractHtml(c) {
       <div class="field"><label for="cp_ip">Stroomprijs per kWh</label><input id="cp_ip" type="number" step="0.001" min="0" max="2" value="${c.import_price}"><span class="hint">Inclusief belastingen, zie je contract of jaarafrekening.</span></div>
       <div class="field"><label for="cp_fp">Terugleververgoeding per kWh</label><input id="cp_fp" type="number" step="0.001" min="-1" max="1" value="${c.feed_in_price}"></div>
       <div class="field"><label for="cp_rc">Terugleverkosten per kWh</label><input id="cp_rc" type="number" step="0.001" min="0" max="1" value="${c.return_cost ?? 0}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label for="cp_dt">Tarief</label><select id="cp_dt">
+        <option value="enkel" ${c.dal_price == null ? "selected" : ""}>Enkeltarief (overal dezelfde prijs)</option>
+        <option value="dubbel" ${c.dal_price != null ? "selected" : ""}>Dubbeltarief (normaal en dal)</option></select>
+        <span class="hint">Staat op je jaarafrekening: twee meterstanden (normaal en dal) = dubbeltarief. Dan laat Zonnestuur de boiler en de auto in de daluren draaien.</span></div>
+      <div class="field" id="cp_dalw" ${c.dal_price == null ? "hidden" : ""}><label for="cp_dp">Dalprijs per kWh</label><input id="cp_dp" type="number" step="0.001" min="0" max="2" value="${c.dal_price ?? ""}" placeholder="bijv. 0,25"><span class="hint">De prijs hierboven is dan je normaaltarief.</span></div>
+      <div class="field" id="cp_dalu" ${c.dal_price == null ? "hidden" : ""}><label for="cp_dv">Daluren doordeweeks</label><select id="cp_dv">
+        <option value="23:00" ${(c.dal_van || "23:00") === "23:00" ? "selected" : ""}>23:00 tot 07:00 (meeste regio's)</option>
+        <option value="21:00" ${c.dal_van === "21:00" ? "selected" : ""}>21:00 tot 07:00 (Brabant, Limburg, deel Zuid-Holland)</option>
+        <option value="22:00" ${c.dal_van === "22:00" ? "selected" : ""}>22:00 tot 07:00</option></select>
+        <span class="hint">In het weekend is het altijd dal.</span></div>
     </div>` : `<details style="margin-top:10px"><summary>Bedragen aanpassen</summary><div class="row" style="margin-top:12px">
       <div class="field"><label for="cp_sm">Inkoopvergoeding per kWh (incl. btw)</label><input id="cp_sm" type="number" step="0.0001" value="${c.supplier_markup}"></div>
       <div class="field"><label for="cp_fa">Teruglevering: + of − op de marktprijs</label><input id="cp_fa" type="number" step="0.0001" value="${c.feed_in_adjust ?? -(c.feed_in_cost ?? 0)}"></div>
@@ -1068,6 +1081,11 @@ function contractHtml(c) {
 }
 function readContract(c) {
   if ($("cp_ip")) { c.import_price = Number($("cp_ip").value) || 0.29; c.feed_in_price = Number($("cp_fp").value) || 0; c.return_cost = Number($("cp_rc").value) || 0; }
+  if ($("cp_dt")) {
+    const dp = Number(String($("cp_dp").value).replace(",", "."));
+    c.dal_price = $("cp_dt").value === "dubbel" && $("cp_dp").value !== "" && !isNaN(dp) ? dp : null;
+    c.dal_van = $("cp_dv").value || "23:00"; c.dal_tot = "07:00";
+  }
   if ($("cp_sm")) { c.supplier_markup = Number($("cp_sm").value) || 0; c.feed_in_adjust = Number($("cp_fa").value); c.energy_tax = $("cp_et").value === "" ? null : Number($("cp_et").value); }
   if ($("cp_pe")) c.price_entity = $("cp_pe").value;
   if ($("cp_rm")) {
@@ -1091,6 +1109,7 @@ function bindContract(c, rerender) {
   $("cp_sup").onchange = () => { readContract(c); applySupplier(c, $("cp_sup").value); rerender(); };
   const tp = () => { if (!$("cp_tp")) return; $("cp_eigen").hidden = $("cp_tp").value !== "eigen"; $("cp_tpw").hidden = $("cp_tp").value !== "acm2029"; };
   if ($("cp_tp")) { $("cp_tp").onchange = tp; tp(); }
+  if ($("cp_dt")) $("cp_dt").onchange = () => { const d = $("cp_dt").value !== "dubbel"; $("cp_dalw").hidden = d; $("cp_dalu").hidden = d; };
 }
 
 // Doel bij het instellen: bepaalt de sturing (profile) en het hoofdcijfer (motivation)

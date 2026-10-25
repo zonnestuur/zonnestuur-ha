@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.82.0
+- Verwarming: kies hoe je huis verwarmd wordt (cv-ketel, hybride, warmtepomp, airco, elektrisch, warmtenet). Op gas of een warmtenet verschuift Zonnestuur niet meer (de prijs is de hele dag gelijk), maar zorgt hij wel dat het op tijd warm is.
+- Warmtepomp en airco: Zonnestuur rekent met hoe zuinig de warmtepomp is bij het weer van dat uur. Hybride: is de cv-ketel goedkoper, dan laat hij die het doen.
+- Met zonnepanelen slaat Zonnestuur warmte op als je panelen meer opwekken dan je huis gebruikt, ook met een vast contract.
+- Airco die koelt: Zonnestuur koelt alvast als stroom goedkoop is of van de zon komt, en zet nooit meer een verwarmingstemperatuur op een koelende airco.
+- Vast contract met dubbeltarief: vul je dalprijs in, dan draaien boiler en auto in de daluren. Dat werkt nu ook zonder zonnepanelen.
+- Instellingen op een groot scherm: een los onderdeel (zoals Energiecontract) gebruikt weer de hele breedte.
+
 ## 0.81.7
 - Huisscherm: geen tekst meer over andere tekst. Is er geen goedkoop blok meer vandaag, dan toont het scherm het goedkoopste moment dat nog komt (bijv. 'morgen 02:00').
 
