@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.81.5
+- Auto: Zonnestuur gebruikt het tijdstip waarop de auto zijn accupercentage doorgaf (als de koppeling dat meegeeft) en telt alles wat daarna geladen is erbij.
+- Opgelost: bij het terugkijken in de geschiedenis kreeg Zonnestuur maar één dag in plaats van de hele periode (ook bij het herkennen van 1 of 3 fasen van de laadpaal).
+
 ## 0.81.4
 - Kleine verbetering in het logboek (accupercentage van de auto).
 
