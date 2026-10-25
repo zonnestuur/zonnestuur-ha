@@ -1075,6 +1075,8 @@ html, body { overscroll-behavior-y: none; }
   /* prijsgrafiek in de tarievenkaart en de apparatenlijst op Home */
   .tarkaart.met-lijn { grid-template-rows: auto auto; }
   .tarkaart .prijslijn { grid-column: 1 / -1; width: 100%; height: 96px; display: block; margin-top: 4px; overflow: visible; }
+  .tarkaart .pl-box { grid-column: 1 / -1; position: relative; }
+  .tarkaart .pl-box .pl-t { display: block; margin-top: -2px; }
   .tarkaart .pl-t { grid-column: 1 / -1; position: relative; height: 14px; margin-top: -16px; font: 500 11px Inter, sans-serif; color: var(--zs-ink3); }
   .tarkaart .pl-t span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
   .minilijst { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 14px 6px 6px; }
@@ -1697,6 +1699,11 @@ function renderStrook(s) {
   const goedkoop = vast ? "" : '<span><i class="lg cheap"></i>goedkoop</span><span><i class="lg dear"></i>duur</span>';
   el.innerHTML = `<div class="kols">${kol}</div><div class="tijden">${tijden}</div>
     <div class="leg">${goedkoop}${s.has_panels ? '<span><i class="lg zon"></i>zon</span>' : ""}${plan.length ? '<span><i class="lg gp"></i>gepland</span>' : ""}</div>`;
+  if (window.zsSchuifKols) zsSchuifKols(el, el.querySelector(".kols"), (i) => {
+    const r = sl[i], t = new Date(r.ts * 1000), cls = vast ? "mid" : priceClass(r.all_in, avg);
+    const wat = plan.filter((it) => new Date(it.start) / 1000 < r.end && new Date(it.end) / 1000 > r.ts);
+    return `${t.toDateString() !== new Date().toDateString() ? "morgen " : ""}${hhmm(t)}<b>${vast ? "" : eur3(r.all_in).replace(/(,\d\d)\d$/, "$1")}</b><small>${vast ? "" : CLASS_WORD[cls]}${wat.length ? " · " + esc(wat.map((x) => x.name).join(", ")) : ""}${s.has_panels && r.pv_w > 50 ? " · zon" : ""}</small>`;
+  });
 }
 // De gezamenlijke planning in één regel + een kleine grafiek: wat je de komende 24 uur van het net haalt en teruglevert
 let DAGPLAN = null;
@@ -1921,9 +1928,18 @@ function renderTarKaart(s) {
   el.innerHTML = `<span class="ti blad">${SVGI(HI.blad)}</span><span class="tt"><b>${s.contract === "dynamic" ? "Dynamische tarieven" : "Je stroomprijs"}</b><span>${esc(zin)}</span></span>
     ${prijs != null ? `<span class="prijspil ${cls}">${eur3(prijs).replace(/(,\d\d)\d$/, "$1")}<small> /kWh</small></span>` : ""}<span class="pijl" aria-hidden="true"></span>
     ${s.contract === "dynamic" ? prijsLijn() : ""}`;
+  if (s.contract === "dynamic" && PL && window.zsSchuif) {
+    const box = document.createElement("div"); box.className = "pl-box";
+    const svg = el.querySelector(".prijslijn"), tl = el.querySelector(".pl-t");
+    if (svg) { svg.replaceWith(box); box.appendChild(svg); if (tl) box.appendChild(tl);
+      svg.addEventListener("click", (e) => e.preventDefault());          // tikken op de lijn toont de prijs; de rest van de kaart opent Tarieven
+      zsSchuif(box, PL); }
+  }
 }
 // Kleine prijsgrafiek voor Home: de komende uren (vandaag, en morgen als die al bekend is), met nu en het goedkoopste blok
+let PL = null;
 function prijsLijn() {
+  PL = null;
   const nu = Date.now() / 1000, dag0 = new Date(); dag0.setHours(0, 0, 0, 0);
   const sl = (PRICES && PRICES.slots || []).filter((r) => r.ts >= dag0 / 1000).slice(0, 48);
   if (sl.length < 6) return "";
@@ -1935,6 +1951,9 @@ function prijsLijn() {
   for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
     d += ` C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)},${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)},${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`; }
   const ni = sl.findIndex((r) => nu >= r.ts && nu < r.end), b = goedkoopBlok();
+  const gem = ps.reduce((a, v) => a + v, 0) / ps.length;
+  PL = { W, H, n: sl.length, x, y: (i) => y(sl[i].all_in), top: T, bodem: H - B, standaard: Math.max(0, ni),
+    tekst: (i) => { const d0 = new Date(sl[i].ts * 1000); return `${d0.toDateString() !== new Date().toDateString() ? "morgen " : ""}${hhmm(d0)} – ${hhmm(new Date(sl[i].end * 1000))}<b>${eur3(sl[i].all_in).replace(/(,\d\d)\d$/, "$1")}</b><small>${sl[i].all_in <= gem - 0.02 ? "laag" : sl[i].all_in >= gem + 0.02 ? "hoog" : "gemiddeld"}</small>`; } };
   const bi = b ? sl.findIndex((r) => r.ts === b.van) : -1, sw = (W - L - R) / sl.length;
   let tijden = "";
   sl.forEach((r, i) => { const h = new Date(r.ts * 1000).getHours(); if (h % 6 === 0) tijden += `<span style="left:${(x(i) / W * 100).toFixed(1)}%">${h === 0 && i > 0 ? "morgen" : String(h).padStart(2, "0") + ":00"}</span>`; });
@@ -3708,5 +3727,6 @@ setInterval(refreshCharts, 60000);
 let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawCharts, 150); });
 </script>
 <script src="huis.js"></script>
+<script src="schuif.js"></script>
 </body>
 </html>

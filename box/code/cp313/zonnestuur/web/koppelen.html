@@ -238,6 +238,57 @@ html, body { overscroll-behavior-y: none; }
   .app-rij .kw { font: 700 15.5px/1.3 "Inter Tight", Inter, sans-serif; color: var(--ink); font-variant-numeric: tabular-nums; }
   .lijst .plusrij .ic { width: 48px; height: 48px; border-radius: 14px; background: color-mix(in srgb, var(--zs-knop, #2f7cf6) 18%, transparent); color: var(--zs-knop, #2f7cf6); }
   .lijst { background: var(--zs-kaart, var(--card-solid)); }
+  /* 0.81: toevoegen in drie stappen */
+  .merktegels { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .merktegel { font: inherit; text-align: left; display: grid; gap: 4px; align-content: start; padding: 14px; min-height: 84px; border-radius: 18px; border: 0; cursor: pointer;
+    background: var(--zs-kaart, var(--card-solid)); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+  .merktegel:hover { box-shadow: 0 0 0 1.5px var(--ink); }
+  .merktegel b { font-size: 16px; font-weight: 700; } .merktegel span { font-size: 13px; color: var(--ink-2); line-height: 1.35; }
+  .merktegel em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--sun-ink, #b45309); } .merktegel em.ok { color: var(--good); }
+  .merktegel.gevonden { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--sun) 60%, transparent); }
+  .merklijst { display: grid; gap: 8px; margin-bottom: 14px; }
+  .merkrij { font: inherit; text-align: left; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; min-height: 60px;
+    border-radius: 16px; border: 0; cursor: pointer; background: var(--zs-kaart, var(--card-solid)); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+  .merkrij b { display: block; font-weight: 650; } .merkrij:hover { box-shadow: 0 0 0 1.5px var(--ink); }
+  .merkrij .pijl { width: 8px; height: 8px; border-right: 2px solid var(--ink-3); border-top: 2px solid var(--ink-3); transform: rotate(45deg); }
+  .cat-tip { margin: 0 2px 14px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--zs-knop, #2f7cf6) 12%, transparent); font-size: 14px; line-height: 1.45; }
+  .weetniet { padding: 16px; border-radius: 18px; background: var(--chip); font-size: 14px; line-height: 1.5; margin: 6px 0 10px; }
+  .weetniet p { margin: 6px 0 0; color: var(--ink-2); }
+  .merk-prod { margin: 0 2px 12px; color: var(--ink-2); font-size: 14px; }
+  .hoe { padding: 18px; border-radius: 20px; background: var(--zs-kaart, var(--card-solid)); box-shadow: 0 0 0 1px var(--line); margin-bottom: 12px; }
+  .hoe.eerste { box-shadow: 0 0 0 1.5px var(--zs-knop, #2f7cf6); }
+  .hoe h3 { margin: 4px 0 10px; font: 700 19px/1.25 "Inter Tight", Inter, sans-serif; letter-spacing: -.01em; }
+  .hoe-lbl { font-size: 12.5px; font-weight: 700; color: var(--zs-knop, #2f7cf6); }
+  .hoe-nodig { margin: 0 0 4px; font-weight: 650; font-size: 14px; }
+  .hoe ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; line-height: 1.45; }
+  .hoe-nut { margin: 0 0 14px; font-size: 14.5px; color: var(--ink-2); line-height: 1.45; }
+  .hoe .storing { color: var(--warn); font-weight: 600; font-size: 14px; }
+  .hoe-go .btn { width: 100%; justify-content: center; min-height: 48px; }
+  details.anders { margin: 4px 0 10px; } details.anders > summary { padding: 12px 2px; min-height: 44px; }
+  details.anders .hoe { margin-top: 8px; }
+  .techrij { display: grid; gap: 4px; padding: 10px 2px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+  .techrij b { color: var(--ink); font-size: 13.5px; }
+  /* 0.81: eerste drie vragen */
+  #startKaart { order: 0 !important; }
+  .start { padding: 20px; border-radius: 22px; background: var(--zs-kaart, var(--card-solid)); box-shadow: 0 0 0 1.5px var(--zs-knop, #2f7cf6); }
+  .start h2 { margin: 0 0 4px; font: 700 20px/1.25 "Inter Tight", Inter, sans-serif; }
+  .start > p { margin: 0 0 16px; color: var(--ink-2); font-size: 14.5px; }
+  .vraag { padding: 14px 0; border-top: 1px solid var(--line); }
+  .vraag > b { display: block; margin-bottom: 8px; font-size: 15.5px; }
+  .vraag .uitleg { font-size: 13.5px; color: var(--ink-2); margin: -4px 0 10px; }
+  .keuzes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .keuzes button { font: inherit; font-weight: 650; font-size: 15px; padding: 11px 16px; min-height: 44px; border-radius: 14px; border: 0; cursor: pointer;
+    background: var(--chip); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+  .keuzes button[aria-pressed="true"] { background: color-mix(in srgb, var(--zs-knop, #2f7cf6) 22%, transparent); box-shadow: 0 0 0 1.5px var(--zs-knop, #2f7cf6); }
+  .vraag select, .vraag input { margin-top: 10px; }
+  .vraag .rij2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .start .klaar { display: flex; gap: 10px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+  .start .klaar .btn { min-height: 48px; padding: 12px 26px; font-size: 16px; }
+  .vraag .ok { color: var(--good); font-weight: 650; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .bladframe { position: relative; }
+  .bladframe iframe { width: 100%; height: min(74vh, 820px); border: 0; border-radius: 18px; background: var(--bg); display: block; }
+  .bf-ok { margin: 0 0 10px; padding: 10px 14px; border-radius: 14px; background: color-mix(in srgb, var(--zs-groen, #16a34a) 16%, transparent); color: var(--good); font-weight: 650; }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -254,6 +305,7 @@ html, body { overscroll-behavior-y: none; }
     <button class="btn plus" type="button" id="toevoegKnop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Toevoegen</button>
   </div>
 
+  <section class="groep" id="startKaart" hidden></section>
   <section class="groep gevonden" id="stapKaart" hidden><h2>Gevonden in je huis</h2>
     <p class="groep-uitleg">Eén tik en het doet mee.</p><div class="lijst" id="stappen"></div></section>
   <section class="card" id="meterKaart" hidden></section>
@@ -292,8 +344,8 @@ html, body { overscroll-behavior-y: none; }
         <button type="button" data-cat="" data-ic="meer"><span class="ti"></span>Iets anders</button>
       </div>
     </div>
-    <div class="field zoekveld"><label for="q" id="q_label">Of zoek het merk</label>
-      <input id="q" type="search" placeholder="Bijv. Daikin, Tesla, Miele, Shelly" autocomplete="off"></div>
+    <div id="zoekBlok"><div class="field zoekveld"><label for="q" id="q_label">Of zoek het merk</label>
+      <input id="q" type="search" placeholder="Bijv. Daikin, Tesla, Miele, Shelly" autocomplete="off"></div></div>
     <div class="chips" id="cats" hidden></div>
     <p class="count" id="count"></p>
     <div class="results" id="results"></div>
@@ -356,9 +408,9 @@ const ZS_LINK = {
   inverter: ["sunspec", "fronius", "sma", "solaredge", "huawei", "goodwe", "sungrow", "kostal", "opendtu", "ahoydtu", "apsystems", "enphase", "solax", "victron"],
 };
 function zsLink(key) {
-  if (ZS_LINK.inverter.includes(key)) return `instellingen?omvormer=${key}#feedCard`;
+  if (ZS_LINK.inverter.includes(key)) return `instellingen?omvormer=${key}&onderdeel=feedCard`;
   if (key === "laadpaal") return "setup#toevoegen";
-  if (key.startsWith("bat_")) return `instellingen?batterij=${key.slice(4)}#batCard`;
+  if (key.startsWith("bat_")) return `instellingen?batterij=${key.slice(4)}&onderdeel=batCard`;
   if (["p1_serial", "homewizard_p1", "shelly_em", "youless", "dsmr_reader", "esphome_p1", "mqtt_meter", "homey_meter"].includes(key)) return "instellingen#editCard";
   if (["shelly", "shelly_gen1", "homewizard_socket", "tasmota", "esphome"].includes(key)) return "setup#toevoegen";
   if (["domoticz", "openhab", "iobroker"].includes(key)) return "instellingen#sysCard";
@@ -452,8 +504,8 @@ ${ROUTER.soort === "fritzbox" && (ROUTER.nodig || ROUTER.fout) ? `<div class="on
     } catch (e) { m.textContent = e.message; $("routerGo").disabled = false; }
   };
   el.querySelectorAll("[data-netmerk]").forEach((b) => b.onclick = () => {
-    $("q").value = b.dataset.netmerk; LIMIT = 40; render();
-    const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start", behavior: "smooth" }); }
+    const r = LIST.find((x) => x.merk === b.dataset.netmerk);
+    openToevoegen(r ? r.categorie : ""); if (r) openMerk(r); else { $("q").value = b.dataset.netmerk; render(); }
   });
   if ($("allesKoppelen")) $("allesKoppelen").onclick = async () => {
     $("allesKoppelen").disabled = true; $("allesMsg").innerHTML = '<span class="spin"></span>Bezig met koppelen…';
@@ -513,44 +565,208 @@ function gekoppeldBlok(ents, merkVan) {
   return `<div class="gekop">${h}${geenKnop ? `<p class="small muted" style="margin:8px 0 0">Dit is je eigen koppelmotor. Ontkoppelen doe je daar zelf: misschien gebruik je een koppeling ook voor iets anders.</p>` : ""}</div>`;
 }
 
-function render() {
-  const q = $("q").value.trim().toLowerCase();
-  const words = q.split(/\s+/).filter(Boolean);
-  const order = { groot: 0, middel: 1, klein: 2 };
-  const rows = LIST.filter((r) => (!CAT || r.categorie === CAT) && words.every((w) => (r.merk + " " + r.producten + " " + r.categorie).toLowerCase().includes(w)))
-    .sort((a, b) => (order[a.aandeel_nl] ?? 3) - (order[b.aandeel_nl] ?? 3) || a.merk.localeCompare(b.merk));
-  const iets = !!CAT || words.length > 0;
-  $("count").hidden = !iets; $("results").hidden = !iets;
-  $("count").textContent = !rows.length ? "Niets gevonden. Probeer een ander woord, of kies een soort." : CAT && !words.length ? "De meest voorkomende merken staan bovenaan." : `${rows.length} gevonden.`;
-  const routeHtml = (r, rt, j) => {
-    const info = routeInfo(rt, r);
-    return `<div class="route"><div class="rt">${esc(info.label)}${rt.storing ? '<span class="tag storing">werkt nu even niet</span>' : rt.zeker === false ? '<span class="tag">nog niet bevestigd</span>' : ""}${connected(rt) ? '<span class="tag ok">gekoppeld</span>' : ""}</div>
-      ${rt.storing ? `<div class="rn storing">${esc(rt.storing)}</div>` : ""}
-      ${rt.nodig ? `<div class="rn">Nodig: ${esc(rt.nodig)}</div>` : ""}
-      ${rt.sturen ? `<div class="rs">Zonnestuur kan dan: ${esc(rt.sturen)}</div>` : ""}
-      ${rt.handmatig ? `<div class="rs">${esc(rt.uitleg || "Dit kan nog niet met een knop.")}${safeUrl(rt.link) ? ` <a href="${esc(rt.link)}" target="_blank" rel="noopener">Uitleg</a>` : ""}</div>` : ""}
-      <div class="go">${goButton(info, LIST.indexOf(r), j, rt)}</div></div>`;
-  };
-  $("results").innerHTML = !iets ? "" : rows.slice(0, LIMIT).map((r) => {
-    const rts = routesOf(r), on = rts.some(connected);
-    // de beste manier voorop; andere manieren ingeklapt (de meeste mensen hebben er één nodig)
-    const best = Math.max(0, rts.findIndex(connected) >= 0 ? rts.findIndex(connected) : (rts.findIndex((x) => !x.handmatig && !x.storing) >= 0 ? rts.findIndex((x) => !x.handmatig && !x.storing) : rts.findIndex((x) => !x.handmatig)));
-    const rest = rts.map((rt, j) => [rt, j]).filter(([, j]) => j !== best);
-    return `<details class="brandrow"><summary><span class="bname">${esc(r.merk)}</span>
-      ${on ? '<span class="pill direct">Gekoppeld</span>' : ""}
-      <span class="bmeta">${esc(r.producten)}</span></summary>
-      <div class="routes">${rts.length ? routeHtml(r, rts[best], best) : '<p class="small muted">Nog geen koppeling bekend.</p>'}
-        ${rest.length ? `<details class="anders"><summary>${rest.length === 1 ? "Andere manier" : `Andere manieren (${rest.length})`}</summary>${rest.map(([rt, j]) => routeHtml(r, rt, j)).join("")}</details>` : ""}</div></details>`;
-  }).join("");
-  $("more").hidden = !iets || rows.length <= LIMIT;
-  $("results").querySelectorAll("[data-go]").forEach((b) => b.onclick = () => { const [ri, j] = b.dataset.go.split(",").map(Number); go(LIST[ri], routesOf(LIST[ri])[j]); });
+// ---------- Toevoegen: soort → merk → één duidelijke manier ----------
+// Wat Zonnestuur met een apparaat van deze soort doet, in gewone taal
+const NUT = {
+  "Laadpaal": "Zonnestuur laadt je auto op de goedkoopste uren, of met je eigen zonnestroom.",
+  "Elektrische auto": "Zonnestuur ziet hoe vol de accu is, zodat de auto op tijd klaar is en niet duurder laadt dan nodig.",
+  "Warmtepomp": "Zonnestuur laat hem extra warm stoken als stroom goedkoop is, en minder als stroom duur is.",
+  "Warm water": "Zonnestuur warmt het water op als stroom goedkoop is of als de zon schijnt.",
+  "Thuisbatterij": "Zonnestuur laadt en ontlaadt hem op de beste momenten van de dag.",
+  "Omvormer": "Zonnestuur weet dan precies hoeveel je zonnepanelen nu opwekken, en plant daar beter mee.",
+  "Witgoed": "Zonnestuur start de machine op het goedkoopste moment voor de tijd dat hij klaar moet zijn.",
+  "Slimme meter / P1": "Zonnestuur ziet elke paar seconden wat je huis verbruikt en teruglevert. Dit is het belangrijkste onderdeel.",
+  "Slimme stekker en relais": "Zonnestuur zet het apparaat dat erachter zit aan op goedkope uren of bij zon.",
+  "Airco": "Zonnestuur verwarmt of koelt slim: wat warmer of koeler als stroom goedkoop is of de zon schijnt.",
+  "CV-ketel en thermostaat": "Zonnestuur stookt wat warmer als stroom goedkoop is, en wat zuiniger als stroom duur is.",
+  "Ventilatie en overig klimaat": "Zonnestuur kan hem meenemen als stroom goedkoop is.",
+  "Overig verbruik": "Zonnestuur zet hem aan op de goedkoopste uren.",
+};
+// Een route uitleggen zoals een leek hem begrijpt; de technische tekst blijft voor de installateur
+const JARGON = /poort|logger|eebus|ski-|modbus|ocpp|\bapi\b|api-|mqtt|ws:\/\/|\btcp\b|token|backend|rs485|esp32|esphome|firmware|i2c|sg-?ready|setapp|\budp\b|discovery|developer|fleet|contactor|https|\bdiy\b|evcc|portal/i;
+function appNaam(r) {
+  const m = r.merk;
+  if (/^(Losse|Overige|Mobiele|Beregening|Droogkast|Generiek|IR-|Zigbee)/i.test(m)) return "het apparaat";
+  return m.split(" (")[0].split(" / ")[0].trim();
 }
+function leek(rt, r) {
+  const info = routeInfo(rt, r), n = String(rt.nodig || ""), m = appNaam(r);
+  const installateur = /installateur|elektricien|meterkast|in de groep|vakman/i.test(n);
+  const pm = n.match(/(?:ca\.|±|vanaf)?\s*€\s?\d[\d.,]*(?:\s?[-–]\s?€?\s?\d[\d.,]*)?/i);
+  const prijs = pm ? pm[0].replace(/^\s*(ca\.|±)\s*/i, "").trim() : "";
+  const lokaalWw = /(laadpaal|gateway|apparaat|omvormer|dongle)[- ]?wachtwoord|wachtwoord van de (laadpaal|sticker|dongle)|sticker op/i.test(n);
+  const auto = r.categorie === "Elektrische auto";
+  const viaPaal = rt.route === "zonnestuur:laadpaal" || (auto && rt.route === "zonnestuur:ocpp");
+  const account = info.kind === "enode" || (!lokaalWw && /account|inlog|oauth|cloud|e-?mail/i.test(n)) ||
+    (auto && ["ha", "hacs", "evcc"].includes(info.kind) && !/esp32|bluetooth|\bble\b/i.test(n));
+  const niets = /^\s*niets\b/i.test(n);
+  const jargon = JARGON.test(n);
+  const st = [];
+  let titel = info.label;
+  if (info.kind === "ha" || info.kind === "hacs") titel = account ? (m === "het apparaat" ? "Inloggen met je account van de app" : `Inloggen met je ${m}-account`) : niets && !lokaalWw ? "Zonnestuur vindt hem vanzelf" : "Koppelen via je wifi";
+  else if (viaPaal) titel = "Via je laadpaal";
+  else if (rt.route === "zonnestuur:ocpp") titel = "Je laadpaal laten praten met Zonnestuur";
+  else if (info.kind === "zonnestuur") titel = "Rechtstreeks met Zonnestuur";
+  else if (info.kind === "meten") titel = "Meten met een slimme stekker";
+  else if (info.kind === "relais") titel = "Met een slimme schakelaar";
+  else if (info.kind === "matter") titel = "Met de Matter-code";
+  else if (info.kind === "zigbee") titel = "Via Zigbee";
+  else if (info.kind === "evcc") titel = r.categorie === "Elektrische auto" || account ? `Inloggen met je ${m}-account` : "Koppelen via je netwerk";
+  else if (info.kind === "enode") titel = "Via de cloud";
+  if (VOORKEUR_TEKST[rt.route]) st.push(VOORKEUR_TEKST[rt.route]);
+  else if (viaPaal) st.push("Je laadpaal staat al in Zonnestuur (of koppel die eerst). Zonnestuur laadt de auto dan via de laadpaal; hoe vol hij is vul je zelf ongeveer in.");
+  else if (rt.route === "zonnestuur:ocpp") st.push(`In de ${/app\b/i.test(n) && !MERKNAAM[m] ? `${m}-app` : "instellingen van de laadpaal"} vul je één adres in dat Zonnestuur je geeft. Dan stuurt Zonnestuur de laadpaal rechtstreeks.`);
+  else if (account) st.push(m === "het apparaat" ? "Je e-mailadres en wachtwoord van de app waarmee je het apparaat bedient." : `Je e-mailadres en wachtwoord van de ${m}-app.`);
+  else if (lokaalWw && /wachtwoord/i.test(n)) st.push(/sticker/i.test(n) ? "De gebruikersnaam en het wachtwoord op de sticker van het apparaat." : `Het wachtwoord van ${/laadpaal/i.test(n) ? "de laadpaal" : "het apparaat"} zelf (staat op een kaartje bij de installatie of in de handleiding).`);
+  else if (info.kind === "matter") st.push("De QR-code met het Matter-logo (op het apparaat of de doos).");
+  else if (info.kind === "zigbee") st.push("Een Zigbee-stick in de Box (ongeveer € 30).");
+  else if (niets) st.push("Niets: het apparaat zit al in je wifi en Zonnestuur vindt het.");
+  else if (!jargon && n.length && n.length <= 170 && !/^zie /i.test(n) && info.kind !== "relais" && info.kind !== "meten") st.push(n.charAt(0).toUpperCase() + n.slice(1) + (/[.!?]$/.test(n) ? "" : "."));
+  else if (info.kind === "zonnestuur" || info.kind === "ha" || info.kind === "hacs") st.push("Het apparaat zit aan je wifi of met een kabel aan je modem. Zonnestuur zoekt het zelf; lukt dat niet, dan vul je het IP-adres in (dat staat in de app van het apparaat).");
+  if (info.kind === "hacs") st.push("Zonnestuur zet eerst een extra onderdeel klaar. Dat duurt 1 tot 3 minuten.");
+  if (info.kind === "relais" || info.kind === "meten") st.push(info.kind === "meten" ? `Een slimme stekker met meting tussen het stopcontact en de stekker${prijs ? ` (ongeveer ${prijs})` : ""}. Zonnestuur ziet dan wanneer hij draait en zegt wanneer je hem het beste aanzet.`
+    : `Een slimme schakelaar${prijs ? ` (ongeveer ${prijs})` : ""}. Bij een vaste aansluiting, zoals een boiler of omvormer, plaatst een installateur hem in de meterkast.`);
+  else if (prijs) st.push(`Je moet er iets voor kopen: ongeveer ${prijs}.`);
+  if (VOORKEUR_TEKST[rt.route]) { /* al uitgelegd */ }
+  else if (installateur && info.kind !== "relais" && info.kind !== "meten") st.push("Een installateur zet eerst iets aan. Laat hem de technische uitleg onderaan zien.");
+  else if (jargon && !niets && !installateur && info.kind !== "relais" && info.kind !== "meten" && rt.route !== "zonnestuur:ocpp" && !account) st.push("Er moet één instelling aan in het apparaat of de app. Zie de technische uitleg onderaan, of vraag ons om hulp.");
+  const lezen = /alleen (lezen|uitlezen|meten)|^\s*uitlezen|alleen uitlezen/i.test(rt.sturen || "");
+  return { titel, st, installateur, prijs, lezen, info, jargon, account };
+}
+// Voor de meest voorkomende merken weten we welke manier het makkelijkst is (getest of officieel)
+const VOORKEUR = { Fronius: "zonnestuur:fronius", GoodWe: "zonnestuur:goodwe", HomeWizard: "zonnestuur:homewizard_p1", Marstek: "zonnestuur:bat_marstek",
+  Zendure: "zonnestuur:bat_zendure", Victron: "zonnestuur:bat_victron", Sungrow: "zonnestuur:sungrow", Shelly: "ha:shelly" };
+const VOORKEUR_TEKST = { "zonnestuur:fronius": "Meestal niets: een Fronius geeft zijn opwek zelf door in je netwerk en Zonnestuur vindt hem.",
+  "zonnestuur:goodwe": "Niets: Zonnestuur vindt hem zelf in je netwerk." };
+function routeScore(rt, r) {
+  const L = leek(rt, r), k = L.info.kind;
+  return (connected(rt) ? -1000 : 0) + (VOORKEUR[r.merk] === rt.route ? -80 : 0) + (rt.storing ? 500 : 0) + (rt.handmatig ? 400 : 0) + (rt.zeker === false ? 60 : 0) +
+(L.installateur ? 30 : 0) + (L.prijs ? 25 : 0) + (L.lezen ? 15 : 0) + (L.jargon && !L.account ? 5 : 0) +
+    ({ ha: 0, zonnestuur: 2, hacs: 3, matter: 5, evcc: 36, meten: 9, relais: 9, zigbee: 12, enode: 14 }[k] ?? 10);
+}
+const MERKNAAM = { "Generiek OCPP 1.6J": "Ander merk laadpaal (OCPP)" };
+const merkNaam = (r) => MERKNAAM[r.merk] || (typeof MERKNAAM2 !== "undefined" && MERKNAAM2[r.merk]) || r.merk;
+let MERK = null, ALLE = false;
+// De merken die je in Nederlandse huizen het meest ziet, in deze volgorde als tegels
+const TOP = {
+  "Laadpaal": ["Alfen", "Zaptec", "Easee", "Peblar", "Wallbox", "EVBox", "Tesla", "Ratio"],
+  "Omvormer": ["SolarEdge", "Enphase", "Growatt", "GoodWe", "SMA", "Huawei", "Fronius", "APsystems"],
+  "Thuisbatterij": ["HomeWizard", "Marstek", "Zendure", "Sessy", "Zonneplan", "Victron Energy", "Huawei", "Homevolt (Tibber)"],
+  "Warmtepomp": ["Daikin", "Vaillant", "Bosch / Nefit / Buderus", "Itho Daalderop", "Quatt", "Mitsubishi Electric", "Panasonic", "Remeha"],
+  "Elektrische auto": ["Tesla", "Kia", "Volkswagen", "Hyundai", "Škoda", "BMW", "Polestar", "Renault"],
+  "Witgoed": ["Miele", "Bosch", "Siemens", "AEG", "Samsung", "LG", "Beko", "Niet-verbonden witgoed (algemeen)"],
+  "Warm water": ["Generiek (relais/contactor)", "Itho Daalderop", "Inventum", "Ariston", "Atlantic", "Quooker", "Daikin", "Vaillant"],
+  "Airco": ["Daikin", "Mitsubishi Electric", "Mitsubishi Heavy Industries", "LG", "Samsung", "Panasonic", "Toshiba", "Mobiele airco (Qlima, De'Longhi Pinguino, Trotec, Tristar)"],
+  "Slimme meter / P1": ["HomeWizard", "Tibber", "Zonneplan", "Youless", "SlimmeLezer / ESPHome DSMR", "Shelly", "P1 Monitor (ZTATZ)", "DSMR P1-poort (generiek)"],
+  "Slimme stekker en relais": ["Shelly Gen2/Gen3", "HomeWizard", "TP-Link Tapo", "IKEA (Zigbee)", "Philips Hue", "Tuya / Smart Life (generiek)", "LSC Smart Connect (Action)", "Installatierelais / magneetschakelaar"],
+};
+const MERKNAAM2 = { "Generiek (relais/contactor)": "Gewone elektrische boiler", "Niet-verbonden witgoed (algemeen)": "Machine zonder app", "Shelly Gen2/Gen3": "Shelly",
+  "Mobiele airco (Qlima, De'Longhi Pinguino, Trotec, Tristar)": "Mobiele airco", "DSMR P1-poort (generiek)": "Kabel in de meter (P1)", "Installatierelais / magneetschakelaar": "Schakelaar in de meterkast",
+  "Tuya / Smart Life (generiek)": "Tuya / Smart Life", "Bosch / Nefit / Buderus": "Bosch / Nefit", "SlimmeLezer / ESPHome DSMR": "SlimmeLezer" };
+// Wat een leek vooraf moet weten, per soort
+const TIP = {
+  "Elektrische auto": "De meeste auto's laadt Zonnestuur gewoon via je laadpaal. De auto zelf koppelen is alleen nodig als je wilt dat Zonnestuur ziet hoe vol de accu is.",
+  "Omvormer": "Ook zonder koppeling weet Zonnestuur ongeveer wat je panelen opwekken (uit het weer). Met de omvormer erbij weet hij het precies.",
+  "Warm water": "Heb je een gewone elektrische boiler zonder app? Kies dan 'Slimme stekker': een slimme schakelaar in de groep van de boiler is genoeg.",
+  "Slimme meter / P1": "Bij de meeste huizen vindt Zonnestuur de meter zelf. Kies hier alleen iets als dat niet lukte.",
+  "Witgoed": "Zet bij elke was 'Start op afstand' aan op de machine. Dan kiest Zonnestuur het goedkoopste moment om te starten.",
+  "Thuisbatterij": "Laat de batterij in de app van het merk op de gewone stand staan. Zonnestuur neemt het sturen over en geeft het terug als je hem weghaalt.",
+};
+function rijen() {
+  const q = $("q").value.trim().toLowerCase(), words = q.split(/\s+/).filter(Boolean);
+  const order = { groot: 0, middel: 1, klein: 2 };
+  return LIST.filter((r) => (!CAT || r.categorie === CAT) && words.every((w) => (r.merk + " " + r.producten + " " + r.categorie + " " + merkNaam(r)).toLowerCase().includes(w)))
+    .sort((a, b) => (MERKNAAM[a.merk] ? 1 : 0) - (MERKNAAM[b.merk] ? 1 : 0) || (order[a.aandeel_nl] ?? 3) - (order[b.aandeel_nl] ?? 3) || a.merk.localeCompare(b.merk));
+}
+function merkTegel(r, extra) {
+  const on = routesOf(r).some(connected);
+  return `<button type="button" class="merktegel${extra ? " gevonden" : ""}" data-merk="${LIST.indexOf(r)}"><b>${esc(merkNaam(r))}</b>
+    <span>${esc(String(r.producten || "").split(/[,(]/)[0].slice(0, 46))}</span>${on ? '<em class="ok">gekoppeld</em>' : extra ? `<em>${esc(extra)}</em>` : ""}</button>`;
+}
+function merkRij(r) {
+  const on = routesOf(r).some(connected);
+  return `<button type="button" class="merkrij" data-merk="${LIST.indexOf(r)}"><span><b>${esc(merkNaam(r))}</b><span class="bmeta">${esc(r.producten)}</span></span>${on ? '<span class="pill direct">Gekoppeld</span>' : '<span class="pijl" aria-hidden="true"></span>'}</button>`;
+}
+function render() {
+  if (BLAD) return;                                  // instelformulier of 'gelukt' in het blad: niet overschrijven
+  if (MERK) return merkScherm(MERK);
+  const words = $("q").value.trim();
+  const iets = !!CAT || words.length > 0;
+  $("count").hidden = !iets; $("results").hidden = !iets; $("more").hidden = true;
+  $("zoekBlok").hidden = false;
+  if (!iets) { $("results").innerHTML = ""; return; }
+  const rows = rijen();
+  let h = "";
+  if (CAT && !words) {
+    if (TIP[CAT]) h += `<p class="cat-tip">${esc(TIP[CAT])}</p>`;
+    const netNamen = new Set(NETMERKEN.map((m) => m.merk.toLowerCase()));
+    const gevonden = rows.filter((r) => netNamen.has(r.merk.toLowerCase()) || routesOf(r).some(connected));
+    const top = (TOP[CAT] || []).map((n) => rows.find((r) => r.merk === n)).filter((r) => r && !gevonden.includes(r));
+    const veel = (top.length >= 4 ? top : [...top, ...rows.filter((r) => !gevonden.includes(r) && !top.includes(r) && !MERKNAAM[r.merk])]).slice(0, 8);
+    $("count").textContent = "";
+    if (gevonden.length) h += `<p class="blad-vraag">Gevonden in je huis</p><div class="merktegels">${gevonden.map((r) => merkTegel(r, routesOf(r).some(connected) ? "" : "in je wifi gezien")).join("")}</div>`;
+    h += `<p class="blad-vraag">${gevonden.length ? "Of kies je merk" : "Welk merk is het?"}</p><div class="merktegels">${veel.map((r) => merkTegel(r)).join("")}</div>`;
+    const rest = rows.filter((r) => !gevonden.includes(r) && !veel.includes(r));
+    if (rest.length) h += ALLE ? `<div class="merklijst">${rest.map(merkRij).join("")}</div>`
+      : `<button type="button" class="btn ghost" id="alleMerken" style="margin:4px 0 14px">Alle merken (${rows.length})</button>`;
+    h += `<div class="weetniet"><b>Weet je het merk niet?</b><p>Kijk op het typeplaatje: een sticker op de zijkant, onderkant of achter een klepje. Of kijk welke app je op je telefoon gebruikt voor dit apparaat.</p>
+      <p>Kom je er niet uit? Maak een foto van het plaatje en stuur die via <b>Meld het hier</b> bovenaan. Dan zoeken wij het uit.</p></div>`;
+  } else {
+    $("count").textContent = !rows.length ? "Niets gevonden. Probeer een ander woord, of kies hierboven een soort." : `${rows.length} gevonden`;
+    h = `<div class="merklijst">${rows.slice(0, LIMIT).map(merkRij).join("")}</div>`;
+    $("more").hidden = rows.length <= LIMIT;
+  }
+  $("results").innerHTML = h;
+  $("results").querySelectorAll("[data-merk]").forEach((b) => b.onclick = () => openMerk(LIST[+b.dataset.merk]));
+  if ($("alleMerken")) $("alleMerken").onclick = () => { ALLE = true; render(); };
+}
+function openMerk(r) {
+  MERK = r; BLAD = null; $("t_terug").hidden = false; $("t_soort").hidden = true; $("t_titel").textContent = merkNaam(r);
+  render(); $("anderMerk").scrollTop = 0;
+}
+function sluitMerk() {
+  MERK = null; $("t_titel").textContent = CAT ? ($("soortKies").querySelector(`[data-cat="${CSS.escape(CAT)}"]`) || {}).textContent?.trim() || CAT : "Apparaat toevoegen";
+  $("t_terug").hidden = !CAT && !$("q").value.trim(); $("t_soort").hidden = !!CAT; render();
+}
+function hoeKaart(r, rt, j, eerste) {
+  const L = leek(rt, r), ri = LIST.indexOf(r);
+  const nut = L.lezen ? "Zonnestuur kan hem zo alleen uitlezen, niet sturen." : (NUT[r.categorie] || "");
+  return `<div class="hoe${eerste ? " eerste" : ""}">
+    ${eerste ? `<span class="hoe-lbl">${connected(rt) ? "Al gekoppeld" : "Zo koppel je hem"}</span>` : ""}
+    <h3>${esc(L.titel)}</h3>
+    ${rt.storing ? `<p class="storing">${esc(rt.storing)}</p>` : ""}
+    ${L.st.length ? `<p class="hoe-nodig">Wat je nodig hebt</p><ul>${L.st.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+    ${nut ? `<p class="hoe-nut">${esc(nut)}</p>` : ""}
+    ${rt.zeker === false ? '<p class="small muted">Nog niet bij een klant getest. Werkt het niet, meld het dan: we helpen je.</p>' : ""}
+    ${rt.handmatig ? `<p class="small">${esc(rt.uitleg || "Dit kan nog niet met een knop.")}</p>` : ""}
+    <div class="hoe-go">${goButton(L.info, ri, j, rt)}</div></div>`;
+}
+function merkScherm(r) {
+  $("count").hidden = true; $("more").hidden = true; $("zoekBlok").hidden = true; $("results").hidden = false;
+  const rts = routesOf(r).map((rt, j) => [rt, j]).sort((a, b) => routeScore(a[0], r) - routeScore(b[0], r) || a[1] - b[1]);
+  if (!rts.length) { $("results").innerHTML = `<p class="small muted">Voor ${esc(merkNaam(r))} weten we nog geen koppeling. Meld het via <b>Meld het hier</b>: dan kijken we of het kan.</p>`; return; }
+  const [best, ...rest] = rts;
+  $("results").innerHTML = `<p class="merk-prod">${esc(r.producten)}</p>${hoeKaart(r, best[0], best[1], true)}
+    ${rest.length ? `<details class="anders"><summary>Lukt dit niet? ${rest.length === 1 ? "Er is nog een manier" : `Er zijn nog ${rest.length} manieren`}</summary>${rest.map(([rt, j]) => hoeKaart(r, rt, j, false)).join("")}</details>` : ""}
+    <details class="anders tech"><summary>Voor je installateur: technische uitleg</summary>${rts.map(([rt]) => `<div class="techrij"><b>${esc(routeInfo(rt, r).label)}</b>
+      ${rt.nodig ? `<span>Nodig: ${esc(rt.nodig)}</span>` : ""}${rt.sturen ? `<span>Kan: ${esc(rt.sturen)}</span>` : ""}${safeUrl(rt.link) ? `<a href="${esc(rt.link)}" target="_blank" rel="noopener">Uitleg</a>` : ""}</div>`).join("")}</details>`;
+  $("results").querySelectorAll("[data-go]").forEach((b) => b.onclick = () => { const [ri, j] = b.dataset.go.split(",").map(Number); go(LIST[ri], routesOf(LIST[ri])[j]); });
+  $("results").querySelectorAll("[data-naarpaal]").forEach((b) => b.onclick = () => { $("q").value = ""; kiesSoort("Laadpaal", "Laadpaal"); });
+  $("results").querySelectorAll("[data-blad]").forEach((b) => b.onclick = () => inBlad(b.dataset.blad, b.dataset.titel || ""));
+}
+// 'van=toevoegen' erbij, vóór een eventuele #: dan gaat het instelscherm daarna terug naar Apparaten
+function metVan(u) { const [a, h] = u.split("#"); return a + (a.includes("?") ? "&" : "?") + "van=toevoegen" + (h ? "#" + h : ""); }
 function goButton(info, ri, j, rt) {
   if (rt && rt.handmatig) return "";                 // geen config-flow: kan niet met een knop (zie de uitleg)
-  if (info.kind === "zonnestuur") return `<a class="btn small" href="${zsLink(info.arg)}">Instellen</a>`;
-  if (info.kind === "relais" || info.kind === "meten") return `<a class="btn ghost small" href="setup#toevoegen">Stekker toevoegen</a>`;
-  if ((info.kind === "ha" || info.kind === "hacs") && rt && connected(rt)) return `<button class="btn small" data-go="${ri},${j}">Apparaten kiezen</button>`;
-  return `<button class="btn small" data-go="${ri},${j}">Koppelen</button>`;
+  if (info.kind === "zonnestuur" && (rt.route === "zonnestuur:laadpaal" || (LIST[ri] && LIST[ri].categorie === "Elektrische auto" && rt.route === "zonnestuur:ocpp"))) {
+    const paal = ((STAND._s && STAND._s.devices) || []).find((d) => d.kind === "ev");
+    return paal ? `<a class="btn" href="apparaat?id=${encodeURIComponent(paal.id)}">Naar je laadpaal: auto erbij zetten</a>`
+      : `<button class="btn" type="button" data-naarpaal="1">Eerst je laadpaal toevoegen</button>`;
+  }
+  if (info.kind === "zonnestuur") return `<button class="btn" type="button" data-blad="${esc(metVan(zsLink(info.arg)))}" data-titel="${esc(LIST[ri] ? merkNaam(LIST[ri]) : "")}">Instellen</button>`;
+  if (info.kind === "relais" || info.kind === "meten") return `<button class="btn" type="button" data-blad="setup?van=apparaten#toevoegen" data-titel="Slimme stekker">Stekker zoeken en toevoegen</button>`;
+  if ((info.kind === "ha" || info.kind === "hacs") && rt && connected(rt)) return `<button class="btn" data-go="${ri},${j}">Apparaten kiezen</button>`;
+  return `<button class="btn" data-go="${ri},${j}">${rt && leek(rt, LIST[ri]).account ? "Inloggen en koppelen" : "Koppelen"}</button>`;
 }
 
 // ---------- paneel ----------
@@ -888,11 +1104,12 @@ function openToevoegen(cat) {
   setTimeout(() => $("t_dicht").focus(), 50);
 }
 function sluitToevoegen() {
+  BLAD = null; MERK = null;
   $("anderMerk").hidden = true; document.body.classList.remove("blad-open");
   if (location.hash === "#toevoegen") history.replaceState(null, "", location.pathname + location.search);
 }
 function kiesSoort(cat, label) {
-  CAT = cat; LIMIT = 40;
+  CAT = cat; LIMIT = 40; MERK = null; ALLE = false; BLAD = null;
   $("t_soort").hidden = !!cat; $("t_terug").hidden = !cat;
   $("t_titel").textContent = cat ? label : "Apparaat toevoegen";
   $("q_label").textContent = cat ? "Kies het merk, of zoek het" : "Of zoek het merk";
@@ -900,6 +1117,106 @@ function kiesSoort(cat, label) {
   render();
   $("anderMerk").scrollTop = 0;
 }
+
+// ---------- Eerst drie vragen (eerste keer): stroomcontract, zonnepanelen, provincie ----------
+const PROV = { "Groningen": [53.22, 6.57], "Friesland": [53.1, 5.8], "Drenthe": [52.86, 6.62], "Overijssel": [52.44, 6.44], "Flevoland": [52.52, 5.6],
+  "Gelderland": [52.06, 5.94], "Utrecht": [52.08, 5.18], "Noord-Holland": [52.52, 4.79], "Zuid-Holland": [52.0, 4.5], "Zeeland": [51.49, 3.83],
+  "Noord-Brabant": [51.55, 5.2], "Limburg": [51.2, 5.9] };
+const RICHTING = { "Zuid": [0, 35], "Oost-west": [0, 15], "Oost": [-90, 35], "West": [90, 35], "Zuidoost": [-45, 35], "Zuidwest": [45, 35] };
+let SCFG = null, SSUP = null, SV = {};
+async function startKaart() {
+  const el = $("startKaart");
+  try { SCFG = await api("api/config"); } catch (e) { return; }
+  if ((SCFG.bevestigd || {}).basis) { el.hidden = true; return; }
+  if (!SSUP) { try { SSUP = await api("api/suppliers"); } catch (e) { SSUP = { dynamic: {}, fixed: {} }; } }
+  const c = SCFG.contract || {}, z = SCFG.solar || {};
+  const dichtst = Object.entries(PROV).sort((a, b) => Math.hypot(a[1][0] - z.latitude, a[1][1] - z.longitude) - Math.hypot(b[1][0] - z.latitude, b[1][1] - z.longitude))[0][0];
+  SV = { type: SV.type || "", supplier: SV.supplier || (c.type === "dynamic" ? c.supplier : "") || "", panelen: SV.panelen ?? null,
+    aantal: SV.aantal || "", kwp: SV.kwp || "", richting: SV.richting || "Zuid", prov: SV.prov || (z.latitude === 52.1 ? "" : dichtst) };
+  tekenStart();
+}
+function tekenStart() {
+  const el = $("startKaart"); el.hidden = false;
+  const lijst = SV.type === "fixed" ? SSUP.fixed || {} : SSUP.dynamic || {};
+  const kies = (k, v, t) => `<button type="button" data-${k}="${v}" aria-pressed="${String(SV[k] === v)}">${t}</button>`;
+  el.innerHTML = `<div class="start"><h2>Eerst drie vragen</h2><p>Dan weet Zonnestuur hoe hij voor jou het meeste bespaart. Dit duurt een minuut.</p>
+    <div class="vraag"><b>1. Wat voor stroomcontract heb je?</b>
+      <p class="uitleg">Dynamisch: de prijs verschilt per uur (bijvoorbeeld Tibber, Zonneplan, Frank of ANWB). Vast: elk uur dezelfde prijs.</p>
+      <div class="keuzes">${kies("type", "dynamic", "Dynamisch")}${kies("type", "fixed", "Vast of variabel")}${kies("type", "weet", "Weet ik niet")}</div>
+      ${SV.type === "weet" ? `<p class="uitleg" style="margin:10px 0 0">Kijk op je jaarafrekening of in de app van je leverancier. Staat er "dynamisch" of "uurprijs", kies dan Dynamisch. Twijfel je, kies dan Vast: dat kun je later altijd veranderen.</p>` : ""}
+      ${SV.type === "dynamic" || SV.type === "fixed" ? `<label class="sr-only" for="s_lev">Leverancier</label><select id="s_lev"><option value="">Welke leverancier?</option>
+        ${Object.entries(lijst).sort((a, b) => a[1].name.localeCompare(b[1].name)).map(([k, v]) => `<option value="${esc(k)}" ${k === SV.supplier ? "selected" : ""}>${esc(v.name)}</option>`).join("")}<option value="anders" ${SV.supplier === "anders" ? "selected" : ""}>Een andere leverancier</option></select>` : ""}</div>
+    <div class="vraag"><b>2. Heb je zonnepanelen?</b>
+      <div class="keuzes"><button type="button" data-pan="ja" aria-pressed="${String(SV.panelen === true)}">Ja</button><button type="button" data-pan="nee" aria-pressed="${String(SV.panelen === false)}">Nee</button></div>
+      ${SV.panelen ? `<div class="rij2"><div><label for="s_aant" class="small">Hoeveel panelen?</label><input id="s_aant" type="number" inputmode="numeric" min="1" max="200" placeholder="bijv. 12" value="${esc(SV.aantal)}"></div>
+        <div><label for="s_richt" class="small">Welke kant op?</label><select id="s_richt">${Object.keys(RICHTING).map((r) => `<option ${r === SV.richting ? "selected" : ""}>${r}</option>`).join("")}</select></div></div>
+        <p class="uitleg" style="margin:8px 0 0">Weet je het vermogen (kWp, staat op de offerte)? <input id="s_kwp" type="number" step="0.1" min="0.3" max="60" placeholder="bijv. 4,8" value="${esc(SV.kwp)}" style="display:inline-block;width:110px;margin:4px 0 0 6px" aria-label="Vermogen in kWp"></p>` : ""}</div>
+    <div class="vraag"><b>3. In welke provincie woon je?</b><p class="uitleg">Voor het weer en de zon bij jou in de buurt.</p>
+      <select id="s_prov" aria-label="Provincie"><option value="">Kies je provincie</option>${Object.keys(PROV).map((p) => `<option ${p === SV.prov ? "selected" : ""}>${p}</option>`).join("")}</select></div>
+    <div class="klaar"><button class="btn" type="button" id="s_ok">Opslaan</button><button class="linkknop" type="button" id="s_later">Later</button><span class="small" id="s_msg" role="status"></span></div></div>`;
+  const lees = () => { if ($("s_lev")) SV.supplier = $("s_lev").value; if ($("s_aant")) SV.aantal = $("s_aant").value; if ($("s_kwp")) SV.kwp = $("s_kwp").value;
+    if ($("s_richt")) SV.richting = $("s_richt").value; SV.prov = $("s_prov").value; };
+  el.querySelectorAll("[data-type]").forEach((b) => b.onclick = () => { lees(); if (SV.type !== b.dataset.type) SV.supplier = ""; SV.type = b.dataset.type; tekenStart(); });
+  el.querySelectorAll("[data-pan]").forEach((b) => b.onclick = () => { lees(); SV.panelen = b.dataset.pan === "ja"; tekenStart(); });
+  $("s_later").onclick = () => { el.hidden = true; try { sessionStorage.setItem("zs_start_later", "1"); } catch (e) {} };
+  $("s_ok").onclick = async () => {
+    lees(); const m = $("s_msg");
+    if (!SV.type) { m.textContent = "Kies eerst je soort contract."; return; }
+    if (SV.panelen === null) { m.textContent = "Zeg nog of je zonnepanelen hebt."; return; }
+    if (!SV.prov) { m.textContent = "Kies nog je provincie."; return; }
+    const kwp = Number(String(SV.kwp).replace(",", ".")) || (Number(SV.aantal) ? Math.round(Number(SV.aantal) * 0.4 * 10) / 10 : 0);
+    if (SV.panelen && !kwp) { m.textContent = "Vul in hoeveel panelen je hebt (of het vermogen)."; return; }
+    const c = Object.assign({}, SCFG.contract || {}), type = SV.type === "dynamic" ? "dynamic" : "fixed";
+    c.type = type;
+    if (SV.supplier && SV.supplier !== "anders") {
+      c.supplier = SV.supplier; const p = (type === "dynamic" ? SSUP.dynamic : SSUP.fixed)[SV.supplier] || {};
+      if (type === "dynamic") { if (p.markup != null) c.supplier_markup = p.markup; if (p.feed_in != null) c.feed_in_adjust = p.feed_in; if (p.monthly && !c.fixed_monthly) c.fixed_monthly = p.monthly; }
+      else { if (p.feed_in_2027 != null) c.feed_in_price = p.feed_in_2027; if (p.return_cost_2027 != null) c.return_cost = p.return_cost_2027; }
+    }
+    const [lat, lon] = PROV[SV.prov], [az, tilt] = RICHTING[SV.richting] || [0, 35];
+    const solar = Object.assign({}, SCFG.solar || {}, { has_panels: !!SV.panelen, latitude: lat, longitude: lon }, SV.panelen ? { kwp, azimuth: az, tilt } : {});
+    $("s_ok").disabled = true; m.textContent = "Opslaan…";
+    try {
+      const r = await post("api/config", { contract: c, solar, bevestigd: Object.assign({}, SCFG.bevestigd || {}, { basis: true }), ingericht: true });
+      if (r && r.error) throw new Error(r.error);
+      el.innerHTML = `<div class="start"><h2>Dank je, dat is opgeslagen</h2><p>${type === "dynamic" ? "Zonnestuur zet je apparaten nu op de goedkoopste uren" : "Zonnestuur zet je apparaten nu zoveel mogelijk aan op je eigen zon"}${SV.panelen ? `, met ${String(kwp).replace(".", ",")} kWp aan panelen` : ""}. Voeg hieronder je apparaten toe.</p></div>`;
+      setTimeout(() => { el.hidden = true; }, 8000); huisLaden(false);
+    } catch (e) { m.textContent = e.message; $("s_ok").disabled = false; }
+  };
+}
+
+// Instellen zonder van scherm te wisselen: het instelformulier van Zonnestuur zelf, hier in het blad
+let BLAD_URL = "", BLAD = null;
+function inBlad(url, titel) {
+  const [a, h] = url.split("#");
+  BLAD_URL = a + (a.includes("?") ? "&" : "?") + "kaal=1&inblad=1" + (h ? "#" + h : ""); BLAD = "form";
+  $("count").hidden = true; $("more").hidden = true; $("zoekBlok").hidden = true; $("results").hidden = false;
+  $("t_terug").hidden = false; $("t_soort").hidden = true; if (titel) $("t_titel").textContent = titel;
+  $("results").innerHTML = `<div class="bladframe"><p class="small muted" id="bf_laad"><span class="spin"></span>Even laden…</p>
+    <iframe id="bf" title="${esc(titel || "Instellen")}" src="${esc(BLAD_URL)}"></iframe></div>`;
+  $("bf").onload = () => {
+    $("bf_laad").hidden = true;
+    let pad = ""; try { pad = $("bf").contentWindow.location.pathname; } catch (e) {}
+    if (/\/apparaat$/.test(pad)) { let id = ""; try { id = new URLSearchParams($("bf").contentWindow.location.search).get("id") || ""; } catch (e) {} bladKlaar(id); }
+  };
+}
+function bladKlaar(id) {
+  BLAD = "klaar";
+  const t = $("t_titel").textContent || "Apparaat";
+  $("results").innerHTML = `<div class="hoe eerste"><span class="hoe-lbl">Gelukt</span><h3>${esc(t)} doet nu mee</h3>
+    <p class="hoe-nut">Zonnestuur neemt het vanaf nu mee in de planning. Bij het apparaat stel je in wanneer het klaar moet zijn.</p>
+    <div class="hoe-go" style="display:grid;gap:8px">${id ? `<a class="btn" href="apparaat?id=${encodeURIComponent(id)}">Bekijk het apparaat</a>` : ""}<button class="btn ghost" type="button" id="bk_nog">Nog iets toevoegen</button></div></div>`;
+  $("bk_nog").onclick = () => { BLAD = null; MERK = null; $("q").value = ""; kiesSoort("", ""); };
+  load(); huisLaden(false);
+}
+addEventListener("message", (e) => {
+  if (e.origin !== location.origin || !e.data || e.data.zs !== "opgeslagen" || !$("bf")) return;
+  if (e.data.id) return bladKlaar(e.data.id);
+  // opgeslagen maar het formulier blijft staan (bijv. batterij of omvormer): even laten zien dat het gelukt is
+  let n = $("bf_ok"); if (!n) { n = document.createElement("p"); n.id = "bf_ok"; n.className = "bf-ok"; n.setAttribute("role", "status"); $("bf").before(n); }
+  n.innerHTML = `✓ Opgeslagen. <button class="linkknop" type="button" id="bf_klaar">Klaar</button>`;
+  $("bf_klaar").onclick = () => bladKlaar("");
+});
 // ---------- laden ----------
 async function load() {
   try { OV = await api("api/koppel"); } catch (e) { OV = { error: e.message }; }
@@ -1088,7 +1405,7 @@ async function meterAanbod() {
   const cats = [...new Set(LIST.map((r) => r.categorie))].sort();
   $("cats").innerHTML = `<button class="on" data-c="">Alles</button>` + cats.map((c) => `<button data-c="${esc(c)}">${esc(c)}</button>`).join("");
   $("cats").querySelectorAll("button").forEach((b) => b.onclick = () => { CAT = b.dataset.c; LIMIT = 40; $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); render(); });
-  $("q").oninput = () => { LIMIT = 40; render(); };
+  $("q").oninput = () => { LIMIT = 40; MERK = null; if (!CAT) $("t_terug").hidden = !$("q").value.trim(); render(); };
   $("more").onclick = () => { LIMIT += 60; render(); };
   $("matterAltijd").onclick = () => matterPaneel("", "");
   const qp = new URLSearchParams(location.search); if (qp.get("q")) $("q").value = qp.get("q");
@@ -1103,12 +1420,14 @@ async function meterAanbod() {
   });
   $("toevoegKnop").onclick = () => openToevoegen("");
   $("t_dicht").onclick = sluitToevoegen;
-  $("t_terug").onclick = () => kiesSoort("", "");
+  $("t_terug").onclick = () => { if (BLAD === "form" && MERK) { BLAD = null; render(); } else if (MERK) { BLAD = null; sluitMerk(); } else { BLAD = null; $("q").value = ""; kiesSoort("", ""); } };
   $("anderMerk").addEventListener("keydown", (e) => { if (e.key === "Escape" && $("panel").hidden) sluitToevoegen(); });
   if (qp.get("q") || qp.get("cat")) openToevoegen(CAT);
   if (location.hash === "#toevoegen") openToevoegen("");
-  if (qp.get("q")) { const d = $("results").querySelector("details"); if (d) { d.open = true; d.scrollIntoView({ block: "start" }); } }   // vanuit het eerste instellen: meteen open
+  if (qp.get("q")) { const rs = rijen(), q = qp.get("q").toLowerCase(); const r = rs.find((x) => x.merk.toLowerCase() === q) || (rs.length === 1 ? rs[0] : null); if (r) openMerk(r); }   // vanuit het eerste instellen: meteen dat merk
   await load();
+  let later = false; try { later = sessionStorage.getItem("zs_start_later") === "1"; } catch (e) {}
+  if (!later) startKaart();
   huisLaden(true);
   // nieuwe vondsten van de koppelmotor (en een motor die nog opstart) vanzelf bijwerken
   setInterval(() => { if ($("panel").hidden && !document.hidden) { load(); huisLaden(false); } }, 30000);

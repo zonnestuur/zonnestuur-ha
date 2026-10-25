@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.81.0
+- Apparaat toevoegen in drie stappen: soort, merk (de meest voorkomende merken als tegels), en één duidelijke manier in gewone taal: wat je nodig hebt en wat Zonnestuur ermee doet. Technische uitleg staat ingeklapt "voor je installateur".
+- Instellen gebeurt nu in hetzelfde scherm: je springt niet meer naar Instellingen. Na het toevoegen zie je meteen of het gelukt is.
+- Een laadpaal, warmtepomp of ESPHome-apparaat toevoegen: Zonnestuur controleert eerst of hij het kan bereiken.
+- Eerste keer: drie vragen (stroomcontract, zonnepanelen, provincie), zodat Zonnestuur meteen goed rekent.
+- Schuif weer met je vinger over de prijsgrafiek (Home, Tarieven en de komende 24 uur) om de prijs per uur te zien.
+
 ## 0.80.9
 - Hulp op afstand kan nu (alleen lezen) zien hoe de laatste uren gingen: stroom per uur, kosten, kamertemperatuur en het logboek.
 

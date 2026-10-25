@@ -187,6 +187,10 @@ html, body { overscroll-behavior-y: none; }
   body.focus .settings > .inst-kop { margin-bottom: 8px; flex-wrap: wrap; justify-content: flex-start; }
   body.focus .settings > .inst-kop .terug { flex-basis: 100%; }
   body.focus .inst-inhoud > section > h2:first-child { display: none; }
+  .inblad .testfase, .inblad header.top, .inblad .inst-kop .terug, .inblad .inst-kop h1 { display: none !important; }
+  .inblad body, .inblad main { padding-top: 0 !important; }
+  body.toevoegmodus #addCard > p.small.muted:first-of-type, body.toevoegmodus #addCard .field:has(#x_type) { display: none; }
+  body.toevoegmodus #x_add { min-height: 48px; padding: 12px 26px; font-size: 16px; }
   .terug { display: inline-block; color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 14.5px; padding: 4px 2px; margin-bottom: 2px; }
   .inst-nav { position: sticky; top: 16px; display: grid; gap: 4px; margin-top: 14px; }
   .inst-nav button { font: inherit; font-size: 15px; font-weight: 600; text-align: left; padding: 11px 14px; border-radius: 12px; border: 0; background: none; color: var(--ink-2); cursor: pointer; }
@@ -352,8 +356,17 @@ const SYSX = {
 const hasSys = (need) => need === "mqtt" ? !!((CFG.mqtt && CFG.mqtt.host) || CFG.mqtt_addon) : SYSX[need] ? !!(CFG[need] && CFG[need].url) || !!SYS[need] : !!CFG[need];
 const METER_KINDS = ["p1_serial", "p1", "shelly_em", "youless", "esphome_p1"], SWITCH_KINDS = ["shelly", "hw_socket", "tasmota"];
 const isHA = (drv) => String(drv || "").startsWith("ha_");
+// Laadpaal: fasen en stroom staan op de laadpaal of in de app; de standaard klopt bijna altijd
+function laadExtra() {
+  return `<div class="field" style="flex:0 1 220px"><label for="x_ph">Aansluiting</label><select id="x_ph"><option value="1">1 fase (tot 3,7 kW)</option><option value="3" selected>3 fasen (tot 11 kW)</option></select></div>
+    <details class="gevorderd" style="flex-basis:100%"><summary class="small muted">Meer instellingen</summary><div class="row">
+    <div class="field"><label for="x_min">Laagste laadstroom (ampère)</label><input id="x_min" type="number" value="6"></div>
+    <div class="field"><label for="x_max">Hoogste laadstroom (ampère)</label><input id="x_max" type="number" value="16"></div></div></details>`;
+}
+const INBLAD = window.parent !== window && /[?&]inblad=1/.test(location.search);
+if (INBLAD) document.documentElement.classList.add("inblad");
 const KINDS = [
-  { id: "boiler", label: "Boiler" }, { id: "ev", label: "Elektrische auto" },
+  { id: "boiler", label: "Boiler" }, { id: "ev", label: "Auto (laadpaal)" },
   { id: "heatpump", label: "Warmtepomp" }, { id: "generic", label: "Iets anders" },
 ];
 // Standaardinstellingen per soort apparaat (overschrijfbaar in 'Geavanceerd')
@@ -1119,7 +1132,9 @@ document.getElementById("naarDash").addEventListener("click", async (e) => {
 async function postCfg(next) {
   delete next.homeassistant;            // de koppelmotor wordt apart gekoppeld (token blijft op het kastje)
   delete next.has_ha;
-  return api("api/config", { method: "POST", body: JSON.stringify(next) });
+  const r = await api("api/config", { method: "POST", body: JSON.stringify(next) });
+  if (INBLAD && r && !r.error) { try { parent.postMessage({ zs: "opgeslagen" }, location.origin); } catch (e) {} }   // in het toevoegblad van Apparaten
+  return r;
 }
 async function saveAll() {
   setErr("");
@@ -1768,6 +1783,17 @@ function groepeer() {
     if (h1) h1.textContent = focus[0] === "editCard" ? "Apparaat instellen" : (((eerste && eerste.querySelector("h2")) || {}).textContent || "Instellingen").replace(/\?\s*$/, "").trim();
     if (eerste && eerste.querySelector("h2")) eerste.querySelector("h2").hidden = true;
     const vanInst = qf.get("van") === "inst";
+    const tv = focus[0] === "addCard" && qf.get("toevoegen");
+    if (tv) {                                     // vanuit Apparaat toevoegen: één eenvoudig formulier, zonder de keuzelijst met systemen
+      document.body.classList.add("toevoegmodus");
+      if (save) save.classList.add("weg");
+      const NAAM = { alfen: "Alfen-laadpaal", sprsun: "SPRSUN-warmtepomp", ocpp: "Laadpaal", sgready: "Warmtepomp met SG-ready", esphome: "ESPHome-apparaat", homey: "Apparaat uit Homey" };
+      const t = (ADD_TYPES.find((x) => x[0] === tv) || [, "Apparaat"])[1].replace(/\s*\(.*\)$/, "");
+      if (h1) h1.textContent = (NAAM[tv] || t) + " toevoegen";
+      const STD = { alfen: "Laadpaal", ocpp: "Laadpaal", sprsun: "Warmtepomp", sgready: "Warmtepomp" };
+      if ($("x_name") && !$("x_name").value && STD[tv]) $("x_name").value = STD[tv];
+      if (STD[tv] && $("x_kind")) $("x_kind").closest(".field").hidden = true;      // de soort ligt vast
+    }
     kop.insertAdjacentHTML("afterbegin", `<a class="terug" href="${vanInst ? "instellingen" : focus[0] === "editCard" && qf.get("apparaat") ? "apparaat?id=" + encodeURIComponent(qf.get("apparaat")) : "apparaten"}">← ${vanInst ? "Instellingen" : focus[0] === "editCard" ? "Terug" : "Apparaten"}</a>`);
     window.toonGroep = () => {};
     return;
@@ -1777,7 +1803,8 @@ function groepeer() {
     let d = null; try { d = hash && document.querySelector(hash); } catch (e) {}
     const sec = d && (d.matches("section[data-groep]") ? d : d.closest && d.closest("section[data-groep]"));
     if (!sec) return false;
-    location.replace("instellingen?onderdeel=" + encodeURIComponent(sec.id) + "&van=inst" + (d !== sec ? hash : "")); return true;
+    const q = new URLSearchParams(location.search); q.set("onderdeel", sec.id); if (!q.get("van")) q.set("van", "inst");   // kaal/inblad/batterij/omvormer blijven
+    location.replace("instellingen?" + q.toString() + (d !== sec ? hash : "")); return true;
   };
   if (naarOnderdeel(location.hash)) return;
   // Het menu: per groep een rij per onderdeel (zoals de rest van de app); tik = alleen dat onderdeel
@@ -1876,11 +1903,13 @@ async function settings() {
       <div id="i_direct" hidden>
         <div class="row">
           <div class="field"><label for="i_dhost">IP-adres</label><input id="i_dhost" placeholder="192.168.1.…" value="${esc(CFG.inverter?.host || "")}"></div>
+          <div class="field" data-it="pw"><label for="i_dpw" id="i_dpwl">Wachtwoord</label><input id="i_dpw" type="password" autocomplete="off" placeholder="${CFG.has_inverter_password ? "bewaard (leeg = houden)" : ""}"></div>
+        </div>
+        <details class="gevorderd"><summary class="small muted">Meer instellingen (meestal niet nodig)</summary><div class="row">
           <div class="field" data-it="port" style="flex:0 1 110px"><label for="i_dport">Poort</label><input id="i_dport" type="number" value="${CFG.inverter?.port || ""}"></div>
           <div class="field" data-it="unit" style="flex:0 1 110px"><label for="i_dunit">Unit-id</label><input id="i_dunit" type="number" value="${CFG.inverter?.unit_id ?? ""}"></div>
-          <div class="field" data-it="pw"><label for="i_dpw" id="i_dpwl">Wachtwoord</label><input id="i_dpw" type="password" autocomplete="off" placeholder="${CFG.has_inverter_password ? "bewaard (leeg = houden)" : ""}"></div>
           <div class="field" data-it="max" style="flex:0 1 170px"><label for="i_dmax">Vol vermogen (W)</label><input id="i_dmax" type="number" step="100" placeholder="leeg = uitlezen" value="${CFG.inverter?.direct_type ? (CFG.inverter?.max_w || "") : ""}"></div>
-        </div>
+        </div></details>
         <p class="small muted" id="i_dhelp" style="margin:0"></p>
         <div class="row"><div class="field" style="flex:0 0 auto"><button type="button" class="btn ghost" id="i_test">Test verbinding</button></div><div class="field"><span class="small" id="i_res"></span></div></div>
       </div>
@@ -2152,16 +2181,17 @@ async function settings() {
         + sysSelect("x_pm", "Vermogensmeting (optioneel)", SYS[t]?.powers || [], "", true)
       : t === "homey" ? `<div class="field"><label for="x_a">Apparaat in Homey</label><select id="x_a">${hd.map((x, i) => `<option value="${i}">${esc(x.name)} (${x.driver === "homey_setpoint" ? "temperatuur" : "aan/uit"})</option>`).join("") || "<option>koppel eerst Homey hierboven</option>"}</select></div>`
       : t === "hapower" ? f("x_a", "Vermogen-instelling (number.…)", "", 'placeholder="bijv. number.boiler_vermogen"') + `<div class="field" style="flex:0 1 110px"><label for="x_u">Eenheid</label><select id="x_u"><option>W</option><option>%</option></select></div>` + f("x_b", "Schakelaar (optioneel)", "", 'placeholder="switch.…"') + f("x_c", "Vermogensmeting (optioneel)", "", 'placeholder="sensor.…"')
-      : t === "alfen" ? f("x_a", "IP-adres van de laadpaal", "", 'placeholder="192.168.1.50"') + `<div class="field" style="flex:0 1 100px"><label for="x_ph">Fasen</label><select id="x_ph"><option>1</option><option selected>3</option></select></div>` + f("x_min", "Min. A", "6", 'type="number"') + f("x_max", "Max. A", "16", 'type="number"')
+      : t === "alfen" ? f("x_a", "IP-adres van de laadpaal", "", 'placeholder="192.168.1.50" inputmode="decimal"') + laadExtra()
       : t === "sprsun" ? f("x_a", "IP-adres van de RS485-module", "", 'placeholder="192.168.1.60" inputmode="decimal"') + f("x_pt", "Poort", "8899", 'type="number" step="1"') + `<div class="field" style="flex:0 0 auto"><button class="btn ghost" type="button" id="x_test">Controleren</button></div><p class="small" id="x_testres" aria-live="polite"></p>` + f("x_tn", "Normale boilertemperatuur (°C)", "50", 'type="number" step="1"') + f("x_tb", "Boilertemperatuur bij zon (°C)", "55", 'type="number" step="1"')
-      : t === "ocpp" ? listOr("x_a", "Naam (ID) van de laadpaal", cps.map((c) => c.id), "zoals ingesteld in de laadpaal") + `<div class="field" style="flex:0 1 100px"><label for="x_ph">Fasen</label><select id="x_ph"><option>1</option><option selected>3</option></select></div>` + f("x_min", "Min. A", "6", 'type="number"') + f("x_max", "Max. A", "16", 'type="number"')
+      : t === "ocpp" ? listOr("x_a", "Naam (ID) van de laadpaal", cps.map((c) => c.id), "zoals ingesteld in de laadpaal") + laadExtra()
       : ""}${pw}</div>
       ${t === "mqttfree" ? `<div class="row">${f("x_d", "Topic met vermogen (optioneel)", "")}${f("x_e", "JSON-veld vermogen", "")}${f("x_on", "Bericht aan", "ON")}${f("x_off", "Bericht uit", "OFF")}</div>` : ""}
       ${t === "sgready" ? `${relay("ra", "Relais A (SG-ready ingang 1)")}${relay("rb", "Relais B (SG-ready ingang 2)")}<label class="check-row"><input type="checkbox" id="x_force"> Bij veel zon stand 4 (opdracht) in plaats van stand 3 (aanbeveling)</label>` : ""}
       ${t === "homey" || SYSX[t] ? `<div class="row">${f("x_tn", "Normale temperatuur (°C)", "20", 'type="number" step="0.5"')}${f("x_tb", "Temperatuur bij zon (°C)", "22", 'type="number" step="0.5"')}</div>` : ""}
       ${t === "shellymqtt" ? `<p class="small muted">Zet in de Shelly bij MQTT 'Generic status update over MQTT' aan.</p>` : ""}
       ${(t === "z2m" || t === "tasmota" || t === "shellymqtt" || t === "mqttfree") && !hasSys("mqtt") ? `<p class="small" style="color:var(--warn)">Vul hierboven eerst je MQTT-broker in en sla op.</p>` : ""}
-      ${t === "alfen" ? `<p class="small muted">Laat de installateur in Alfen ACE Service Installer bij Load Balancing kiezen voor "Energy Management System" via Modbus TCP/IP (daarvoor is de licentie Active Load Balancing nodig). Zonnestuur zet dan zelf de laadstroom, en vernieuwt die elke 30 seconden.</p>` : ""}
+      ${t === "alfen" ? `<p class="small">Eerst moet je installateur één instelling in de laadpaal aanzetten. Daarna heeft Zonnestuur alleen het IP-adres nodig (dat staat in de MyEve-app of in je modem).</p>
+      <details><summary class="small muted">Voor je installateur</summary><p class="small muted">In Alfen ACE Service Installer bij Load Balancing kiezen voor "Energy Management System" via Modbus TCP/IP (daarvoor is de licentie Active Load Balancing nodig). Zonnestuur zet dan zelf de laadstroom, en vernieuwt die elke 30 seconden.</p></details>` : ""}
       ${t === "sprsun" ? `<p class="small muted">Nodig: een RS485-naar-wifi-module (bijv. Elfin EW11) op de RS485-aansluiting van de warmtepomp. Heb je de wifi-module van SPRSUN zelf (voor de app)? Zet in de instelpagina van de module bij <b>Communication Settings</b> een extra verbinding met protocol <b>Tcp Server</b> en poort <b>8899</b>, en bij <b>Serial Port Settings</b> het <b>Protocol</b> op <b>Modbus</b>. De SPRSUN-app werkt dan niet meer; Zonnestuur heeft een eigen bediening (op de pagina van de warmtepomp). Wil je de app houden, neem dan een tweede module op een vrije aansluiting. Zonnestuur zet bij zon of goedkope stroom alleen de boilertemperatuur wat hoger, en daarna weer terug. Aan/uit en verwarming blijven bij je warmtepomp.</p>` : ""}
       ${t === "ocpp" && !CFG.ocpp?.enabled ? `<p class="small" style="color:var(--warn)">Zet hierboven de OCPP-server aan en sla op; verbind daarna de laadpaal.</p>` : ""}`;
     if (t === "ocpp" || t === "alfen") $("x_kind").value = "ev";
@@ -2219,6 +2249,15 @@ async function settings() {
     if (need && !g(need)) { $("x_res").textContent = "Vul eerst in welk apparaat het is."; $(need).focus(); return; }
     if (t === "esphome" && !g("x_a")) { $("x_res").textContent = "Vul het adres van het ESPHome-apparaat in."; return; }
     if (t === "sgready" && (!$("ra_a").value.trim() || !$("rb_a").value.trim())) { $("x_res").textContent = "Vul voor beide relais het adres of de naam in."; return; }
+    // eerst kijken of Zonnestuur hem kan bereiken: liever nu een duidelijke melding dan later een apparaat dat niets doet
+    if (dev.host && ["alfen", "sprsun", "esphome"].includes(dev.driver) && !$("x_add").dataset.toch) {
+      $("x_res").textContent = "Verbinding controleren…"; $("x_add").disabled = true;
+      let r; try { r = await api("api/setup/bereikbaar", { method: "POST", body: JSON.stringify({ driver: dev.driver, host: dev.host, params: dev.params }) }); } catch (e) { r = { ok: false, fout: e.message }; }
+      $("x_add").disabled = false;
+      if (!r.ok) { $("x_res").innerHTML = `<span class="err">${esc(r.fout)}</span> <button class="btn ghost small" type="button" id="x_toch">Toch toevoegen</button>`;
+        $("x_toch").onclick = () => { $("x_add").dataset.toch = "1"; $("x_add").click(); }; return; }
+    }
+    delete $("x_add").dataset.toch;
     const base = name.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "apparaat";
     let id = base, n = 2; while (CFG.devices.some((d) => d.id === id)) id = `${base}-${n++}`;
     const next = JSON.parse(JSON.stringify(CFG));
@@ -2227,7 +2266,7 @@ async function settings() {
     next.ingericht = true;                                // niet terug naar de instelhulp na het toevoegen
     try {
       CFG = await postCfg(next); toast(`${name} toegevoegd`);
-      if (!CFG.configured || t === "sprsun") { location.href = "apparaat?id=" + encodeURIComponent(id); return; }   // meteen naar het nieuwe apparaat
+      if (!CFG.configured || t === "sprsun" || document.body.classList.contains("toevoegmodus")) { location.href = "apparaat?id=" + encodeURIComponent(id); return; }   // meteen naar het nieuwe apparaat
       settings();
     } catch (e) { $("x_res").textContent = e.message; }
   };
