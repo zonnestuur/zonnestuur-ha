@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.80.9
+- Hulp op afstand kan nu (alleen lezen) zien hoe de laatste uren gingen: stroom per uur, kosten, kamertemperatuur en het logboek.
+
 ## 0.80.8
 - Home: het label 'Van het net' stond over de warmtepomp. Het staat nu rechtsonder bij het netkastje; de auto staat er net boven.
 
