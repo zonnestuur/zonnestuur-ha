@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.81.3
+- Auto: de app laat zien sinds wanneer het accupercentage van de auto stilstaat.
+
 ## 0.81.2
 - Geschat accupercentage: Zonnestuur zoekt nu ook na een herstart terug sinds wanneer de auto niets meer doorgaf.
 
