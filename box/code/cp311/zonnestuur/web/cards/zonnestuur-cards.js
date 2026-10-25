@@ -397,6 +397,8 @@ const ZS_HUB_CSS = `
   .blklab { position: absolute; top: -.4em; transform: translate(-50%, -100%); white-space: nowrap; font-size: clamp(11px, 2.1vh, 16px); font-weight: 650; color: #34d399;
     background: #0e1a2d; padding: .2em .65em; border-radius: 8px; box-shadow: 0 0 0 1px rgba(52,211,153,.5); }
   .hub.lt .blklab { background: #fff; }
+  /* ruimte voor het label boven de blokjes, anders valt het over de tegels erboven (bijv. afval) */
+  .strip:has(.blklab) { margin-top: calc(clamp(11px, 2.1vh, 16px) * 1.75 + 1.6vh); }
   /* prijs per uur als lijn (prijs_stijl: lijn) */
   .plijn { position: relative; height: clamp(40px, 9vh, 90px); margin-top: 2.2vh; }
   .h { font-size: clamp(40px, 13vh, 110px); }
@@ -419,7 +421,7 @@ const ZS_HUB_ICON = {
   wash: '<rect x="4.5" y="3" width="15" height="18" rx="2.5"/><circle cx="12" cy="13" r="4.5"/><path d="M8 6.5h2"/>',
 };
 
-const ZS_BIN_KLEUR = { gft: "#3f9b3a", groente: "#3f9b3a", papier: "#2f6fe0", pmd: "#f08c00", plastic: "#f08c00", restafval: "#5b6370", rest: "#5b6370", glas: "#14a38b", textiel: "#9b5de5" };
+const ZS_BIN_KLEUR = { gft: "#3f9b3a", groente: "#3f9b3a", papier: "#2f6fe0", pmd: "#f08c00", plastic: "#f08c00", restafval: "#8b95a3", rest: "#8b95a3", glas: "#14a38b", textiel: "#9b5de5" };
 const ZS_BIN_NAAM = { gft: "GFT", groente: "GFT", papier: "Papier", pmd: "PMD", plastic: "Plastic", restafval: "Restafval", rest: "Restafval", glas: "Glas", textiel: "Textiel" };
 function zsBin(c) {
   return `<svg class="bin" viewBox="0 0 40 48" aria-hidden="true"><path d="M7 12h26l-2.6 29a3 3 0 0 1-3 2.7H12.6a3 3 0 0 1-3-2.7z" fill="${c}"/>

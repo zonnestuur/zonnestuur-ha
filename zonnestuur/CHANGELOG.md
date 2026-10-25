@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.80.7
+- Huisscherm: het label 'goedkoop …' boven de prijsblokjes viel over de tegel ernaast (bijv. afval). Het staat nu los, en het grijze restafval-icoon is beter te zien.
+
 ## 0.80.6
 - Warmtepomp met buffervat: Zonnestuur meet per opwarmbeurt de echte COP (hoeveel warmte per kWh stroom). Vul op de pagina van de warmtepomp de inhoud van het vat in; de vloerpompen gaan tijdens het meten even uit (nooit als het binnen te koud wordt, hoogstens 3 uur).
 - Ook de verwachte COP bij de buitentemperatuur van nu staat erbij.
