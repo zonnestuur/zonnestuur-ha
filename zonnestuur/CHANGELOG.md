@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.80.8
+- Home: het label 'Van het net' stond over de warmtepomp. Het staat nu rechtsonder bij het netkastje; de auto staat er net boven.
+
 ## 0.80.7
 - Huisscherm: het label 'goedkoop …' boven de prijsblokjes viel over de tegel ernaast (bijv. afval). Het staat nu los, en het grijze restafval-icoon is beter te zien.
 

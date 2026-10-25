@@ -1008,7 +1008,7 @@ html, body { overscroll-behavior-y: none; }
   .hchip .hi { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--k) 22%, transparent); color: var(--k); flex: none; }
   .hchip .hi svg { width: 18px; height: 18px; }
   .hchip.zon { --k: #fbbf24; } .hchip.bat { --k: #34d399; } .hchip.huis { --k: #93c5fd; } .hchip.net { --k: #2dd4bf; } .hchip.auto { --k: #c4b5fd; }
-  .hchip.tl { left: 3%; top: 5%; } .hchip.tr { right: 3%; top: 5%; } .hchip.mr { right: 3%; top: 39%; } .hchip.bl { left: 3%; bottom: 6%; } .hchip.br { right: 3%; bottom: 6%; }
+  .hchip.tl { left: 3%; top: 5%; } .hchip.tr { right: 3%; top: 5%; } .hchip.mr { right: 3%; top: 39%; } .hchip.bl { left: 3%; bottom: 2.5%; } .hchip.br { right: 3%; bottom: 2.5%; } .hchip.ar { right: 3%; top: 57%; }
   @media (max-width: 420px) { .hchip { padding: 5px 9px 5px 5px; gap: 6px; } .hchip .hi { width: 26px; height: 26px; } .hchip b { font-size: 14.5px; } .hchip small { font-size: 10.5px; } }
   /* drie tegels */
   .tegels3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
@@ -1841,9 +1841,11 @@ function renderChips(s) {
   if (s.has_panels) c.push(["zon", "tl", "Zonnepanelen", pv == null ? "–" : kwT(pv)]);
   if (bat) c.push(["bat", "tr", "Batterij", bp > 30 ? "+" + kwT(bp) : bp < -30 ? "−" + kwT(bp) : nl(bat.soc || 0) + "%"]);
   if (huis != null) c.push(["huis", bat ? "mr" : "tr", "Huisverbruik", kwT(huis)]);
-  if (g != null) c.push(["net", "bl", g < -30 ? "Terugleveren" : "Van het net", kwT(g)]);
-  if (ev > 0) c.push(["auto", "br", "Auto laden", kwT(ev)]);
-  else if (auto && autoSoc != null) c.push(["auto", "br", auto.name, nl(autoSoc) + "%"]);
+  // net rechtsonder in de grond, bij het netkastje (links staan warmtepomp en batterij); de auto er net boven, boven de oprit
+  if (g != null) c.push(["net", "br", g < -30 ? "Terugleveren" : "Van het net", kwT(g)]);
+  const autoPlek = bat ? "ar" : "mr";
+  if (ev > 0) c.push(["auto", autoPlek, "Auto laden", kwT(ev)]);
+  else if (auto && autoSoc != null) c.push(["auto", autoPlek, auto.name, nl(autoSoc) + "%"]);
   el.innerHTML = c.map(([k, plek, l, v]) => `<div class="hchip ${k} ${plek}"><span class="hi">${SVGI(HI[k])}</span><span><small>${esc(l)}</small><b class="num">${esc(v)}</b></span></div>`).join("");
 }
 // kleine lijn van de laatste dagen (voor de tegels)
