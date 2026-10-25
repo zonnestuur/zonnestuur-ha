@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.81.2
+- Geschat accupercentage: Zonnestuur zoekt nu ook na een herstart terug sinds wanneer de auto niets meer doorgaf.
+
 ## 0.81.1
 - Auto: geeft de auto zijn accupercentage een tijd niet door, dan telt Zonnestuur erbij wat er sindsdien geladen is (en zegt dat het geschat is).
 - Laadpaal via OCPP toevoegen: het adres dat je in de laadpaal invult staat groot in beeld met een kopieerknop, en Zonnestuur ziet vanzelf wanneer de laadpaal zich meldt.
