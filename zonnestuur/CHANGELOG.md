@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.81.4
+- Kleine verbetering in het logboek (accupercentage van de auto).
+
 ## 0.81.3
 - Auto: de app laat zien sinds wanneer het accupercentage van de auto stilstaat.
 
