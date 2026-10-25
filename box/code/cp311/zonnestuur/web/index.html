@@ -2066,7 +2066,8 @@ function obsFill(el, w) {
   const zs = w.zs || "Zonnestuur rekent elke nacht uit wat hij zelf had gedaan.";
   el.querySelector('[data-o="hero"]').innerHTML = `<div class="evc-name">${esc(w.naam)}</div><div class="evc-sub">${st}</div>
     <div class="evc-soc">${w.soc != null ? Math.round(w.soc) + "%" : laadt ? nl(pw / 1000, 1) + "<small>kW</small>" : "–"}${w.soc != null ? `<small>${w.bereik_km != null ? "± " + w.bereik_km + " km" : "accu"}</small>` : ""}</div>
-    ${w.soc != null && w.soc_oud_u >= 12 ? `<div class="evc-oud">Dit percentage is ${oudTekst(w.soc_oud_u)} oud: ${esc(w.wie)} kreeg sindsdien niets nieuws van de auto. Open de app van je auto om het te verversen.</div>` : ""}`;
+    ${w.soc != null && w.soc_geschat ? `<div class="evc-oud">Geschat: de auto gaf ${oudTekst(w.soc_oud_u)} geleden ${nl(w.soc_gemeten)}% door. Zonnestuur telt erbij wat er sindsdien geladen is.</div>`
+      : w.soc != null && w.soc_oud_u >= 12 ? `<div class="evc-oud">Dit percentage is ${oudTekst(w.soc_oud_u)} oud: ${esc(w.wie)} kreeg sindsdien niets nieuws van de auto. Open de app van je auto om het te verversen.</div>` : ""}`;
   el.querySelector('[data-o="pic"]').className = "evc-pic " + (laadt ? "laadt" : erin ? "erin" : "los");
   el.querySelector('[data-o="bat"]').innerHTML = w.soc != null ? `<div class="evc-bat" role="img" aria-label="Accu ${Math.round(w.soc)}%"><i style="width:${Math.max(0, Math.min(100, w.soc))}%"></i></div>` : "";
   el.querySelector('[data-o="story"]').innerHTML =

@@ -190,6 +190,10 @@ html, body { overscroll-behavior-y: none; }
   .inblad .testfase, .inblad header.top, .inblad .inst-kop .terug, .inblad .inst-kop h1 { display: none !important; }
   .inblad body, .inblad main { padding-top: 0 !important; }
   body.toevoegmodus #addCard > p.small.muted:first-of-type, body.toevoegmodus #addCard .field:has(#x_type) { display: none; }
+  .ocpp-hulp { padding: 14px 16px; border-radius: 16px; background: color-mix(in srgb, var(--zs-knop, #2f7cf6) 12%, transparent); margin: 4px 0 14px; font-size: 14.5px; line-height: 1.5; }
+  .ocpp-hulp ol { margin: 8px 0; padding-left: 20px; display: grid; gap: 6px; }
+  .ocpp-adres { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+  .ocpp-adres code { font-size: 15px; padding: 8px 10px; border-radius: 10px; background: var(--card-solid); user-select: all; overflow-wrap: anywhere; }
   body.toevoegmodus #x_add { min-height: 48px; padding: 12px 26px; font-size: 16px; }
   .terug { display: inline-block; color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 14.5px; padding: 4px 2px; margin-bottom: 2px; }
   .inst-nav { position: sticky; top: 16px; display: grid; gap: 4px; margin-top: 14px; }
@@ -356,6 +360,26 @@ const SYSX = {
 const hasSys = (need) => need === "mqtt" ? !!((CFG.mqtt && CFG.mqtt.host) || CFG.mqtt_addon) : SYSX[need] ? !!(CFG[need] && CFG[need].url) || !!SYS[need] : !!CFG[need];
 const METER_KINDS = ["p1_serial", "p1", "shelly_em", "youless", "esphome_p1"], SWITCH_KINDS = ["shelly", "hw_socket", "tasmota"];
 const isHA = (drv) => String(drv || "").startsWith("ha_");
+// OCPP-laadpaal toevoegen: de server aanzetten, het adres groot tonen en wachten tot de laadpaal zich meldt
+async function ocppHulp() {
+  let o = {}; try { o = await api("api/setup/ocpp-aan", { method: "POST", body: "{}" }); } catch (e) { return; }
+  const adres = o.adres || `ws://${location.hostname}:${o.port || 8887}/`;
+  const kaart = document.createElement("div"); kaart.className = "ocpp-hulp";
+  kaart.innerHTML = `<b>Zo laat je de laadpaal met Zonnestuur praten</b>
+    <ol><li>Open de app of de instellingen van je laadpaal en zoek <b>OCPP</b> (soms heet het "backend" of "centrale server").</li>
+    <li>Vul dit adres in:<div class="ocpp-adres"><code id="oc_adres">${esc(adres)}</code><button class="btn ghost small" type="button" id="oc_kopie">Kopiëren</button></div></li>
+    <li>Sla het op in de laadpaal. Binnen een minuut verschijnt hij hieronder.</li></ol>
+    <p class="small" id="oc_stand" role="status"><span class="spin"></span>Wachten tot de laadpaal zich meldt…</p>`;
+  const kaartPlek = $("x_fields"); if (!kaartPlek) return; kaartPlek.before(kaart);
+  $("oc_kopie").onclick = async () => { try { await navigator.clipboard.writeText(adres); $("oc_kopie").textContent = "Gekopieerd"; } catch (e) { $("oc_kopie").textContent = "Selecteer en kopieer"; } };
+  const kijk = async () => {
+    try { const r = await api("api/ocpp"); SYS.ocpp = r; const ps = (r.points || []).filter((p) => p.connected);
+      if (ps.length) { $("oc_stand").innerHTML = `<span class="ok">✓ Gevonden: ${ps.map((p) => esc([p.chargePointVendor, p.chargePointModel].filter(Boolean).join(" ") || p.id)).join(", ")}</span>. Tik op Toevoegen.`;
+        if ($("x_a") && !$("x_a").value) { if ($("x_type").onchange) $("x_type").onchange(); if ($("x_a")) $("x_a").value = ps[0].id; } return; } } catch (e) {}
+    setTimeout(kijk, 5000);
+  };
+  kijk();
+}
 // Laadpaal: fasen en stroom staan op de laadpaal of in de app; de standaard klopt bijna altijd
 function laadExtra() {
   return `<div class="field" style="flex:0 1 220px"><label for="x_ph">Aansluiting</label><select id="x_ph"><option value="1">1 fase (tot 3,7 kW)</option><option value="3" selected>3 fasen (tot 11 kW)</option></select></div>
@@ -1793,6 +1817,7 @@ function groepeer() {
       const STD = { alfen: "Laadpaal", ocpp: "Laadpaal", sprsun: "Warmtepomp", sgready: "Warmtepomp" };
       if ($("x_name") && !$("x_name").value && STD[tv]) $("x_name").value = STD[tv];
       if (STD[tv] && $("x_kind")) $("x_kind").closest(".field").hidden = true;      // de soort ligt vast
+      if (tv === "ocpp") ocppHulp();
     }
     kop.insertAdjacentHTML("afterbegin", `<a class="terug" href="${vanInst ? "instellingen" : focus[0] === "editCard" && qf.get("apparaat") ? "apparaat?id=" + encodeURIComponent(qf.get("apparaat")) : "apparaten"}">← ${vanInst ? "Instellingen" : focus[0] === "editCard" ? "Terug" : "Apparaten"}</a>`);
     window.toonGroep = () => {};
@@ -2193,7 +2218,7 @@ async function settings() {
       ${t === "alfen" ? `<p class="small">Eerst moet je installateur één instelling in de laadpaal aanzetten. Daarna heeft Zonnestuur alleen het IP-adres nodig (dat staat in de MyEve-app of in je modem).</p>
       <details><summary class="small muted">Voor je installateur</summary><p class="small muted">In Alfen ACE Service Installer bij Load Balancing kiezen voor "Energy Management System" via Modbus TCP/IP (daarvoor is de licentie Active Load Balancing nodig). Zonnestuur zet dan zelf de laadstroom, en vernieuwt die elke 30 seconden.</p></details>` : ""}
       ${t === "sprsun" ? `<p class="small muted">Nodig: een RS485-naar-wifi-module (bijv. Elfin EW11) op de RS485-aansluiting van de warmtepomp. Heb je de wifi-module van SPRSUN zelf (voor de app)? Zet in de instelpagina van de module bij <b>Communication Settings</b> een extra verbinding met protocol <b>Tcp Server</b> en poort <b>8899</b>, en bij <b>Serial Port Settings</b> het <b>Protocol</b> op <b>Modbus</b>. De SPRSUN-app werkt dan niet meer; Zonnestuur heeft een eigen bediening (op de pagina van de warmtepomp). Wil je de app houden, neem dan een tweede module op een vrije aansluiting. Zonnestuur zet bij zon of goedkope stroom alleen de boilertemperatuur wat hoger, en daarna weer terug. Aan/uit en verwarming blijven bij je warmtepomp.</p>` : ""}
-      ${t === "ocpp" && !CFG.ocpp?.enabled ? `<p class="small" style="color:var(--warn)">Zet hierboven de OCPP-server aan en sla op; verbind daarna de laadpaal.</p>` : ""}`;
+      ${t === "ocpp" && !CFG.ocpp?.enabled && !document.body.classList.contains("toevoegmodus") ? `<p class="small" style="color:var(--warn)">Zet hierboven de OCPP-server aan en sla op; verbind daarna de laadpaal.</p>` : ""}`;
     if (t === "ocpp" || t === "alfen") $("x_kind").value = "ev";
     if (t === "sgready" || t === "sprsun") $("x_kind").value = "heatpump";
   };
@@ -2338,9 +2363,12 @@ async function settings() {
   }
   if (qp.get("toevoegen") && $("x_type") && [...$("x_type").options].some((o) => o.value === qp.get("toevoegen"))) {
     $("x_type").value = qp.get("toevoegen"); $("x_type").onchange();
+    if (qp.get("host") && $("x_a") && !$("x_a").value && /alfen|sprsun|esphome/.test(qp.get("toevoegen"))) $("x_a").value = qp.get("host");
   }
+  if (qp.get("host") && qp.get("omvormer") && $("i_dhost") && !$("i_dhost").value) $("i_dhost").value = qp.get("host");   // gezien in het netwerk
   if (qp.get("batterij") && $("b_link") && [...$("b_link").options].some((o) => o.value === qp.get("batterij"))) {
     $("b_on").checked = true; $("b_form").hidden = false; $("b_link").value = qp.get("batterij"); $("b_link").onchange();
+    if (qp.get("host")) setTimeout(() => { if ($("d_host") && !$("d_host").value) $("d_host").value = qp.get("host"); }, 50);
   }
   if (location.hash && document.querySelector(location.hash)) setTimeout(() => document.querySelector(location.hash).scrollIntoView({ block: "start" }), 50);
   if (qp.get("apparaat")) {                       // vanaf de pagina Apparaten: meteen dit apparaat aanpassen

@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.81.1
+- Auto: geeft de auto zijn accupercentage een tijd niet door, dan telt Zonnestuur erbij wat er sindsdien geladen is (en zegt dat het geschat is).
+- Laadpaal via OCPP toevoegen: het adres dat je in de laadpaal invult staat groot in beeld met een kopieerknop, en Zonnestuur ziet vanzelf wanneer de laadpaal zich meldt.
+- Heeft Zonnestuur het apparaat al in je netwerk gezien, dan staat het IP-adres al ingevuld.
+
 ## 0.81.0
 - Apparaat toevoegen in drie stappen: soort, merk (de meest voorkomende merken als tegels), en één duidelijke manier in gewone taal: wat je nodig hebt en wat Zonnestuur ermee doet. Technische uitleg staat ingeklapt "voor je installateur".
 - Instellen gebeurt nu in hetzelfde scherm: je springt niet meer naar Instellingen. Na het toevoegen zie je meteen of het gelukt is.

@@ -763,7 +763,11 @@ function goButton(info, ri, j, rt) {
     return paal ? `<a class="btn" href="apparaat?id=${encodeURIComponent(paal.id)}">Naar je laadpaal: auto erbij zetten</a>`
       : `<button class="btn" type="button" data-naarpaal="1">Eerst je laadpaal toevoegen</button>`;
   }
-  if (info.kind === "zonnestuur") return `<button class="btn" type="button" data-blad="${esc(metVan(zsLink(info.arg)))}" data-titel="${esc(LIST[ri] ? merkNaam(LIST[ri]) : "")}">Instellen</button>`;
+  if (info.kind === "zonnestuur") {
+    const nm = LIST[ri] && NETMERKEN.find((m) => m.ip && m.merk.toLowerCase() === LIST[ri].merk.toLowerCase());   // in het netwerk gezien: IP alvast invullen
+    const u = metVan(zsLink(info.arg)), [a0, h0] = u.split("#"), url = nm ? `${a0}&host=${encodeURIComponent(nm.ip)}${h0 ? "#" + h0 : ""}` : u;
+    return `<button class="btn" type="button" data-blad="${esc(url)}" data-titel="${esc(LIST[ri] ? merkNaam(LIST[ri]) : "")}">Instellen</button>`;
+  }
   if (info.kind === "relais" || info.kind === "meten") return `<button class="btn" type="button" data-blad="setup?van=apparaten#toevoegen" data-titel="Slimme stekker">Stekker zoeken en toevoegen</button>`;
   if ((info.kind === "ha" || info.kind === "hacs") && rt && connected(rt)) return `<button class="btn" data-go="${ri},${j}">Apparaten kiezen</button>`;
   return `<button class="btn" data-go="${ri},${j}">${rt && leek(rt, LIST[ri]).account ? "Inloggen en koppelen" : "Koppelen"}</button>`;
