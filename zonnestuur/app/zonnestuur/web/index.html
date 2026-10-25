@@ -1100,6 +1100,10 @@ html, body { overscroll-behavior-y: none; }
   .bediening .bd-rij { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--zs-lijn, var(--line)); }
   .bediening .bd-stap { display: inline-flex; align-items: center; gap: 10px; }
   .bediening .bd-stap .btn { min-width: 40px; min-height: 40px; padding: 0; font-size: 20px; border-radius: 12px; }
+  .bediening .bd-copin summary { cursor: pointer; padding: 6px 0; font-weight: 600; }
+  .bediening .bd-copin input[type=number] { font: inherit; padding: 6px 8px; border-radius: 10px; border: 0; box-shadow: inset 0 0 0 1.5px var(--zs-lijn, var(--line)); background: var(--zs-vlak, transparent); color: inherit; }
+  .bediening .bd-copin .btn { padding: 9px 16px; min-height: 40px; font-size: 14px; margin-top: 6px; }
+  .bediening .bd-cop { border-top: 1px solid var(--zs-lijn, var(--line)); padding: 10px 0 4px; }
   .bediening .bd-zuinig { margin-top: 10px; } .bediening .bd-zuinig summary { cursor: pointer; font-weight: 650; padding: 8px 0; min-height: 32px; }
   .bediening .bd-lijn { border-top: 1px solid var(--zs-lijn, var(--line)); padding: 10px 0; }
   .bediening .bd-punten { display: grid; gap: 6px; margin-bottom: 8px; }
@@ -2214,6 +2218,21 @@ function bedieningKlaar(wrap, d) {
     bedieningPost(d.id, {}).then((r) => { BED_LAST = r; bedieningTekenen($("bediening") || box, d, r); }).catch(() => {});
   }
 }
+function copHtml(r) {
+  const c = r.cop || {}, g1 = (v) => v == null ? "–" : String(v).replace(".", ",");
+  const L = c.laatste;
+  let h = `<div class="bd-cop"><b>COP</b>`;
+  if (r.cop_verwacht != null) h += `<p class="small muted" style="margin:2px 0">Verwacht bij nu ${g1(r.buiten)} °C buiten en water van ${g1(r.aanvoer || r.boiler)} °C: ongeveer <b>${g1(r.cop_verwacht)}</b> (zoveel kWh warmte per kWh stroom).</p>`;
+  if (c.bezig) h += `<p class="small" style="margin:2px 0">Nu aan het meten: vat begon op ${g1(c.bezig.van)} °C, ${g1(c.bezig.kwh)} kWh stroom tot nu toe${c.bezig.klaar ? ", even wachten tot het water gemengd is" : ""}.</p>`;
+  if (L) h += `<p class="small" style="margin:2px 0">Gemeten bij de laatste opwarmbeurt: <b>${g1(L.cop)}</b> (vat ${g1(L.van)} → ${g1(L.tot)} °C, ${g1(L.kwh)} kWh stroom${L.buiten != null ? `, ${g1(L.buiten)} °C buiten` : ""}).${c.aantal > 1 ? ` Gemiddeld ${g1(c.gemiddeld)} over ${c.aantal} beurten.` : ""}</p>`;
+  else if (r.vat_liter && !c.bezig) h += `<p class="small muted" style="margin:2px 0">De eerste meting volgt bij de volgende opwarmbeurt van het vat.</p>`;
+  h += `<details class="bd-copin"${r.vat_liter ? "" : " open"}><summary class="small">${r.vat_liter ? `Meten met het vat van ${g1(r.vat_liter)} liter` : "COP echt meten met je buffervat"}</summary>
+    <p class="small muted" style="margin:4px 0">Per opwarmbeurt rekent Zonnestuur uit hoeveel warmte er in het vat bij kwam voor de stroom die het kostte. Daarvoor zet het de vloerpompen tijdens het opwarmen even uit (nooit als het binnen te koud wordt, hoogstens 3 uur).</p>
+    <label class="small">Inhoud vat <input type="number" id="bd_vat" min="0" max="5000" step="10" value="${r.vat_liter || ""}" style="width:90px"> liter</label>
+    ${(r.ruimtes_vloer || []).map((x) => `<label class="check-row small"><input type="checkbox" data-copp="${esc(x.id)}" ${(r.cop_pauze || []).includes(x.id) ? "checked" : ""}> Pompen van ${esc(x.naam)} even uit tijdens het meten</label>`).join("")}
+    <button class="btn ghost small" type="button" id="bd_copok">Opslaan</button></details>`;
+  return h + `</div>`;
+}
 function bedieningTekenen(box, d, r) {
   if (!r.ok) { box.innerHTML = `<h2 class="t">Bediening</h2><p class="small">${esc(r.fout || "Uitlezen lukte niet.")}</p>`; return; }
   const g = (v, e) => (v === null || v === undefined ? "–" : String(v).replace(".", ",") + e);
@@ -2231,6 +2250,7 @@ function bedieningTekenen(box, d, r) {
       .map(([n, v]) => `<span><span class="muted">${n}</span> <b>${g(v, " °C")}</b></span>`).join("")}</div>
     ${r.element ? `<p class="small" style="color:var(--zs-amber,#d97706)"><b>Het elektrische element staat aan.</b> Dat verbruikt veel meer stroom dan de warmtepomp zelf.</p>` : ""}
     <p class="small muted">Zonnestuur zet het warme water bij zon of goedkope stroom een paar graden hoger en daarna terug naar wat je hier kiest.</p>
+    ${copHtml(r)}
     <details class="bd-zuinig"><summary>Zuiniger instellen</summary>
       <p class="small muted">Hoe groter het verschil, hoe minder vaak de warmtepomp start. Dat is zuiniger en beter voor de compressor; het water wordt wel iets kouder voor hij weer begint.</p>
       ${stap("verschil_warmwater", "Opnieuw starten bij warm water")}${stap("verschil_verwarming", "Opnieuw starten bij verwarming")}
@@ -2261,6 +2281,7 @@ function bedieningTekenen(box, d, r) {
     const n = b.dataset.lijn, x = [...box.querySelectorAll(`[data-lx="${n}"]`)].map((i) => Number(i.value)), y = [...box.querySelectorAll(`[data-ly="${n}"]`)].map((i) => Number(i.value));
     zet("stooklijn_" + n, { x, y });
   }));
+  if ($("bd_copok")) $("bd_copok").onclick = () => zet("cop_meten", { liter: Number($("bd_vat").value || 0), pauze: [...box.querySelectorAll("[data-copp]:checked")].map((i) => i.dataset.copp) });
   const zu = box.querySelector(".bd-zuinig"); if (zu) { zu.open = !!BED_ZUINIG_OPEN; zu.ontoggle = () => { BED_ZUINIG_OPEN = zu.open; }; }
 }
 function renderDevices(s) {

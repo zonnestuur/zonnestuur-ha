@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.80.6
+- Warmtepomp met buffervat: Zonnestuur meet per opwarmbeurt de echte COP (hoeveel warmte per kWh stroom). Vul op de pagina van de warmtepomp de inhoud van het vat in; de vloerpompen gaan tijdens het meten even uit (nooit als het binnen te koud wordt, hoogstens 3 uur).
+- Ook de verwachte COP bij de buitentemperatuur van nu staat erbij.
+
 ## 0.80.5
 - SPRSUN: in de eco-stand volgt de warmtepomp voor warm water zijn stooklijn en niet de ingestelde temperatuur. Daardoor warmde hij in goedkope uren niet op. Zonnestuur zet die lijn nu mee, en dan werkt het (getest).
 
