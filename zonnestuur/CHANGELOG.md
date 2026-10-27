@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.82.1
+- Verwarming: is een ruimte al kouder dan je wilt, dan stookt Zonnestuur bij dure stroom niet nog minder.
+
 ## 0.82.0
 - Verwarming: kies hoe je huis verwarmd wordt (cv-ketel, hybride, warmtepomp, airco, elektrisch, warmtenet). Op gas of een warmtenet verschuift Zonnestuur niet meer (de prijs is de hele dag gelijk), maar zorgt hij wel dat het op tijd warm is.
 - Warmtepomp en airco: Zonnestuur rekent met hoe zuinig de warmtepomp is bij het weer van dat uur. Hybride: is de cv-ketel goedkoper, dan laat hij die het doen.
