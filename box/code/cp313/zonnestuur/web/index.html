@@ -195,6 +195,8 @@ html, body { overscroll-behavior-y: none; }
   .sec-head h2 { font: 650 clamp(22px, 2.2vw, 28px)/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 0; }
   .sec-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
   #hero { scroll-margin-top: 70px; }
+  .c-delen { grid-column: 1 / -1; }
+  .c-delen .btn { min-height: 46px; padding: 11px 20px; font-size: 15px; }
   .c-stap { grid-column: 1 / -1; display: grid; grid-template-columns: 40px minmax(0, 1fr) 12px; gap: 12px; align-items: center; text-decoration: none; color: inherit;
     background: var(--sun-soft, rgba(255,178,36,.16)) !important; border-color: transparent !important; }
   .c-stap .st-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--card-solid, #fff); color: var(--sun-ink, #9a5b00); }
@@ -1178,6 +1180,11 @@ html, body { overscroll-behavior-y: none; }
       <!-- Apparaten: nog één stap (alles wat gevonden is staat op de pagina Apparaten) -->
     <a class="card c-stap" id="huisStap" href="apparaten" hidden><span class="st-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M16.5 13.5v6M13.5 16.5h6"/></svg></span>
       <span><b id="hsTitel"></b><span class="small muted" id="hsSub"></span></span><span class="st-pijl" aria-hidden="true"></span></a>
+    <section class="card c-delen" id="delenKaart" hidden aria-labelledby="delenTitel">
+      <h2 class="sec" id="delenTitel">Help Zonnestuur slimmer worden?</h2>
+      <p class="small muted">Mag Zonnestuur elke dag delen hoeveel stroom je huis gebruikte en opwekte, en wat hij leerde (bijvoorbeeld hoe snel je huis opwarmt)? Zonder je naam, adres of apparaatnamen. Met de gegevens van alle huizen wordt Zonnestuur voor iedereen slimmer. Je kunt het altijd weer uitzetten bij Tarieven → Slimme sturing. <a href="https://zonnestuur.nl/privacy" target="_blank" rel="noopener">Wat we precies delen</a></p>
+      <div class="row" style="gap:8px;margin-top:10px"><button class="btn" type="button" id="delenJa">Ja, graag</button><button class="btn ghost" type="button" id="delenNee">Liever niet</button></div>
+    </section>
 
 
     </div>
@@ -2485,7 +2492,17 @@ function socHand(car) {
 }
 // Gevonden in huis en nog één stap nodig? Eén kaart die naar de pagina Apparaten wijst (elke 10 minuten bijgewerkt).
 let HS_AT = 0;
+let DELEN_GEVRAAGD = false;
+async function delenKaart() {
+  if (DELEN_GEVRAAGD) return; DELEN_GEVRAAGD = true;
+  let c; try { c = await api("api/config"); } catch (e) { return; }
+  if (c.delen_data !== null && c.delen_data !== undefined) return;
+  const el = $("delenKaart"); el.hidden = false;
+  const kies = async (aan) => { try { await api("api/data/delen", { method: "POST", body: JSON.stringify({ aan }) }); } catch (e) {} el.hidden = true; };
+  $("delenJa").onclick = () => kies(true); $("delenNee").onclick = () => kies(false);
+}
 async function huisStapKaart() {
+  delenKaart();
   if (Date.now() - HS_AT < 600000) return; HS_AT = Date.now();
   let h; try { h = await api("api/koppel/huis"); } catch (e) { return; }
   const n = (h.gevonden || []).length, mee = (h.doet_mee || []).length;

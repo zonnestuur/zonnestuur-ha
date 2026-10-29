@@ -45,6 +45,8 @@
   .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
     padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
   a.rij { text-decoration: none; color: inherit; }
+  .btn { font: inherit; font-weight: 650; border: 0; cursor: pointer; border-radius: 999px; }
+  .btn.small { font-size: 14px; padding: 9px 14px; min-height: 40px; }
   .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); margin-right: 6px; }
 </style>
 <link rel="stylesheet" href="stijl.css">
@@ -104,10 +106,28 @@ function teken() {
       ${schakel("bat.grid_export", "net", "#2dd4bf", "Verkopen bij hoge prijs", "De batterij mag terugleveren als dat meer oplevert dan zelf gebruiken", !!B.grid_export)}
     </div>`;
   }
+  const I = C.inverter || {};
+  if (DIM && DIM.kan && (I.direct_type || I.entity)) {
+    const eur = (x) => "€\u00a0" + Number(x || 0).toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const kwh = (x) => Number(x || 0).toLocaleString("nl-NL", { maximumFractionDigits: 1 }) + "\u00a0kWh";
+    const uur = (m) => m >= 60 ? Math.floor(m / 60) + " u " + (m % 60) + " min" : m + " min";
+    const t = (iso) => new Date(iso).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    const nu = DIM.nu ? "Nu gedimd" : DIM.overslaan_tot ? "Overgeslagen tot " + t(DIM.overslaan_tot) : DIM.aan ? "Staat klaar" : "Staat uit";
+    const zin = DIM.nu ? "Terugleveren kost nu geld: je panelen leveren precies wat je huis gebruikt. " : "";
+    h += `<h2>Zonnepanelen dimmen</h2><div class="lijst">
+      ${schakel("dim.aan", "zon", "#fbbf24", "Dimmen als terugleveren geld kost", "Bij een negatieve prijs of terugleverkosten leveren je panelen alleen wat je zelf gebruikt", DIM.aan)}
+      <div class="rij" style="--k:#34d399;cursor:default"><span class="ic">${svg("geld")}</span><span><b>${esc(nu)}</b>
+        <span class="s">${zin}Deze maand ${uur(DIM.maand.minuten)} gedimd: ${kwh(DIM.maand.kwh)} niet teruggeleverd, ${eur(DIM.maand.eur)} bespaard. Vandaag ${uur(DIM.vandaag.minuten)}.</span>
+        ${DIM.aan ? `<button class="btn ghost small" type="button" id="dimSkip" style="margin-top:10px">${DIM.overslaan_tot ? "Toch weer dimmen" : "Vandaag niet dimmen"}</button>` : ""}</span><span></span></div>
+      ${DIM.momenten.length ? `<details class="rij" style="display:block;cursor:default"><summary style="cursor:pointer;font-weight:650">Laatste dimmomenten</summary>
+        <div class="s" style="margin-top:8px">${DIM.momenten.slice(0, 10).map((m) => `${t(m.start)}${m.eind ? " tot " + new Date(m.eind).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) : " (nu)"} · ${kwh(m.kwh)} · ${eur(m.eur)}`).join("<br>")}</div></details>` : ""}
+    </div>`;
+  }
   h += `<h2>Je huis</h2><div class="lijst">
     ${schakel("auto_vinden", "zoek", "#fbbf24", "Apparaten vanzelf vinden", "Zonnestuur zoekt in je huis en zet je meter en zonnepanelen zelf goed", C.auto_vinden !== false)}
     <a class="rij" href="instellingen#inst_meter" style="--k:#f87171"><span class="ic">${svg("zeker")}</span><span><b>Hoofdzekering bewaken</b><span class="s">${C.fuse_a ? `Aan: ${C.fuse_phases === 1 ? "1" : "3"} × ${C.fuse_a} A. Zonnestuur zorgt dat de stoppen niet doorslaan.` : "Uit. Vul je aansluiting in, dan let Zonnestuur op als de auto en de warmtepomp tegelijk draaien."}</span></span><span class="pijl"></span></a>
     ${schakel("meekijken", "hulp", "#a78bfa", "Hulp op afstand", "Zonnestuur mag tijdens de testfase meekijken als er iets misgaat", C.meekijken !== false)}
+    ${schakel("delen_data", "rapport", "#2dd4bf", "Help Zonnestuur slimmer worden", "Deel elke dag verbruik, opwek en wat Zonnestuur leerde, zonder naam of adres. Zo wordt Zonnestuur voor iedereen beter.", C.delen_data === true)}
   </div>`;
   h += `<h2>Meldingen</h2><div class="lijst">
     ${schakel("notify.alerts", "bel", "#f87171", "Storingen", "Als de meter of een apparaat niet reageert, of warm water in gevaar komt", N.alerts !== false)}
@@ -117,6 +137,10 @@ function teken() {
   </div>`;
   $("inhoud").innerHTML = h;
   $("inhoud").querySelectorAll("[data-k]").forEach((i) => i.onchange = () => bewaar(i.dataset.k, i.checked, i));
+  if ($("dimSkip")) $("dimSkip").onclick = async () => {
+    try { DIM = await api("api/dimmen", { method: "POST", body: JSON.stringify({ overslaan: DIM.overslaan_tot ? 0 : 24 }) }); melding(DIM.overslaan_tot ? "Vandaag niet dimmen" : "Dimmen staat weer klaar"); teken(); }
+    catch (e) { melding(e.message); }
+  };
   $("inhoud").querySelectorAll('input[name="doel"]').forEach((i) => i.onchange = () => bewaar("bat.goal", i.value, i));
 }
 let mt = null;
@@ -124,13 +148,24 @@ function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = fals
 async function bewaar(k, v, el) {
   const C = JSON.parse(JSON.stringify(CFG));
   const [a, b] = k.split(".");
+  if (a === "delen_data") {
+    try { await api("api/data/delen", { method: "POST", body: JSON.stringify({ aan: v }) }); CFG.delen_data = v; melding(v ? "Dank je! Je helpt Zonnestuur slimmer worden" : "Er gaat niets meer"); }
+    catch (e) { melding(e.message); el.checked = !v; }
+    return;
+  }
+  if (a === "dim") {
+    try { DIM = await api("api/dimmen", { method: "POST", body: JSON.stringify({ aan: v }) }); CFG = await api("api/config"); melding("Bewaard"); teken(); }
+    catch (e) { melding(e.message); el.checked = !v; }
+    return;
+  }
   if (a === "bat") C.batteries[0][b] = v;
   else if (a === "notify") { C.notify = C.notify || {}; C.notify[b] = v; }
   else C[a] = v;
   try { await api("api/config", { method: "POST", body: JSON.stringify(C) }); CFG = C; melding("Bewaard"); }
   catch (e) { melding(e.message); if (el.type === "checkbox") el.checked = !v; else teken(); }
 }
-(async () => { try { CFG = await api("api/config"); teken(); } catch (e) { $("inhoud").innerHTML = `<p>${esc(e.message)}</p>`; } })();
+let DIM = null;
+(async () => { try { [CFG, DIM] = await Promise.all([api("api/config"), api("api/dimmen").catch(() => null)]); teken(); } catch (e) { $("inhoud").innerHTML = `<p>${esc(e.message)}</p>`; } })();
 </script>
 </body>
 </html>

@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.83.0
+- Zonnestuur herstelt zichzelf: staat hij stil, zijn er 3 uur geen stroomprijzen of is de meter een uur weg, dan start hij zichzelf opnieuw op (hoogstens één keer per 6 uur).
+- Stroomprijzen: langer geduld met een trage internetverbinding, en een tweede bron als de eerste niet antwoordt.
+- Zonnepanelen dimmen: bij Slimme sturing zie je wanneer je panelen gedimd waren, hoeveel kWh en wat dat scheelde. Je kunt dimmen een dag overslaan of uitzetten.
+- Help Zonnestuur slimmer worden: als je ja zegt, deelt Zonnestuur elke dag verbruik, opwek en wat hij leerde, zonder naam of adres.
+- Apparaten: geen '0,0 kW' meer bij apparaten die uit staan.
+
 ## 0.82.2
 - Instellingen opslaan gooit de stroomprijzen niet meer weg. Antwoordde de prijsbron net even niet, dan draaide alles tijdelijk zonder prijzen.
 
