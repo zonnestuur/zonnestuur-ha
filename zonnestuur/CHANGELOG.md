@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.82.2
+- Instellingen opslaan gooit de stroomprijzen niet meer weg. Antwoordde de prijsbron net even niet, dan draaide alles tijdelijk zonder prijzen.
+
 ## 0.82.1
 - Verwarming: is een ruimte al kouder dan je wilt, dan stookt Zonnestuur bij dure stroom niet nog minder.
 
