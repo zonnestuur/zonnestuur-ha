@@ -124,7 +124,8 @@ function geleerdHtml(r) {
     return `<div class="geleerd"><b>Geleerd:</b> deze ruimte warmt ongeveer <b>${graad(g.opwarmen)} °C per uur</b> op. ${af} Daarmee rekent Zonnestuur uit wanneer hij moet beginnen.</div>`;
   }
   const pct = Math.min(100, Math.round(100 * Math.min(g.stoken || 0, g.nodig || 40) / (g.nodig || 40) / 2 + 100 * Math.min(g.rust || 0, g.nodig || 40) / (g.nodig || 40) / 2));
-  return `<div class="geleerd"><b>Aan het leren</b> hoe snel deze ruimte opwarmt en afkoelt. Dat duurt een paar dagen met gewoon stoken. Tot die tijd rekent Zonnestuur voorzichtig.
+  const vl = g.voorlopig ? ` Tot die tijd rekent hij met wat hij leerde in ${g.voorlopig.huizen || "een paar"} huizen met dezelfde verwarming: ± ${graad(g.voorlopig.opwarmen)} °C per uur opwarmen.` : " Tot die tijd rekent Zonnestuur voorzichtig.";
+  return `<div class="geleerd"><b>Aan het leren</b> hoe snel deze ruimte opwarmt en afkoelt. Dat duurt een paar dagen met gewoon stoken.${vl}
     <div class="balk" aria-label="${pct}% geleerd"><span style="width:${pct}%"></span></div></div>`;
 }
 function kaartHtml(r) {

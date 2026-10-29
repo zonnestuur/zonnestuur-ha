@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.84.0
+- Zonnestuur leert van alle huizen samen: zolang jouw huis nog nieuw is, rekent hij met wat hij in vergelijkbare huizen leerde (hoe goed de zonvoorspelling klopt in jouw buurt, hoe snel een huis met dezelfde verwarming opwarmt). Alleen gemiddelden van minstens 3 huizen, nooit gegevens van één huis.
+- Bij "Wat Zonnestuur leerde" zie je hoeveel stroom je huis gebruikt vergeleken met vergelijkbare huizen.
+- Gedeelde gegevens bevatten nu ook het weer per uur (bewolking, regen, wind), zodat we beter leren wat het weer met je huis doet.
+
 ## 0.83.0
 - Zonnestuur herstelt zichzelf: staat hij stil, zijn er 3 uur geen stroomprijzen of is de meter een uur weg, dan start hij zichzelf opnieuw op (hoogstens één keer per 6 uur).
 - Stroomprijzen: langer geduld met een trage internetverbinding, en een tweede bron als de eerste niet antwoordt.
