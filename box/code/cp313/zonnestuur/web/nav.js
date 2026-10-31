@@ -10,7 +10,7 @@
   var tab = (pad === "" || pad === "index.html") ? "home"
     : (pad === "apparaten" || pad === "koppelen" || pad === "apparaat" || pad === "verwarming" || pad === "warmtepomp" || (pad === "instellingen" && /[?&](apparaat|onderdeel)=/.test(zoek) && !/[?&]van=inst/.test(zoek))) ? "apparaten"
     : /^(tarieven|sturing)$/.test(pad) ? "tarieven"
-    : /^(inzicht|opbrengst|rapport|vergelijk|laadtijdlijn)$/.test(pad) ? "inzicht" : "meer";
+    : /^(inzicht|opbrengst|rapport|vergelijk|laadtijdlijn|brein)$/.test(pad) ? "inzicht" : "meer";
   var ICON = {
     home: '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
     apparaten: '<rect x="5" y="3.5" width="14" height="17" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/>',

@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.86.0
+- Nieuwe pagina 'Wat Zonnestuur weet' (bij Meer en Inzichten): alles wat Zonnestuur over je huis leerde, waar het op gebaseerd is, hoe zeker het is en hoe goed de zonvoorspelling klopte. Per onderdeel kun je het laten vergeten en opnieuw laten leren (bijvoorbeeld na een verbouwing of een nieuwe batterij).
+- Op zonnestuur.nl/integraties zie je per merk hoe het koppelt, wat het kan en wat al in een echt huis getest is.
+
 ## 0.85.0
 - Nieuwe pagina Warmtepomp en COP: hoe zuinig je warmtepomp werkt, op elke manier die jouw huis toelaat (gegevens van de warmtepomp zelf, een warmtemeter, debiet met aanvoer en retour, het opwarmen van het buffervat, of een schatting). Bij elk getal staat of het gemeten, berekend of geschat is.
 - COP per dag, week, maand en jaar, bij verschillende buitentemperaturen, voor verwarmen en warm water apart, met en zonder pompen en bijverwarming.

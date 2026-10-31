@@ -2599,7 +2599,7 @@ async function geleerdKaart() {
   const eerst = matchMedia("(max-width: 700px)").matches ? 2 : 3;
   $("glLijst").innerHTML = it.slice(0, eerst).map(blok).join("")
     + (it.length > eerst ? `<details style="grid-column:1/-1"><summary>Nog ${it.length - eerst} ${it.length - eerst === 1 ? "ding" : "dingen"} die Zonnestuur leerde</summary><div class="gl">${it.slice(eerst).map(blok).join("")}</div></details>` : "");
-  $("glNote").textContent = `Geleerd uit ${st.dagen} dagen meterdata. Alles blijft in je eigen huis. Hoe langer Zonnestuur meekijkt, hoe beter het klopt.`;
+  $("glNote").innerHTML = `Geleerd uit ${st.dagen} dagen meterdata. Alles blijft in je eigen huis. Hoe langer Zonnestuur meekijkt, hoe beter het klopt. <a href="brein">Alles wat Zonnestuur weet</a>`;
 }
 function evPanel(d) {
   const E = d.ev;
