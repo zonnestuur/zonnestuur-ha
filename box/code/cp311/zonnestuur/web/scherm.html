@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#07101c">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur scherm</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  :root { --bg: #07101c; --tegel: #0e1a2b; --lijn: rgba(255,255,255,.08); --ink: #eef3f8; --ink2: #9fb0c3; --zon: #fbbf24; --net: #60a5fa;
+    --terug: #34d399; --bat: #2dd4bf; --auto: #a78bfa; --wp: #fb923c; --goed: #34d399; --duur: #f87171; color-scheme: dark; }
+  :root[data-thema="licht"] { --bg: #eef2f6; --tegel: #ffffff; --lijn: rgba(15,30,50,.08); --ink: #0f1d2c; --ink2: #4b5b6c; --zon: #b45309; --net: #1d4ed8;
+    --terug: #047857; --bat: #0f766e; --auto: #6d28d9; --wp: #c2410c; --goed: #047857; --duur: #b91c1c; color-scheme: light; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; overscroll-behavior: none; }
+  body { background: var(--bg); color: var(--ink); font: 16px/1.4 "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+    transition: filter .8s; cursor: default; user-select: none; }
+  body.dim { filter: brightness(var(--dimmen, .25)); }
+  .wrap { height: 100%; display: grid; grid-template-rows: auto 1fr; gap: 1.6vmin; padding: max(2vmin, env(safe-area-inset-top)) 2vmin 2vmin; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 2vmin; }
+  .naam { display: flex; align-items: center; gap: 1.2vmin; font: 700 clamp(15px, 2.4vmin, 26px)/1 "Inter Tight", sans-serif; }
+  .naam img { width: 3.4vmin; height: 3.4vmin; min-width: 20px; min-height: 20px; }
+  .klok { font: 650 clamp(16px, 3.2vmin, 40px)/1 "Inter Tight", sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .pil { font-size: clamp(12px, 1.7vmin, 18px); font-weight: 650; padding: .5vmin 1.4vmin; border-radius: 99px; background: var(--tegel); box-shadow: 0 0 0 1px var(--lijn); }
+  .pil.let { color: var(--duur); } .pil.oud { color: var(--wp); }
+  .grid { display: grid; gap: 1.6vmin; grid-template-columns: repeat(var(--kol, 4), minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); min-height: 0; }
+  .t { background: var(--tegel); border-radius: 2.2vmin; box-shadow: 0 0 0 1px var(--lijn); padding: 2vmin 2.2vmin; min-height: 0; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: space-between; gap: .8vmin; }
+  .t h2 { margin: 0; font: 600 clamp(12px, 1.8vmin, 20px)/1.2 "Inter", sans-serif; color: var(--ink2); display: flex; align-items: center; gap: .8vmin; }
+  .t h2 i { width: 1.2vmin; height: 1.2vmin; min-width: 8px; min-height: 8px; border-radius: 50%; background: var(--c); }
+  .w { font: 740 clamp(26px, 6.4vmin, 92px)/1 "Inter Tight", sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .w small { font-size: .38em; font-weight: 650; letter-spacing: 0; color: var(--ink2); margin-left: .3em; }
+  .sub { font-size: clamp(12px, 1.7vmin, 19px); color: var(--ink2); }
+  .t.huis { grid-column: span 2; grid-row: span 2; padding: 1vmin; }
+  .t.huis svg { width: 100%; height: 100%; }
+  .t.prijs, .t.planning { grid-column: span 2; }
+  .strook { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; align-items: end; height: 7vmin; min-height: 36px; }
+  .strook i { display: block; border-radius: 2px 2px 1px 1px; background: var(--c); }
+  .strook i.nu { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .lijst { display: grid; gap: .6vmin; font-size: clamp(12px, 1.8vmin, 20px); }
+  .lijst div { display: flex; justify-content: space-between; gap: 1vmin; }
+  .lijst b { font-weight: 650; }
+  .knoppen { display: flex; gap: 1vmin; flex-wrap: wrap; }
+  .knop { font: 650 clamp(13px, 1.8vmin, 20px)/1 "Inter", sans-serif; border: 0; border-radius: 99px; padding: 1.2vmin 2vmin; min-height: 44px;
+    background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); cursor: pointer; }
+  .knop.a { background: var(--net); color: #fff; }
+  .fout { display: grid; place-items: center; height: 100%; text-align: center; color: var(--ink2); font-size: 2.4vmin; padding: 4vmin; }
+  .melding { position: fixed; left: 50%; bottom: 3vmin; transform: translateX(-50%); background: var(--tegel); padding: 1.2vmin 2.4vmin; border-radius: 99px;
+    box-shadow: 0 0 0 1px var(--lijn); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { body { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="naam"><img src="zon.svg" alt=""><span id="naam">Zonnestuur</span></div>
+    <span class="pil" id="pil" hidden></span><span class="klok" id="klok"></span></header>
+  <main class="grid" id="grid"><div class="fout">Laden…</div></main>
+</div>
+<p class="melding" id="melding" hidden></p>
+<script src="huis.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const q = new URLSearchParams(location.search), ID = q.get("id") || "", K = q.get("k") || "";
+const kw = (w) => w == null ? "–" : (Math.abs(w) / 1000).toLocaleString("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const eur = (x) => x == null ? "–" : "€ " + Number(x).toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const uur = (iso) => new Date(iso).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+let D = null, laatst = 0, fouten = 0, timer = null, wake = null;
+
+function tegel(cls, kleur, titel, inhoud) { return `<section class="t ${cls}" style="--c:${kleur}"><h2><i></i>${esc(titel)}</h2>${inhoud}</section>`; }
+const W = {
+  huis: (d) => d.status_huis ? `<section class="t huis"><svg id="huisSvg" class="hz" viewBox="0 0 440 300" data-los="1" role="img" aria-label="Je huis"></svg></section>` : "",
+  zon: (d) => tegel("zon", "var(--zon)", "Zon", `<div class="w">${kw(d.zon_w)}<small>kW</small></div><div class="sub">${d.zon_gemeten ? "gemeten" : "verwacht (geen meting)"}</div>`),
+  verbruik: (d) => tegel("verbruik", "var(--ink2)", "Verbruik", `<div class="w">${kw(d.verbruik_w)}<small>kW</small></div><div class="sub">heel het huis</div>`),
+  net: (d) => tegel("net", d.net_w < 0 ? "var(--terug)" : "var(--net)", d.net_w < 0 ? "Teruglevering" : "Van het net",
+    `<div class="w">${kw(d.net_w)}<small>kW</small></div><div class="sub">${d.prijs_nu != null ? eur(d.prijs_nu) + " per kWh" : d.net_w < 0 ? "naar het net" : "van het net"}</div>`),
+  batterij: (d) => (d.batterijen || []).length ? tegel("batterij", "var(--bat)", "Batterij", d.batterijen.map((b) =>
+    `<div class="w">${b.soc == null ? "–" : Math.round(b.soc)}<small>%</small></div><div class="sub">${b.w > 50 ? "laadt " + kw(b.w) + " kW" : b.w < -50 ? "levert " + kw(b.w) + " kW" : "rust"}</div>`).join("")) : "",
+  auto: (d) => (d.autos || []).length ? tegel("auto", "var(--auto)", "Auto", `<div class="lijst">${d.autos.map((a) =>
+    `<div><b>${esc(a.naam)}</b><span>${a.soc != null ? Math.round(a.soc) + "% · " : ""}${a.w > 300 ? "laadt " + kw(a.w) + " kW" : "laadt niet"}</span></div>`).join("")}</div>`) : "",
+  warmtepomp: (d) => (d.warmtepompen || []).length ? tegel("wp", "var(--wp)", "Warmtepomp", d.warmtepompen.map((w) =>
+    `<div class="w">${w.cop != null ? String(w.cop).replace(".", ",") : "–"}<small>COP</small></div><div class="sub">${w.draait ? "draait, " + kw(w.w) + " kW" : "staat stil"}${w.aanvoer != null ? " · aanvoer " + Math.round(w.aanvoer) + " °C" : ""}</div>`).join("")) : "",
+  ruimtes: (d) => (d.ruimtes || []).length ? tegel("ruimtes", "var(--wp)", "Ruimtes", `<div class="lijst">${d.ruimtes.map((r) =>
+    `<div><b>${esc(r.naam)}</b><span>${r.temp != null ? r.temp.toLocaleString("nl-NL", { maximumFractionDigits: 1 }) + " °C" : "–"}${r.stookt ? " · stookt" : ""}</span></div>`).join("")}</div>`) : "",
+  prijs: (d) => d.prijzen && d.prijzen.length ? tegel("prijs", "var(--net)", "Stroomprijs per uur", strook(d.prijzen) +
+    `<div class="sub">nu ${eur(d.prijs_nu)} · goedkoopst ${uur(d.prijzen.reduce((a, b) => b.p < a.p ? b : a).uur)}</div>`) : "",
+  planning: (d) => tegel("planning", "var(--terug)", "Planning", (d.planning || []).length ? `<div class="lijst">${d.planning.map((p) =>
+    `<div><b>${esc(p.naam)}</b><span>${p.uren.map(uur).join(", ")}</span></div>`).join("")}</div>${d.plan_kosten != null ? `<div class="sub">verwacht ${eur(d.plan_kosten)} tot morgen</div>` : ""}` : `<div class="sub">Er staat nu niets gepland.</div>`),
+  aanbevelingen: (d) => (d.aanbevelingen || []).length ? tegel("aanb", "var(--zon)", "Aanbevelingen", `<div class="lijst">${d.aanbevelingen.map((a) =>
+    `<div><b>${esc(a.titel)}</b>${d.touch && (d.acties || []).includes("aanbeveling") && a.niveau !== "niet" ? `<button class="knop" data-rec="${esc(a.id)}">Uitvoeren</button>` : ""}</div>`).join("")}</div>`) : "",
+  autopilot: (d) => tegel("ap", "var(--goed)", "Autopilot", `<div class="sub" style="font-size:clamp(14px,2.2vmin,24px);color:var(--ink)">${d.autonomie === "stop" ? "Noodstop" : d.autonomie === "advies" ? "Alleen advies" : "Automatisch"}</div>
+    ${d.touch && (d.acties || []).includes("pauze") ? `<div class="knoppen">${d.autonomie === "automatisch" ? '<button class="knop" data-actie="pauze">Pauzeren</button>' : '<button class="knop a" data-actie="hervat">Weer automatisch</button>'}</div>` : ""}`),
+  kwaliteit: (d) => tegel("kw", d.verdacht ? "var(--duur)" : "var(--goed)", "Metingen", `<div class="sub" style="color:var(--ink)">${d.verdacht ? d.verdacht + " meting(en) kloppen niet" : "Alle metingen in orde"}</div>`),
+};
+function strook(ps) {
+  const lo = Math.min(...ps.map((x) => x.p)), hi = Math.max(...ps.map((x) => x.p)), r = hi - lo || 1, nu = new Date().getHours();
+  return `<div class="strook">${ps.map((x) => { const f = (x.p - lo) / r, c = f < .33 ? "var(--goed)" : f > .66 ? "var(--duur)" : "color-mix(in srgb, var(--ink2) 55%, transparent)";
+    return `<i class="${new Date(x.uur).getHours() === nu ? "nu" : ""}" style="--c:${c};height:${12 + 88 * (x.p - Math.min(0, lo)) / (hi - Math.min(0, lo) || 1)}%" title="${uur(x.uur)}: ${eur(x.p)}"></i>`; }).join("")}</div>`;
+}
+function kolommen(d) {
+  const staand = d.orientatie === "staand" || (d.orientatie === "auto" && innerHeight > innerWidth);
+  const n = (d.widgets || []).length;
+  return staand ? 2 : n <= 4 ? Math.max(2, n) : 4;
+}
+function teken() {
+  const d = D;
+  document.documentElement.dataset.thema = d.thema === "licht" ? "licht" : d.thema === "donker" ? "donker" : (matchMedia("(prefers-color-scheme: light)").matches ? "licht" : "donker");
+  $("naam").textContent = d.naam;
+  $("grid").style.setProperty("--kol", kolommen(d));
+  $("grid").innerHTML = (d.widgets || []).map((w) => (W[w] || (() => ""))(d)).join("") || `<div class="fout">Geen tegels gekozen.</div>`;
+  const svg = $("huisSvg");
+  if (svg && window.zsHuis) {
+    if (!document.getElementById("hzcss") && zsHuis.css) { const st = document.createElement("style"); st.id = "hzcss"; st.textContent = zsHuis.css; document.head.appendChild(st); }
+    try { zsHuis.teken(svg, d.status_huis, null); } catch (e) {}
+  }
+  dimmen();
+}
+function dimmen() {
+  const dm = (D && D.dimmen) || {};
+  if (!dm.aan) { document.body.classList.remove("dim"); return; }
+  const n = new Date(), m = n.getHours() * 60 + n.getMinutes(), t = (s) => { const [h, mi] = s.split(":").map(Number); return h * 60 + mi; };
+  const van = t(dm.van), tot = t(dm.tot), nacht = van <= tot ? m >= van && m < tot : m >= van || m < tot;
+  document.body.style.setProperty("--dimmen", (dm.helderheid || 25) / 100);
+  document.body.classList.toggle("dim", nacht);
+}
+function klok() {
+  $("klok").textContent = new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+  const pil = $("pil"), oud = D && Date.now() - laatst > 3 * 1000 * (D.verversen_s || 10) + 15000;
+  if (oud) { pil.hidden = false; pil.className = "pil oud"; pil.textContent = "Geen verbinding, laatste gegevens van " + new Date(laatst).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }); }
+  else if (D && D.autonomie && D.autonomie !== "automatisch") { pil.hidden = false; pil.className = "pil let"; pil.textContent = D.autonomie === "stop" ? "Noodstop" : "Alleen advies"; }
+  else pil.hidden = true;
+  dimmen();
+}
+async function haal() {
+  clearTimeout(timer);
+  try {
+    const r = await fetch(`api/scherm/${encodeURIComponent(ID)}/data?k=${encodeURIComponent(K)}`, { cache: "no-store" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "Fout " + r.status);
+    D = d; laatst = Date.now(); fouten = 0;
+    teken();
+  } catch (e) {
+    fouten++;
+    if (!D) $("grid").innerHTML = `<div class="fout">${esc(e.message)}<br><br>Het scherm probeert het vanzelf opnieuw.</div>`;
+  }
+  klok();
+  const s = D ? D.verversen_s : 10;
+  timer = setTimeout(haal, Math.min(300, s * Math.pow(2, Math.min(fouten, 5))) * 1000);   // bij storing steeds rustiger opnieuw
+}
+async function actie(body) {
+  try {
+    const r = await fetch(`api/scherm/${encodeURIComponent(ID)}/actie?k=${encodeURIComponent(K)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    let d = await r.json();
+    if (d.bevestigen) { if (!confirm(d.vraag)) return; return actie(Object.assign({}, body, { bevestigd: true })); }
+    melding(d.ok ? (d.tekst || "Gedaan") : (d.fout || d.error || "Dat lukte niet"));
+    haal();
+  } catch (e) { melding("Geen verbinding"); }
+}
+let mt = null;
+function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 3000); }
+document.addEventListener("click", (ev) => {
+  const a = ev.target.closest("[data-actie]"); if (a) return actie({ actie: a.dataset.actie });
+  const r = ev.target.closest("[data-rec]"); if (r) return actie({ actie: "aanbeveling", id: r.dataset.rec });
+});
+async function wakker() { try { if ("wakeLock" in navigator) wake = await navigator.wakeLock.request("screen"); } catch (e) {} }
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { wakker(); haal(); } });
+addEventListener("resize", () => { if (D) teken(); });
+if (!ID || !K) $("grid").innerHTML = `<div class="fout">Open dit scherm met de link uit Zonnestuur (Meer → Schermen).</div>`;
+else { wakker(); haal(); }
+setInterval(klok, 15000); klok();
+</script>
+</body>
+</html>

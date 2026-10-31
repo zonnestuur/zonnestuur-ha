@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur meldingen</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  h2 { font: 680 19px/1.25 "Inter Tight", Inter, sans-serif; margin: 0 0 10px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 62ch; }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin-bottom: 14px; }
+  .standen { display: grid; gap: 8px; }
+  .standen label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border-radius: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); cursor: pointer; font-size: 14.5px; }
+  .standen label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
+  .drie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .blok { padding: 12px 14px; border-radius: 16px; background: var(--zs-zacht); }
+  .blok.hier { box-shadow: inset 0 0 0 1.5px var(--zs-groen, #34d399); }
+  .blok b { display: block; font: 720 24px/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; }
+  .blok span { display: block; font-size: 13px; color: var(--zs-ink2); }
+  .graf { width: 100%; height: auto; display: block; }
+  .graf text { fill: var(--zs-ink2); font: 11px Inter, sans-serif; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--zs-ink2); margin-top: 8px; }
+  .legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .rij { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--zs-lijn); }
+  .rij:first-of-type { border-top: 0; }
+  .rij small { color: var(--zs-ink2); grid-column: 1 / -1; }
+  .hint { font-size: 13px; color: var(--zs-ink2); margin: 8px 0 0; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  @media (max-width: 560px) { .drie { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <a class="terug" href="meer" style="color:var(--zs-ink2);text-decoration:none;font-weight:600">← Meer</a>
+  <h1>Meldingen</h1>
+  <p class="intro">Kies per onderwerp of je een melding wilt, vanaf welk niveau, en wie hem krijgt. Kanalen (telefoon, e-mail, ntfy, Telegram) stel je in bij <a href="instellingen?onderdeel=notifyCard">Instellingen</a>.</p>
+  <section class="kaart" id="stil"></section>
+  <section class="kaart" id="ontv"></section>
+  <section class="kaart" id="cats"></section>
+  <section class="kaart"><h2>Geschiedenis</h2><div id="log"><p class="hint">Laden…</p></div></section>
+</main>
+<p class="melding" id="melding" role="status" hidden></p>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p, o = {}) {
+  o.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, o.headers || {});
+  const r = await fetch(p, o);
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+let mt = null;
+function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 2600); }
+const NIV = { info: "Alles", advies: "Advies en hoger", waarschuwing: "Waarschuwingen en hoger", kritiek: "Alleen kritiek" };
+const KAN = { ha: "App van de koppelmotor", ntfy: "ntfy", telegram: "Telegram", email: "E-mail", push: "Telefoon (zonnestuur.nl/app)" };
+const inp = 'style="font:inherit;padding:8px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1.5px var(--zs-lijn);background:var(--zs-vlak);color:inherit;width:100%"';
+let D = null, C = null;
+async function laad() {
+  D = await api("api/meldingen");
+  C = JSON.parse(JSON.stringify(D.instellingen));
+  teken();
+}
+function teken() {
+  const s = C.stille_uren;
+  $("stil").innerHTML = `<h2>Stille uren</h2><div class="standen"><label><input type="checkbox" id="s_aan" ${s.aan ? "checked" : ""}><span>Tussen <input id="s_van" type="time" value="${esc(s.van)}" style="font:inherit"> en <input id="s_tot" type="time" value="${esc(s.tot)}" style="font:inherit"> alleen kritieke meldingen (storingen die direct iets kosten). Waarschuwingen komen daarna.</span></label></div>
+    <label style="display:grid;gap:4px;margin-top:10px">Gesproken meldingen op een speaker (bijv. Nest Hub), alleen kritiek<input id="s_spr" ${inp} placeholder="media_player.huiskamer" value="${esc(C.spreker || "")}"></label>`;
+  $("ontv").innerHTML = `<h2>Wie krijgt wat</h2>${(C.ontvangers || []).map((o, i) => `<div class="rij" style="grid-template-columns:minmax(0,1fr) auto"><b>${esc(o.naam)}</b><span><button class="btn ghost small" type="button" data-test="${i}">Test</button> <button class="btn ghost small" type="button" data-weg="${i}">Weg</button></span>
+      <small>${o.rol === "beheerder" ? "Beheerder" : "Huisgenoot"} · ${esc(KAN[o.kanaal] || o.kanaal)}${o.adres ? " (" + esc(o.adres) + ")" : ""} · ${esc(NIV[o.vanaf])}</small></div>`).join("") || `<p class="hint">Nog niemand apart: alle meldingen gaan naar alle ingestelde kanalen.</p>`}
+    <div class="standen" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px">
+      <label style="display:grid">Naam<input id="o_naam" ${inp} placeholder="bijv. Judith"></label>
+      <label style="display:grid">Rol<select id="o_rol"><option value="huisgenoot">Huisgenoot (alleen belangrijke)</option><option value="beheerder">Beheerder (alles)</option></select></label>
+      <label style="display:grid">Kanaal<select id="o_kan">${(D.kanalen.length ? D.kanalen : Object.keys(KAN)).map((k) => `<option value="${k}">${esc(KAN[k] || k)}</option>`).join("")}</select></label>
+      <label style="display:grid">Eigen adres (e-mail, ntfy-onderwerp, Telegram-chat)<input id="o_adres" ${inp}></label></div>
+    <button class="btn ghost" type="button" id="o_plus" style="margin-top:10px">Ontvanger toevoegen</button>`;
+  $("cats").innerHTML = `<h2>Per onderwerp</h2>${Object.entries(D.categorieen).map(([k, n]) => { const r = C.categorieen[k] || { aan: true, vanaf: "info", kanalen: [], herhaal_uren: 0 };
+      return `<div class="rij" style="grid-template-columns:minmax(0,1fr) auto"><b>${esc(n)}</b><label><input type="checkbox" data-c="${k}" data-v="aan" ${r.aan !== false ? "checked" : ""}> aan</label>
+        <small><select data-c="${k}" data-v="vanaf">${Object.entries(NIV).map(([v, t]) => `<option value="${v}" ${r.vanaf === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+        <select data-c="${k}" data-v="herhaal_uren">${[[0, "steeds"], [6, "hoogstens elke 6 uur"], [24, "hoogstens 1× per dag"], [168, "hoogstens 1× per week"]].map(([v, t]) => `<option value="${v}" ${Number(r.herhaal_uren || 0) === v ? "selected" : ""}>${t}</option>`).join("")}</select>
+        <label><input type="checkbox" data-c="${k}" data-v="spreken" ${r.spreken ? "checked" : ""}> ook uitspreken</label></small></div>`; }).join("")}
+    <div style="margin-top:14px"><button class="btn" type="button" id="bewaar" style="background:var(--zs-knop);color:#fff">Opslaan</button></div>`;
+  $("log").innerHTML = (D.log || []).length ? D.log.map((x) => `<div class="rij" style="grid-template-columns:minmax(0,1fr) auto"><b>${esc(x.titel)}</b><span class="hint" style="margin:0">${esc(x.niveau)}</span>
+      <small>${esc((x.t || "").replace("T", " "))} · ${esc(D.categorieen[x.categorie] || x.categorie)} · ${esc(x.status)}${x.gezien ? " · gezien" : ""}<br>${esc(x.tekst)}
+      <br><a href="${esc(x.klik)}">Bekijken</a>${!x.gezien ? ` · <a href="#" data-gezien="${esc(x.id)}">Gezien</a>` : ""}</small></div>`).join("") : `<p class="hint">Nog geen meldingen.</p>`;
+}
+function verzamel() {
+  C.stille_uren = { aan: $("s_aan").checked, van: $("s_van").value, tot: $("s_tot").value };
+  C.spreker = $("s_spr").value.trim();
+  document.querySelectorAll("[data-c]").forEach((el) => {
+    const c = C.categorieen[el.dataset.c] = C.categorieen[el.dataset.c] || { aan: true, vanaf: "info", kanalen: [], herhaal_uren: 0 };
+    c[el.dataset.v] = el.type === "checkbox" ? el.checked : el.dataset.v === "herhaal_uren" ? Number(el.value) : el.value;
+  });
+}
+async function bewaar(t) { try { await api("api/meldingen", { method: "POST", body: JSON.stringify(C) }); melding(t || "Opgeslagen"); await laad(); } catch (e) { melding(e.message); } }
+document.addEventListener("click", async (ev) => {
+  if (ev.target.id === "bewaar") { verzamel(); return bewaar(); }
+  if (ev.target.id === "o_plus") {
+    verzamel();
+    const rol = $("o_rol").value;
+    C.ontvangers = (C.ontvangers || []).concat([{ naam: $("o_naam").value.trim(), rol, kanaal: $("o_kan").value, adres: $("o_adres").value.trim(), vanaf: rol === "beheerder" ? "info" : "waarschuwing" }]);
+    return bewaar("Ontvanger toegevoegd");
+  }
+  const w = ev.target.closest("[data-weg]"); if (w) { verzamel(); C.ontvangers.splice(Number(w.dataset.weg), 1); return bewaar("Verwijderd"); }
+  const t = ev.target.closest("[data-test]");
+  if (t) { try { const r = await api("api/meldingen/test", { method: "POST", body: JSON.stringify({ naam: C.ontvangers[Number(t.dataset.test)].naam }) }); melding(r.ok ? "Testmelding verstuurd" : "Lukte niet: " + JSON.stringify(r.resultaat)); } catch (e) { melding(e.message); } return; }
+  const g = ev.target.closest("[data-gezien]"); if (g) { ev.preventDefault(); await api("api/meldingen/gezien", { method: "POST", body: JSON.stringify({ id: g.dataset.gezien }) }); laad(); }
+});
+laad().catch((e) => { $("log").innerHTML = `<p class="hint">${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

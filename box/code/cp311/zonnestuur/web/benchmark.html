@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Strategieën vergelijken</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  h2 { font: 680 19px/1.25 "Inter Tight", Inter, sans-serif; margin: 0 0 10px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 62ch; }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin-bottom: 14px; }
+  .standen { display: grid; gap: 8px; }
+  .standen label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border-radius: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); cursor: pointer; font-size: 14.5px; }
+  .standen label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
+  .drie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .blok { padding: 12px 14px; border-radius: 16px; background: var(--zs-zacht); }
+  .blok.hier { box-shadow: inset 0 0 0 1.5px var(--zs-groen, #34d399); }
+  .blok b { display: block; font: 720 24px/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; }
+  .blok span { display: block; font-size: 13px; color: var(--zs-ink2); }
+  .graf { width: 100%; height: auto; display: block; }
+  .graf text { fill: var(--zs-ink2); font: 11px Inter, sans-serif; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--zs-ink2); margin-top: 8px; }
+  .legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .rij { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--zs-lijn); }
+  .rij:first-of-type { border-top: 0; }
+  .rij small { color: var(--zs-ink2); grid-column: 1 / -1; }
+  .hint { font-size: 13px; color: var(--zs-ink2); margin: 8px 0 0; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  @media (max-width: 560px) { .drie { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <h1>Strategieën vergelijken</h1>
+  <p class="intro">Wat had het gekost als je huis op een andere manier gestuurd was? Zonnestuur rekent het uit met jouw eigen meterstanden, zon en prijzen van de afgelopen dagen. Iedere keer dezelfde uitkomst bij dezelfde gegevens.</p>
+  <section class="kaart"><div class="standen" id="periode" style="grid-template-columns:repeat(3,minmax(0,1fr))"></div></section>
+  <div id="inhoud"><p class="intro">Rekenen…</p></div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p) {
+  const r = await fetch(p, { headers: { "X-Token": token } });
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+const eur = (x) => "€ " + Number(x || 0).toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const nl = (x, d = 0) => x == null ? "–" : Number(x).toLocaleString("nl-NL", { maximumFractionDigits: d });
+let N = 14;
+const VOLG = ["werkelijk", "zonder", "schuiven", "batterij", "apart", "gezamenlijk"];
+async function laad() {
+  $("periode").innerHTML = [7, 14, 30].map((n) => `<label><input type="radio" name="p" value="${n}" ${n === N ? "checked" : ""}><span>${n} dagen</span></label>`).join("");
+  let r;
+  try { r = await api("api/benchmark?dagen=" + N); } catch (e) { $("inhoud").innerHTML = `<p class="intro">${esc(e.message)}</p>`; return; }
+  if (!r.dagen) { $("inhoud").innerHTML = `<section class="kaart"><p>Er zijn nog geen volledige dagen gemeten. Kom over een paar dagen terug.</p></section>`; return; }
+  const T = r.totaal, ks = VOLG.filter((k) => T[k] && (k !== "batterij" || r.batterij));
+  const mx = Math.max(...ks.map((k) => T[k].kosten_eur), 0.01);
+  let h = `<section class="kaart"><h2>Kosten over ${r.dagen} ${r.dagen === 1 ? "dag" : "dagen"}</h2>
+    ${ks.map((k) => `<div class="rij" style="grid-template-columns:minmax(0,1fr) auto"><b>${esc(r.namen[k])}${k === r.beste ? " · goedkoopst" : ""}</b><span>${eur(T[k].kosten_eur)}</span>
+      <small><span style="display:block;height:8px;border-radius:99px;background:${k === "werkelijk" ? "#94a3b8" : k === "gezamenlijk" ? "var(--zs-groen,#34d399)" : "color-mix(in srgb, var(--zs-ink2) 40%, transparent)"};width:${Math.max(2, 100 * T[k].kosten_eur / mx)}%"></span></small></div>`).join("")}
+    <p class="hint">${esc(r.uitleg)}</p></section>`;
+  h += `<section class="kaart"><h2>Meer dan geld</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px">
+    <thead><tr><th style="text-align:left;padding:6px 4px">Strategie</th><th style="text-align:right">Eigen zon</th><th style="text-align:right">Terug</th><th style="text-align:right">Piek</th>${r.batterij ? '<th style="text-align:right">Cycli</th>' : ""}</tr></thead><tbody>
+    ${ks.filter((k) => k !== "werkelijk").map((k) => `<tr style="border-top:1px solid var(--zs-lijn)"><td style="padding:8px 4px">${esc(r.namen[k])}</td><td style="text-align:right">${T[k].eigen_verbruik_pct != null ? T[k].eigen_verbruik_pct + "%" : "–"}</td><td style="text-align:right">${nl(T[k].terug_kwh)} kWh</td><td style="text-align:right">${nl(T[k].piek_kw, 1)} kW</td>${r.batterij ? `<td style="text-align:right">${nl(T[k].cycli, 1)}</td>` : ""}</tr>`).join("")}
+    </tbody></table></div><p class="hint">Eigen zon: deel van de opwek dat je zelf gebruikte. Piek: hoogste uur van het net. Cycli: hoe vaak de batterij in deze periode helemaal leeg ging (minder = langer mee).</p></section>`;
+  h += `<section class="kaart"><h2>Per dag</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13.5px">
+    <thead><tr><th style="text-align:left;padding:6px 4px">Dag</th>${ks.map((k) => `<th style="text-align:right;padding:6px 4px">${esc(r.namen[k].split(" ")[0])}</th>`).join("")}</tr></thead><tbody>
+    ${r.per_dag.map((d) => `<tr style="border-top:1px solid var(--zs-lijn)"><td style="padding:6px 4px">${new Date(d.dag + "T12:00").toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" })}</td>${ks.map((k) => `<td style="text-align:right;padding:6px 4px">${eur(d[k])}</td>`).join("")}</tr>`).join("")}
+    </tbody></table></div></section>`;
+  $("inhoud").innerHTML = h;
+}
+document.addEventListener("change", (ev) => { if (ev.target.name === "p") { N = Number(ev.target.value); laad(); } });
+laad();
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-/* Zonnestuur: één vaste balk met vijf tabbladen op elke pagina (Home, Apparaten, Tarieven, Inzichten, Meer).
+/* Zonnestuur: één vaste balk met vijf tabbladen op elke pagina (Home, Apparaten, Planning, Inzichten, Meer).
    Op de telefoon onderin over de hele breedte, op een groot scherm in de kopregel naast het logo.
    Werkt ook binnen de app van de koppelmotor (ingesloten venster); niet in een voorbeeld binnen een eigen pagina. */
 (function () {
@@ -9,8 +9,8 @@
   var zoek = location.search;
   var tab = (pad === "" || pad === "index.html") ? "home"
     : (pad === "apparaten" || pad === "koppelen" || pad === "apparaat" || pad === "verwarming" || pad === "warmtepomp" || (pad === "instellingen" && /[?&](apparaat|onderdeel)=/.test(zoek) && !/[?&]van=inst/.test(zoek))) ? "apparaten"
-    : /^(tarieven|sturing)$/.test(pad) ? "tarieven"
-    : /^(inzicht|opbrengst|rapport|vergelijk|laadtijdlijn|brein)$/.test(pad) ? "inzicht" : "meer";
+    : /^(planning|tarieven|sturing)$/.test(pad) ? "tarieven"
+    : /^(inzicht|opbrengst|rapport|vergelijk|laadtijdlijn|brein|benchmark)$/.test(pad) ? "inzicht" : "meer";
   var ICON = {
     home: '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
     apparaten: '<rect x="5" y="3.5" width="14" height="17" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/>',
@@ -18,7 +18,7 @@
     inzicht: '<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>',
     meer: '<circle cx="5.5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18.5" cy="12" r="1.5"/>'
   };
-  var TABS = [["home", "./", "Home"], ["apparaten", "apparaten", "Apparaten"], ["tarieven", "tarieven", "Tarieven"], ["inzicht", "inzicht", "Inzichten"], ["meer", "meer", "Meer"]];
+  var TABS = [["home", "./", "Home"], ["apparaten", "apparaten", "Apparaten"], ["tarieven", "planning", "Planning"], ["inzicht", "inzicht", "Inzichten"], ["meer", "meer", "Meer"]];
   var css = document.createElement("style");
   css.textContent = [
     ".zs-tabs{position:fixed!important;margin:0!important;overflow:visible!important;flex-wrap:nowrap!important;left:0;right:0;bottom:0;z-index:50;display:flex;",
@@ -64,7 +64,7 @@
     var terug = document.querySelectorAll(".top > a[href='./'], header > a[href='./']");
     for (var i = 0; i < terug.length; i++) {
       if (/^\s*←/.test(terug[i].textContent)) {
-        var naar = tab === "inzicht" ? ["inzicht", "Inzichten"] : tab === "apparaten" ? ["apparaten", "Apparaten"] : tab === "tarieven" ? ["tarieven", "Tarieven"] : ["meer", "Meer"];
+        var naar = tab === "inzicht" ? ["inzicht", "Inzichten"] : tab === "apparaten" ? ["apparaten", "Apparaten"] : tab === "tarieven" ? ["planning", "Planning"] : ["meer", "Meer"];
         terug[i].href = naar[0]; terug[i].textContent = "← " + naar[1];
       }
     }

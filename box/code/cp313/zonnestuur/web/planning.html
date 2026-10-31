@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur planning</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  h2 { font: 680 19px/1.25 "Inter Tight", Inter, sans-serif; margin: 0 0 10px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 62ch; }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin-bottom: 14px; }
+  .standen { display: grid; gap: 8px; }
+  .standen label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border-radius: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); cursor: pointer; font-size: 14.5px; }
+  .standen label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
+  .drie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .blok { padding: 12px 14px; border-radius: 16px; background: var(--zs-zacht); }
+  .blok.hier { box-shadow: inset 0 0 0 1.5px var(--zs-groen, #34d399); }
+  .blok b { display: block; font: 720 24px/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; }
+  .blok span { display: block; font-size: 13px; color: var(--zs-ink2); }
+  .graf { width: 100%; height: auto; display: block; }
+  .graf text { fill: var(--zs-ink2); font: 11px Inter, sans-serif; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--zs-ink2); margin-top: 8px; }
+  .legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .rij { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--zs-lijn); }
+  .rij:first-of-type { border-top: 0; }
+  .rij small { color: var(--zs-ink2); grid-column: 1 / -1; }
+  .hint { font-size: 13px; color: var(--zs-ink2); margin: 8px 0 0; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  @media (max-width: 560px) { .drie { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <h1>Planning</h1>
+  <p class="intro">Eén plan voor de komende uren: batterij, auto, boiler, warmtepomp en je zonnepanelen samen, zodat ze elkaar niet in de weg zitten. Elk kwartier rekent Zonnestuur het opnieuw uit met de nieuwste prijzen en het weer. <a href="tarieven">Stroomprijzen bekijken</a></p>
+  <section class="kaart"><h2>Energie Autopilot</h2><div class="standen" id="standen"></div>
+    <p class="hint">Zelf alles uitzetten of alleen advies? Dat kies je bij <a href="sturing">Slimme sturing</a>.</p></section>
+  <div id="inhoud"><p class="intro">Laden…</p></div>
+</main>
+<p class="melding" id="melding" role="status" hidden></p>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p, o = {}) {
+  o.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, o.headers || {});
+  const r = await fetch(p, o);
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+let mt = null;
+function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 2600); }
+const eur = (x) => "€ " + Number(x || 0).toLocaleString("nl-NL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const kwh = (x) => Number(x || 0).toLocaleString("nl-NL", { maximumFractionDigits: 1 }) + " kWh";
+const uur = (iso) => new Date(iso).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+const dagUur = (iso) => new Date(iso).toLocaleString("nl-NL", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+const KLEUR = ["#fb923c", "#a78bfa", "#60a5fa", "#2dd4bf", "#f472b6"];
+let D = null;
+async function laad(nu) {
+  try { D = await api("api/planning" + (nu ? "?nu=1" : "")); } catch (e) { $("inhoud").innerHTML = `<p class="intro">${esc(e.message)}</p>`; return; }
+  $("standen").innerHTML = Object.entries(D.standen || {}).map(([k, v]) => `<label><input type="radio" name="ap" value="${k}" ${D.autopilot === k ? "checked" : ""}><span>${esc(v)}</span></label>`).join("");
+  const p = D.plan;
+  if (!p) { $("inhoud").innerHTML = `<section class="kaart"><p>${esc(D.fout || "Nog geen plan.")}</p></section>`; return; }
+  const S = p.gezamenlijk, A = p.apart, Z = p.zonder;
+  let h = `<section class="kaart"><h2>Wat dit plan kost</h2><div class="drie">
+    <div class="blok hier"><b>${eur(S.kosten_eur)}</b><span>Gezamenlijk plan (dit doet Zonnestuur)</span><span>${S.eigen_verbruik_pct != null ? S.eigen_verbruik_pct + "% eigen zon gebruikt · " : ""}piek ${String(S.piek_kw).replace(".", ",")} kW</span></div>
+    <div class="blok"><b>${eur(A.kosten_eur)}</b><span>Elk apparaat apart gepland</span><span>${A.eigen_verbruik_pct != null ? A.eigen_verbruik_pct + "% eigen zon · " : ""}piek ${String(A.piek_kw).replace(".", ",")} kW</span></div>
+    <div class="blok"><b>${eur(Z.kosten_eur)}</b><span>Zonder sturing</span><span>${Z.eigen_verbruik_pct != null ? Z.eigen_verbruik_pct + "% eigen zon · " : ""}piek ${String(Z.piek_kw).replace(".", ",")} kW</span></div></div>
+    <p class="hint">Voor de komende ${p.uren.length} uur, met de verwachte prijzen, zon en verbruik (een voorspelling, geen meting). Wat het echt opleverde zie je bij <a href="inzicht">Inzichten</a> en <a href="benchmark">Strategieën vergelijken</a>.</p></section>`;
+  const ids = Object.keys(p.namen || {});
+  h += `<section class="kaart"><h2>Per uur</h2>${grafiek(p, ids)}<div class="legenda"><span style="--c:#94a3b8">Huis</span>${ids.map((k, i) => `<span style="--c:${KLEUR[i % KLEUR.length]}">${esc(p.namen[k])}</span>`).join("")}<span style="--c:#34d399">Batterij laden</span><span style="--c:#fbbf24">Zon</span></div></section>`;
+  h += `<section class="kaart"><h2>Apparaten</h2>${(p.apparaten || []).map((a) => { const u = (p.uren_per_apparaat || {})[a.id] || [];
+      return `<div class="rij"><b>${esc(a.naam)}</b><span>${kwh(a.kwh)}</span><small>${u.length ? "Gepland: " + u.map(uur).join(", ") : "Geen uren nodig"} · klaar vóór ${a.klaar ? dagUur(a.klaar) : "–"}${(S.tekort || {})[a.id] ? ` · past niet helemaal: ${kwh(S.tekort[a.id])} tekort` : ""}</small></div>`; }).join("") || `<p class="hint">Er hoeft nu geen apparaat iets.</p>`}
+    ${p.batterij ? `<div class="rij"><b>Thuisbatterij</b><span>${kwh(p.batterij.soc_kwh)} van ${kwh(p.batterij.cap_kwh)}</span><small>Levert ${kwh(S.batterij_uit_kwh)} in deze periode.</small></div>` : ""}
+    <p class="hint">Berekend ${dagUur(p.t)} in ${String(p.rekentijd_s).replace(".", ",")} s. <button class="btn ghost small" type="button" id="opnieuw">Nu opnieuw rekenen</button></p></section>`;
+  $("inhoud").innerHTML = h;
+  $("opnieuw").onclick = () => laad(true);
+}
+function grafiek(p, ids) {
+  const U = p.uren, W = Math.max(320, Math.min(640, (document.querySelector("main").clientWidth || 640) - 70)), H = 220, L = 30, B = 24, T = 8, n = U.length, bw = (W - L - 6) / n;
+  const tot = U.map((u) => u.huis_kwh + Object.values(u.apparaten || {}).reduce((a, b) => a + b, 0) + Math.max(0, u.batterij_kwh));
+  const mx = Math.max(1, ...tot, ...U.map((u) => u.zon_kwh)) * 1.1, y = (v) => T + (H - T - B) * (1 - v / mx);
+  let s = `<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="Plan per uur">`;
+  for (let v = 0; v <= mx; v += Math.max(1, Math.round(mx / 4))) s += `<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--zs-lijn)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  U.forEach((u, i) => {
+    let b = 0; const x = L + i * bw + bw * 0.12, w = bw * 0.76;
+    const laag = (v, c) => { if (v <= 0.005) return; s += `<rect x="${x}" y="${y(b + v)}" width="${w}" height="${y(b) - y(b + v)}" fill="${c}" rx="1.5"><title>${uur(u.uur)}: ${kwh(v)}</title></rect>`; b += v; };
+    laag(u.huis_kwh, "#94a3b8");
+    ids.forEach((k, j) => laag((u.apparaten || {})[k] || 0, KLEUR[j % KLEUR.length]));
+    laag(Math.max(0, u.batterij_kwh), "#34d399");
+  });
+  s += `<path d="${U.map((u, i) => (i ? "L" : "M") + (L + i * bw + bw / 2).toFixed(1) + " " + y(u.zon_kwh).toFixed(1)).join("")}" fill="none" stroke="#fbbf24" stroke-width="2.2"/>`;
+  U.forEach((u, i) => { if (i % (W < 480 ? 6 : 4) === 0) s += `<text x="${L + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${uur(u.uur).slice(0, 2)}u</text>`; });
+  return s + "</svg>";
+}
+document.addEventListener("change", async (ev) => {
+  if (ev.target.name !== "ap") return;
+  try { const r = await api("api/autopilot", { method: "POST", body: JSON.stringify({ stand: ev.target.value }) }); melding(r.tekst || "Bewaard"); await laad(true); }
+  catch (e) { melding(e.message); }
+});
+laad();
+setInterval(() => { if (!document.hidden) laad(); }, 300000);
+</script>
+</body>
+</html>

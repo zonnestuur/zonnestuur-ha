@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur schermen</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  h2 { font: 680 19px/1.25 "Inter Tight", Inter, sans-serif; margin: 0 0 10px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 62ch; }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin-bottom: 14px; }
+  .standen { display: grid; gap: 8px; }
+  .standen label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border-radius: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); cursor: pointer; font-size: 14.5px; }
+  .standen label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
+  .drie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .blok { padding: 12px 14px; border-radius: 16px; background: var(--zs-zacht); }
+  .blok.hier { box-shadow: inset 0 0 0 1.5px var(--zs-groen, #34d399); }
+  .blok b { display: block; font: 720 24px/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; }
+  .blok span { display: block; font-size: 13px; color: var(--zs-ink2); }
+  .graf { width: 100%; height: auto; display: block; }
+  .graf text { fill: var(--zs-ink2); font: 11px Inter, sans-serif; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--zs-ink2); margin-top: 8px; }
+  .legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .rij { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--zs-lijn); }
+  .rij:first-of-type { border-top: 0; }
+  .rij small { color: var(--zs-ink2); grid-column: 1 / -1; }
+  .hint { font-size: 13px; color: var(--zs-ink2); margin: 8px 0 0; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  @media (max-width: 560px) { .drie { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <a class="terug" href="meer" style="color:var(--zs-ink2);text-decoration:none;font-weight:600">← Meer</a>
+  <h1>Schermen</h1>
+  <p class="intro">Zet Zonnestuur op een tablet aan de muur, een oude telefoon, een iPad, een smart-tv met browser of een Raspberry Pi-touchscreen. Elk scherm krijgt een eigen link en een eigen indeling.</p>
+  <div id="lijst"><p class="intro">Laden…</p></div>
+  <section class="kaart" id="form"></section>
+  <section class="kaart"><h2>Google Nest Hub en Chromecast</h2>
+    <p class="hint" style="font-size:14.5px;color:var(--zs-ink)">Een Nest Hub kan geen gewone webpagina openen. Zonnestuur zet daar het <a href="huisscherm">Huisscherm</a> op via de koppelmotor (Cast). Valt hij na ± 10 minuten terug naar de fotolijst, dan zet Zonnestuur hem vanzelf weer terug. Bedienen met aanraken werkt daar beperkt; wil je kunnen bedienen, gebruik dan een tablet met een link hieronder.</p></section>
+</main>
+<p class="melding" id="melding" role="status" hidden></p>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p, o = {}) {
+  o.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, o.headers || {});
+  const r = await fetch(p, o);
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+let mt = null;
+function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 2600); }
+let D = null, BEWERK = null;
+const ACT = { pauze: "Automatisch sturen pauzeren", apparaat: "Apparaten aan- en uitzetten", aanbeveling: "Aanbevelingen uitvoeren" };
+const WNAAM = { huis: "Huis", zon: "Zon", verbruik: "Verbruik", net: "Net", batterij: "Batterij", auto: "Auto", warmtepomp: "Warmtepomp en COP", ruimtes: "Ruimtes", prijs: "Stroomprijs", planning: "Planning", aanbevelingen: "Aanbevelingen", autopilot: "Autopilot", kwaliteit: "Meetkwaliteit" };
+function link(s) { const u = new URL("scherm", location.href); u.searchParams.set("id", s.id); u.searchParams.set("k", s.sleutel); return u.href; }
+async function laad() {
+  D = await api("api/schermen");
+  $("lijst").innerHTML = (D.schermen || []).length ? D.schermen.map((s) => `<section class="kaart"><h2>${esc(s.naam)}</h2>
+    <p class="hint" style="margin-top:0">${esc(D.layouts[s.layout] || s.layout)} · elke ${s.verversen_s} s · ${s.orientatie === "auto" ? "draait mee" : s.orientatie}${s.privacy ? " · zonder bedragen" : ""}${s.touch ? " · bedienen aan" : ""}${s.dimmen.aan ? ` · 's nachts gedimd (${s.dimmen.van}–${s.dimmen.tot})` : ""}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn small" style="background:var(--zs-knop);color:#fff;text-decoration:none" href="${esc(link(s))}" target="_blank" rel="noopener">Openen</a>
+    <button class="btn ghost small" type="button" data-qr="${esc(s.id)}">Link en QR-code</button><button class="btn ghost small" type="button" data-bewerk="${esc(s.id)}">Aanpassen</button><button class="btn ghost small" type="button" data-weg="${esc(s.id)}">Verwijderen</button></div>
+    <div data-qrbox="${esc(s.id)}" hidden style="margin-top:12px"></div></section>`).join("")
+    : `<section class="kaart"><p>Nog geen scherm. Voeg er hieronder een toe.</p></section>`;
+  form(BEWERK);
+}
+function form(s) {
+  s = s || { naam: "", layout: "standaard", verversen_s: 10, orientatie: "auto", thema: "auto", dimmen: { aan: false, van: "23:00", tot: "07:00", helderheid: 25 }, privacy: false, touch: false, acties: [], widgets: [] };
+  const opt = (v, t, cur) => `<option value="${v}" ${v === cur ? "selected" : ""}>${esc(t)}</option>`;
+  $("form").innerHTML = `<h2>${s.id ? "Scherm aanpassen" : "Scherm toevoegen"}</h2>
+    <div class="standen" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <label style="display:grid;grid-template-columns:1fr">Naam<input id="f_naam" value="${esc(s.naam)}" placeholder="bijv. Keuken" style="font:inherit;padding:8px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1.5px var(--zs-lijn);background:var(--zs-vlak);color:inherit"></label>
+      <label style="display:grid;grid-template-columns:1fr">Indeling<select id="f_layout">${Object.entries(D.layouts).map(([k, v]) => opt(k, v, s.layout)).join("")}</select></label>
+      <label style="display:grid;grid-template-columns:1fr">Verversen<select id="f_ververs">${[[5, "elke 5 s"], [10, "elke 10 s"], [30, "elke 30 s"], [60, "elke minuut"], [300, "elke 5 minuten"]].map(([v, t]) => opt(String(v), t, String(s.verversen_s))).join("")}</select></label>
+      <label style="display:grid;grid-template-columns:1fr">Stand<select id="f_or">${opt("auto", "Draait mee", s.orientatie)}${opt("liggend", "Liggend", s.orientatie)}${opt("staand", "Staand", s.orientatie)}</select></label>
+      <label style="display:grid;grid-template-columns:1fr">Thema<select id="f_thema">${opt("auto", "Zoals het apparaat", s.thema)}${opt("donker", "Donker", s.thema)}${opt("licht", "Licht", s.thema)}</select></label>
+      <label style="display:grid;grid-template-columns:1fr">'s Nachts dimmen<select id="f_dim">${opt("0", "Nee", s.dimmen.aan ? "1" : "0")}${opt("1", "Ja, 23:00–07:00", s.dimmen.aan ? "1" : "0")}</select></label>
+    </div>
+    <p class="hint">Tegels (leeg = wat bij de indeling hoort):</p>
+    <div class="standen" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${D.widgets.map((w) => `<label><input type="checkbox" data-w="${w}" ${(s.widgets || []).includes(w) ? "checked" : ""}><span>${esc(WNAAM[w] || w)}</span></label>`).join("")}</div>
+    <div class="standen" style="margin-top:10px"><label><input type="checkbox" id="f_priv" ${s.privacy ? "checked" : ""}><span>Geen bedragen tonen (handig in een gang of bij gasten)</span></label>
+      <label><input type="checkbox" id="f_touch" ${s.touch ? "checked" : ""}><span>Mag bedienen</span></label>
+      ${Object.entries(ACT).map(([k, t]) => `<label style="margin-left:24px"><input type="checkbox" data-act="${k}" ${(s.acties || []).includes(k) ? "checked" : ""}><span>${esc(t)}</span></label>`).join("")}</div>
+    <div style="display:flex;gap:8px;margin-top:14px"><button class="btn" type="button" id="bewaar" style="background:var(--zs-knop);color:#fff">${s.id ? "Opslaan" : "Scherm toevoegen"}</button>${s.id ? '<button class="btn ghost" type="button" id="annuleer">Annuleren</button>' : ""}</div>`;
+  $("bewaar").onclick = async () => {
+    const body = { id: s.id, naam: $("f_naam").value.trim(), layout: $("f_layout").value, verversen_s: Number($("f_ververs").value), orientatie: $("f_or").value,
+      thema: $("f_thema").value, dimmen: { aan: $("f_dim").value === "1", van: "23:00", tot: "07:00", helderheid: 25 }, privacy: $("f_priv").checked,
+      touch: $("f_touch").checked, acties: [...document.querySelectorAll("[data-act]:checked")].map((x) => x.dataset.act), widgets: [...document.querySelectorAll("[data-w]:checked")].map((x) => x.dataset.w) };
+    try { await api("api/schermen", { method: "POST", body: JSON.stringify(body) }); melding("Bewaard"); BEWERK = null; laad(); } catch (e) { melding(e.message); }
+  };
+  if ($("annuleer")) $("annuleer").onclick = () => { BEWERK = null; form(null); };
+}
+document.addEventListener("click", async (ev) => {
+  const b = ev.target.closest("[data-bewerk]"); if (b) { BEWERK = D.schermen.find((x) => x.id === b.dataset.bewerk); form(BEWERK); $("form").scrollIntoView({ behavior: "smooth" }); return; }
+  const w = ev.target.closest("[data-weg]"); if (w) { if (!confirm("Dit scherm verwijderen? De link werkt daarna niet meer.")) return; try { await api(`api/schermen/${w.dataset.weg}/weg`, { method: "POST", body: "{}" }); laad(); } catch (e) { melding(e.message); } return; }
+  const qr = ev.target.closest("[data-qr]");
+  if (qr) {
+    const s = D.schermen.find((x) => x.id === qr.dataset.qr), box = document.querySelector(`[data-qrbox="${s.id}"]`);
+    box.hidden = !box.hidden;
+    if (box.hidden) return;
+    try {
+      if (!window.qrcode) await new Promise((ok, fout) => { const sc = document.createElement("script"); sc.src = "qrcode.js"; sc.onload = ok; sc.onerror = fout; document.head.appendChild(sc); });
+      const c = window.qrcode(0, "M"); c.addData(link(s)); c.make();
+      box.innerHTML = `<div style="background:#fff;padding:10px;border-radius:12px;width:max-content">${c.createSvgTag(4, 0)}</div><p class="hint" style="overflow-wrap:anywhere">${esc(link(s))}</p><p class="hint">Scan met de tablet, of open de link in de browser van het scherm. Zet de browser op volledig scherm.</p>`;
+    } catch (e) { box.innerHTML = `<p class="hint" style="overflow-wrap:anywhere">${esc(link(s))}</p>`; }
+  }
+});
+laad().catch((e) => { $("lijst").innerHTML = `<p class="intro">${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>

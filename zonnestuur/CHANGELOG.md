@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.88.0
+- Eén planner voor alles: batterij, auto, boiler, warmtepomp en je zonnepanelen worden samen gepland, binnen je hoofdzekering. Nieuw tabblad Planning laat het plan per uur zien, en wat het kost tegenover apart plannen en zonder sturing.
+- Energie Autopilot: laagste kosten, maximale besparing, maximaal eigen verbruik, batterij sparen of comfort eerst.
+- Strategieën vergelijken (Meer): wat het met jouw eigen meterstanden en prijzen had gekost, per strategie en per dag.
+- Zonnestuur zet elke dag zijn voorspelling naast wat er echt gebeurde en past zijn verwachting vanzelf aan (te zien bij Wat Zonnestuur weet).
+- Schermen (Meer): Zonnestuur op een tablet, tv of Pi-scherm aan de muur, met eigen link, indeling, nachtdimmen, privacy en (als je wilt) bediening.
+- Meldingen (Meer): per onderwerp aan/uit en vanaf welk niveau, stille uren, huisgenoten met een eigen kanaal, geschiedenis met 'gezien'. Meerdere meldingen tegelijk komen samen in één bericht.
+
 ## 0.87.1
 - Ook geleerde laadsnelheden van auto's die Zonnestuur zelf laadde worden nagekeken: meer dan het model kan (Mii hoogstens 7,2 kW) wordt weggehaald.
 
