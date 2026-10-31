@@ -39,6 +39,8 @@
   .keuze label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
   .keuze b { font-weight: 650; } .keuze span span { display: block; font-size: 13px; color: var(--zs-ink2); }
   @media (max-width: 520px) { .keuze { padding-left: 16px; } }
+  .keuze.los { padding: 14px 16px 6px; }
+  .keuze label.stop:has(input:checked) { box-shadow: 0 0 0 1.5px #f87171; background: color-mix(in srgb, #f87171 12%, transparent); }
   .uitleg { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; margin: 22px 0 0; padding: 16px; border-radius: 18px;
     background: color-mix(in srgb, var(--zs-knop) 14%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--zs-knop) 30%, transparent); font-size: 14.5px; }
   .uitleg svg { width: 24px; height: 24px; color: #93c5fd; }
@@ -95,6 +97,16 @@ function schakel(id, k, kleur, titel, uitleg, aan) {
 function teken() {
   const C = CFG, B = (C.batteries || [])[0], N = C.notify || {};
   let h = "";
+  const A = C.autonomie || "automatisch";
+  h += `<h2>Hoeveel mag Zonnestuur zelf doen?</h2><div class="lijst">
+    <div class="keuze los" role="radiogroup" aria-label="Hoeveel mag Zonnestuur zelf doen">
+      ${[["automatisch", "Alles automatisch (aanbevolen)", "Zonnestuur schakelt zelf, binnen de grenzen die jij instelt"],
+         ["advies", "Alleen advies", "Zonnestuur rekent alles uit en laat zien wat hij zou doen, maar schakelt niets"],
+         ["stop", "Noodstop", "Zonnestuur stuurt niets meer. Alles gaat meteen terug naar het apparaat zelf: boiler en warmtepomp aan, thermostaten normaal, batterij en omvormer los"]]
+        .map(([v, t, u]) => `<label${v === "stop" ? ' class="stop"' : ""}><input type="radio" name="autonomie" value="${v}" ${A === v ? "checked" : ""}><span><b>${t}</b><span>${u}</span></span></label>`).join("")}
+    </div>
+    <p class="s" style="margin:6px 4px 0;font-size:13px;color:var(--zs-ink2)">Zelf aan- of uitzetten bij een apparaat kan altijd, ook in alleen advies en bij de noodstop.</p>
+  </div>`;
   if (B) {
     h += `<h2>Thuisbatterij</h2><div class="lijst">
       <div class="rij" style="--k:#34d399;cursor:default"><span class="ic">${svg("bat")}</span><span><b>Wat wil je met de batterij?</b><span class="s">Zonnestuur rekent elk kwartier uit wat het meeste oplevert.</span></span><span></span></div>
@@ -142,6 +154,11 @@ function teken() {
     catch (e) { melding(e.message); }
   };
   $("inhoud").querySelectorAll('input[name="doel"]').forEach((i) => i.onchange = () => bewaar("bat.goal", i.value, i));
+  $("inhoud").querySelectorAll('input[name="autonomie"]').forEach((i) => i.onchange = async () => {
+    if (i.value === "stop" && !confirm("Noodstop: Zonnestuur stuurt dan niets meer en geeft alles terug aan de apparaten zelf. Doorgaan?")) { teken(); return; }
+    try { const r = await api("api/autonomie", { method: "POST", body: JSON.stringify({ stand: i.value }) }); CFG.autonomie = i.value; melding(r.tekst); teken(); }
+    catch (e) { melding(e.message); teken(); }
+  });
 }
 let mt = null;
 function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 2200); }

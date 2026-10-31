@@ -44,6 +44,7 @@
   .balk { height: 6px; border-radius: 99px; background: color-mix(in srgb, var(--zs-ink2) 25%, transparent); margin-top: 8px; overflow: hidden; }
   .balk span { display: block; height: 100%; background: var(--zs-groen, #34d399); }
   .stand { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .stand-kies { margin-top: 14px; }
   .stand button { flex: 1 1 0; min-width: 96px; }
   .btn { font: inherit; font-weight: 650; font-size: 15px; border: 0; cursor: pointer; padding: 12px 20px; border-radius: 999px; min-height: 46px; }
   .btn.small { font-size: 14px; padding: 9px 14px; min-height: 40px; }
@@ -140,15 +141,32 @@ function kaartHtml(r) {
       <div class="temp">${graad(nu.temp)}<small> °C</small></div></div>
     <p class="waarom">${waarom}</p>
     ${r.modus !== "uit" && r.slim_uitleg && (r.bron || (r.nu || {}).koelt || !(DATA.warmte || {}).bron) ? `<p class="hint">${esc(r.slim_uitleg)}</p>` : ""}
-    ${r.modus !== "uit" ? planHtml(r) : ""}
+    ${["auto", "comfort", "zuinig"].includes(r.modus) ? planHtml(r) : ""}
     ${geleerdHtml(r)}
-    <div class="stand" role="group" aria-label="Stand">
-      <button class="btn ghost small ${r.modus === "auto" ? "on" : ""}" data-stand="auto" data-id="${r.id}" type="button">Automatisch</button>
-      <button class="btn ghost small ${r.modus === "vast" ? "on" : ""}" data-stand="vast" data-id="${r.id}" type="button">Vast ${r.modus === "vast" ? graad(r.vast) + " °C" : ""}</button>
-      <button class="btn ghost small ${r.modus === "uit" ? "on" : ""}" data-stand="uit" data-id="${r.id}" type="button">Niet sturen</button>
-    </div>
+    ${pompHtml(r)}
+    <label class="v stand-kies">Stand<select data-stand-kies="${r.id}">${Object.entries(DATA.modi || {}).map(([k, v]) => `<option value="${k}" ${r.modus === k ? "selected" : ""}>${esc(v)}${k === "vast" && r.modus === "vast" ? " · " + graad(r.vast) + " °C" : ""}${k === "vakantie" && r.modus === "vakantie" && r.vakantie_tot ? " tot " + esc(r.vakantie_tot) : ""}</option>`).join("")}</select></label>
+    <p class="hint">${esc(MODUS_UITLEG[r.modus] || "")}</p>
     <details class="inst" ${OPEN === r.id ? "open" : ""}><summary>Instellingen</summary>${formHtml(r)}</details>
   </section>`;
+}
+const MODUS_UITLEG = {
+  auto: "Slim: op tijd warm, extra warmte als stroom goedkoop is of van de zon komt, iets minder als hij duur is.",
+  comfort: "Comfort: altijd de gewone temperatuur; alleen extra warmte bij goedkope stroom, nooit minder.",
+  zuinig: "Zuinig: één graad lager dan normaal, verder slim op de prijs.",
+  nacht: "Nachtstand: de hele dag de nachttemperatuur.",
+  vakantie: "Vakantie: alleen de ondergrens tot de dag dat je terug bent, daarna weer slim.",
+  vorst: "Alleen vorstbeveiliging: nooit kouder dan 8 °C.",
+  vast: "Vaste temperatuur: Zonnestuur houdt één temperatuur aan.",
+  uit: "Niet sturen: de thermostaat doet het zelf.",
+};
+function pompHtml(r) {
+  if (r.soort !== "sensor") return "";
+  const nu = r.nu || {}, u = r.pomp_uren || {}, v = u.vandaag || {}, gi = u.gisteren || {};
+  const deel = [];
+  if (r.minuten_tot_doel) deel.push(`over ± ${r.minuten_tot_doel < 90 ? r.minuten_tot_doel + " min" : graad(r.minuten_tot_doel / 60) + " uur"} op ${graad(nu.doel)} °C`);
+  deel.push(`pomp vandaag ${graad(v.uur || 0)} uur${v.kwh != null ? ` (${graad(v.kwh, 2)} kWh)` : ""}, gisteren ${graad(gi.uur || 0)} uur`);
+  if (nu.pomp_w != null) deel.push(`nu ${Math.round(nu.pomp_w)} W`);
+  return `<p class="hint" style="margin-top:8px">${deel.map(esc).join(" · ")}</p>${nu.let_op ? `<p class="fout">${esc(nu.let_op)}</p>` : ""}`;
 }
 function velden(r) {
   const f = (k, l, v, x = "") => `<label class="v">${l}<input id="${k}" ${x} value="${esc(v)}"></label>`;
@@ -163,6 +181,15 @@ function velden(r) {
     ${f("f_omlaag", "Duur: tot zoveel minder", r.omlaag, 'type="number" step="0.5" min="0" max="3" inputmode="decimal"')}
     <label class="v breed">Warmte in deze ruimte komt van<select id="f_bron"><option value="">Zoals de rest van het huis</option>${Object.entries(DATA.bronnen || {}).map(([k, v]) => `<option value="${k}" ${r.bron === k ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></label>
     ${f("f_koel", "Airco koelt tot (°C)", r.koel ?? 24, 'type="number" step="0.5" min="16" max="30" inputmode="decimal"')}
+  </div>
+  <div class="velden" data-alleen-sensor ${r.soort === "thermostaat" ? "hidden" : ""}>
+    <p class="hint breed" style="margin:6px 0 0"><b>Pomp of klep</b>: zo gaat Zonnestuur er veilig mee om.</p>
+    ${f("f_minaan", "Minstens zo lang aan (min)", r.min_aan ?? 10, 'type="number" step="1" min="0" max="120" inputmode="numeric"')}
+    ${f("f_minuit", "Minstens zo lang uit (min)", r.min_uit ?? 10, 'type="number" step="1" min="0" max="120" inputmode="numeric"')}
+    ${f("f_vorst", "Altijd aan als het buiten zo koud is (°C)", r.vorst_buiten ?? 2, 'type="number" step="0.5" min="-10" max="8" inputmode="decimal"')}
+    <label class="v">Pomp af en toe even laten draaien<select id="f_kick"><option value="1" ${r.pompkick !== false ? "selected" : ""}>Ja, na een dag stilstand 3 minuten</option><option value="0" ${r.pompkick === false ? "selected" : ""}>Nee</option></select></label>
+    <label class="v breed">Stroommeting van de pomp (niet verplicht)<select id="f_pompw"><option value="">Geen</option>${((KAND || {}).vermogens || []).map((x) => `<option value="${esc(x.entity)}" ${x.entity === r.pomp_vermogen ? "selected" : ""}>${esc(x.naam)}${x.w != null ? " · " + Math.round(x.w) + " W" : ""}</option>`).join("")}</select></label>
+    <p class="hint breed">Een slimme stekker moet de pomp aankunnen: kijk naar het maximale vermogen en de inschakelstroom van de stekker. Pompen van de warmtepomp zelf niet via een stekker schakelen.</p>
   </div><p class="hint">Heeft deze ruimte een airco en de rest van het huis een cv-ketel? Kies dan hier Airco.</p>`;
 }
 function bronHtml(r) {
@@ -255,11 +282,14 @@ function waarden(box, r) {
   const soort = (box.querySelector('input[name="f_soort"]:checked') || {}).value || "thermostaat";
   const uit = Object.assign({}, r, { soort, dag: num("f_dag"), nacht: num("f_nacht"), dag_van: g("f_dagvan").value, nacht_van: g("f_nachtvan").value,
     minimaal: num("f_min"), slim: g("f_slim").value === "1", omhoog: num("f_omhoog"), omlaag: num("f_omlaag"),
-    bron: g("f_bron") ? g("f_bron").value : (r.bron || ""), koel: g("f_koel") ? num("f_koel") : (r.koel ?? 24) });
+    bron: g("f_bron") ? g("f_bron").value : (r.bron || ""), koel: g("f_koel") ? num("f_koel") : (r.koel ?? 24),
+    min_aan: g("f_minaan") ? num("f_minaan") : (r.min_aan ?? 10), min_uit: g("f_minuit") ? num("f_minuit") : (r.min_uit ?? 10),
+    vorst_buiten: g("f_vorst") ? num("f_vorst") : (r.vorst_buiten ?? 2), pompkick: g("f_kick") ? g("f_kick").value === "1" : r.pompkick !== false,
+    pomp_vermogen: g("f_pompw") ? g("f_pompw").value : (r.pomp_vermogen || "") });
   if (g("f_naam")) uit.naam = g("f_naam").value.trim();
   if (soort === "thermostaat") { uit.climate = g("f_climate") ? g("f_climate").value : ""; uit.sensor = g("f_sensor_th") ? g("f_sensor_th").value : ""; uit.schakelaars = []; }
   else { uit.sensor = g("f_sensor") ? g("f_sensor").value : ""; uit.schakelaars = [...box.querySelectorAll('input[name="f_sch"]:checked')].map((x) => x.value); uit.climate = ""; }
-  ["nu", "fout", "geleerd", "plan", "comfort_nu", "warmtebron", "bron_geraden", "slim_uitleg"].forEach((k) => delete uit[k]);
+  ["nu", "fout", "geleerd", "plan", "comfort_nu", "warmtebron", "bron_geraden", "slim_uitleg", "pomp_uren", "minuten_tot_doel", "modus_nl"].forEach((k) => delete uit[k]);
   return uit;
 }
 function koppel(root) {
@@ -267,6 +297,7 @@ function koppel(root) {
     box.querySelectorAll('input[name="f_soort"]').forEach((i) => i.onchange = () => {
       box.querySelector("#f_th").hidden = i.value !== "thermostaat" || !i.checked;
       box.querySelector("#f_se").hidden = i.value !== "sensor" || !i.checked;
+      const ps = box.querySelector("[data-alleen-sensor]"); if (ps && i.checked) ps.hidden = i.value !== "sensor";
     });
   });
   root.querySelectorAll("[data-bewaar]").forEach((b) => b.onclick = async () => {
@@ -285,15 +316,21 @@ function koppel(root) {
     if (!confirm("Deze ruimte verwijderen? Zonnestuur zet de thermostaat terug op de gewone temperatuur.")) return;
     try { await post(`api/verwarming/ruimte/${b.dataset.weg}/weg`); melding("Verwijderd"); await laad(); } catch (e) { melding(e.message); }
   });
-  root.querySelectorAll("[data-stand]").forEach((b) => b.onclick = async () => {
-    const r = (DATA.ruimtes || []).find((x) => x.id === b.dataset.id), modus = b.dataset.stand, body = { modus };
+  root.querySelectorAll("[data-stand-kies]").forEach((sel) => sel.onchange = async () => {
+    const r = (DATA.ruimtes || []).find((x) => x.id === sel.dataset.standKies), modus = sel.value, body = { modus };
     if (modus === "vast") {
       const v = prompt("Welke temperatuur moet het blijven? (°C)", graad(r.vast || r.dag));
-      if (v == null) return;
+      if (v == null) { sel.value = r.modus; return; }
       body.temp = Number(String(v).replace(",", "."));
     }
+    if (modus === "vakantie") {
+      const morgen = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+      const v = prompt("Tot en met welke dag ben je weg? (jjjj-mm-dd)", r.vakantie_tot || morgen);
+      if (v == null) { sel.value = r.modus; return; }
+      body.tot = v.trim();
+    }
     try { await post(`api/verwarming/ruimte/${r.id}/stand`, body); melding(modus === "uit" ? "Zonnestuur stuurt deze ruimte niet meer" : "Bewaard"); await laad(); }
-    catch (e) { melding(e.message); }
+    catch (e) { sel.value = r.modus; melding(e.message); }
   });
   root.querySelectorAll("details.inst").forEach((d) => d.ontoggle = () => { if (d.open) OPEN = d.closest(".kaart").id.slice(2); else if (OPEN === d.closest(".kaart").id.slice(2)) OPEN = null; });
 }

@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.85.0
+- Nieuwe pagina Warmtepomp en COP: hoe zuinig je warmtepomp werkt, op elke manier die jouw huis toelaat (gegevens van de warmtepomp zelf, een warmtemeter, debiet met aanvoer en retour, het opwarmen van het buffervat, of een schatting). Bij elk getal staat of het gemeten, berekend of geschat is.
+- COP per dag, week, maand en jaar, bij verschillende buitentemperaturen, voor verwarmen en warm water apart, met en zonder pompen en bijverwarming.
+- Advies 'Zo wordt hij zuiniger': minder vaak starten, koeler water, minder bijverwarmen. Zonnestuur verandert daar zelf niets aan.
+- Vloerverwarming: standen per ruimte (slim, comfort, zuinig, nacht, vakantie, alleen vorstbeveiliging). Pompen gaan niet meer snel aan en uit, blijven aan bij vorst, draaien af en toe even tegen vastzitten, en je ziet hun draaiuren.
+- Kies hoeveel Zonnestuur zelf mag doen: alles automatisch, alleen advies, of de noodstop (alles terug naar de apparaten zelf). Bij Slimme sturing.
+
 ## 0.84.0
 - Zonnestuur leert van alle huizen samen: zolang jouw huis nog nieuw is, rekent hij met wat hij in vergelijkbare huizen leerde (hoe goed de zonvoorspelling klopt in jouw buurt, hoe snel een huis met dezelfde verwarming opwarmt). Alleen gemiddelden van minstens 3 huizen, nooit gegevens van één huis.
 - Bij "Wat Zonnestuur leerde" zie je hoeveel stroom je huis gebruikt vergeleken met vergelijkbare huizen.

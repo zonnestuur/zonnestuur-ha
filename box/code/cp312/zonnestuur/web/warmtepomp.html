@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Zonnestuur warmtepomp en COP</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 820px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  .terug { color: var(--zs-ink2); text-decoration: none; font-weight: 600; font-size: 14.5px; display: inline-block; padding: 4px 2px; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  h2 { font: 680 19px/1.25 "Inter Tight", Inter, sans-serif; margin: 0 0 10px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 62ch; }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin-bottom: 14px; }
+  .kiezer { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 14px; }
+  .btn { font: inherit; font-weight: 650; font-size: 15px; border: 0; cursor: pointer; padding: 12px 20px; border-radius: 999px; min-height: 46px; }
+  .btn.small { font-size: 14px; padding: 9px 14px; min-height: 40px; }
+  .kiezer .btn.on { background: var(--zs-knop) !important; color: #fff !important; }
+
+  /* het getal */
+  .held { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 22px; align-items: center; }
+  .groot { font: 760 clamp(64px, 16vw, 104px)/.9 "Inter Tight", Inter, sans-serif; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+  .groot small { font-size: .28em; letter-spacing: 0; font-weight: 650; color: var(--zs-ink2); margin-left: 4px; }
+  .held p { margin: 0; color: var(--zs-ink2); font-size: 14.5px; }
+  .held p b { color: var(--zs-ink); font-weight: 650; }
+  .soort { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 99px; font-size: 12.5px; font-weight: 650; }
+  .soort.gemeten { background: color-mix(in srgb, #34d399 18%, transparent); color: #6ee7b7; }
+  .soort.berekend { background: color-mix(in srgb, #60a5fa 18%, transparent); color: #93c5fd; }
+  .soort.geschat { background: color-mix(in srgb, var(--zs-ink2) 18%, transparent); color: var(--zs-ink2); }
+  [data-theme="light"] .soort.gemeten { color: #047857; } [data-theme="light"] .soort.berekend { color: #1d4ed8; }
+  .feiten { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; font-size: 14px; color: var(--zs-ink2); }
+  .feiten b { color: var(--zs-ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+
+  /* methodes naast elkaar */
+  .tabel { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .tabel th { font-size: 12.5px; color: var(--zs-ink2); font-weight: 600; text-align: right; padding: 0 0 8px 8px; white-space: nowrap; }
+  .tabel th:first-child { text-align: left; padding-left: 0; }
+  .tabel td { padding: 10px 0 10px 8px; text-align: right; border-top: 1px solid var(--zs-lijn); font-size: 15px; }
+  .tabel td:first-child { text-align: left; padding-left: 0; }
+  .tabel td.m { display: grid; gap: 3px; }
+  .tabel td.m > span:first-child { font-weight: 650; }
+  .tabel td.m > span:first-child::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; background: var(--c); vertical-align: 0; }
+  .tabel small { display: block; font-size: 12px; color: var(--zs-ink2); }
+  .rij-uitleg { font-size: 12.5px; color: var(--zs-ink2); }
+  .afw { margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, #fbbf24 14%, transparent); font-size: 14px; }
+
+  /* grafieken */
+  .graf { width: 100%; height: auto; display: block; overflow: visible; }
+  .graf text { fill: var(--zs-ink2); font: 11px Inter, sans-serif; }
+  .graf .as { stroke: var(--zs-lijn); }
+  .graf .bar { fill: color-mix(in srgb, var(--zs-ink2) 22%, transparent); }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--zs-ink2); margin-top: 8px; }
+  .legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .tabs { display: flex; gap: 4px; margin: 0 0 10px; }
+  .tabs button { font: inherit; font-size: 13.5px; font-weight: 650; border: 0; background: transparent; color: var(--zs-ink2); padding: 6px 12px; border-radius: 99px; cursor: pointer; min-height: 34px; }
+  .tabs button.on { background: var(--zs-zacht); color: var(--zs-ink); }
+
+  /* advies */
+  .advies { display: grid; gap: 10px; }
+  .advies article { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; padding: 14px; border-radius: 16px; background: var(--zs-zacht); }
+  .advies h3 { margin: 0; font-size: 16px; font-weight: 680; }
+  .advies p { margin: 0; font-size: 14.5px; grid-column: 1 / -1; }
+  .advies .doe { color: var(--zs-ink); }
+  .advies .eff { font: 720 22px/1 "Inter Tight", Inter, sans-serif; text-align: right; }
+  .advies .eff small { display: block; font-size: 11.5px; font-weight: 600; color: var(--zs-ink2); }
+  .advies a { color: inherit; font-weight: 650; font-size: 14px; }
+  ul.ontbreekt { margin: 0; padding-left: 18px; color: var(--zs-ink2); font-size: 14.5px; }
+  ul.ontbreekt li { margin: 4px 0; }
+  .bron { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 4px 12px; font-size: 14px; }
+  .bron dt { color: var(--zs-ink2); } .bron dd { margin: 0; overflow-wrap: anywhere; }
+  details.inst summary { cursor: pointer; font-weight: 650; padding: 6px 2px; min-height: 32px; }
+  .velden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+  .velden .breed { grid-column: 1 / -1; }
+  label.v { display: grid; gap: 4px; font-size: 13.5px; color: var(--zs-ink2); font-weight: 600; }
+  label.v select { font: inherit; color: var(--zs-ink); background: var(--zs-vlak); border: 0; box-shadow: inset 0 0 0 1.5px var(--zs-lijn); border-radius: 12px; padding: 10px 12px; min-height: 44px; width: 100%; }
+  .hint { font-size: 13px; color: var(--zs-ink2); margin: 6px 0 0; }
+  .knoppen { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .twee { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .blok { padding: 12px 14px; border-radius: 16px; background: var(--zs-zacht); }
+  .blok b { display: block; font: 720 26px/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; }
+  .blok span { font-size: 13px; color: var(--zs-ink2); }
+  .leeg { text-align: center; padding: 28px 18px; color: var(--zs-ink2); }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  @media (max-width: 560px) {
+    .held { grid-template-columns: 1fr; }
+    .tabel .k30, .tabel .k12 { display: none; }
+    .velden { grid-template-columns: 1fr; }
+    .blok b { font-size: 22px; }
+  }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <a class="terug" href="apparaten">← Apparaten</a>
+  <h1>Warmtepomp en COP</h1>
+  <p class="intro">De COP zegt hoeveel warmte je warmtepomp maakt per kWh stroom. Zonnestuur rekent hem op elke manier uit die jouw huis toelaat, en zegt er steeds bij of het getal gemeten, berekend of geschat is.</p>
+  <div class="kiezer" id="kiezer" hidden></div>
+  <div id="inhoud"><p class="leeg">Laden…</p></div>
+</main>
+<p class="melding" id="melding" role="status" hidden></p>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p, o = {}) {
+  o.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, o.headers || {});
+  const r = await fetch(p, o);
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+const post = (p, b) => api(p, { method: "POST", body: JSON.stringify(b || {}) });
+const getal = (x, d = 1) => x == null ? "–" : Number(x).toLocaleString("nl-NL", { minimumFractionDigits: d, maximumFractionDigits: d });
+let mt = null;
+function melding(t) { const m = $("melding"); m.textContent = t; m.hidden = false; clearTimeout(mt); mt = setTimeout(() => { m.hidden = true; }, 2600); }
+
+const KLEUR = { warmtemeter: "#34d399", warmtepomp: "#60a5fa", debiet: "#a78bfa", vat: "#fbbf24", model: "#94a3b8" };
+const SOORT_UITLEG = { gemeten: "gemeten", berekend: "berekend", geschat: "geschat" };
+const BETROUWBAAR = { hoog: "betrouwbaar", redelijk: "redelijk betrouwbaar", laag: "nog weinig gegevens", schatting: "schatting" };
+let DATA = null, KEUZE = null, REEKS = "dagen", KAND = null;
+try { KEUZE = new URLSearchParams(location.search).get("id"); } catch (e) {}
+
+async function laad() {
+  try {
+    DATA = await api("api/cop");
+  } catch (e) { $("inhoud").innerHTML = `<p class="leeg">${esc(e.message)}</p>`; return; }
+  const lijst = DATA.apparaten || [];
+  if (!lijst.length) {
+    $("inhoud").innerHTML = `<section class="kaart leeg"><p>Nog geen warmtepomp gekoppeld.</p><p><a class="btn ghost" href="apparaten">Warmtepomp toevoegen</a></p></section>`;
+    return;
+  }
+  if (!KEUZE || !lijst.some((x) => x.id === KEUZE)) KEUZE = lijst[0].id;
+  $("kiezer").hidden = lijst.length < 2;
+  $("kiezer").innerHTML = lijst.map((x) => `<button class="btn ghost small ${x.id === KEUZE ? "on" : ""}" data-kies="${esc(x.id)}" type="button">${esc(x.naam)}</button>`).join("");
+  teken(lijst.find((x) => x.id === KEUZE));
+}
+
+function badge(soort) { return `<span class="soort ${soort}">${SOORT_UITLEG[soort] || soort}</span>`; }
+
+function teken(w) {
+  const M = w.methodes || {};
+  const beste = w.beste;
+  const bp = beste && M[beste] ? M[beste].perioden : {};
+  const hoofd = bp["7 dagen"] || bp["30 dagen"] || bp["vandaag"] || bp["12 maanden"];
+  const nu = w.nu || {};
+  const nuCop = nu.cop ? (nu.cop[beste] ?? Object.values(nu.cop)[0]) : null;
+  let html = "";
+  // het getal
+  html += `<section class="kaart"><div class="held">
+    <div class="groot">${hoofd ? getal(hoofd.cop) : "–"}<small>COP</small></div>
+    <div>${hoofd ? `<p>${badge(M[beste].soort)} <b>${esc(M[beste].naam)}</b>, ${periodeNaam(bp, hoofd)}</p>
+      <p>${hoofd.warmte_kwh != null ? `${getal(hoofd.warmte_kwh, 0)} kWh warmte uit ${getal(hoofd.elek_kwh, 0)} kWh stroom` : ""}${hoofd.beurten ? ` · ${hoofd.beurten} beurten` : hoofd.uren ? ` · ${hoofd.uren} uur gemeten` : ""}</p>
+      <p>${esc(BETROUWBAAR[hoofd.betrouwbaar] || "")}${hoofd.cop_systeem != null ? ` · met pompen en bijverwarming (systeem-COP): <b>${getal(hoofd.cop_systeem)}</b>` : ""}</p>`
+      : `<p>Er zijn nog te weinig metingen. Zodra de warmtepomp een tijdje draait, staat hier zijn COP.</p>`}</div></div>
+    <div class="feiten">
+      ${nu.draait ? `<span>Nu: <b>draait</b>${nu.tapwater ? " (warm water)" : ""}${nuCop ? `, COP <b>${getal(nuCop)}</b>` : ""}</span>` : nu.t ? `<span>Nu: <b>staat stil</b></span>` : ""}
+      ${nu.elek_w != null ? `<span>Stroom <b>${getal(nu.elek_w / 1000, 2)} kW</b></span>` : ""}
+      ${nu.aanvoer != null ? `<span>Aanvoer <b>${getal(nu.aanvoer)} °C</b></span>` : ""}
+      ${nu.retour != null ? `<span>Retour <b>${getal(nu.retour)} °C</b></span>` : ""}
+      ${nu.buiten != null ? `<span>Buiten <b>${getal(nu.buiten)} °C</b></span>` : ""}
+      ${nu.debiet != null ? `<span>Debiet <b>${getal(nu.debiet)} l/min</b></span>` : ""}
+    </div></section>`;
+
+  // methodes naast elkaar
+  const vol = w.volgorde || [];
+  if (vol.length) {
+    html += `<section class="kaart"><h2>Alle meetmethodes naast elkaar</h2>
+      <table class="tabel"><thead><tr><th>Methode</th><th>Vandaag</th><th>7 dagen</th><th class="k30">30 dagen</th><th class="k12">12 mnd (SPF)</th></tr></thead><tbody>
+      ${vol.map((m) => { const p = M[m].perioden; const c = (x) => x ? `${getal(x.cop)}${x.cop_systeem != null ? `<small>systeem ${getal(x.cop_systeem)}</small>` : ""}` : "–";
+        return `<tr><td class="m" style="--c:${KLEUR[m]}"><span>${esc(M[m].naam)}</span><span>${badge(M[m].soort)}</span></td>
+          <td>${c(p.vandaag)}</td><td>${c(p["7 dagen"])}</td><td class="k30">${c(p["30 dagen"])}</td><td class="k12">${c(p["12 maanden"])}</td></tr>`; }).join("")}
+      </tbody></table>
+      <p class="hint">Unit-COP = warmte gedeeld door de stroom van de warmtepomp zelf. Systeem-COP telt ook de pompen en het elektrische element mee${w.hulp_bekend ? "" : " (daarvoor zijn aparte metingen nodig)"}. Een geschatte COP komt uit een formule met de buitentemperatuur, niet uit een meting.</p>
+      ${(w.afwijkingen || []).map((a) => `<div class="afw">${esc(a.tekst)}</div>`).join("")}
+    </section>`;
+  }
+
+  // grafiek
+  html += `<section class="kaart"><h2>Verloop</h2>
+    <div class="tabs" role="tablist">${[["uren", "24 uur"], ["dagen", "Dagen"], ["weken", "Weken"], ["maanden", "Maanden"]].map(([k, n]) => `<button type="button" data-reeks="${k}" class="${REEKS === k ? "on" : ""}">${n}</button>`).join("")}</div>
+    <div id="graf">${grafiek(w, REEKS)}</div>
+    <div class="legenda">${vol.filter((m) => m !== "vat" || REEKS === "dagen").map((m) => `<span style="--c:${KLEUR[m]}">${esc(M[m].naam)}</span>`).join("")}<span style="--c:color-mix(in srgb, var(--zs-ink2) 30%, transparent)">Stroom (kWh)</span></div>
+  </section>`;
+
+  // buitentemperatuur
+  if ((w.per_buiten || []).length) {
+    html += `<section class="kaart"><h2>COP bij verschillende buitentemperaturen</h2>${buitenGraf(w.per_buiten)}
+      <div class="legenda"><span style="--c:${KLEUR[w.beste] || "#34d399"}">Bij jou ${M[w.beste] ? "(" + esc(M[w.beste].soort) + ")" : ""}</span><span style="--c:#94a3b8">Verwacht (formule)</span></div></section>`;
+  }
+  if ((w.per_aanvoer || []).length) {
+    html += `<section class="kaart"><h2>COP bij verschillende aanvoertemperaturen</h2>
+      <table class="tabel"><thead><tr><th>Aanvoer</th><th>COP</th><th>Uren</th></tr></thead><tbody>
+      ${w.per_aanvoer.map((x) => `<tr><td>${x.van}–${x.tot} °C</td><td>${getal(x.cop)}</td><td>${x.uren}</td></tr>`).join("")}</tbody></table>
+      <p class="hint">Hoe koeler het water dat de warmtepomp maakt, hoe zuiniger hij is.</p></section>`;
+  }
+
+  // verwarmen / warm water + starts
+  const s = w.soorten || {}, st = w.starts || {};
+  if ((s.verwarmen || s["warm water"]) || st.per_dag != null) {
+    html += `<section class="kaart"><h2>Hoe hij draait</h2><div class="twee">
+      ${s.verwarmen ? `<div class="blok"><b>${getal(s.verwarmen.cop)}</b><span>COP verwarmen (30 dagen)</span></div>` : ""}
+      ${s["warm water"] ? `<div class="blok"><b>${getal(s["warm water"].cop)}</b><span>COP warm water (30 dagen)</span></div>` : ""}
+      ${st.per_dag != null ? `<div class="blok"><b>${getal(st.per_dag, 0)}×</b><span>starts per dag, waarvan ${getal(st.kort_per_dag, 0)} korter dan 20 minuten</span></div>` : ""}
+      ${st.minuten_per_beurt != null ? `<div class="blok"><b>${st.minuten_per_beurt} min</b><span>gemiddeld per beurt · ${getal(st.aan_uur_per_dag)} uur per dag aan</span></div>` : ""}
+    </div></section>`;
+  }
+
+  // advies
+  html += `<section class="kaart"><h2>Zo wordt hij zuiniger</h2>${(w.advies || []).length ? `<div class="advies">${w.advies.map((a) => `<article>
+      <h3>${esc(a.titel)}</h3><div class="eff">${a.effect_pct ? "± " + a.effect_pct + "%" : ""}<small>${a.soort === "gemeten" ? "uit metingen" : "schatting"}</small></div>
+      <p>${esc(a.tekst)}</p><p class="doe">${esc(a.actie)}</p>${a.link ? `<p><a href="${esc(a.link)}">Ga naar de instellingen</a></p>` : ""}</article>`).join("")}</div>
+      <p class="hint">Zonnestuur verandert hier zelf niets aan: dit is advies. Instellingen van de fabrikant blijven leidend.</p>`
+    : `<p class="hint">Niets bijzonders gevonden. Zonnestuur blijft kijken.</p>`}</section>`;
+
+  // bronnen en wat ontbreekt
+  html += `<section class="kaart"><h2>Waar de getallen vandaan komen</h2>
+    <dl class="bron">${(w.bronnen || []).map((b) => `<dt>${esc(b.wat)}</dt><dd>${esc(b.bron)}</dd>`).join("")}</dl>
+    ${(w.ontbreekt || []).length ? `<h2 style="margin-top:16px">Wat nog ontbreekt</h2><ul class="ontbreekt">${w.ontbreekt.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+    <details class="inst" id="instellen"><summary>Metingen kiezen</summary><div id="form"><p class="hint">Laden…</p></div></details>
+  </section>`;
+  $("inhoud").innerHTML = html;
+}
+
+function periodeNaam(bp, x) {
+  for (const [k, v] of Object.entries(bp)) if (v === x) return k === "vandaag" ? "vandaag" : `laatste ${k}`;
+  return "";
+}
+
+function grafiek(w, soort) {
+  const rij = (w[soort] || []).filter((x) => x.elek_kwh > 0 || Object.keys(x.cop || {}).length);
+  if (rij.length < 2) return `<p class="hint">Nog te weinig gegevens voor een grafiek.</p>`;
+  const W = breedte(), H = 220, L = 30, R = 8, T = 10, B = 26, n = rij.length, bw = (W - L - R) / n;
+  const maxCop = Math.max(4, ...rij.flatMap((x) => Object.values(x.cop || {}))) * 1.1;
+  const maxE = Math.max(0.1, ...rij.map((x) => x.elek_kwh));
+  const y = (c) => T + (H - T - B) * (1 - c / maxCop);
+  let s = `<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="COP per ${soort}">`;
+  for (let c = 0; c <= maxCop; c += 1) s += `<line class="as" x1="${L}" x2="${W - R}" y1="${y(c)}" y2="${y(c)}"/><text x="${L - 6}" y="${y(c) + 4}" text-anchor="end">${c}</text>`;
+  rij.forEach((x, i) => {
+    const h = (H - T - B) * 0.45 * x.elek_kwh / maxE;
+    s += `<rect class="bar" x="${L + i * bw + bw * 0.2}" y="${H - B - h}" width="${bw * 0.6}" height="${h}" rx="2"><title>${getal(x.elek_kwh)} kWh stroom</title></rect>`;
+  });
+  const ms = [...new Set(rij.flatMap((x) => Object.keys(x.cop || {})))];
+  for (const m of ms) {
+    const pts = rij.map((x, i) => x.cop[m] != null ? [L + i * bw + bw / 2, y(x.cop[m]), x.cop[m]] : null);
+    let d = "", gat = true;
+    pts.forEach((p) => { if (!p) { gat = true; return; } d += (gat ? "M" : "L") + p[0].toFixed(1) + " " + p[1].toFixed(1); gat = false; });
+    s += `<path d="${d}" fill="none" stroke="${KLEUR[m]}" stroke-width="2.4" ${m === "model" ? 'stroke-dasharray="5 4"' : ""} stroke-linejoin="round"/>`;
+    pts.forEach((p) => { if (p) s += `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${KLEUR[m]}"><title>${getal(p[2])}</title></circle>`; });
+  }
+  const stap = Math.ceil(n / (W < 480 ? 4 : 7));
+  rij.forEach((x, i) => { if (i % stap === 0) s += `<text x="${L + i * bw + bw / 2}" y="${H - 8}" text-anchor="middle">${label(x.k, soort)}</text>`; });
+  return s + "</svg>";
+}
+
+function breedte() { const m = document.querySelector("main"); return Math.max(300, Math.min(640, ((m && m.clientWidth) || 640) - 70)); }
+
+function label(k, soort) {
+  if (soort === "uren") return k.slice(11, 13) + "u";
+  if (soort === "dagen") { const d = new Date(k + "T12:00"); return d.toLocaleDateString("nl-NL", { day: "numeric", month: "short" }); }
+  if (soort === "weken") return "wk " + Number(k.split("W")[1]);
+  return new Date(k + "-15T12:00").toLocaleDateString("nl-NL", { month: "short" });
+}
+
+function buitenGraf(rij) {
+  const W = breedte(), H = 200, L = 30, R = 8, T = 10, B = 26;
+  const xs = rij.map((x) => x.van + 1), lo = Math.min(...xs) - 2, hi = Math.max(...xs) + 2;
+  const maxC = Math.max(4, ...rij.map((x) => Math.max(x.cop, x.verwacht))) * 1.1;
+  const X = (t) => L + (W - L - R) * (t - lo) / Math.max(1, hi - lo), Y = (c) => T + (H - T - B) * (1 - c / maxC);
+  let s = `<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="COP per buitentemperatuur">`;
+  for (let c = 0; c <= maxC; c += 1) s += `<line class="as" x1="${L}" x2="${W - R}" y1="${Y(c)}" y2="${Y(c)}"/><text x="${L - 6}" y="${Y(c) + 4}" text-anchor="end">${c}</text>`;
+  s += `<path d="${rij.map((x, i) => (i ? "L" : "M") + X(x.van + 1).toFixed(1) + " " + Y(x.verwacht).toFixed(1)).join("")}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>`;
+  const kl = KLEUR[(DATA.apparaten.find((a) => a.id === KEUZE) || {}).beste] || "#34d399";
+  rij.forEach((x) => { s += `<circle cx="${X(x.van + 1)}" cy="${Y(x.cop)}" r="${Math.min(9, 3 + Math.sqrt(x.uren))}" fill="${kl}" fill-opacity=".85"><title>${x.van}–${x.tot} °C: COP ${getal(x.cop)} (${x.uren} uur), verwacht ${getal(x.verwacht)}</title></circle>`; });
+  for (let t = Math.ceil(lo / 5) * 5; t <= hi; t += 5) s += `<text x="${X(t)}" y="${H - 8}" text-anchor="middle">${t} °C</text>`;
+  return s + "</svg>";
+}
+
+async function formTekenen() {
+  const w = (DATA.apparaten || []).find((x) => x.id === KEUZE);
+  if (!w) return;
+  if (!KAND) {
+    try { KAND = await api("api/cop/kandidaten"); } catch (e) { KAND = { ok: false, error: e.message }; }
+  }
+  if (!KAND.ok) { $("form").innerHTML = `<p class="hint">${esc(KAND.error || "De metingen konden niet worden opgehaald.")}</p>`; return; }
+  const huidig = {};
+  (w.bronnen || []).forEach((b) => { huidig[b.wat] = b.bron; });
+  const kies = (id, lijst, waarde, leeg = "Niet gebruiken") => `<select id="${id}"><option value="">${leeg}</option>${lijst.map((x) => `<option value="${esc(x.entity)}" ${x.entity === waarde ? "selected" : ""}>${esc(x.naam)}${x.waarde != null && x.waarde !== "" ? " (" + esc(x.waarde) + " " + esc(x.eenheid) + ")" : ""}</option>`).join("")}</select>`;
+  const k = KAND;
+  const ener = [...(k.energie || []), ...(k.vermogen || [])];
+  const c = w.cop_instellingen || {};
+  $("form").innerHTML = `<div class="velden">
+    <label class="v breed">Stroom van de warmtepomp (aparte kWh-meter of vermogen)${kies("f_elek", ener, c.elek_entity, "Wat het apparaat zelf meldt")}</label>
+    <label class="v">Warmte (kWh, MWh, GJ of W)${kies("f_warmte", ener, c.warmte_entity)}</label>
+    <label class="v">Die warmte komt van${`<select id="f_wsoort"><option value="warmtemeter" ${c.warmte_soort !== "warmtepomp" ? "selected" : ""}>een warmtemeter</option><option value="warmtepomp" ${c.warmte_soort === "warmtepomp" ? "selected" : ""}>de warmtepomp zelf</option></select>`}</label>
+    <label class="v">Aanvoertemperatuur${kies("f_aanvoer", k.temperatuur || [], c.aanvoer_entity)}</label>
+    <label class="v">Retourtemperatuur${kies("f_retour", k.temperatuur || [], c.retour_entity)}</label>
+    <label class="v">Debiet${kies("f_debiet", k.debiet || [], c.debiet_entity)}</label>
+    <label class="v">Buitentemperatuur${kies("f_buiten", k.temperatuur || [], c.buiten_entity, "Weersverwachting")}</label>
+    <label class="v">Stand (warm water of verwarmen)${kies("f_modus", k.stand || [], c.modus_entity)}</label>
+    <label class="v">Elektrisch element (bijverwarming)${kies("f_bij", k.vermogen || [], c.bijverwarming_entity)}</label>
+    <label class="v breed">Pompen (vermogen)${kies("f_pomp", k.vermogen || [], (c.pomp_entities || [])[0])}</label>
+  </div>
+  <p class="hint">Zonnestuur leest deze metingen alleen; er wordt niets geschakeld of veranderd.</p>
+  <div class="knoppen"><button class="btn" id="bewaar" type="button" style="background:var(--zs-knop);color:#fff">Bewaren</button></div>`;
+}
+
+document.addEventListener("click", async (ev) => {
+  const k = ev.target.closest("[data-kies]");
+  if (k) { KEUZE = k.dataset.kies; KAND = null; laad(); return; }
+  const r = ev.target.closest("[data-reeks]");
+  if (r) { REEKS = r.dataset.reeks; teken((DATA.apparaten || []).find((x) => x.id === KEUZE)); return; }
+  if (ev.target.id === "bewaar") {
+    const v = (id) => ($(id) || {}).value || "";
+    const cop = { elek_entity: v("f_elek"), warmte_entity: v("f_warmte"), warmte_soort: v("f_wsoort"), aanvoer_entity: v("f_aanvoer"),
+      retour_entity: v("f_retour"), debiet_entity: v("f_debiet"), buiten_entity: v("f_buiten"), modus_entity: v("f_modus"),
+      bijverwarming_entity: v("f_bij"), pomp_entities: v("f_pomp") ? [v("f_pomp")] : [] };
+    try { await post("api/cop/bronnen", { dev: KEUZE, cop }); melding("Bewaard. De metingen tellen vanaf nu mee."); await laad(); }
+    catch (e) { melding(e.message); }
+  }
+});
+document.addEventListener("toggle", (ev) => { if (ev.target.id === "instellen" && ev.target.open) formTekenen(); }, true);
+laad();
+setInterval(() => { if (!document.hidden && !document.querySelector("#instellen[open]")) laad(); }, 60000);
+</script>
+</body>
+</html>

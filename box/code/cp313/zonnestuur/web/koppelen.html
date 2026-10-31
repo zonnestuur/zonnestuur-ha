@@ -1286,6 +1286,7 @@ function huisTekenen() {
   $("mee").innerHTML = (mee.length || zon ? mee.map((d) => rijHtml(naarMee(d), d.kind, d.naam, STAND[d.id] || { kw: "", label: "", extra: d.soort })).join("")
       + (zon ? rijHtml("instellingen?onderdeel=inst_zon,feedCard", "zon", "Zonnepanelen", zon) : "") : "")
     + (STAND._verw ? rijHtml("verwarming", "thermo", "Verwarming", STAND._verw.leeg ? { kw: "", label: "", extra: "Thermostaat koppelen: slim stoken op goedkope uren" } : STAND._verw) : "")
+    + (mee.some((d) => d.kind === "heatpump") ? rijHtml("warmtepomp", "heatpump", "Warmtepomp en COP", { kw: "", label: "", extra: "Hoe zuinig hij werkt: gemeten, berekend en geschat" }) : "")
     + `<button type="button" class="rij link plusrij${mee.length ? "" : " leegrij"}" id="plusRij">${ico("plus")}<span><b>${mee.length ? "Apparaat toevoegen" : "Voeg je eerste apparaat toe"}</b><span class="sub">${mee.length ? "Laadpaal, boiler, warmtepomp, batterij of wasmachine" : g.length ? "Of kies hierboven wat Zonnestuur gevonden heeft." : "Zonnestuur zoekt ook vanzelf in je huis."}</span></span>${PIJL}</button>`;
   $("plusRij").onclick = () => openToevoegen("");
   const NAAR_BASIS = { meter: "inst_meter", zon: "inst_zon,feedCard", prijs: "inst_contract" };

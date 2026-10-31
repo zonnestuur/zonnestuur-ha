@@ -1834,6 +1834,12 @@ const HI = {
 function renderStatusPil(s) {
   const el = $("statusPil"); if (!el) return;
   const warn = (s.problems || []).filter((p) => p.level === "warn");
+  if (s.autonomie && s.autonomie !== "automatisch") {
+    el.classList.add("let");
+    el.querySelector("span").textContent = s.autonomie === "stop" ? "Noodstop: Zonnestuur stuurt niets" : "Alleen advies: Zonnestuur schakelt niets";
+    el.href = "sturing";
+    return;
+  }
   el.classList.toggle("let", warn.length > 0);
   el.querySelector("span").textContent = warn.length ? warn[0].text : s.configured ? "Alles werkt zoals het hoort" : "Nog niet ingesteld: koppel je eerste apparaat";
   el.href = warn.length ? "hulp" : s.configured ? "hulp" : "apparaten";
@@ -2255,6 +2261,7 @@ function copHtml(r) {
   if (c.bezig) h += `<p class="small" style="margin:2px 0">Nu aan het meten: vat begon op ${g1(c.bezig.van)} °C, ${g1(c.bezig.kwh)} kWh stroom tot nu toe${c.bezig.klaar ? ", even wachten tot het water gemengd is" : ""}.</p>`;
   if (L) h += `<p class="small" style="margin:2px 0">Gemeten bij de laatste opwarmbeurt: <b>${g1(L.cop)}</b> (vat ${g1(L.van)} → ${g1(L.tot)} °C, ${g1(L.kwh)} kWh stroom${L.buiten != null ? `, ${g1(L.buiten)} °C buiten` : ""}).${c.aantal > 1 ? ` Gemiddeld ${g1(c.gemiddeld)} over ${c.aantal} beurten.` : ""}</p>`;
   else if (r.vat_liter && !c.bezig) h += `<p class="small muted" style="margin:2px 0">De eerste meting volgt bij de volgende opwarmbeurt van het vat.</p>`;
+  h += `<p class="small" style="margin:6px 0"><a href="warmtepomp?id=${encodeURIComponent(r._id || "")}">Alle COP-metingen en advies</a></p>`;
   h += `<details class="bd-copin"${r.vat_liter ? "" : " open"}><summary class="small">${r.vat_liter ? `Meten met het vat van ${g1(r.vat_liter)} liter` : "COP echt meten met je buffervat"}</summary>
     <p class="small muted" style="margin:4px 0">Per opwarmbeurt rekent Zonnestuur uit hoeveel warmte er in het vat bij kwam voor de stroom die het kostte. Daarvoor zet het de vloerpompen tijdens het opwarmen even uit (nooit als het binnen te koud wordt, hoogstens 3 uur).</p>
     <label class="small">Inhoud vat <input type="number" id="bd_vat" min="0" max="5000" step="10" value="${r.vat_liter || ""}" style="width:90px"> liter</label>
@@ -2279,7 +2286,7 @@ function bedieningTekenen(box, d, r) {
       .map(([n, v]) => `<span><span class="muted">${n}</span> <b>${g(v, " °C")}</b></span>`).join("")}</div>
     ${r.element ? `<p class="small" style="color:var(--zs-amber,#d97706)"><b>Het elektrische element staat aan.</b> Dat verbruikt veel meer stroom dan de warmtepomp zelf.</p>` : ""}
     <p class="small muted">Zonnestuur zet het warme water bij zon of goedkope stroom een paar graden hoger en daarna terug naar wat je hier kiest.</p>
-    ${copHtml(r)}
+    ${copHtml(Object.assign({ _id: d.id }, r))}
     <details class="bd-zuinig"><summary>Zuiniger instellen</summary>
       <p class="small muted">Hoe groter het verschil, hoe minder vaak de warmtepomp start. Dat is zuiniger en beter voor de compressor; het water wordt wel iets kouder voor hij weer begint.</p>
       ${stap("verschil_warmwater", "Opnieuw starten bij warm water")}${stap("verschil_verwarming", "Opnieuw starten bij verwarming")}
