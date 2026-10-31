@@ -28,7 +28,7 @@
   .pil { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; font-size: 13px; font-weight: 650; background: var(--zs-zacht); }
   .pil.stookt { background: color-mix(in srgb, #fb923c 22%, transparent); color: #fdba74; }
   .pil.fout { background: color-mix(in srgb, #f87171 20%, transparent); color: #fca5a5; }
-  [data-theme="light"] .pil.stookt { color: #c2410c; } [data-theme="light"] .pil.fout { color: #b91c1c; }
+  [data-theme="light"] .pil.stookt { color: var(--t-oranje, #9a3412); } [data-theme="light"] .pil.fout { color: #b91c1c; }
   .waarom { margin: 10px 0 0; font-size: 14.5px; }
   /* plan: 24 staafjes */
   .plan { margin: 16px 0 4px; }
@@ -127,7 +127,7 @@ function geleerdHtml(r) {
   const pct = Math.min(100, Math.round(100 * Math.min(g.stoken || 0, g.nodig || 40) / (g.nodig || 40) / 2 + 100 * Math.min(g.rust || 0, g.nodig || 40) / (g.nodig || 40) / 2));
   const vl = g.voorlopig ? ` Tot die tijd rekent hij met wat hij leerde in ${g.voorlopig.huizen || "een paar"} huizen met dezelfde verwarming: ± ${graad(g.voorlopig.opwarmen)} °C per uur opwarmen.` : " Tot die tijd rekent Zonnestuur voorzichtig.";
   return `<div class="geleerd"><b>Aan het leren</b> hoe snel deze ruimte opwarmt en afkoelt. Dat duurt een paar dagen met gewoon stoken.${vl}
-    <div class="balk" aria-label="${pct}% geleerd"><span style="width:${pct}%"></span></div></div>`;
+    <div class="balk" role="img" aria-label="${pct}% geleerd"><span style="width:${pct}%"></span></div></div>`;
 }
 function kaartHtml(r) {
   const nu = r.nu || {};

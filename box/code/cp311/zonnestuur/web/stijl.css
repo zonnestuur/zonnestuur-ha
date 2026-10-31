@@ -202,3 +202,8 @@ label.check-row:has(> input[type="checkbox"]:not([hidden])) > input[type="checkb
 .e-leg { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--zs-ink2); }
 .e-leg li, .e-leg span { display: inline-flex; align-items: center; gap: 6px; }
 .e-leg i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+/* 0.91: lichte stand — kleuren die als tekst gebruikt worden donkerder, zodat ze 4,5:1 halen (WCAG AA) */
+:root:not([data-theme="dark"]) { --zs-groen: #166534; --zs-amber: #8a4b00; --t-rood: #b42318; --t-oranje: #9a3412; }
+@media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { --t-rood: #f87171; --t-oranje: #fdba74; } }
+:root[data-theme="dark"] { --t-rood: #f87171; --t-oranje: #fdba74; }

@@ -11,6 +11,7 @@
   @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
   @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
   * { box-sizing: border-box; }
+  .rij select { min-height: 32px; } #o_plus { min-height: 44px; }
   [hidden] { display: none !important; }
   body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 860px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
@@ -91,8 +92,8 @@ function teken() {
     <button class="btn ghost" type="button" id="o_plus" style="margin-top:10px">Ontvanger toevoegen</button>`;
   $("cats").innerHTML = `<h2>Per onderwerp</h2>${Object.entries(D.categorieen).map(([k, n]) => { const r = C.categorieen[k] || { aan: true, vanaf: "info", kanalen: [], herhaal_uren: 0 };
       return `<div class="rij" style="grid-template-columns:minmax(0,1fr) auto"><b>${esc(n)}</b><label><input type="checkbox" data-c="${k}" data-v="aan" ${r.aan !== false ? "checked" : ""}> aan</label>
-        <small><select data-c="${k}" data-v="vanaf">${Object.entries(NIV).map(([v, t]) => `<option value="${v}" ${r.vanaf === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
-        <select data-c="${k}" data-v="herhaal_uren">${[[0, "steeds"], [6, "hoogstens elke 6 uur"], [24, "hoogstens 1× per dag"], [168, "hoogstens 1× per week"]].map(([v, t]) => `<option value="${v}" ${Number(r.herhaal_uren || 0) === v ? "selected" : ""}>${t}</option>`).join("")}</select>
+        <small><select data-c="${k}" data-v="vanaf" aria-label="${esc(n)}: vanaf welk niveau">${Object.entries(NIV).map(([v, t]) => `<option value="${v}" ${r.vanaf === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+        <select data-c="${k}" data-v="herhaal_uren" aria-label="${esc(n)}: hoe vaak">${[[0, "steeds"], [6, "hoogstens elke 6 uur"], [24, "hoogstens 1× per dag"], [168, "hoogstens 1× per week"]].map(([v, t]) => `<option value="${v}" ${Number(r.herhaal_uren || 0) === v ? "selected" : ""}>${t}</option>`).join("")}</select>
         <label><input type="checkbox" data-c="${k}" data-v="spreken" ${r.spreken ? "checked" : ""}> ook uitspreken</label></small></div>`; }).join("")}
     <div style="margin-top:14px"><button class="btn" type="button" id="bewaar" style="background:var(--zs-knop);color:#fff">Opslaan</button></div>`;
   $("log").innerHTML = (D.log || []).length ? D.log.map((x) => `<div class="rij" style="grid-template-columns:minmax(0,1fr) auto"><b>${esc(x.titel)}</b><span class="hint" style="margin:0">${esc(x.niveau)}</span>

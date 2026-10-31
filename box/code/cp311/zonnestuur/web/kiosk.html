@@ -56,7 +56,10 @@ html, body { overscroll-behavior-y: none; }
 
   /* hoofdindeling */
   .stage { display: grid; grid-template-columns: minmax(340px, 1fr) minmax(380px, 1.05fr); gap: 18px; min-height: 0; }
-  .stage > .panel { min-height: 0; overflow: auto; }
+  .stage > .panel { min-height: 0; overflow: auto; scrollbar-width: thin; }
+  /* zie je dat er meer apparaten zijn: zachte schaduw onderaan zolang je verder kunt schuiven */
+  .stage > .panel.devs { background: linear-gradient(var(--panel) 30%, transparent) center top, linear-gradient(transparent, var(--panel) 70%) center bottom,
+    radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.18), transparent) center bottom; background-repeat: no-repeat; background-size: 100% 40px, 100% 40px, 100% 14px; background-attachment: local, local, scroll; background-color: var(--panel); }
   @media (max-width: 900px) { main { height: auto; } .stage { grid-template-columns: 1fr; } .stage > .panel { overflow: visible; } }
   /* tv of groot scherm aan de muur: alles groter, zodat je het van een paar meter afstand leest */
   @media (min-width: 1700px) and (min-height: 950px) { main { zoom: 1.25; max-width: 1560px; } }
@@ -234,7 +237,13 @@ function arc(h0, h1, r0, r1) {
   const [a, b] = polar(r1, h0), [c, d] = polar(r1, h1), [e, f] = polar(r0, h1), [g, k] = polar(r0, h0), big = h1 - h0 > 12 ? 1 : 0;
   return `M${a},${b} A${r1},${r1} 0 ${big} 1 ${c},${d} L${e},${f} A${r0},${r0} 0 ${big} 0 ${g},${k} Z`;
 }
-function dialMode() { return PREF.dial !== "auto" ? PREF.dial : (S && S.has_panels ? "sun" : "price"); }
+function dialMode() {
+  if (PREF.dial !== "auto") return PREF.dial;
+  // met panelen de zon, behalve als er vandaag geen zon meer komt en er wel uurprijzen zijn (avond en nacht): dan de prijs
+  const prijzen = !!(P && P.slots && P.slots.length && P.type !== "fixed");
+  if (S && S.has_panels && !(prijzen && !((C && C.windows) || []).some((w) => !w.tomorrow))) return "sun";
+  return prijzen ? "price" : "sun";
+}
 function hourData() {
   // de komende 24 uur, elk uur op zijn plek op de klok (na middernacht dus de nacht van morgen)
   const h0 = new Date(); h0.setMinutes(0, 0, 0);

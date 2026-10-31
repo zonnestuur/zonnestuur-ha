@@ -190,7 +190,7 @@ function teken(w) {
 
   // grafiek
   html += `<section class="kaart"><h2>Verloop</h2>
-    <div class="tabs" role="tablist">${[["uren", "24 uur"], ["dagen", "Dagen"], ["weken", "Weken"], ["maanden", "Maanden"]].map(([k, n]) => `<button type="button" data-reeks="${k}" class="${REEKS === k ? "on" : ""}">${n}</button>`).join("")}</div>
+    <div class="tabs" role="group" aria-label="Periode">${[["uren", "24 uur"], ["dagen", "Dagen"], ["weken", "Weken"], ["maanden", "Maanden"]].map(([k, n]) => `<button type="button" data-reeks="${k}" class="${REEKS === k ? "on" : ""}">${n}</button>`).join("")}</div>
     <div id="graf">${grafiek(w, REEKS)}</div>
     <div class="legenda">${vol.filter((m) => m !== "vat" || REEKS === "dagen").map((m) => `<span style="--c:${KLEUR[m]}">${esc(M[m].naam)}</span>`).join("")}<span style="--c:color-mix(in srgb, var(--zs-ink2) 30%, transparent)">Stroom (kWh)</span></div>
   </section>`;

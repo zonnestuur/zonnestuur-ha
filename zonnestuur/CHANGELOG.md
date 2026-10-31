@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.91.0
+- Thuisbatterij: Zonnestuur rekent met meer slijtage (€ 0,03 per kWh als de aankoopprijs niet bekend is) en ontladen onder 20% telt extra. Naar nieuw onderzoek: kleine prijsverschillen kosten de batterij meer dan ze opleveren.
+- De gezamenlijke planning gebruikt nu de slijtage die bij jouw batterij hoort (uit de aankoopprijs, als je die invulde).
+- Wandscherm: 's avonds toont de ring de uurprijzen in plaats van een grijze cirkel; je ziet nu ook dat er meer apparaten onder elkaar staan.
+- Lichte stand beter leesbaar (sterker contrast) en beter te gebruiken met een schermlezer.
+
 ## 0.90.0
 - Vaste kleuren voor elke soort stroom, overal hetzelfde: zon amber, van het net blauw, terugleveren groen, batterij turkoois, auto paars.
 - Home zelf indelen: onderaan Home kies je welke kaarten je ziet en in welke volgorde.

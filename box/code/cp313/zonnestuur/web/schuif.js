@@ -10,6 +10,9 @@
     svg.style.cursor = "crosshair"; svg.style.userSelect = "none"; svg.style.webkitUserSelect = "none";
     svg.classList.add("zs-schuif");
     svg.setAttribute("tabindex", "0");
+    svg.removeAttribute("aria-hidden");                          // focusbaar = niet verborgen voor schermlezers
+    if (!svg.getAttribute("role")) svg.setAttribute("role", "img");
+    if (!svg.getAttribute("aria-label")) svg.setAttribute("aria-label", "Stroomprijs per uur");
     svg.setAttribute("aria-description", "Schuif met je vinger of gebruik de pijltjes om per uur de prijs te zien");
     const NS = "http://www.w3.org/2000/svg";
     const lijn = document.createElementNS(NS, "line"), stip = document.createElementNS(NS, "circle");
