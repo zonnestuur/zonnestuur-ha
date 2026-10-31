@@ -21,16 +21,19 @@
   var TABS = [["home", "./", "Home"], ["apparaten", "apparaten", "Apparaten"], ["tarieven", "planning", "Planning"], ["inzicht", "inzicht", "Inzichten"], ["meer", "meer", "Meer"]];
   var css = document.createElement("style");
   css.textContent = [
-    ".zs-tabs{position:fixed!important;margin:0!important;overflow:visible!important;flex-wrap:nowrap!important;left:0;right:0;bottom:0;z-index:50;display:flex;",
-    "padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--zs-dag,#08111f) 90%,transparent);",
-    "backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);border-top:1px solid var(--zs-lijn,rgba(140,172,220,.15))}",
-    ".zs-tabs a{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px 4px;border-radius:12px;text-decoration:none;",
-    "color:var(--zs-ink3,#8597ae);font:600 11.5px/1.2 Inter,system-ui,sans-serif;min-height:50px;justify-content:center;position:relative}",
-    ".zs-tabs a svg{width:24px;height:24px}",
-    ".zs-tabs a[aria-current=page]{color:var(--zs-accent,#60a5fa)}",
-    ".zs-tabs a[aria-current=page]::before{content:'';position:absolute;top:-7px;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--zs-accent,#60a5fa)}",
+    /* 2027: zwevende balk van glas (alleen de navigatie is glas; de inhoud blijft effen en goed leesbaar) */
+    ".zs-tabs{position:fixed!important;margin:0!important;overflow:visible!important;flex-wrap:nowrap!important;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:50;display:flex;",
+    "padding:6px;border-radius:28px;background:color-mix(in srgb,var(--zs-vlak,#0f1c2f) 72%,transparent);",
+    "backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);",
+    "box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 0 1px var(--zs-lijn,rgba(140,172,220,.18)),0 18px 40px -16px rgba(0,0,0,.6)}",
+    "@media (prefers-reduced-transparency:reduce){.zs-tabs{background:var(--zs-vlak,#0f1c2f);backdrop-filter:none;-webkit-backdrop-filter:none}}",
+    ".zs-tabs a{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px 5px;border-radius:22px;text-decoration:none;",
+    "color:var(--zs-ink2,#a6b5ca);font:600 11px/1.2 Inter,system-ui,sans-serif;min-height:52px;justify-content:center;position:relative;transition:background .2s ease,color .2s ease}",
+    ".zs-tabs a svg{width:23px;height:23px}",
+    ".zs-tabs a[aria-current=page]{color:var(--zs-ink,#eef3fa);background:color-mix(in srgb,var(--zs-accent,#60a5fa) 20%,transparent)}",
+    ".zs-tabs a[aria-current=page] svg{color:var(--zs-accent,#60a5fa)}",
     ".zs-tabs a:focus-visible{outline:2px solid var(--zs-knop,#2f7cf6);outline-offset:-2px}",
-    "body.zs-met-tabs{padding-bottom:calc(76px + env(safe-area-inset-bottom))}",
+    "body.zs-met-tabs{padding-bottom:calc(96px + env(safe-area-inset-bottom))}",
     /* oude losse navigatie weg: alles loopt nu via de tabbladen */
     "body.zs-met-tabs #secnav,body.zs-met-tabs header.top a.link,body.zs-met-tabs header.top a.icon-btn[href]:not(.blijf),body.zs-met-tabs .naar-dash{display:none!important}",
     /* computer: in de kopregel */

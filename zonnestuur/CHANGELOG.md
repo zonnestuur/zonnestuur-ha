@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.92.0
+- Nieuwe uitstraling: bovenaan Home staat nu in één grote zin wat er gebeurt, met een begroeting en de datum in de kop.
+- De tabbalk zweeft nu als een glazen balk onderin (effen als je op je telefoon 'minder transparantie' aan hebt).
+- Rustigere tegels met korte namen, kaarten met zachte diepte, en een kleine beweging als je op een kaart of rij tikt.
+
 ## 0.91.0
 - Thuisbatterij: Zonnestuur rekent met meer slijtage (€ 0,03 per kWh als de aankoopprijs niet bekend is) en ontladen onder 20% telt extra. Naar nieuw onderzoek: kleine prijsverschillen kosten de batterij meer dan ze opleveren.
 - De gezamenlijke planning gebruikt nu de slijtage die bij jouw batterij hoort (uit de aankoopprijs, als je die invulde).

@@ -1134,6 +1134,29 @@ html, body { overscroll-behavior-y: none; }
   .bediening .bd-rij > span:first-child, .bediening .bd-rij > label { flex: 1 1 auto; }
   .bediening .bd-meet > span { white-space: nowrap; }
   .bediening .bd-meet { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 10px 0 4px; border-top: 1px solid var(--zs-lijn, var(--line)); }
+
+  /* ===== 0.92 — uitstraling 2027: antwoord eerst, rustiger kop, strakkere tegels, voelbare tikken ===== */
+  .nu-zin { margin: 2px 2px 14px; }
+  .nu-zin .nz-kop { margin: 0; font: 680 clamp(26px, 7vw, 38px)/1.08 "Inter Tight", Inter, sans-serif; letter-spacing: -.035em; text-wrap: balance; }
+  .nu-zin .nz-sub { margin: 8px 0 0; font-size: 15.5px; line-height: 1.45; color: var(--zs-ink2); max-width: 60ch; text-wrap: pretty; }
+  .nu-zin.s-sun .nz-kop { color: var(--e-zon); }
+  .nu-zin.s-warn .nz-kop { color: var(--t-oranje, #fdba74); }
+  @media (min-width: 1000px) { .nu-zin { margin: 0 2px 18px; } .nu-zin .nz-kop { font-size: 40px; } }
+  .kop-home .brand.groot .logo { width: 44px; height: 44px; }
+  .kop-home .brand.groot .merk b { font-size: clamp(24px, 6.4vw, 30px); }
+  .kop-home .brand.groot .merk small { font-size: 13.5px; }
+  @media (min-width: 900px) { .kop-home .brand.groot .merk small { display: none; } }
+  .status-pil { margin-bottom: 14px; }
+  /* tegels: één regel per label, het getal is de held */
+  .tegel { padding: 14px 14px 13px; border-radius: 22px; transition: transform .12s ease, box-shadow .2s ease; }
+  .tegel .l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tegel .ti { margin-bottom: 6px; } .tegel .ti svg { width: 28px; height: 28px; }
+  .tegel .v { font-size: clamp(22px, 6vw, 28px); }
+  /* kaarten: zachte diepte en een lichte rand bovenaan, zoals glas op een donkere ondergrond */
+  .card, .tegel, .tarkaart, .minilijst { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045), 0 0 0 1px var(--zs-lijn), 0 18px 40px -28px rgba(0, 0, 0, .65) !important; }
+  :root[data-theme="light"] .card, :root[data-theme="light"] .tegel, :root[data-theme="light"] .tarkaart { box-shadow: 0 0 0 1px var(--zs-lijn), 0 10px 30px -22px rgba(15, 29, 38, .35) !important; }
+  a.tegel:active, a.card:active, a.tarkaart:active, .mini-rijen a:active { transform: scale(.985); }
+  @media (prefers-reduced-motion: reduce) { a.tegel:active, a.card:active, a.tarkaart:active { transform: none; } }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -1144,7 +1167,7 @@ html, body { overscroll-behavior-y: none; }
       <svg class="logo" viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="#fbbf24" stroke-width="3.2" stroke-linecap="round">
         <path d="M11 33a13 13 0 0 1 26 0"/><path d="M24 7v5M8.5 13.5l3.5 3.5M39.5 13.5 36 17M3 33h5M40 33h5"/><path d="M7 39h34" stroke-opacity=".55"/>
       </svg>
-      <span class="merk"><b>Zonnestuur</b><small>Slimme energie. Meer uit je zon.</small></span>
+      <span class="merk"><b>Zonnestuur</b><small id="merkSub">Slimme energie. Meer uit je zon.</small></span>
     </a>
     <div class="spacer"></div>
     <span class="live" id="live" role="status" hidden><i></i><span id="clock">verbinden…</span></span>
@@ -1152,6 +1175,7 @@ html, body { overscroll-behavior-y: none; }
     <a class="icon-btn blijf" href="instellingen" aria-label="Instellingen" title="Instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
     <button class="icon-btn" id="themeBtn" hidden aria-label="Wissel licht of donker"></button>
   </header>
+  <section class="nu-zin nu" id="nuZin" hidden aria-live="polite"><h1 class="nz-kop" id="nzKop"></h1><p class="nz-sub" id="nzSub"></p></section>
   <a class="status-pil nu" id="statusPil" href="hulp"><i></i><span>Even kijken…</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
 
   <div class="grid">
@@ -1784,6 +1808,11 @@ function renderStatus(s) {
   $("hero").className = "card c-hero " + cls;
   $("headline").textContent = head;
   $("subline").textContent = sub;
+  // 2027: het antwoord eerst, groot boven het huis; op Home is dit de kop (de oude kop in het huisvak telt dan niet mee)
+  if (VIEW === "vandaag") { const ht = $("hero").querySelector(".hero-tekst"); if (ht) ht.setAttribute("aria-hidden", "true"); }
+  $("nuZin").hidden = !head; $("nuZin").className = "nu-zin nu " + cls; $("nzKop").textContent = head; $("nzSub").textContent = sub;
+  { const u = now.getHours(); $("merkSub").textContent = (u < 6 ? "Goedenacht" : u < 12 ? "Goedemorgen" : u < 18 ? "Goedemiddag" : "Goedenavond") + " · "
+      + now.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" }); }
   renderVerdict(s);
   renderPlan(s);
   renderDayTip(s);
@@ -1913,12 +1942,12 @@ function renderCijfers(s) {
   if (s.has_panels) {
     const t = sc ? sc.today : null;
     const verwacht = TODAY && TODAY.forecast ? TODAY.forecast.reduce((a, f) => a + (f.pv_w || 0), 0) / 1000 * ((TODAY.forecast[1] ? TODAY.forecast[1].ts - TODAY.forecast[0].ts : 3600) / 3600) : null;
-    k.push(`<a class="tegel" href="inzicht"><span class="ti zon">${SVGI(HI.zon)}</span><span class="l">Opbrengst vandaag</span><b class="v num">${t ? nl(t.pv_kwh, 1) : "–"}<small> kWh</small></b>
-      <span class="d">${verwacht != null ? `Verwacht ${nl(verwacht, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(t && t.pv_kwh, gister && gister.pv_kwh)}${lijntje(dagen.slice(-7).map((x) => x.pv_kwh), "var(--e-zon)")}</span></a>`);
+    k.push(`<a class="tegel" href="inzicht"><span class="ti zon">${SVGI(HI.zon)}</span><span class="l">Zon vandaag</span><b class="v num">${t ? nl(t.pv_kwh, 1) : "–"}<small> kWh</small></b>
+      <span class="d">${verwacht != null ? `verwacht ${nl(verwacht, 1)}` : "&nbsp;"}</span><span class="vt">${trend(t && t.pv_kwh, gister && gister.pv_kwh)}${lijntje(dagen.slice(-7).map((x) => x.pv_kwh), "var(--e-zon)")}</span></a>`);
   }
   const tv = sc ? sc.today : null, verbruik = tv ? (tv.import_kwh || 0) + (tv.own_kwh || 0) : null;
-  k.push(`<a class="tegel" href="inzicht"><span class="ti huis">${SVGI(HI.huis)}</span><span class="l">Verbruik vandaag</span><b class="v num">${verbruik != null ? nl(verbruik, 1) : "–"}<small> kWh</small></b>
-    <span class="d">${tv ? `Van het net ${nl(tv.import_kwh || 0, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(verbruik, gister ? (gister.import_kwh || 0) + (gister.own_kwh || 0) : null)}${lijntje(dagen.slice(-7).map((x) => (x.import_kwh || 0) + (x.own_kwh || 0)), "var(--e-huis)")}</span></a>`);
+  k.push(`<a class="tegel" href="inzicht"><span class="ti huis">${SVGI(HI.huis)}</span><span class="l">Verbruik</span><b class="v num">${verbruik != null ? nl(verbruik, 1) : "–"}<small> kWh</small></b>
+    <span class="d">${tv ? `${nl(tv.import_kwh || 0, 1)} van het net` : "&nbsp;"}</span><span class="vt">${trend(verbruik, gister ? (gister.import_kwh || 0) + (gister.own_kwh || 0) : null)}${lijntje(dagen.slice(-7).map((x) => (x.import_kwh || 0) + (x.own_kwh || 0)), "var(--e-huis)")}</span></a>`);
   const bat = (s.batteries || [])[0];
   if (bat) {
     const soc = Math.max(0, Math.min(100, bat.soc || 0));

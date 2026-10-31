@@ -207,3 +207,9 @@ label.check-row:has(> input[type="checkbox"]:not([hidden])) > input[type="checkb
 :root:not([data-theme="dark"]) { --zs-groen: #166534; --zs-amber: #8a4b00; --t-rood: #b42318; --t-oranje: #9a3412; }
 @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { --t-rood: #f87171; --t-oranje: #fdba74; } }
 :root[data-theme="dark"] { --t-rood: #f87171; --t-oranje: #fdba74; }
+
+/* 0.92 — uitstraling 2027 op elke pagina: zachte diepte met een lichte bovenrand, voelbare tik op tikbare rijen */
+:root:not([data-theme="light"]) .card, :root:not([data-theme="light"]) .kaart { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045), 0 0 0 1px var(--zs-lijn), 0 18px 40px -28px rgba(0, 0, 0, .65); }
+a.rij, a.app-rij, a.kaart { transition: transform .12s ease, background-color .2s ease; }
+a.rij:active, a.app-rij:active, a.kaart:active { transform: scale(.985); }
+@media (prefers-reduced-motion: reduce) { a.rij:active, a.app-rij:active, a.kaart:active { transform: none; } }
