@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.89.2
+- Groot scherm (Nest Hub): geen tekst meer over elkaar. 'morgen' staat nu in de regel boven de grote tijd, en op kleine schermen wordt alles iets compacter zodat het past.
+- Hulp: foutmeldingen van andere koppelingen laten geen inlogsleutels of adressen meer zien.
+
 ## 0.89.1
 - Nieuw vinkje bij Hulp: 'Updates vanzelf installeren', standaard aan. Nieuwe versies komen dan vanzelf binnen, zonder dat je iets hoeft te doen.
 

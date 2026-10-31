@@ -414,6 +414,29 @@ const ZS_HUB_CSS = `
   .hub.lt { --bg: #eef3f6; --kaart: #fff; --lijn: rgba(19,32,43,.10); --ink: #0f1d26; --ink2: rgba(15,29,38,.68); --ink3: rgba(15,29,38,.5); }
   .hub.lt::before { background: none; }
   .hub.lt .plijn .nu i { box-shadow: 0 0 0 3px #eef3f6; }
+  /* 0.89.2: niets meer over elkaar op kleine schermen (Nest Hub 1024×600). Het midden mag nooit buiten zijn rij lopen:
+     wat niet past wordt afgesneden in plaats van over de kopregel of de tegels te schuiven. */
+  .top { z-index: 3; }
+  .mid { align-self: stretch; min-height: 0; overflow: hidden; }
+  .mid > div:first-child { min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: safe center; }
+  .mid .hubhuis { min-height: 0; }
+  .hstage { max-height: 100%; }
+  .h { white-space: nowrap; }
+  .kick { flex-wrap: wrap; }
+  .mid .hubhuis { display: flex; flex-direction: column; align-items: flex-end; height: 100%; gap: .8vh; }
+  .mid .hubhuis .hstage { height: auto; flex: 1 1 0; min-height: 0; margin: 0; }
+  .mid .hubhuis .price.klein { flex: none; }
+  @media (max-height: 640px) { .brand .sv { display: none; } }
+  @media (max-height: 820px) {
+    .kick { font-size: clamp(14px, 3vh, 20px); }
+    .h { font-size: clamp(36px, 11.5vh, 80px); margin-top: .6vh; }
+    .h small { margin-top: .8vh; }
+    .plan { margin-top: 1.2vh; flex-wrap: nowrap; overflow: hidden; font-size: clamp(12px, 2.5vh, 17px); }
+    .plan .pl { display: none; }
+    .info { height: clamp(46px, 9vh, 60px); margin-bottom: 1vh; }
+    .news { padding-top: 1.2vh; padding-bottom: 1.2vh; }
+    .news .kop { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; font-size: clamp(15px, 3.3vh, 22px); }
+  }
 `;
 const ZS_HUB_ICON = {
   bolt: '<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6l1-8z"/>',
@@ -774,12 +797,12 @@ class ZonnestuurHubCard extends HTMLElement {
     const nuRij = H.find((r) => now >= r[0] && now < r[0] + 3600), piek = !on && nuRij && nuRij[2] === "dear";
     // Advies: alleen als het past bij het uur (geen wasmachine midden in de nacht)
     const tip = uurNu < 6 ? "" : uurNu >= 22 ? "Start de vaatwasser voor je gaat slapen" : this._config.tip;
-    const wacht = nx ? `${nx.day ? "morgen " : ""}${zsEsc(nx.from)}` : "";
+    const wacht = nx ? zsEsc(nx.from) : "";       // 'morgen' staat in de regel erboven: zo blijft de grote tijd op één regel
     const head = on
       ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.bolt}</svg>Stroom is nu goedkoop</div><div class="h">tot ${zsEsc(C.until)}<small>${zsHubLeft(C.until_ts - now)}</small></div>
          ${this._witgoed().some((w) => !w.nu) || !tip ? "" : `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(tip)}</div>`}`
       : nx
-        ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${nx.zelf ? (piek ? "Nu duur · het goedkoopst vanaf" : "Het goedkoopst vanaf") : piek ? "Nu duur · goedkoop vanaf" : "Goedkope stroom vanaf"}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
+        ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${(nx.zelf ? (piek ? "Nu duur · het goedkoopst" : "Het goedkoopst") : piek ? "Nu duur · goedkoop" : "Goedkope stroom") + (nx.day ? " morgen vanaf" : " vanaf")}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
         : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Stroom is nu duur" : "Nog even wachten"}</div><div class="h">Wacht even<small>De prijzen van morgen komen rond 13:00</small></div>`;
     // Wat Zonnestuur straks doet (per apparaat de eerste keer), zodat je ziet dat het geregeld is
     const gezien = new Set(), plan = (a.plan || []).filter((x) => !gezien.has(x.n) && gezien.add(x.n)).slice(0, 3);
