@@ -188,6 +188,7 @@ function velden(r) {
     ${f("f_minuit", "Minstens zo lang uit (min)", r.min_uit ?? 10, 'type="number" step="1" min="0" max="120" inputmode="numeric"')}
     ${f("f_vorst", "Altijd aan als het buiten zo koud is (°C)", r.vorst_buiten ?? 2, 'type="number" step="0.5" min="-10" max="8" inputmode="decimal"')}
     <label class="v">Pomp af en toe even laten draaien<select id="f_kick"><option value="1" ${r.pompkick !== false ? "selected" : ""}>Ja, na een dag stilstand 3 minuten</option><option value="0" ${r.pompkick === false ? "selected" : ""}>Nee</option></select></label>
+    ${(DATA.warmtepompen || []).length ? `<label class="v breed">Heeft de warmtepomp deze pomp nodig voor zijn waterstroom?<select id="f_wpflow"><option value="">Nee</option>${DATA.warmtepompen.map((x) => `<option value="${esc(x.id)}" ${x.id === r.wp_flow ? "selected" : ""}>Ja: ${esc(x.naam)} (pomp blijft aan zolang die draait)</option>`).join("")}</select></label>` : ""}
     <label class="v breed">Stroommeting van de pomp (niet verplicht)<select id="f_pompw"><option value="">Geen</option>${((KAND || {}).vermogens || []).map((x) => `<option value="${esc(x.entity)}" ${x.entity === r.pomp_vermogen ? "selected" : ""}>${esc(x.naam)}${x.w != null ? " · " + Math.round(x.w) + " W" : ""}</option>`).join("")}</select></label>
     <p class="hint breed">Een slimme stekker moet de pomp aankunnen: kijk naar het maximale vermogen en de inschakelstroom van de stekker. Pompen van de warmtepomp zelf niet via een stekker schakelen.</p>
   </div><p class="hint">Heeft deze ruimte een airco en de rest van het huis een cv-ketel? Kies dan hier Airco.</p>`;
@@ -285,7 +286,8 @@ function waarden(box, r) {
     bron: g("f_bron") ? g("f_bron").value : (r.bron || ""), koel: g("f_koel") ? num("f_koel") : (r.koel ?? 24),
     min_aan: g("f_minaan") ? num("f_minaan") : (r.min_aan ?? 10), min_uit: g("f_minuit") ? num("f_minuit") : (r.min_uit ?? 10),
     vorst_buiten: g("f_vorst") ? num("f_vorst") : (r.vorst_buiten ?? 2), pompkick: g("f_kick") ? g("f_kick").value === "1" : r.pompkick !== false,
-    pomp_vermogen: g("f_pompw") ? g("f_pompw").value : (r.pomp_vermogen || "") });
+    pomp_vermogen: g("f_pompw") ? g("f_pompw").value : (r.pomp_vermogen || ""),
+    wp_flow: g("f_wpflow") ? g("f_wpflow").value : (r.wp_flow || "") });
   if (g("f_naam")) uit.naam = g("f_naam").value.trim();
   if (soort === "thermostaat") { uit.climate = g("f_climate") ? g("f_climate").value : ""; uit.sensor = g("f_sensor_th") ? g("f_sensor_th").value : ""; uit.schakelaars = []; }
   else { uit.sensor = g("f_sensor") ? g("f_sensor").value : ""; uit.schakelaars = [...box.querySelectorAll('input[name="f_sch"]:checked')].map((x) => x.value); uit.climate = ""; }

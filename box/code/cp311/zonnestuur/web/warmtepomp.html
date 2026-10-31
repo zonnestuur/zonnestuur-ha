@@ -221,9 +221,19 @@ function teken(w) {
   // advies
   html += `<section class="kaart"><h2>Zo wordt hij zuiniger</h2>${(w.advies || []).length ? `<div class="advies">${w.advies.map((a) => `<article>
       <h3>${esc(a.titel)}</h3><div class="eff">${a.effect_pct ? "± " + a.effect_pct + "%" : ""}<small>${a.soort === "gemeten" ? "uit metingen" : "schatting"}</small></div>
-      <p>${esc(a.tekst)}</p><p class="doe">${esc(a.actie)}</p>${a.link ? `<p><a href="${esc(a.link)}">Ga naar de instellingen</a></p>` : ""}</article>`).join("")}</div>
-      <p class="hint">Zonnestuur verandert hier zelf niets aan: dit is advies. Instellingen van de fabrikant blijven leidend.</p>`
+      <p>${esc(a.tekst)}</p>${recHtml(a)}</article>`).join("")}</div>
+      <p class="hint">Zonnestuur verandert alleen iets als jij op 'Aanbeveling uitvoeren' drukt, en blijft binnen de grenzen van de fabrikant. Na 7 dagen zie je wat het opleverde.</p>`
     : `<p class="hint">Niets bijzonders gevonden. Zonnestuur blijft kijken.</p>`}</section>`;
+
+  const gedaan = (DATA.gedaan || []).filter((x) => x.dev === w.id);
+  if (gedaan.length) {
+    html += `<section class="kaart"><h2>Wat Zonnestuur aanpaste</h2><div class="advies">${gedaan.map((x) => `<article>
+      <h3>${esc(x.titel)}</h3><div class="eff"><small>${esc(STATUS[x.status] || x.status)}</small></div>
+      <p>${esc(x.huidig)} → ${esc(x.voorstel)} · ${esc(new Date(x.t).toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }))}</p>
+      ${x.resultaat ? `<p class="doe">${esc(x.resultaat)}</p>` : x.status === "uitgevoerd" ? `<p class="hint">Het resultaat staat hier na ${DATA.meet_dagen || 7} dagen.</p>` : ""}
+      ${x.fout ? `<p class="hint">${esc(x.fout)}</p>` : ""}
+      ${x.status === "uitgevoerd" ? `<p><button class="btn ghost small" type="button" data-terug="${esc(x.id)}">Terugdraaien</button></p>` : ""}</article>`).join("")}</div></section>`;
+  }
 
   // bronnen en wat ontbreekt
   html += `<section class="kaart"><h2>Waar de getallen vandaan komen</h2>
@@ -232,6 +242,16 @@ function teken(w) {
     <details class="inst" id="instellen"><summary>Metingen kiezen</summary><div id="form"><p class="hint">Laden…</p></div></details>
   </section>`;
   $("inhoud").innerHTML = html;
+}
+
+const STATUS = { nieuw: "Nieuw", goedgekeurd: "Bezig", uitgevoerd: "Uitgevoerd", mislukt: "Mislukt", teruggedraaid: "Teruggedraaid", verlopen: "Verlopen" };
+function recHtml(a) {
+  const r = a.aanbeveling;
+  if (!r || r.niveau === "niet" || !r.actie) return `<p class="doe">${esc(a.actie)}</p>${a.link ? `<p><a href="${esc(a.link)}">Ga naar de instellingen</a></p>` : ""}`;
+  if (r.status === "uitgevoerd") return `<p class="doe">Uitgevoerd: ${esc(r.voorstel)}. Zie hieronder.</p>`;
+  return `<p class="doe"><b>Nu:</b> ${esc(r.huidig)}<br><b>Voorstel:</b> ${esc(r.voorstel)}<br><b>Nadeel:</b> ${esc(r.nadelen)}</p>
+    <p class="hint">Voorwaarden: ${esc((r.voorwaarden || []).join(", "))}. Zekerheid: ${esc(r.zekerheid)}.</p>
+    <p><button class="btn small" type="button" data-rec="${esc(r.id)}" style="background:var(--zs-knop);color:#fff">Aanbeveling uitvoeren</button></p>`;
 }
 
 function periodeNaam(bp, x) {
@@ -322,6 +342,22 @@ document.addEventListener("click", async (ev) => {
   if (k) { KEUZE = k.dataset.kies; KAND = null; laad(); return; }
   const r = ev.target.closest("[data-reeks]");
   if (r) { REEKS = r.dataset.reeks; teken((DATA.apparaten || []).find((x) => x.id === KEUZE)); return; }
+  const rc = ev.target.closest("[data-rec]");
+  if (rc) {
+    rc.disabled = true;
+    try {
+      let r = await post(`api/aanbevelingen/${rc.dataset.rec}/uitvoeren`, {});
+      if (r.bevestigen) { if (!confirm(r.vraag)) { rc.disabled = false; return; } r = await post(`api/aanbevelingen/${rc.dataset.rec}/uitvoeren`, { bevestigd: true }); }
+      melding(r.ok ? r.tekst : r.fout); await laad();
+    } catch (e) { melding(e.message); rc.disabled = false; }
+    return;
+  }
+  const tg = ev.target.closest("[data-terug]");
+  if (tg) {
+    if (!confirm("De oude instelling terugzetten?")) return;
+    try { const r = await post(`api/aanbevelingen/${tg.dataset.terug}/terug`, {}); melding(r.ok ? r.tekst : r.fout); await laad(); } catch (e) { melding(e.message); }
+    return;
+  }
   if (ev.target.id === "bewaar") {
     const v = (id) => ($(id) || {}).value || "";
     const cop = { elek_entity: v("f_elek"), warmte_entity: v("f_warmte"), warmte_soort: v("f_wsoort"), aanvoer_entity: v("f_aanvoer"),

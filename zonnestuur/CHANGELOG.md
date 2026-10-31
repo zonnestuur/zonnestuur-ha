@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.87.0
+- Aanbevelingen uitvoeren: bij de warmtepomp zie je per advies wat er nu staat, wat Zonnestuur voorstelt en wat het nadeel is. Met 'Aanbeveling uitvoeren' zet Zonnestuur het zelf goed (binnen de grenzen van de fabrikant), controleert of het echt veranderd is, en laat na 7 dagen zien wat het opleverde. Terugdraaien kan altijd.
+- Meetkwaliteit: Zonnestuur herkent metingen die niet kunnen kloppen (meer vermogen dan een apparaat kan, een sensor die blijft hangen, onmogelijke sprongen, een onmogelijke COP) en leert daar niet van. Te zien bij 'Wat Zonnestuur weet'.
+- Opgelost: de Mii leerde '9,7 kW' laden. Dat was een tweede auto aan dezelfde laadpaal. Laden boven wat de auto kan telt niet meer voor die auto, en de foute waarden zijn weggehaald.
+- Vloerverwarming: geef aan of de warmtepomp een pomp nodig heeft voor zijn waterstroom; die pomp blijft dan aan zolang de warmtepomp draait (en 5 minuten daarna).
+- De noodstop blijft ook na een herstart staan.
+
 ## 0.86.0
 - Nieuwe pagina 'Wat Zonnestuur weet' (bij Meer en Inzichten): alles wat Zonnestuur over je huis leerde, waar het op gebaseerd is, hoe zeker het is en hoe goed de zonvoorspelling klopte. Per onderdeel kun je het laten vergeten en opnieuw laten leren (bijvoorbeeld na een verbouwing of een nieuwe batterij).
 - Op zonnestuur.nl/integraties zie je per merk hoe het koppelt, wat het kan en wat al in een echt huis getest is.

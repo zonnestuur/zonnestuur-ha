@@ -34,6 +34,10 @@
   .voorsp { background: var(--zs-zacht); padding: 8px 12px; border-radius: 12px; }
   .acties { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; grid-column: 1 / -1; }
   .btn { font: inherit; font-weight: 650; font-size: 14px; border: 0; cursor: pointer; padding: 9px 14px; border-radius: 999px; min-height: 40px; text-decoration: none; display: inline-flex; align-items: center; }
+  h2.sec { font: 700 20px/1.25 "Inter Tight", Inter, sans-serif; margin: 26px 2px 6px; }
+  .zeker.verdacht { background: color-mix(in srgb, #f87171 18%, transparent); color: #fca5a5; }
+  [data-theme="light"] .zeker.verdacht { color: #b91c1c; }
+  .logregel { font-size: 13.5px; color: var(--zs-ink2); }
   .veilig { margin: 16px 4px; color: var(--zs-ink2); font-size: 14px; }
   .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
     padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
@@ -47,6 +51,9 @@
   <h1>Wat Zonnestuur weet</h1>
   <p class="intro">Alles wat Zonnestuur over je huis geleerd heeft, waar het op gebaseerd is en hoe zeker het is. Klopt iets niet meer, bijvoorbeeld na een verbouwing of een nieuwe batterij? Laat dat onderdeel vergeten, dan begint Zonnestuur daar opnieuw.</p>
   <div class="lijst" id="lijst"><div class="item"><p>Laden…</p></div></div>
+  <h2 class="sec">Meetkwaliteit</h2>
+  <p class="intro">Zonnestuur controleert elke meting. Klopt iets niet (meer vermogen dan een apparaat kan, een sensor die blijft hangen, een onmogelijke sprong), dan leert hij daar niet van tot het weer klopt.</p>
+  <div class="lijst" id="kwaliteit"><div class="item"><p>Laden…</p></div></div>
   <p class="veilig" id="veilig"></p>
 </main>
 <p class="melding" id="melding" role="status" hidden></p>
@@ -69,6 +76,14 @@ async function laad() {
   let d;
   try { d = await api("api/brein"); } catch (e) { $("lijst").innerHTML = `<div class="item"><p>${esc(e.message)}</p></div>`; return; }
   $("veilig").textContent = d.veilig || "";
+  const K = d.kwaliteit || { bronnen: [], log: [] };
+  const KN = { info: "In orde", "let op": "Let op", verdacht: "Telt niet mee" }, KK = { info: "hoog", "let op": "laag", verdacht: "verdacht" };
+  $("kwaliteit").innerHTML = (K.bronnen || []).length ? K.bronnen.map((b) => `<div class="item">
+      <h2>${esc(b.naam)}</h2><span class="zeker ${KK[b.ernst] || "laag"}">${KN[b.ernst] || ""}</span>
+      <p class="wat">${esc(b.tekst || "")}</p><p class="bron">${b.aantal}× gezien, laatst ${esc((b.laatst || "").replace("T", " "))}</p>
+      <div class="acties"><button class="btn ghost" type="button" data-kwis="${esc(b.bron)}">Gezien, wissen</button></div></div>`).join("")
+      + (K.log.length ? `<details class="item"><summary style="cursor:pointer;font-weight:650">Geschiedenis (${K.log.length})</summary>${K.log.map((x) => `<p class="logregel">${esc((x.t || "").replace("T", " "))} · ${esc(x.naam)}: ${esc(x.tekst)}${x.keer > 1 ? ` (${x.keer}×)` : ""}</p>`).join("")}</details>` : "")
+    : `<div class="item"><p>Alle metingen zien er goed uit.</p></div>`;
   $("lijst").innerHTML = (d.items || []).map((x) => `<div class="item">
     <h2>${esc(x.naam)}</h2><span class="zeker ${esc(x.zeker)}">${ZEKER[x.zeker] || ""}</span>
     <p class="wat">${esc(x.wat)}</p>
@@ -79,6 +94,8 @@ async function laad() {
   </div>`).join("") || `<div class="item"><p>Zonnestuur heeft nog niets geleerd. Over een paar dagen staat hier wat hij van je huis weet.</p></div>`;
 }
 document.addEventListener("click", async (ev) => {
+  const kw = ev.target.closest("[data-kwis]");
+  if (kw) { try { await api("api/datakwaliteit/wis", { method: "POST", body: JSON.stringify({ bron: kw.dataset.kwis }) }); laad(); } catch (e) { melding(e.message); } return; }
   const b = ev.target.closest("[data-vergeet]");
   if (!b) return;
   if (!confirm(`${b.dataset.naam}: alles wat Zonnestuur hierover leerde wissen en opnieuw beginnen?`)) return;
