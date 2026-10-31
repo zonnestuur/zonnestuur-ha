@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.87.1
+- Ook geleerde laadsnelheden van auto's die Zonnestuur zelf laadde worden nagekeken: meer dan het model kan (Mii hoogstens 7,2 kW) wordt weggehaald.
+
 ## 0.87.0
 - Aanbevelingen uitvoeren: bij de warmtepomp zie je per advies wat er nu staat, wat Zonnestuur voorstelt en wat het nadeel is. Met 'Aanbeveling uitvoeren' zet Zonnestuur het zelf goed (binnen de grenzen van de fabrikant), controleert of het echt veranderd is, en laat na 7 dagen zien wat het opleverde. Terugdraaien kan altijd.
 - Meetkwaliteit: Zonnestuur herkent metingen die niet kunnen kloppen (meer vermogen dan een apparaat kan, een sensor die blijft hangen, onmogelijke sprongen, een onmogelijke COP) en leert daar niet van. Te zien bij 'Wat Zonnestuur weet'.
