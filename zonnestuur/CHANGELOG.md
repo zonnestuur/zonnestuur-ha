@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.89.1
+- Nieuw vinkje bij Hulp: 'Updates vanzelf installeren', standaard aan. Nieuwe versies komen dan vanzelf binnen, zonder dat je iets hoeft te doen.
+
 ## 0.89.0
 - Website: nieuwe pagina's Brein, Hardware (eigen printbare behuizing met wandplaat en DIN-rail-adapter, maattekening), Zelf bouwen (P1-meter, temperaturen, COP-meting, Modbus, pompschakelaar), Schermen, Meldingen, Handleidingen, Downloads met versiegeschiedenis en Over.
 - Behuizing: ook als 3MF en STEP.

@@ -156,6 +156,8 @@ html, body { overscroll-behavior-y: none; }
       <span>Elk uur: installatie-ID, versie, Add-on of Box, proef/Pro/Basis en welke soort apparaten (boiler, auto, …). De Box stuurt ook zijn adres in je thuisnetwerk mee, voor zonnestuur.nl/box. Geen namen of meterstanden. Zo weten we hoeveel huizen Zonnestuur gebruiken, en kunnen we je proefperiode verlengen.</span></div></label>
     <label class="sw"><input type="checkbox" id="meekijk"><div><b>Zonnestuur mag op afstand meekijken</b>
       <span>Tijdens de proef staat dit standaard aan. Wij zien dan of de meter en je apparaten werken, kunnen het logboek opvragen, je apparaten laten zoeken, instellingen voor je goedzetten en meekijken met wat er op je scherm staat als je Zonnestuur open hebt. Geen wachtwoorden, adressen of meterstanden. Zo kunnen we fouten snel oplossen.</span></div></label>
+    <label class="sw"><input type="checkbox" id="autoupd"><div><b>Updates vanzelf installeren</b>
+      <span id="autoupd_uitleg">Nieuwe versies van Zonnestuur worden vanzelf geïnstalleerd, meestal binnen een uur. Je instellingen en wat Zonnestuur geleerd heeft blijven bewaard.</span></div></label>
     <label class="sw"><input type="checkbox" id="test"><div><b>Nieuwe versies als eerste krijgen</b>
       <span>Voor proefhuizen: je krijgt verbeteringen eerder, en meldt zo sneller wat er nog niet goed gaat.</span></div></label>
     <span id="a_msg" class="small" role="status"></span>
@@ -283,15 +285,15 @@ let CFG = null;
 async function laad() {
   try { const d = await api("api/diagnose"); checks(d); $("diag").textContent = JSON.stringify(d, null, 1); }
   catch (e) { $("checks").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
-  try { CFG = await api("api/config"); $("auto").checked = CFG.fouten_melden !== false; $("seintje").checked = CFG.seintje !== false; $("meekijk").checked = CFG.meekijken !== false; $("test").checked = CFG.kanaal === "test"; } catch (e) {}
+  try { CFG = await api("api/config"); $("auto").checked = CFG.fouten_melden !== false; $("seintje").checked = CFG.seintje !== false; $("meekijk").checked = CFG.meekijken !== false; $("test").checked = CFG.kanaal === "test"; $("autoupd").checked = CFG.auto_update !== false; } catch (e) {}
 }
 async function bewaar() {
   if (!CFG) return;
-  CFG.fouten_melden = $("auto").checked; CFG.seintje = $("seintje").checked; CFG.meekijken = $("meekijk").checked; CFG.kanaal = $("test").checked ? "test" : "stabiel";
+  CFG.fouten_melden = $("auto").checked; CFG.seintje = $("seintje").checked; CFG.meekijken = $("meekijk").checked; CFG.kanaal = $("test").checked ? "test" : "stabiel"; CFG.auto_update = $("autoupd").checked;
   try { await post("api/config", CFG); $("a_msg").innerHTML = '<span class="ok">Opgeslagen</span>'; } catch (e) { $("a_msg").innerHTML = `<span class="err">${esc(e.message)}</span>`; }
   setTimeout(() => { $("a_msg").textContent = ""; }, 2500);
 }
-$("auto").onchange = bewaar; $("seintje").onchange = bewaar; $("meekijk").onchange = bewaar; $("test").onchange = bewaar;
+$("auto").onchange = bewaar; $("seintje").onchange = bewaar; $("meekijk").onchange = bewaar; $("test").onchange = bewaar; $("autoupd").onchange = bewaar;
 const SOORT = {
   probleem: ["Wat gaat er mis?", "Bijv. de boiler ging vanochtend niet aan, terwijl de stroom goedkoop was.", "Beschrijf kort wat er mis is."],
   idee: ["Wat is je idee?", "Bijv. ik zou ook mijn vaatwasser willen laten wachten op de zon.", "Schrijf kort je idee op."],
