@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.89.0
+- Website: nieuwe pagina's Brein, Hardware (eigen printbare behuizing met wandplaat en DIN-rail-adapter, maattekening), Zelf bouwen (P1-meter, temperaturen, COP-meting, Modbus, pompschakelaar), Schermen, Meldingen, Handleidingen, Downloads met versiegeschiedenis en Over.
+- Behuizing: ook als 3MF en STEP.
+
 ## 0.88.0
 - Eén planner voor alles: batterij, auto, boiler, warmtepomp en je zonnepanelen worden samen gepland, binnen je hoofdzekering. Nieuw tabblad Planning laat het plan per uur zien, en wat het kost tegenover apart plannen en zonder sturing.
 - Energie Autopilot: laagste kosten, maximale besparing, maximaal eigen verbruik, batterij sparen of comfort eerst.
