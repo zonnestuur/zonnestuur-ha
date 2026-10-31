@@ -353,7 +353,7 @@ html, body { overscroll-behavior-y: none; }
   .dagplan .som { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
   .dagplan .som b { color: var(--ink); font-weight: 650; }
   .dagplan svg { width: 100%; height: 64px; display: block; }
-  .dagplan .af { fill: var(--net); } .dagplan .tr { fill: var(--sun); } .dagplan .ax { stroke: var(--rule); }
+  .dagplan .af { fill: var(--e-net); } .dagplan .tr { fill: var(--e-terug); } .dagplan .ax { stroke: var(--rule); }
   .dagplan .uren { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 12px; color: var(--ink-2); margin-top: 3px; }
   .dagplan .lg { font-size: 12px; color: var(--ink-2); display: flex; gap: 14px; margin-top: 4px; }
   .dagplan .lg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
@@ -862,6 +862,19 @@ html, body { overscroll-behavior-y: none; }
   .vd { grid-column: 1 / -1; display: grid; gap: 14px; min-width: 0; }
   @media (min-width: 1000px) { .vd { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; } }
   .vd-zij { display: grid; gap: 14px; min-width: 0; align-content: start; }
+  .jij-weg { display: none !important; }
+  dialog.indeling .btn, .indeling-knop .btn, .inz-dl { min-height: 46px; padding: 11px 20px; font-size: 15px; border-radius: 99px; text-decoration: none; display: inline-flex; align-items: center; }
+  .inz-dl { justify-self: start; }
+  .indeling-knop { display: flex; justify-content: center; margin: 18px 0 6px; }
+  dialog.indeling { border: 0; border-radius: 22px; padding: 22px; width: min(440px, calc(100vw - 32px)); background: var(--zs-vlak, #fff); color: var(--zs-ink); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  dialog.indeling::backdrop { background: rgba(4, 10, 20, .55); }
+  .ind-lijst { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+  .ind-lijst li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--zs-zacht, rgba(127,127,127,.08)); }
+  .ind-lijst li.uit .ind-naam { opacity: .55; }
+  .ind-naam b { display: block; font-size: 15px; } .ind-naam small { color: var(--zs-ink2); font-size: 13px; }
+  .ind-pijl { width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--zs-ink); font-size: 18px; cursor: pointer; }
+  .ind-pijl:disabled { opacity: .25; cursor: default; }
+  .ind-lijst input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--zs-groen); }
   .vd > *, .vd-zij > * { grid-column: auto !important; order: 0 !important; margin: 0 !important; min-width: 0; }
   @media (min-width: 1000px) { .vd > .vd-zij { grid-column: 2 !important; grid-row: 1 / span 2; } .vd > .c-hero, .vd > #planCard { grid-column: 1 !important; } }
   body.v-vandaag #dagplan { display: none !important; }
@@ -1009,7 +1022,7 @@ html, body { overscroll-behavior-y: none; }
   .hchip b { display: block; font: 700 16px/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.01em; white-space: nowrap; }
   .hchip .hi { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--k) 22%, transparent); color: var(--k); flex: none; }
   .hchip .hi svg { width: 18px; height: 18px; }
-  .hchip.zon { --k: #fbbf24; } .hchip.bat { --k: #34d399; } .hchip.huis { --k: #93c5fd; } .hchip.net { --k: #2dd4bf; } .hchip.auto { --k: #c4b5fd; }
+  .hchip.zon { --k: var(--e-zon); } .hchip.bat { --k: var(--e-bat); } .hchip.huis { --k: var(--e-huis); } .hchip.net { --k: var(--e-net); } .hchip.net.terug { --k: var(--e-terug); } .hchip.auto { --k: var(--e-auto); }
   .hchip.tl { left: 3%; top: 5%; } .hchip.tr { right: 3%; top: 5%; } .hchip.mr { right: 3%; top: 39%; } .hchip.bl { left: 3%; bottom: 2.5%; } .hchip.br { right: 3%; bottom: 2.5%; } .hchip.ar { right: 3%; top: 57%; }
   @media (max-width: 420px) { .hchip { padding: 5px 9px 5px 5px; gap: 6px; } .hchip .hi { width: 26px; height: 26px; } .hchip b { font-size: 14.5px; } .hchip small { font-size: 10.5px; } }
   /* drie tegels */
@@ -1019,7 +1032,7 @@ html, body { overscroll-behavior-y: none; }
   .tegel:hover { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--zs-ink) 30%, transparent); }
   .tegel .ti { width: 34px; height: 34px; display: grid; place-items: center; margin: 0 0 8px -2px; }
   .tegel .ti svg { width: 32px; height: 32px; }
-  .ti.zon { color: #fbbf24; } .ti.huis { color: #60a5fa; } .ti.bat { color: #34d399; } .ti.blad { color: #34d399; }
+  .ti.zon { color: var(--e-zon); } .ti.huis { color: var(--e-huis); } .ti.bat { color: var(--e-bat); } .ti.blad { color: #34d399; }
   .tegel .l { font-size: 13px; color: var(--zs-ink2); font-weight: 550; line-height: 1.25; }
   .tegel .v { font: 700 clamp(19px, 5.4vw, 26px)/1.15 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; white-space: nowrap; margin-top: 2px; }
   .tegel .v small { font-size: .62em; font-weight: 650; letter-spacing: 0; }
@@ -1029,7 +1042,7 @@ html, body { overscroll-behavior-y: none; }
   .trend { font-size: 13px; font-weight: 700; white-space: nowrap; } .trend.op { color: var(--zs-groen); } .trend.af { color: #60a5fa; }
   .lijntje { height: 20px; flex: 1 1 auto; max-width: 72px; min-width: 30px; }
   .balk { display: block; height: 10px; border-radius: 99px; background: var(--zs-zacht); margin-top: 10px; overflow: hidden; }
-  .balk i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #22c55e, #5eead4); }
+  .balk i { display: block; height: 100%; border-radius: 99px; background: var(--e-bat); }
   /* tarieven */
   .tarkaart { display: grid !important; grid-template-columns: 46px minmax(0, 1fr) auto 10px; align-items: center; gap: 12px; padding: 16px !important; text-decoration: none; color: inherit; }
   .tarkaart .ti { width: 46px; height: 46px; border-radius: 50%; background: color-mix(in srgb, var(--zs-groen) 16%, transparent); color: var(--zs-groen); display: grid; place-items: center; margin: 0; }
@@ -1053,7 +1066,8 @@ html, body { overscroll-behavior-y: none; }
   /* Inzichten */
   body.v-inzicht .grid > * { order: 0 !important; }
   .inz-top { grid-column: 1 / -1; display: grid; gap: 14px; }
-  .seg3 { display: flex; gap: 4px; padding: 4px; border-radius: 99px; background: var(--zs-zacht); box-shadow: 0 0 0 1px var(--zs-lijn); max-width: 520px; }
+  .seg3 { display: flex; gap: 4px; padding: 4px; border-radius: 99px; background: var(--zs-zacht); box-shadow: 0 0 0 1px var(--zs-lijn); max-width: 620px; }
+  .inz-dl { justify-self: start; } .seg3 button { white-space: nowrap; }
   .seg3 button { flex: 1 1 0; font: 600 14.5px/1 Inter, sans-serif; color: var(--zs-ink2); background: none; border: 0; padding: 11px 8px; border-radius: 99px; cursor: pointer; min-height: 40px; }
   .seg3 button[aria-pressed="true"] { background: var(--zs-knop); color: var(--zs-knop-ink); }
   .donutkaart h2 { margin: 0 0 10px; }
@@ -1144,7 +1158,8 @@ html, body { overscroll-behavior-y: none; }
     <!-- Inzicht: paginakop -->
     <header class="pagina-kop adv"><h1 class="t">Inzichten</h1><p>Terugkijken: wat Zonnestuur opleverde, waar je stroom heen ging en wat hij over je huis leerde.</p></header>
     <section class="inz-top adv" aria-label="Overzicht">
-      <div class="seg3" role="group" aria-label="Periode" id="inzSeg"><button type="button" data-p="today" aria-pressed="true">Vandaag</button><button type="button" data-p="week" aria-pressed="false">Deze week</button><button type="button" data-p="month" aria-pressed="false">Deze maand</button></div>
+      <div class="seg3" role="group" aria-label="Periode" id="inzSeg"><button type="button" data-p="today" aria-pressed="true">Vandaag</button><button type="button" data-p="week" aria-pressed="false">Deze week</button><button type="button" data-p="month" aria-pressed="false">Deze maand</button><button type="button" data-p="year" aria-pressed="false">Dit jaar</button></div>
+      <a class="btn ghost inz-dl" id="inzDownload" href="api/download.csv?periode=today" download>Download voor Excel</a>
       <div class="card donutkaart" id="donutKaart"><h2 class="sec">Energieverdeling</h2><div class="donut-rij"><div class="donut" id="donut"></div><ul class="dlegenda" id="dLegenda"></ul></div><p class="small muted" id="donutNote"></p></div>
       <div class="inz-tegels"><div class="card inz-t" id="inzBesp"></div><div class="card inz-t" id="inzCo2"></div></div>
     </section>
@@ -1382,6 +1397,14 @@ html, body { overscroll-behavior-y: none; }
       <div id="cmpBody"><button class="btn-line" id="cmpBtn" style="margin-top:12px">Uitrekenen</button></div>
     </section>
   </div>
+
+  <div class="nu indeling-knop"><button type="button" class="btn ghost" id="indelingBtn">Home indelen</button></div>
+  <dialog class="indeling" id="indeling" aria-labelledby="indTitel">
+    <h2 class="sec" id="indTitel">Home indelen</h2>
+    <p class="small muted">Kies wat je op Home wilt zien en in welke volgorde. Dit geldt voor dit apparaat.</p>
+    <ol class="ind-lijst" id="indLijst"></ol>
+    <div class="row" style="gap:8px;margin-top:14px"><button type="button" class="btn" id="indKlaar">Klaar</button><button type="button" class="btn ghost" id="indStandaard">Standaard</button></div>
+  </dialog>
 
   <footer><span id="foot"></span><span><a href="kiosk" style="color:inherit">Wandscherm</a> · Zonnestuur · lokaal, zonder cloud</span></footer>
 </main>
@@ -1736,7 +1759,7 @@ function renderDagplan() {
   el.innerHTML = `<div class="som"><span>Van het net <b>${nl(D.afname_kwh, 1)} kWh</b></span><span>Terug <b>${nl(D.terug_kwh, 1)} kWh</b></span>${zelf}<span>Stroom <b>± ${eur(Math.max(0, D.kosten_eur))}</b></span></div>
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Verwacht van het net en terug per uur, komende 24 uur"><line class="ax" x1="0" x2="${W}" y1="${mid}" y2="${mid}"/>${bars}</svg>
     <div class="uren">${[0, 6, 12, 18].map((i) => `<span>${i ? hhmm(new Date(D.uren[i].uur)) : "nu"}</span>`).join("")}</div>
-    <div class="lg"><span><i style="background:var(--net)"></i>van het net</span>${D.terug_kwh > 0.05 ? '<span><i style="background:var(--sun)"></i>terug</span>' : ""}</div>
+    <div class="lg"><span><i style="background:var(--e-net)"></i>van het net</span>${D.terug_kwh > 0.05 ? '<span><i style="background:var(--e-terug)"></i>terug</span>' : ""}</div>
     <p class="small muted" style="margin:6px 0 0">Alles samen gepland: apparaten, auto en batterij houden rekening met elkaar.</p>`;
   $("planNote").textContent = "";
 }
@@ -1862,11 +1885,11 @@ function renderChips(s) {
   if (bat) c.push(["bat", "tr", "Batterij", bp > 30 ? "+" + kwT(bp) : bp < -30 ? "−" + kwT(bp) : nl(bat.soc || 0) + "%"]);
   if (huis != null) c.push(["huis", bat ? "mr" : "tr", "Huisverbruik", kwT(huis)]);
   // net rechtsonder in de grond, bij het netkastje (links staan warmtepomp en batterij); de auto er net boven, boven de oprit
-  if (g != null) c.push(["net", "br", g < -30 ? "Terugleveren" : "Van het net", kwT(g)]);
+  if (g != null) c.push([g < -30 ? "net terug" : "net", "br", g < -30 ? "Terugleveren" : "Van het net", kwT(g)]);
   const autoPlek = bat ? "ar" : "mr";
   if (ev > 0) c.push(["auto", autoPlek, "Auto laden", kwT(ev)]);
   else if (auto && autoSoc != null) c.push(["auto", autoPlek, auto.name, nl(autoSoc) + "%"]);
-  el.innerHTML = c.map(([k, plek, l, v]) => `<div class="hchip ${k} ${plek}"><span class="hi">${SVGI(HI[k])}</span><span><small>${esc(l)}</small><b class="num">${esc(v)}</b></span></div>`).join("");
+  el.innerHTML = c.map(([k, plek, l, v]) => `<div class="hchip ${k} ${plek}"><span class="hi">${SVGI(HI[k.split(" ")[0]])}</span><span><small>${esc(l)}</small><b class="num">${esc(v)}</b></span></div>`).join("");
 }
 // kleine lijn van de laatste dagen (voor de tegels)
 function lijntje(vals, kleur) {
@@ -1891,11 +1914,11 @@ function renderCijfers(s) {
     const t = sc ? sc.today : null;
     const verwacht = TODAY && TODAY.forecast ? TODAY.forecast.reduce((a, f) => a + (f.pv_w || 0), 0) / 1000 * ((TODAY.forecast[1] ? TODAY.forecast[1].ts - TODAY.forecast[0].ts : 3600) / 3600) : null;
     k.push(`<a class="tegel" href="inzicht"><span class="ti zon">${SVGI(HI.zon)}</span><span class="l">Opbrengst vandaag</span><b class="v num">${t ? nl(t.pv_kwh, 1) : "–"}<small> kWh</small></b>
-      <span class="d">${verwacht != null ? `Verwacht ${nl(verwacht, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(t && t.pv_kwh, gister && gister.pv_kwh)}${lijntje(dagen.slice(-7).map((x) => x.pv_kwh), "var(--zs-groen)")}</span></a>`);
+      <span class="d">${verwacht != null ? `Verwacht ${nl(verwacht, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(t && t.pv_kwh, gister && gister.pv_kwh)}${lijntje(dagen.slice(-7).map((x) => x.pv_kwh), "var(--e-zon)")}</span></a>`);
   }
   const tv = sc ? sc.today : null, verbruik = tv ? (tv.import_kwh || 0) + (tv.own_kwh || 0) : null;
   k.push(`<a class="tegel" href="inzicht"><span class="ti huis">${SVGI(HI.huis)}</span><span class="l">Verbruik vandaag</span><b class="v num">${verbruik != null ? nl(verbruik, 1) : "–"}<small> kWh</small></b>
-    <span class="d">${tv ? `Van het net ${nl(tv.import_kwh || 0, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(verbruik, gister ? (gister.import_kwh || 0) + (gister.own_kwh || 0) : null)}${lijntje(dagen.slice(-7).map((x) => (x.import_kwh || 0) + (x.own_kwh || 0)), "var(--zs-blauw)")}</span></a>`);
+    <span class="d">${tv ? `Van het net ${nl(tv.import_kwh || 0, 1)} kWh` : "&nbsp;"}</span><span class="vt">${trend(verbruik, gister ? (gister.import_kwh || 0) + (gister.own_kwh || 0) : null)}${lijntje(dagen.slice(-7).map((x) => (x.import_kwh || 0) + (x.own_kwh || 0)), "var(--e-huis)")}</span></a>`);
   const bat = (s.batteries || [])[0];
   if (bat) {
     const soc = Math.max(0, Math.min(100, bat.soc || 0));
@@ -3684,7 +3707,7 @@ function renderInzicht() {
   } else {
     const terug = t.export_kwh || 0, eigen = Math.max(0, t.own_kwh || 0);
     const b = Math.min(batZon, eigen), e = Math.min(evZon, eigen - b), direct = Math.max(0, eigen - b - e);
-    const delen = [["Direct verbruik", direct, "#fbbf24"], ["Batterij", b, "#34d399"], ["Auto laden", e, "#a78bfa"], ["Teruglevering", terug, "#3b82f6"]].filter((x) => x[1] > 0.01);
+    const delen = [["Direct verbruik", direct, "var(--e-zon)"], ["Batterij", b, "var(--e-bat)"], ["Auto laden", e, "var(--e-auto)"], ["Teruglevering", terug, "var(--e-terug)"]].filter((x) => x[1] > 0.01);
     const tot = delen.reduce((a, x) => a + x[1], 0) || 1;
     let hoek = -90; const R = 52, C = 2 * Math.PI * R;
     let bogen = "", off = 0;
@@ -3697,9 +3720,10 @@ function renderInzicht() {
   // besparing en CO2, met de vorige periode erbij
   const V = s.value || {}, H = MONTH || [];
   const som = (a, b) => H.slice(a, b).reduce((x, d) => x + (d.eur_saved || 0), 0);
-  const nu = P === "today" ? (V.today || {}).eur : P === "month" ? (V.month || {}).eur : som(-7);
+  const nu = P === "today" ? (V.today || {}).eur : P === "month" ? (V.month || {}).eur : P === "year" ? (V.year || {}).eur : som(-7);
+  $("inzDownload").href = "api/download.csv?periode=" + P + (token ? "&token=" + encodeURIComponent(token) : "");
   const toen = P === "today" ? (H.length > 1 ? H[H.length - 2].eur_saved : null) : P === "week" ? (H.length >= 14 ? som(-14, -7) : null) : null;
-  const vgl = { today: "t.o.v. gisteren", week: "t.o.v. vorige week", month: "" }[P];
+  const vgl = { today: "t.o.v. gisteren", week: "t.o.v. vorige week", month: "", year: "" }[P];
   const pct = toen != null && toen > 0.05 && nu != null ? Math.round((nu / toen - 1) * 100) : null;
   $("inzBesp").innerHTML = `<span class="ti blad">${SVGI(HI.blad)}</span><span class="l">Besparing</span><b class="v num">${eur(nu || 0)}</b>
     <span class="d">${pct != null && pct !== 0 ? `<i class="trend ${pct > 0 ? "op" : "af"}">${pct > 0 ? "↑" : "↓"} ${Math.abs(pct)}%</i> ${vgl}` : P === "month" && V.year ? `${eur(V.year.eur)} dit jaar` : "&nbsp;"}</span>`;
@@ -3708,6 +3732,46 @@ function renderInzicht() {
     <span class="d">door ${nl(t ? t.own_kwh || 0 : 0, 1)} kWh eigen zon</span>`;
 }
 document.querySelectorAll("#inzSeg button").forEach((b) => b.addEventListener("click", () => { INZ_P = b.dataset.p; INZ_GEKOZEN = true; renderInzicht(); }));
+// ---------- Home zelf indelen (zoals een grafiek vastzetten): volgorde en zichtbaarheid, per apparaat bewaard ----------
+const HOME_KAARTEN = [["cijfers", "Kerncijfers", "Opbrengst, verbruik en batterij"], ["tarKaart", "Stroomprijs", "Prijs nu en de goedkoopste uren"],
+  ["miniApps", "Je apparaten", "Wat je apparaten nu doen"], ["aandacht", "Tips", "Wat je nu kunt doen"], ["planCard", "De komende 24 uur", "Wat Zonnestuur heeft gepland", true]];
+function homeIndeling() {
+  let d = null; try { d = JSON.parse(localStorage.getItem("zs_home") || "null"); } catch (e) { d = null; }
+  const ids = HOME_KAARTEN.map((k) => k[0]);
+  const volg = ((d && d.volgorde) || []).filter((x) => ids.includes(x));
+  for (const x of ids) if (!volg.includes(x)) volg.push(x);
+  return { volgorde: volg, weg: ((d && d.weg) || []).filter((x) => ids.includes(x)) };
+}
+function homeToepassen() {
+  if (VIEW !== "vandaag") return;
+  const H = homeIndeling();
+  H.volgorde.forEach((id, i) => { const el = $(id); if (!el) return; if (id !== "planCard") el.style.order = String(i); el.classList.toggle("jij-weg", H.weg.includes(id)); });
+}
+function homeBewaar(H) { try { localStorage.setItem("zs_home", JSON.stringify(H)); } catch (e) { /* privé-venster: alleen voor nu */ } homeToepassen(); indelingTeken(H); }
+function indelingTeken(H) {
+  H = H || homeIndeling();
+  const kaart = (id) => HOME_KAARTEN.find((k) => k[0] === id);
+  const beweegbaar = H.volgorde.filter((id) => !kaart(id)[3]);
+  $("indLijst").innerHTML = H.volgorde.map((id) => { const [, naam, uitleg, vast] = kaart(id), i = beweegbaar.indexOf(id), aan = !H.weg.includes(id);
+    return `<li class="${aan ? "" : "uit"}"><input type="checkbox" data-ind="${id}" ${aan ? "checked" : ""} aria-label="${esc(naam)} tonen"><span class="ind-naam"><b>${esc(naam)}</b><small>${esc(vast ? uitleg + " (staat altijd onderaan)" : uitleg)}</small></span>
+      ${vast ? "<span></span><span></span>" : `<button type="button" class="ind-pijl" data-op="${id}" aria-label="${esc(naam)} omhoog" ${i <= 0 ? "disabled" : ""}>↑</button><button type="button" class="ind-pijl" data-af="${id}" aria-label="${esc(naam)} omlaag" ${i >= beweegbaar.length - 1 ? "disabled" : ""}>↓</button>`}</li>`; }).join("");
+}
+$("indelingBtn").addEventListener("click", () => { indelingTeken(); const d = $("indeling"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); });
+$("indKlaar").addEventListener("click", () => { const d = $("indeling"); if (d.close) d.close(); else d.removeAttribute("open"); });
+$("indStandaard").addEventListener("click", () => { try { localStorage.removeItem("zs_home"); } catch (e) { /* */ } HOME_KAARTEN.forEach(([id]) => { const el = $(id); if (el) { el.style.order = ""; el.classList.remove("jij-weg"); } }); indelingTeken(); });
+$("indLijst").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button[data-op],button[data-af]"); if (!b) return;
+  const H = homeIndeling(), id = b.dataset.op || b.dataset.af, i = H.volgorde.indexOf(id), j = b.dataset.op ? i - 1 : i + 1;
+  if (j < 0 || j >= H.volgorde.length || H.volgorde[j] === "planCard") return;
+  [H.volgorde[i], H.volgorde[j]] = [H.volgorde[j], H.volgorde[i]]; homeBewaar(H);
+  const nieuw = $("indLijst").querySelector(`[data-${b.dataset.op ? "op" : "af"}="${id}"]`); if (nieuw && !nieuw.disabled) nieuw.focus();
+});
+$("indLijst").addEventListener("change", (ev) => {
+  const c = ev.target.closest("input[data-ind]"); if (!c) return;
+  const H = homeIndeling(); H.weg = H.weg.filter((x) => x !== c.dataset.ind); if (!c.checked) H.weg.push(c.dataset.ind); homeBewaar(H);
+});
+homeToepassen();
+
 function drawCharts() {                     // één kapotte tekening mag de rest niet tegenhouden
   for (const f of [renderInzicht, drawCoach, drawToday, drawMonth, drawPrices, drawUsage, drawInsight, drawLanes, drawLearned, drawLog]) {
     try { f(); } catch (e) { console.error(f.name, e); zsFout(e, f.name + "\n" + (e.stack || "")); }

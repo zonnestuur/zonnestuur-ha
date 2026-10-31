@@ -190,3 +190,15 @@ label.check-row > input[type="checkbox"]:not([hidden]):checked { background: var
 label.check-row > input[type="checkbox"]:not([hidden]):checked::after { transform: translateX(18px) !important; }
 label.check-row:has(> input[type="checkbox"]:not([hidden])) { display: block !important; position: relative; padding: 6px 62px 6px 0 !important; min-height: 40px; }
 label.check-row:has(> input[type="checkbox"]:not([hidden])) > input[type="checkbox"] { position: absolute !important; right: 0; top: 6px; margin: 0 !important; }
+
+/* ===== 0.90: vaste kleuren per soort stroom (overal hetzelfde: app, grafieken, huis, scherm aan de muur) ==========
+   zon = amber, van het net = blauw, terugleveren = groen, batterij = turkoois, auto = paars, huis = grijs.
+   Gebruik altijd deze tokens (var(--e-…)), nooit losse kleurcodes voor stromen. */
+:root { --e-zon: #b86e00; --e-net: #2659c4; --e-terug: #16733e; --e-bat: #0d9488; --e-auto: #7c3aed; --e-huis: #475569; }
+@media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) {
+  --e-zon: #fbbf24; --e-net: #60a5fa; --e-terug: #34d399; --e-bat: #2dd4bf; --e-auto: #a78bfa; --e-huis: #cbd5e1; } }
+:root[data-theme="dark"] { --e-zon: #fbbf24; --e-net: #60a5fa; --e-terug: #34d399; --e-bat: #2dd4bf; --e-auto: #a78bfa; --e-huis: #cbd5e1; }
+:root { --sun: var(--e-zon) !important; --net: var(--e-net) !important; --batt: var(--e-bat) !important; }
+.e-leg { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--zs-ink2); }
+.e-leg li, .e-leg span { display: inline-flex; align-items: center; gap: 6px; }
+.e-leg i { width: 10px; height: 10px; border-radius: 3px; flex: none; }

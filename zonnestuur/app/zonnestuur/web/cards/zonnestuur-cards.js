@@ -377,7 +377,7 @@ const ZS_HUB_CSS = `
   .hch .i svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .hch small { display: block; font-size: .78em; color: rgba(255,255,255,.75); font-weight: 550; }
   .hch b { display: block; font-weight: 700; font-family: "Inter Tight", Inter, sans-serif; white-space: nowrap; }
-  .hch.zon { --k: #fbbf24; left: 3%; top: 5%; } .hch.bat { --k: #34d399; right: 3%; top: 5%; } .hch.net { --k: #2dd4bf; left: 3%; bottom: 6%; } .hch.auto { --k: #c4b5fd; right: 3%; bottom: 6%; }
+  .hch.zon { --k: #fbbf24; left: 3%; top: 5%; } .hch.bat { --k: #2dd4bf; right: 3%; top: 5%; } .hch.net { --k: #60a5fa; left: 3%; bottom: 6%; } .hch.net.terug { --k: #34d399; } .hch.auto { --k: #a78bfa; right: 3%; bottom: 6%; }
   .price.klein { text-align: left; display: flex; align-items: baseline; flex-wrap: wrap; gap: .2em .5em; }
   .price em { background: color-mix(in srgb, var(--g) 16%, transparent); }
   .chip { background: var(--kaart); border: 0; box-shadow: inset 0 0 0 1px var(--lijn); border-radius: 18px; }
@@ -876,12 +876,12 @@ function zsHubChips(a) {
   const ic = { zon: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
     net: '<path d="M12 2.5 7 21.5M12 2.5l5 19M5 8.5h14M4 14.5h16M9 2.5h6"/>', bat: '<rect x="7" y="4.5" width="10" height="16" rx="2.5"/><path d="M10 2.5h4"/><path d="M12.5 8.5l-2 4h3l-2 4"/>',
     auto: '<path d="M5 16V11l2-5h10l2 5v5"/><path d="M3.5 16h17v3h-17z"/><path d="M6 11h12"/>' };
-  const c = (k, l, v) => `<div class="hch ${k}"><span class="i"><svg viewBox="0 0 24 24">${ic[k]}</svg></span><span><small>${zsEsc(l)}</small><b>${zsEsc(v)}</b></span></div>`;
+  const c = (k, l, v) => `<div class="hch ${k}"><span class="i"><svg viewBox="0 0 24 24">${ic[k.split(" ")[0]]}</svg></span><span><small>${zsEsc(l)}</small><b>${zsEsc(v)}</b></span></div>`;
   const nacht = h.z && h.z.zon && h.z.zon.fase === "nacht";
   if (a.panels && h.pv != null && (h.pv > 50 || !nacht)) out.push(c("zon", "Zonnepanelen", kw(h.pv)));
   const b = (a.batteries || [])[0];
   if (b && b.soc != null) out.push(c("bat", "Batterij", Math.abs(b.w || 0) >= 100 ? (b.w > 0 ? "+" : "−") + kw(b.w) : b.soc + "%"));
-  if (h.net != null) out.push(c("net", h.net < -30 ? "Terugleveren" : "Van het net", kw(h.net)));
+  if (h.net != null) out.push(c(h.net < -30 ? "net terug" : "net", h.net < -30 ? "Terugleveren" : "Van het net", kw(h.net)));
   const ev = (a.devices || []).find((d) => d.ev), w = (a.waarnemen || [])[0];
   if (ev && ev.on && ev.w > 300) out.push(c("auto", "Auto laden", kw(ev.w)));
   else if (w && w.w >= 300) out.push(c("auto", (w.name || "Auto") + " laadt", kw(w.w)));

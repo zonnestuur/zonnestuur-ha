@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.90.0
+- Vaste kleuren voor elke soort stroom, overal hetzelfde: zon amber, van het net blauw, terugleveren groen, batterij turkoois, auto paars.
+- Home zelf indelen: onderaan Home kies je welke kaarten je ziet en in welke volgorde.
+- Apparaten: een bolletje laat zien of elk apparaat verbonden is; apparaten met een probleem staan bovenaan.
+- Het weekrapport op zondag noemt nu wat opvalt, bijvoorbeeld als je huis duidelijk meer stroom gebruikte of je sluipverbruik steeg.
+- Inzichten: ook 'Dit jaar', en een knop om je cijfers te downloaden voor Excel.
+
 ## 0.89.2
 - Groot scherm (Nest Hub): geen tekst meer over elkaar. 'morgen' staat nu in de regel boven de grote tijd, en op kleine schermen wordt alles iets compacter zodat het past.
 - Hulp: foutmeldingen van andere koppelingen laten geen inlogsleutels of adressen meer zien.

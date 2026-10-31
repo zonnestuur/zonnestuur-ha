@@ -289,6 +289,11 @@ html, body { overscroll-behavior-y: none; }
   .bladframe { position: relative; }
   .bladframe iframe { width: 100%; height: min(74vh, 820px); border: 0; border-radius: 18px; background: var(--bg); display: block; }
   .bf-ok { margin: 0 0 10px; padding: 10px 14px; border-radius: 14px; background: color-mix(in srgb, var(--zs-groen, #16a34a) 16%, transparent); color: var(--good); font-weight: 650; }
+  /* 0.90: statusbolletje per apparaat (verbonden of niet), zoals op de apparaatpagina */
+  .app-rij .ic { position: relative; }
+  .app-rij .ic .stip { position: absolute; right: -3px; bottom: -3px; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 2.5px var(--zs-vlak, #0e1a2d); }
+  .app-rij .ic .stip.ok { background: var(--e-terug, #34d399); } .app-rij .ic .stip.fout { background: #f59e0b; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -1280,9 +1285,11 @@ function huisTekenen() {
   const naarMee = (d) => d.driver === "batterij" ? `apparaat?id=bat-${encodeURIComponent(d.id)}` : d.driver === "meekijken" ? `apparaat?id=obs-${encodeURIComponent(d.id)}`
     : `apparaat?id=${encodeURIComponent(d.id)}`;
   const KLEUR = { thermo: "amber", heatpump: "paars", boiler: "blauw", ev: "groen", battery: "groen", zon: "indigo", generic: "grijs" };
-  const rijHtml = (href, kind, naam, st) => `<a class="rij link app-rij" href="${href}"><span class="ic vol ${KLEUR[kind] || "grijs"}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[kind] || IC.generic}</svg></span>
-    <span><b>${esc(naam)}${st && st.label ? ` <i class="lbl ${st.cls}">${esc(st.label)}</i>` : ""}</b><span class="sub">${st ? `${st.kw ? `<span class="kw">${esc(st.kw)}</span>` : ""}${st.extra ? `<span>${esc(st.extra)}</span>` : ""}` : ""}</span></span>${PIJL}</a>`;
+  const rijHtml = (href, kind, naam, st) => `<a class="rij link app-rij" href="${href}"><span class="ic vol ${KLEUR[kind] || "grijs"}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[kind] || IC.generic}</svg>${st && st.ok != null ? `<i class="stip ${st.ok ? "ok" : "fout"}"></i>` : ""}</span>
+    <span><b>${esc(naam)}${st && st.ok != null ? `<span class="vh">${st.ok ? " (verbonden)" : " (geen verbinding)"}</span>` : ""}${st && st.label ? ` <i class="lbl ${st.cls}">${esc(st.label)}</i>` : ""}</b><span class="sub">${st ? `${st.kw ? `<span class="kw">${esc(st.kw)}</span>` : ""}${st.extra ? `<span>${esc(st.extra)}</span>` : ""}` : ""}</span></span>${PIJL}</a>`;
   const zon = STAND._zon;
+  const fout = (d) => (STAND[d.id] && STAND[d.id].ok === false ? 0 : 1);     // apparaten met een probleem bovenaan
+  mee.sort((x, y) => fout(x) - fout(y));
   $("mee").innerHTML = (mee.length || zon ? mee.map((d) => rijHtml(naarMee(d), d.kind, d.naam, STAND[d.id] || { kw: "", label: "", extra: d.soort })).join("")
       + (zon ? rijHtml("instellingen?onderdeel=inst_zon,feedCard", "zon", "Zonnepanelen", zon) : "") : "")
     + (STAND._verw ? rijHtml("verwarming", "thermo", "Verwarming", STAND._verw.leeg ? { kw: "", label: "", extra: "Thermostaat koppelen: slim stoken op goedkope uren" } : STAND._verw) : "")
@@ -1326,25 +1333,25 @@ async function huisLaden(zoek) {
       else if (d.mode === "off") { label = "Uit"; cls = ""; }
       else if (plan) { label = plan.source === "zon" ? "Wacht op zon" : "Gepland"; cls = "amber"; }
       const extra = car && car.soc != null ? Math.round(car.soc) + "%" : plan && !aan ? "Start om " + tijd(plan.start) : d.reason ? d.reason.charAt(0).toUpperCase() + d.reason.slice(1) : "";
-      STAND[d.id] = { kw: kwt(aan ? d.power_w : 0), label, cls, extra };
+      STAND[d.id] = { kw: kwt(aan ? d.power_w : 0), label, cls, extra, ok: d.online !== false || (d.reason || "").startsWith("wacht") };
     });
     (st.batteries || []).forEach((b) => {
       const p = b.power_w || 0;
       STAND[b.id] = { kw: (p < -50 ? "−" : "") + kwt(p), label: !b.online ? "Geen verbinding" : p > 30 ? "Laden" : p < -30 ? "Levert" : "Rust",
-        cls: !b.online ? "rood" : Math.abs(p) > 30 ? "groen" : "", extra: b.soc != null ? Math.round(b.soc) + "%" : "" };
+        cls: !b.online ? "rood" : Math.abs(p) > 30 ? "groen" : "", extra: b.soc != null ? Math.round(b.soc) + "%" : "", ok: !!b.online };
     });
     (st.waarnemen || []).forEach((w) => { STAND[w.id] = { kw: kwt(w.power_w || 0), label: (w.power_w || 0) > 300 ? "Laden" : "", cls: "groen",
-      extra: w.soc != null ? Math.round(w.soc) + "%" + (w.soc_oud_u >= 12 ? ` (${w.soc_oud_u >= 48 ? Math.round(w.soc_oud_u / 24) + " dagen" : "1 dag"} oud)` : "") + " · " + (w.wie || "") + " stuurt" : (w.wie || "") + " stuurt" }; });
+      extra: w.soc != null ? Math.round(w.soc) + "%" + (w.soc_oud_u >= 12 ? ` (${w.soc_oud_u >= 48 ? Math.round(w.soc_oud_u / 24) + " dagen" : "1 dag"} oud)` : "") + " · " + (w.wie || "") + " stuurt" : (w.wie || "") + " stuurt", ok: !(w.soc_oud_u >= 48) }; });
     const pv = st.inverter && st.inverter.pv_w != null ? st.inverter.pv_w : st.forecast_now_w;
     try {                                                     // verwarming per ruimte
       const vw = await api("api/verwarming"), rs = vw.ruimtes || [];
       const g1 = (x) => x == null ? "–" : x.toLocaleString("nl-NL", { maximumFractionDigits: 1 }) + " °C";
       STAND._verw = rs.length ? { kw: rs.length === 1 ? g1(rs[0].nu && rs[0].nu.temp) : "",
         label: rs.some((r) => r.fout) ? "Geen verbinding" : rs.some((r) => r.nu && r.nu.stookt) ? "Stookt" : "",
-        cls: rs.some((r) => r.fout) ? "rood" : "amber",
+        cls: rs.some((r) => r.fout) ? "rood" : "amber", ok: !rs.some((r) => r.fout),
         extra: rs.length === 1 ? (rs[0].nu && rs[0].nu.doel != null ? "Doel " + g1(rs[0].nu.doel) : "") : rs.map((r) => r.naam + " " + g1(r.nu && r.nu.temp)).join(" · ") } : { leeg: true };
     } catch (e) { STAND._verw = null; }
-    STAND._zon = st.has_panels ? { kw: kwt(pv || 0), label: (pv || 0) > 50 ? "Actief" : "", cls: "groen", extra: st.solar_kwp ? String(st.solar_kwp).replace(".", ",") + " kWp" : "" } : null;
+    STAND._zon = st.has_panels ? { kw: kwt(pv || 0), label: (pv || 0) > 50 ? "Actief" : "", cls: "groen", ok: st.inverter ? st.inverter.pv_w != null : null, extra: st.solar_kwp ? String(st.solar_kwp).replace(".", ",") + " kWp" : "" } : null;
   } catch (e) {}
   finally { HUIS_BEZIG = false; }
   huisTekenen();

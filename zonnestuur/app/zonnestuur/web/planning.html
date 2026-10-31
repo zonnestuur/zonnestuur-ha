@@ -70,7 +70,7 @@ const eur = (x) => "€ " + Number(x || 0).toLocaleString("nl-NL", { minimumFra
 const kwh = (x) => Number(x || 0).toLocaleString("nl-NL", { maximumFractionDigits: 1 }) + " kWh";
 const uur = (iso) => new Date(iso).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
 const dagUur = (iso) => new Date(iso).toLocaleString("nl-NL", { weekday: "short", hour: "2-digit", minute: "2-digit" });
-const KLEUR = ["#fb923c", "#a78bfa", "#60a5fa", "#2dd4bf", "#f472b6"];
+const KLEUR = ["#fb923c", "#f472b6", "#a3e635", "#e879f9", "#fdba74"];   // apparaten: nooit de vaste energiekleuren (zon, net, terug, batterij, auto)
 let D = null;
 async function laad(nu) {
   try { D = await api("api/planning" + (nu ? "?nu=1" : "")); } catch (e) { $("inhoud").innerHTML = `<p class="intro">${esc(e.message)}</p>`; return; }
@@ -84,7 +84,7 @@ async function laad(nu) {
     <div class="blok"><b>${eur(Z.kosten_eur)}</b><span>Zonder sturing</span><span>${Z.eigen_verbruik_pct != null ? Z.eigen_verbruik_pct + "% eigen zon · " : ""}piek ${String(Z.piek_kw).replace(".", ",")} kW</span></div></div>
     <p class="hint">Voor de komende ${p.uren.length} uur, met de verwachte prijzen, zon en verbruik (een voorspelling, geen meting). Wat het echt opleverde zie je bij <a href="inzicht">Inzichten</a> en <a href="benchmark">Strategieën vergelijken</a>.</p></section>`;
   const ids = Object.keys(p.namen || {});
-  h += `<section class="kaart"><h2>Per uur</h2>${grafiek(p, ids)}<div class="legenda"><span style="--c:#94a3b8">Huis</span>${ids.map((k, i) => `<span style="--c:${KLEUR[i % KLEUR.length]}">${esc(p.namen[k])}</span>`).join("")}<span style="--c:#34d399">Batterij laden</span><span style="--c:#fbbf24">Zon</span></div></section>`;
+  h += `<section class="kaart"><h2>Per uur</h2>${grafiek(p, ids)}<div class="legenda"><span style="--c:var(--e-huis)">Huis</span>${ids.map((k, i) => `<span style="--c:${KLEUR[i % KLEUR.length]}">${esc(p.namen[k])}</span>`).join("")}<span style="--c:var(--e-bat)">Batterij laden</span><span style="--c:var(--e-zon)">Zon</span></div></section>`;
   h += `<section class="kaart"><h2>Apparaten</h2>${(p.apparaten || []).map((a) => { const u = (p.uren_per_apparaat || {})[a.id] || [];
       return `<div class="rij"><b>${esc(a.naam)}</b><span>${kwh(a.kwh)}</span><small>${u.length ? "Gepland: " + u.map(uur).join(", ") : "Geen uren nodig"} · klaar vóór ${a.klaar ? dagUur(a.klaar) : "–"}${(S.tekort || {})[a.id] ? ` · past niet helemaal: ${kwh(S.tekort[a.id])} tekort` : ""}</small></div>`; }).join("") || `<p class="hint">Er hoeft nu geen apparaat iets.</p>`}
     ${p.batterij ? `<div class="rij"><b>Thuisbatterij</b><span>${kwh(p.batterij.soc_kwh)} van ${kwh(p.batterij.cap_kwh)}</span><small>Levert ${kwh(S.batterij_uit_kwh)} in deze periode.</small></div>` : ""}
@@ -101,11 +101,11 @@ function grafiek(p, ids) {
   U.forEach((u, i) => {
     let b = 0; const x = L + i * bw + bw * 0.12, w = bw * 0.76;
     const laag = (v, c) => { if (v <= 0.005) return; s += `<rect x="${x}" y="${y(b + v)}" width="${w}" height="${y(b) - y(b + v)}" fill="${c}" rx="1.5"><title>${uur(u.uur)}: ${kwh(v)}</title></rect>`; b += v; };
-    laag(u.huis_kwh, "#94a3b8");
+    laag(u.huis_kwh, "var(--e-huis)");
     ids.forEach((k, j) => laag((u.apparaten || {})[k] || 0, KLEUR[j % KLEUR.length]));
-    laag(Math.max(0, u.batterij_kwh), "#34d399");
+    laag(Math.max(0, u.batterij_kwh), "var(--e-bat)");
   });
-  s += `<path d="${U.map((u, i) => (i ? "L" : "M") + (L + i * bw + bw / 2).toFixed(1) + " " + y(u.zon_kwh).toFixed(1)).join("")}" fill="none" stroke="#fbbf24" stroke-width="2.2"/>`;
+  s += `<path d="${U.map((u, i) => (i ? "L" : "M") + (L + i * bw + bw / 2).toFixed(1) + " " + y(u.zon_kwh).toFixed(1)).join("")}" fill="none" stroke="var(--e-zon)" stroke-width="2.2"/>`;
   U.forEach((u, i) => { if (i % (W < 480 ? 6 : 4) === 0) s += `<text x="${L + i * bw + bw / 2}" y="${H - 6}" text-anchor="middle">${uur(u.uur).slice(0, 2)}u</text>`; });
   return s + "</svg>";
 }
