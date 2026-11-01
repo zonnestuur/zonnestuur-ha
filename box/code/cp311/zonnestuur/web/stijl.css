@@ -7,7 +7,7 @@
   --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn);
   --shadow: 0 0 0 1px var(--zs-lijn);
   --ink: var(--zs-ink); --ink-2: var(--zs-ink2); --ink-3: var(--zs-ink3);
-  --net: var(--zs-blauw); --cheap: var(--zs-blauw); --glow: var(--zs-zon);
+  --net: var(--zs-blauw); --cheap: var(--zs-groen, #16a34a); --glow: var(--zs-zon);
   --chip: var(--zs-zacht); --seg: rgba(19, 32, 43, .06); --seg-on: var(--zs-vlak);
   --aura-1: transparent; --aura-2: transparent; --aura-3: transparent;
 }
@@ -19,7 +19,7 @@
     --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: rgba(160, 190, 235, .05);
     --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn); --shadow: 0 0 0 1px var(--zs-lijn);
     --ink: var(--zs-ink); --ink-2: var(--zs-ink2); --ink-3: var(--zs-ink3);
-    --net: var(--zs-blauw); --cheap: var(--zs-blauw); --chip: var(--zs-zacht); --seg: rgba(160, 190, 235, .08); --seg-on: var(--zs-blauw);
+    --net: var(--zs-blauw); --cheap: var(--zs-groen, #16a34a); --chip: var(--zs-zacht); --seg: rgba(160, 190, 235, .08); --seg-on: var(--zs-blauw);
     --aura-1: transparent; --aura-2: transparent; --aura-3: transparent;
   }
 }
@@ -30,7 +30,7 @@
   --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: rgba(160, 190, 235, .05);
   --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn); --shadow: 0 0 0 1px var(--zs-lijn);
   --ink: var(--zs-ink); --ink-2: var(--zs-ink2); --ink-3: var(--zs-ink3);
-  --net: var(--zs-blauw); --cheap: var(--zs-blauw); --chip: var(--zs-zacht); --seg: rgba(160, 190, 235, .08); --seg-on: var(--zs-blauw);
+  --net: var(--zs-blauw); --cheap: var(--zs-groen, #16a34a); --chip: var(--zs-zacht); --seg: rgba(160, 190, 235, .08); --seg-on: var(--zs-blauw);
   --aura-1: transparent; --aura-2: transparent; --aura-3: transparent;
 }
 

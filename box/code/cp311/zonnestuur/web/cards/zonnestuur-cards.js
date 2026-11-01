@@ -15,10 +15,10 @@
 const ZS_VERSION = "1.10.0";
 
 const ZS_CSS = `
-  :host { --zs-sun: #ffb000; --zs-save: #08654a; --zs-cheap: #2a78d6; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
+  :host { --zs-sun: #ffb000; --zs-save: #08654a; --zs-cheap: #16733e; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
           --zs-ink: var(--primary-text-color, #0e151c); --zs-ink2: var(--secondary-text-color, #47525e);
           --zs-line: var(--divider-color, rgba(0,0,0,.08)); --zs-chip: color-mix(in srgb, var(--zs-ink) 6%, transparent); }
-  :host(.dark) { --zs-save: #3ddc97; --zs-warn: #fb923c; --zs-cheap: #3987e5; --zs-dear: #e66767; --zs-mid: #6a7280; }
+  :host(.dark) { --zs-save: #3ddc97; --zs-warn: #fb923c; --zs-cheap: #34d399; --zs-dear: #e66767; --zs-mid: #6a7280; }
   ha-card { padding: 18px 18px 16px; cursor: pointer; overflow: hidden; height: 100%; box-sizing: border-box; }
   * { box-sizing: border-box; }
   .num { font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
@@ -423,6 +423,7 @@ const ZS_HUB_CSS = `
   .hstage { max-height: 100%; }
   .h { white-space: nowrap; }
   .kick { flex-wrap: wrap; }
+  .kick.groen { color: #34d399; }          /* goedkope uren zijn altijd groen */
   .mid .hubhuis { display: flex; flex-direction: column; align-items: flex-end; height: 100%; gap: .8vh; }
   .mid .hubhuis .hstage { height: auto; flex: 1 1 0; min-height: 0; margin: 0; }
   .mid .hubhuis .price.klein { flex: none; }
@@ -802,7 +803,7 @@ class ZonnestuurHubCard extends HTMLElement {
       ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.bolt}</svg>Stroom is nu goedkoop</div><div class="h">tot ${zsEsc(C.until)}<small>${zsHubLeft(C.until_ts - now)}</small></div>
          ${this._witgoed().some((w) => !w.nu) || !tip ? "" : `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(tip)}</div>`}`
       : nx
-        ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${(nx.zelf ? (piek ? "Nu duur · het goedkoopst" : "Het goedkoopst") : piek ? "Nu duur · goedkoop" : "Goedkope stroom") + (nx.day ? " morgen vanaf" : " vanaf")}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
+        ? `<div class="kick groen"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${(nx.zelf ? (piek ? "Nu duur · het goedkoopst" : "Het goedkoopst") : piek ? "Nu duur · goedkoop" : "Goedkope stroom") + (nx.day ? " morgen vanaf" : " vanaf")}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
         : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Stroom is nu duur" : "Nog even wachten"}</div><div class="h">Wacht even<small>De prijzen van morgen komen rond 13:00</small></div>`;
     // Wat Zonnestuur straks doet (per apparaat de eerste keer), zodat je ziet dat het geregeld is
     const gezien = new Set(), plan = (a.plan || []).filter((x) => !gezien.has(x.n) && gezien.add(x.n)).slice(0, 3);

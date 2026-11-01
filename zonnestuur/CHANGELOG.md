@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.93.2
+- Goedkope uren zijn nu overal groen: in de app, de dagstrook, de laadbeurten, het wandscherm en op de Nest Hub. Ook de teksten zeggen nu 'groen' in plaats van 'blauw'.
+
 ## 0.93.1
 - Energieprijzen: alleen de goedkope uren zijn groen, dure uren rood, de rest grijs.
 - Met je vinger over de staafjes schuiven werkt nu soepel: je ziet meteen tijd en prijs van elk uur. Tik nog eens op hetzelfde uur om het weg te halen.
