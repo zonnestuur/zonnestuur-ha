@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.95.2
+- Het huis op het scherm in de huiskamer is groter: de lege lucht erboven is weggesneden.
+
 ## 0.95.1
 - Bij het huis woont nu een klusjesman: hij maait het gras, poetst de zonnepanelen op een ladder, wast de auto, loopt met een paraplu als het regent, bouwt een sneeuwpop als het sneeuwt en slaapt 's nachts. Elk uur kan hij iets anders doen. Ook op het scherm in de huiskamer.
 

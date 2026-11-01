@@ -364,7 +364,7 @@ const ZS_HUB_CSS = `
   .hubhuis { position: relative; justify-items: stretch; }
   .mid { min-height: 0; }
   /* het huis staat los op het scherm (geen kader): de achtergrond van het scherm is de lucht */
-  .hstage { position: relative; height: 46vh; aspect-ratio: 440 / 300; max-width: 100%; justify-self: end; margin: -1vh 0 -2vh; }
+  .hstage { position: relative; height: 46vh; aspect-ratio: 436 / 204; max-width: 100%; justify-self: end; margin: -1vh 0 -2vh; }
   .hubhuis .hstage .hz { width: 100%; height: 100%; max-height: none; display: block; overflow: visible;
     -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent); mask-image: linear-gradient(180deg, #000 80%, transparent); }
   .hch.zon, .hch.bat { top: 0; } .hch.net, .hch.auto { bottom: 2%; }
@@ -830,7 +830,7 @@ class ZonnestuurHubCard extends HTMLElement {
     const prijsHtml = `<b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}`;
     return `<div class="${klas}" style="${stijl}">${top}
       <div class="mid${huis ? " met-huis" : ""}"><div>${head}${planHtml}</div>
-        ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" viewBox="0 0 440 300" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div><div class="price klein">${prijsHtml}</div></div>`
+        ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" viewBox="4 66 436 204" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div><div class="price klein">${prijsHtml}</div></div>`
           : `<div class="price">${prijsHtml}</div>`}</div>
       <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
     </div>`;
