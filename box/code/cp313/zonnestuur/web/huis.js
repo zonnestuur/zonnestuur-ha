@@ -244,10 +244,10 @@
     var slot = Math.floor(nu.getTime() / 180000), dag = Math.floor(nu.getTime() / 86400000);
     var k = o.forceer != null ? ALLE[o.forceer % ALLE.length] : hussel(keus, dag * 31 + keus.length)[slot % keus.length];
     var zinnen = ZEG[k] || [""], zeg = zinnen[(o.forceer != null ? o.forceer : Math.floor(slot / keus.length)) % zinnen.length];
-    var h = "", y = GRd + 11, S = " scale(1.7)", bx = null, by = null;
+    var Z = o.schaal || 1.7, h = "", y = GRd + 11, S = " scale(" + Z + ")", M = " scale(-" + Z + " " + Z + ")", bx = null, by = null;
     var L = function (d, w, kl) { return '<path d="' + d + '" stroke="' + (kl || inkt) + '" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'; };
     var arm = function (d) { return L(d); };
-    var plek = function (x, inhoud, spiegel, yy) { return '<g transform="translate(' + x + " " + (yy == null ? y : yy) + ")" + (spiegel ? " scale(-1.7 1.7)" : S) + '">' + inhoud + "</g>"; };
+    var plek = function (x, inhoud, spiegel, yy) { return '<g transform="translate(' + x + " " + (yy == null ? y : yy) + ")" + (spiegel ? M : S) + '">' + inhoud + "</g>"; };
     if (k === "slapen") {
       h = '<g transform="translate(214 ' + (o.dakY + 34) + ')" fill="' + inkt + '" font-weight="800">' +
         '<text class="hz-pop-z" x="0" y="0" style="font: 800 11px Inter, system-ui, sans-serif">z</text><text class="hz-pop-z" x="8" y="-6" style="font: 800 14px Inter, system-ui, sans-serif; animation-delay:1s">z</text>' +
@@ -272,14 +272,14 @@
       var px = lx + (tx - lx) * 0.72 + 3 * dir, py = GRd + (o.dakY - 2 - GRd) * 0.72;
       var wisser = '<g class="hz-pop-arm" transform="translate(' + (4.5 * dir) + ' -15)"><path d="M0 0l' + 6 * dir + ' -6" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>' +
         '<path d="M' + 6 * dir + ' -6l' + 5 * dir + ' -5M' + 8 * dir + ' -13l' + 7 * dir + ' 3" stroke="' + inkt + '" stroke-width="1.6" stroke-linecap="round"/></g>';
-      h += '<g transform="translate(' + px.toFixed(1) + " " + py.toFixed(1) + ")" + (o.links ? S : " scale(-1.7 1.7)") + '">' + poppetje(inkt, wisser) + "</g>";
+      h += '<g transform="translate(' + px.toFixed(1) + " " + py.toFixed(1) + ")" + (o.links ? S : M) + '">' + poppetje(inkt, wisser) + "</g>";
       h += '<g transform="translate(' + (o.links ? 50 : 318) + " " + GRd + ')"><path d="M-5 0l1 -8h8l1 8z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width="1.2"/></g>';
     } else if (k === "auto") {
       // met een spons voor de auto langs, met zeepbellen
       var cx = (o.auto != null ? o.auto : 290) + 30;
       var spons = '<g class="hz-pop-arm" transform="translate(4.5 -15)"><path d="M0 0l6 -4" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>' +
         '<rect x="5" y="-8" width="6" height="4" rx="1.4" fill="#ffd34d" stroke="' + inkt + '" stroke-width="1"/></g>';
-      h = '<g transform="translate(' + cx + " " + GRd + ') scale(-1.7 1.7)">' + poppetje(inkt, spons) +
+      h = '<g transform="translate(' + cx + " " + GRd + ')' + M + '">' + poppetje(inkt, spons) +
         '<path d="M-14 0l1 -8h8l1 8z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width="1.2"/>' +
         '<g fill="#fff" stroke="#8ab4e8" stroke-width=".8"><circle class="hz-pop-bel" cx="12" cy="-24" r="2.2"/><circle class="hz-pop-bel" cx="17" cy="-20" r="1.6" style="animation-delay:.7s"/>' +
         '<circle class="hz-pop-bel" cx="9" cy="-30" r="1.4" style="animation-delay:1.4s"/></g></g>';
@@ -591,7 +591,7 @@
     if (s.poppetje !== false)
       h += klusje({ inkt: inkt, gr: GR, dakY: dakY, fase: fase, nat: nat, sneeuw: nat && wr.t != null && wr.t <= 1, t: wr.t,
         panelen: !!s.has_panels, auto: autos.length === 1 ? AX[0] + 44 : null, links: autos.length > 0,
-        goedkoop: pr.niveau === "goedkoop", duur: pr.niveau === "duur", forceer: svg._klus, twee: autos.length > 1, leeg: autos.length === 0,
+        goedkoop: pr.niveau === "goedkoop", duur: pr.niveau === "duur", forceer: svg._klus, schaal: parseFloat(svg.getAttribute && svg.getAttribute("data-pop")) || 1.7, twee: autos.length > 1, leeg: autos.length === 0,
         wp: buiten ? (bat ? 58 : 76) : null, nok: nokY });
     // tik op het huis: de klusjesman doet iets anders (en na een minuut weer wat bij het moment past)
     if (!svg._klik && svg.addEventListener) {

@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.96.1
+- Op het scherm in de huiskamer is het huis groter en de klusjesman extra groot. De prijs van nu staat rechtsboven naast het huis.
+
 ## 0.96.0
 - De klusjesman kan nu 36 verschillende dingen: vliegeren, bladeren harken, planten water geven, zonnen, barbecueën, de hond uitlaten, voetballen, fietsen, vogels voeren, jongleren, een selfie maken, de meter aflezen, de warmtepomp knuffelen, op het dak staan, een handstand, een stekker sjouwen als stroom goedkoop is en 'sst' als hij duur is. Bij regen springt hij in plassen, bij sneeuw gooit hij sneeuwballen en 's nachts kijkt hij tv, loopt hij met een zaklamp of zit hij bij het kampvuur, en soms zit er een uil in de boom.
 - Hij wisselt vanzelf elke 3 minuten, elke dag in een andere volgorde, en herhaalt pas als alles is langsgekomen. Elk ding heeft meerdere grapjes in het tekstwolkje.

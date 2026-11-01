@@ -427,6 +427,14 @@ const ZS_HUB_CSS = `
   .mid .hubhuis { display: flex; flex-direction: column; align-items: flex-end; height: 100%; gap: .8vh; }
   .mid .hubhuis .hstage { height: auto; flex: 1 1 0; min-height: 0; margin: 0; }
   .mid .hubhuis .price.klein { flex: none; }
+  /* 0.96.1: het huis mag de hele hoogte gebruiken; de prijs staat rechtsboven in de lucht naast het huis */
+  .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 56%); }
+  .mid .hubhuis { position: relative; justify-content: flex-end; }
+  .mid .hubhuis .price.klein { position: absolute; top: 0; right: 0; z-index: 2; text-align: right; text-shadow: 0 0 12px #0b1630, 0 0 4px #0b1630; }
+  .mid .hubhuis .price.klein br { display: block; } .mid .hubhuis .price.klein em { display: block; margin: 0; }
+  .hstage .hch.bat { left: 3%; right: auto; top: 24%; }
+  .mid .hubhuis .price.klein b { font-size: clamp(20px, 5.4vh, 38px); margin: 0; }
+  .mid .hubhuis .price.klein em { font-size: clamp(11px, 2.2vh, 15px); }
   @media (max-height: 640px) { .brand .sv { display: none; } }
   @media (max-height: 820px) {
     .kick { font-size: clamp(14px, 3vh, 20px); }
@@ -830,7 +838,7 @@ class ZonnestuurHubCard extends HTMLElement {
     const prijsHtml = `<b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}`;
     return `<div class="${klas}" style="${stijl}">${top}
       <div class="mid${huis ? " met-huis" : ""}"><div>${head}${planHtml}</div>
-        ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" viewBox="4 66 436 204" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div><div class="price klein">${prijsHtml}</div></div>`
+        ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" data-pop="2.3" viewBox="4 66 436 204" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div><div class="price klein">${prijsHtml}</div></div>`
           : `<div class="price">${prijsHtml}</div>`}</div>
       <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
     </div>`;
