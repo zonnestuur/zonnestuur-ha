@@ -1090,6 +1090,25 @@ html, body { overscroll-behavior-y: none; }
   .inz-t .d { font-size: 13px; color: var(--zs-ink2); } .inz-t .d i { font-style: normal; }
 
 
+
+  /* 1.0: Home met de apparaten als kaarten met hun knoppen */
+  body.v-vandaag #apparatenBlok .c-devs { margin: 0; }
+  body.v-vandaag #apparatenBlok #s-apparaten { margin: 6px 4px -4px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  body.v-vandaag #apparatenBlok #s-apparaten h2 { font-size: 22px; margin: 0; }
+  body.v-vandaag #apparatenBlok #s-apparaten p { display: none; }
+  #apparatenBlok { display: grid; gap: 14px; grid-column: 1 / -1; min-width: 0; }
+  @media (min-width: 900px) { #apparatenBlok { margin-top: 22px; } }
+  body.v-vandaag #apparatenBlok .devs { grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)) !important; align-items: start; display: grid; gap: 12px; background: none; box-shadow: none; border-radius: 0; overflow: visible; }
+  body.v-vandaag #apparatenBlok .devs > article { margin: 0; padding: 16px !important; }
+  body.v-vandaag #apparatenBlok .devs > article .strip, body.v-vandaag #apparatenBlok .devs > article .strip-axis,
+  body.v-vandaag #apparatenBlok .devs > article .fact.more, body.v-vandaag #apparatenBlok .devs > article .runrep { display: none !important; }
+  body.v-vandaag #apparatenBlok .devs .evc-pic { max-height: 150px; overflow: hidden; }
+  body.v-vandaag #apparatenBlok .devs .evc-pic img { max-height: 150px; width: auto; margin: 0 auto; display: block; }
+  body.v-vandaag #apparatenBlok .devs .seg { margin-top: 10px; }
+  .dev-meer { display: flex; align-items: center; justify-content: space-between; margin: 12px -4px -4px; padding: 10px 4px 2px; border-top: 1px solid var(--zs-lijn);
+    color: var(--zs-ink2); font-size: 14px; font-weight: 600; text-decoration: none; min-height: 32px; }
+  .dev-meer .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); }
+  body:not(.v-vandaag) .dev-meer { display: none; }
   /* 0.94: weer in de kop en 'Vandaag en morgen' */
   .weer-kop { display: inline-flex; align-items: center; gap: 8px; margin: -4px 0 10px; padding: 7px 12px 7px 9px; border-radius: 99px;
     background: var(--zs-zacht); color: var(--zs-ink2); text-decoration: none; font-size: 14px; font-weight: 550; min-height: 34px; }
@@ -1442,7 +1461,7 @@ html, body { overscroll-behavior-y: none; }
 
     <div class="sec-head kop-link app" id="s-apparaten"><h2>Je apparaten</h2><a class="kop-a" href="apparaten">Beheren</a><p>Wat elk apparaat nu doet, en waarom.</p></div>
     <!-- apparaten -->
-    <section class="c-devs app" aria-labelledby="devTitle">
+    <section class="c-devs app" id="apparatenKaart" aria-labelledby="devTitle">
       <span id="devTitle" hidden>Apparaten</span>
       <div class="devs" id="devices"></div>
     </section>
@@ -1911,7 +1930,7 @@ function renderStatus(s) {
 
   renderCijfers(s);
   renderTarKaart(s);
-  try { renderMiniApps(s); } catch (e) { console.warn("apparaten", e); }
+  try { if ($("miniApps")) renderMiniApps(s); } catch (e) { console.warn("apparaten", e); }
   renderStatusPil(s);
   renderStrook(s);
 
@@ -2445,27 +2464,16 @@ function korteStand(s, d, state) {
 // Vandaag: elk apparaat is een korte regel; tik erop en de knoppen en uitleg klappen open.
 const OPEN_DEV = new Set();
 try { JSON.parse(sessionStorage.getItem("zs_open") || "[]").forEach((x) => OPEN_DEV.add(x)); } catch (e) {}
-function rijen(wrap) {
+// Home: elk apparaat als eigen kaart met zijn knoppen (niet meer dichtgeklapt), plus een link naar alles over dat apparaat
+function homeKaarten(wrap) {
   if (VIEW !== "vandaag") return;
   wrap.querySelectorAll(":scope > article").forEach((el) => {
     const id = el.dataset.id || el.id || "";
-    const kop = el.querySelector(":scope > .dev-head, :scope > .evc-hero");
-    if (!kop || !id) return;
-    const open = OPEN_DEV.has(id);
-    el.classList.add("rij"); el.classList.toggle("dicht", !open);
-    if (!el.querySelector(":scope > .rij-knop")) el.insertAdjacentHTML("afterbegin", `<button type="button" class="rij-knop" aria-expanded="${open}" aria-label="Meer over dit apparaat"><span class="rij-pijl" aria-hidden="true"></span></button>`);
-    const knop = el.querySelector(":scope > .rij-knop");
-    const wissel = () => {
-      const nu = !OPEN_DEV.has(id);
-      if (nu) OPEN_DEV.add(id); else OPEN_DEV.delete(id);
-      el.classList.toggle("dicht", !nu); knop.setAttribute("aria-expanded", String(nu));
-      try { sessionStorage.setItem("zs_open", JSON.stringify([...OPEN_DEV])); } catch (e) {}
-      if (nu) el.querySelectorAll(".evc-pic img").forEach((i) => { i.loading = "eager"; });
-    };
-    knop.onclick = wissel;
-    kop.onclick = (e) => { if (!e.target.closest("a, button, select, input, label")) wissel(); };
+    if (!id || el.querySelector(":scope > .dev-meer")) return;
+    el.insertAdjacentHTML("beforeend", `<a class="dev-meer" href="apparaat?id=${encodeURIComponent(id)}">Alles over dit apparaat<span class="pijl" aria-hidden="true"></span></a>`);
   });
 }
+function rijen(wrap) { homeKaarten(wrap); }
 // De pagina van één apparaat: alleen die kaart, met de naam als kop
 function apparaatAlleen(s, wrap) {
   const arts = [...wrap.querySelectorAll(":scope > article")];
@@ -3957,14 +3965,27 @@ function renderInzicht() {
 }
 document.querySelectorAll("#inzSeg button").forEach((b) => b.addEventListener("click", () => { INZ_P = b.dataset.p; INZ_GEKOZEN = true; renderInzicht(); }));
 // ---------- Home zelf indelen (zoals een grafiek vastzetten): volgorde en zichtbaarheid, per apparaat bewaard ----------
-const HOME_KAARTEN = [["cijfers", "Kerncijfers", "Opbrengst, verbruik en batterij"], ["tarKaart", "Stroomprijs", "Prijs nu en de goedkoopste uren"],
+// Home: de apparaten (met hun knoppen) staan direct onder de kerncijfers; de korte lijst vervalt
+if (VIEW === "vandaag") {
+  const zij = document.querySelector(".vd-zij"), vd = zij && zij.closest(".vd"), devs = $("apparatenKaart"), kop = $("s-apparaten");
+  if (zij && devs) {
+    devs.classList.remove("app"); kop.classList.remove("app");
+    const blok = document.createElement("div"); blok.id = "apparatenBlok"; blok.className = "app-blok";
+    blok.append(kop, devs); $("miniApps").remove();
+    // telefoon: direct onder de kerncijfers; groot scherm: over de hele breedte onder het huis
+    const breed = window.matchMedia("(min-width: 900px)");
+    const plaats = () => { if (breed.matches) vd.after(blok); else zij.insertBefore(blok, $("cijfers").nextElementSibling); };
+    plaats(); breed.addEventListener("change", plaats);
+  }
+}
+const HOME_KAARTEN = [["cijfers", "Kerncijfers", "Opbrengst, verbruik en batterij"], ["apparatenBlok", "Je apparaten", "Elk apparaat met zijn knoppen"], ["tarKaart", "Stroomprijs", "Prijs nu en de goedkoopste uren"],
   ["vooruit", "Vandaag en morgen", "Weer, zon en prijs per dagdeel"],
-  ["miniApps", "Je apparaten", "Wat je apparaten nu doen"], ["aandacht", "Tips", "Wat je nu kunt doen"], ["planCard", "De komende 24 uur", "Wat Zonnestuur heeft gepland", true]];
+  ["aandacht", "Tips", "Wat je nu kunt doen"], ["planCard", "De komende 24 uur", "Wat Zonnestuur heeft gepland", true]];
 function homeIndeling() {
   let d = null; try { d = JSON.parse(localStorage.getItem("zs_home") || "null"); } catch (e) { d = null; }
   const ids = HOME_KAARTEN.map((k) => k[0]);
   const volg = ((d && d.volgorde) || []).filter((x) => ids.includes(x));
-  for (const x of ids) if (!volg.includes(x)) volg.push(x);
+  ids.forEach((x, i) => { if (!volg.includes(x)) volg.splice(Math.min(i, volg.length), 0, x); });   // nieuwe kaart op zijn standaardplek
   // standaard: de losse tip weg, want 'Vandaag en morgen' zegt al wat er te doen is (verbeterplan nov. 2026)
   return { volgorde: volg, weg: ((d && d.weg) || (d ? [] : ["aandacht"])).filter((x) => ids.includes(x)) };
 }

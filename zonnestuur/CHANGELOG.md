@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.95.0
+- Home toont nu al je apparaten als kaarten, met hun knoppen: automatisch, nu aan, vandaag overslaan, klaar-tijd en bij de auto 'Nu laden'. Op de telefoon direct onder de cijfers, op een groot scherm over de hele breedte onder het huis. Per apparaat een link 'Alles over dit apparaat'.
+
 ## 0.94.0
 - Het weer staat nu bovenaan Home: temperatuur, wolken en hoeveel uur zon er vandaag of morgen komt.
 - Nieuwe kaart 'Vandaag en morgen': per dagdeel het weer, de zon als bandbreedte (bijvoorbeeld 2,5–5,3 kWh), de prijs in groen, grijs of rood, en wat Zonnestuur dan doet.
