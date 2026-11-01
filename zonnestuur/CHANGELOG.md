@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.93.5
+- Belangrijke reparatie: instellingen opslaan gaf sinds 0.88.0 een foutmelding. Dat werkt weer.
+
 ## 0.93.4
 - Twee auto's aan één laadpaal: Zonnestuur herkent aan het laadvermogen welke auto laadt en toont elke laadbeurt bij de goede auto.
 - Laadt er een auto die (nog) niet bekend is, dan telt dat niet meer mee bij je andere auto.
