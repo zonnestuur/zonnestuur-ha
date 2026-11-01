@@ -1090,6 +1090,39 @@ html, body { overscroll-behavior-y: none; }
   .inz-t .d { font-size: 13px; color: var(--zs-ink2); } .inz-t .d i { font-style: normal; }
 
 
+  /* 0.94: weer in de kop en 'Vandaag en morgen' */
+  .weer-kop { display: inline-flex; align-items: center; gap: 8px; margin: -4px 0 10px; padding: 7px 12px 7px 9px; border-radius: 99px;
+    background: var(--zs-zacht); color: var(--zs-ink2); text-decoration: none; font-size: 14px; font-weight: 550; min-height: 34px; }
+  .weer-kop .wx { width: 20px; height: 20px; display: block; flex: none; }
+  .wx { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .wx.zon { color: var(--e-zon); } .wx.maan { color: #c7d2fe; } .wx.half { color: var(--e-zon); } .wx.regen, .wx.sneeuw { color: #7dd3fc; }
+  :root[data-theme="light"] .wx.maan { color: #6366f1; } :root[data-theme="light"] .wx.regen { color: #0369a1; }
+  .vooruit { padding: 18px 16px 14px !important; }
+  .vr-kop { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .vr-kop h2 { margin: 0; }
+  .vr-seg { max-width: 240px; flex: 0 1 240px; } .vr-seg button { padding: 8px 6px; min-height: 36px; }
+  .vr-lijst { list-style: none; margin: 0; padding: 0; }
+  .vr-rij { display: grid; grid-template-columns: 82px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 12px 0; border-top: 1px solid var(--zs-lijn); }
+  .vr-rij:first-child { border-top: 0; }
+  .vr-l b { display: block; font-size: 15px; } .vr-l span { font-size: 12.5px; color: var(--zs-ink3); font-variant-numeric: tabular-nums; }
+  .vr-w { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .vr-w .wx { width: 26px; height: 26px; flex: none; }
+  .vr-w .num { font: 700 18px/1 "Inter Tight", Inter, sans-serif; }
+  .vr-w small { color: var(--zs-ink2); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vr-r { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .vr-prijs { font: 700 13.5px/1 Inter, sans-serif; padding: 6px 9px; border-radius: 99px; background: var(--zs-zacht); color: var(--zs-ink2); font-variant-numeric: tabular-nums; }
+  .vr-prijs.ok { background: color-mix(in srgb, var(--zs-groen) 18%, transparent); color: var(--zs-groen); }
+  .vr-prijs.duur { background: color-mix(in srgb, #f87171 18%, transparent); color: var(--t-rood, #f87171); }
+  .vr-zon { font-size: 12.5px; color: var(--zs-ink2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .vr-zon::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--e-zon); margin-right: 5px; }
+  .vr-x { grid-column: 2 / -1; font-size: 13.5px; color: var(--zs-ink2); }
+  .vr-x p { margin: 2px 0 0; }
+  .vr-doet { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+  .vr-doet b { color: var(--zs-ink); font-variant-numeric: tabular-nums; } .vr-doet small { display: block; color: var(--zs-ink3); font-size: 12.5px; }
+  .vr-regen { color: #7dd3fc; } :root[data-theme="light"] .vr-regen { color: #0369a1; }
+  .vr-voet { margin: 8px 0 0; font-size: 12.5px; color: var(--zs-ink3); }
+  .vr-leeg { padding: 12px 0; color: var(--zs-ink2); }
+  .tegel .marge { color: var(--zs-ink3); white-space: nowrap; }
   /* 0.93: Energieprijzen als staafjes per uur */
   .tarkaart.tk { display: block !important; padding: 18px 16px 16px !important; }
   .tk-kop { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto 10px; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
@@ -1127,6 +1160,7 @@ html, body { overscroll-behavior-y: none; }
   .tk-pil.laag, .tk-pil.reeks { background: color-mix(in srgb, var(--zs-groen) 22%, var(--zs-kaart, var(--zs-vlak))); color: var(--zs-groen); }
   .tk-pil.hoog { background: color-mix(in srgb, #f87171 20%, var(--zs-kaart, var(--zs-vlak))); color: var(--t-rood, #f87171); }
   .tk-pil.links { transform: translate(-18%, calc(-100% - 8px)); } .tk-pil.rechts { transform: translate(-82%, calc(-100% - 8px)); }
+  .tk-pil.bijnu { margin-top: -14px; }
   .tk-x { position: relative; height: 18px; margin-top: 6px; font: 500 11.5px Inter, sans-serif; color: var(--zs-ink3); font-variant-numeric: tabular-nums; }
   .tk-x span { position: absolute; transform: translateX(-50%); }
   .tk-reeks { margin-top: 22px; display: grid; gap: 8px; }
@@ -1223,6 +1257,7 @@ html, body { overscroll-behavior-y: none; }
     <button class="icon-btn" id="themeBtn" hidden aria-label="Wissel licht of donker"></button>
   </header>
   <section class="nu-zin nu" id="nuZin" hidden aria-live="polite"><h1 class="nz-kop" id="nzKop"></h1><p class="nz-sub" id="nzSub"></p></section>
+  <a class="weer-kop nu" id="weerKop" href="#vooruit" hidden><svg viewBox="0 0 24 24" aria-hidden="true"></svg><span></span></a>
   <a class="status-pil nu" id="statusPil" href="hulp"><i></i><span>Even kijken…</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
 
   <div class="grid">
@@ -1260,6 +1295,7 @@ html, body { overscroll-behavior-y: none; }
     <div class="vd-zij">
       <section class="tegels3" id="cijfers" aria-label="Kerncijfers"></section>
       <section class="card tarkaart" id="tarKaart" aria-label="Energieprijzen" hidden></section>
+      <section class="card vooruit" id="vooruit" aria-labelledby="vrTitel" hidden></section>
       <section class="minilijst" id="miniApps" hidden aria-labelledby="miniTitel"><div class="mini-kop"><h2 class="sec" id="miniTitel">Je apparaten</h2><a href="apparaten">Alles</a></div><div class="mini-rijen" id="miniRijen"></div></section>
       <div class="aandacht" id="aandacht"><div class="pills" id="pills"></div><div class="htips" id="vTip"></div><div class="daytip" id="dayTip" hidden role="note"></div><div class="kpis" id="kpis" hidden></div></div>
       <div id="weg" hidden></div>
@@ -1767,7 +1803,7 @@ function renderPlan(s) {
     const cost = it.eur != null && it.eur > 0.005 ? `<b>± ${eur(it.eur)}</b>` : it.source === "zon" ? "<b>eigen zon</b>" : "";
     return `<li class="${it.now ? "now" : ""}"><span class="t">${hhmm(a)}–${hhmm(b)}<small>${day}${it.now ? '<span class="nowtag">nu</span>' : ""}</small></span>
       <i class="ic ${ic}" aria-hidden="true"></i>
-      <span class="w"><b>${esc(it.name)}</b> ${esc(it.what)}<span>${esc(cap(it.why))}</span></span>
+      <span class="w"><b>${esc(it.name)}</b> ${esc(it.what)}<span>${esc(cap(it.why))}${it.alternatief ? ` · ${esc(it.alternatief)}` : ""}</span></span>
       <span class="c">${cost}${it.price != null ? `${eur3(it.price)}/kWh` : ""}</span></li>`;
   }).join("");
   $("planMore").hidden = P.items.length <= maxN;
@@ -1870,7 +1906,7 @@ function renderStatus(s) {
   const swPill = sw || fl ? `<a class="pill ${fl ? "warn" : ""}" href="#logTitle">${fl ? `⚠︎ Sturing vandaag: ${fl} van ${sw} schakelingen mislukt` : `✓ Sturing vandaag: ${sw} ${sw === 1 ? "schakeling" : "schakelingen"}, alles gelukt`}</a>` : "";
   const meet = (s.baseline_today || []).map((id) => (s.devices.find((d) => d.id === id) || {}).name).filter(Boolean);
   const meetPill = meet.length ? `<span class="pill" title="Op meetdagen stuurt Zonnestuur een apparaat niet, om eerlijk te meten wat sturing oplevert">Meetdag: ${esc(meet.join(", "))} zonder sturing</span>` : "";
-  $("pills").innerHTML = licPill + swPill + meetPill + (s.problems || []).map((p) => p.link ? `<a class="pill" href="${esc(p.link)}">${esc(p.text)}</a>` : `<span class="pill ${p.level === "warn" ? "warn" : ""}">${p.level === "warn" ? "⚠︎ " : ""}${esc(p.text)}</span>`).join("");
+  $("pills").innerHTML = licPill + swPill + meetPill + (s.problems || []).filter((p, i, a) => a.findIndex((q) => q.text === p.text) === i).map((p) => p.link ? `<a class="pill" href="${esc(p.link)}">${esc(p.text)}</a>` : `<span class="pill ${p.level === "warn" ? "warn" : ""}">${p.level === "warn" ? "⚠︎ " : ""}${esc(p.text)}</span>`).join("");
   renderWelcome(s);
 
   renderCijfers(s);
@@ -2004,7 +2040,7 @@ function renderCijfers(s) {
   } else {
     const V = s.value || { month: { eur: s.month.eur_saved } };
     k.push(`<a class="tegel" href="inzicht"><span class="ti blad">${SVGI(HI.blad)}</span><span class="l">Bespaard</span><b class="v num goed">${eur(V.month.eur)}</b>
-      <span class="d">deze maand</span></a>`);
+      <span class="d">deze maand${V.month.marge >= 0.05 ? ` <span class="marge" title="Onzekerheid: zonder Zonnestuur had het apparaat op elk moment van de dag kunnen draaien">± ${eur(V.month.marge).replace("€ ", "€ ")}</span>` : ""}</span></a>`);
   }
   if (k.length < 3 && tv && tv.cost_eur != null) {
     const kg = tv.import_kwh > 0.2 ? tv.cost_eur / tv.import_kwh : null;
@@ -2089,7 +2125,7 @@ function renderTarKaart(s) {
     const k = klasse(r.p) + (voorbij ? " oud" : rk ? (inR(i) ? " reeks" : " dim") : "");
     return `<rect x="${(i * bw + bw * .22).toFixed(1)}" y="${top.toFixed(1)}" width="${(bw * .56).toFixed(1)}" height="${Math.max(1.5, bot - top).toFixed(1)}" rx="${(bw * .28).toFixed(1)}" class="tk-b ${k}${D.verwacht ? " verw" : ""}"/>`; }).join("");
   const xp = (i) => ((i + .5) / n * 100).toFixed(2);
-  const rand = (i) => i < 2 ? " links" : i > n - 3 ? " rechts" : "";
+  const rand = (i) => (i < 2 ? " links" : i > n - 3 ? " rechts" : "") + (Math.abs(i - ni) <= 1 && ni >= 0 ? " bijnu" : "");
   const pil = (i, t, k) => `<span class="tk-pil ${k || ""}${rand(i)}" style="left:${xp(i)}%;top:${(y(Math.max(U[i].p, 0)) / H * 100).toFixed(2)}%">${t}</span>`;
   let pillen = "";
   if (rk) { const m = rk.i + Math.floor(TK.reeks / 2) - (TK.reeks % 2 ? 0 : .5); pillen = `<span class="tk-pil reeks" style="left:${((m + .5) / n * 100).toFixed(2)}%;top:${(Math.min(...U.slice(rk.i, rk.i + TK.reeks).map((r) => y(Math.max(r.p, 0)))) / H * 100).toFixed(2)}%">gem. ${ct(rk.g)}</span>`; }
@@ -2139,6 +2175,55 @@ function renderTarKaart(s) {
   vlak.onpointercancel = () => { sleep = false; };
   vlak.onpointerleave = (e) => { if (e.pointerType === "mouse") toon(-1); };
   if (TK.sel >= 0 && TK.sel < n) toon(TK.sel);
+}
+// Vandaag en morgen per dagdeel: weer, zon met bandbreedte, prijs en wat Zonnestuur dan doet
+let VOORUIT = null, VR_DAG = 0;
+const WX = {
+  zon: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/>',
+  maan: '<path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/>',
+  half: '<circle cx="8.5" cy="8.5" r="3.2"/><path d="M8.5 2.5v1.3M2.5 8.5h1.3M4.3 4.3l.9.9M12.7 4.3l-.9.9"/><path d="M9 19.5h8.5a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.4 1.6A2.8 2.8 0 0 0 9 19.5z"/>',
+  wolk: '<path d="M7 18.5h10.5a4 4 0 0 0 .3-8 6 6 0 0 0-11.4 1.7A3.2 3.2 0 0 0 7 18.5z"/>',
+  regen: '<path d="M7 14.5h10.5a4 4 0 0 0 .3-8 6 6 0 0 0-11.4 1.7A3.2 3.2 0 0 0 7 14.5z"/><path d="M8.5 17.5l-1 2.5M12.5 17.5l-1 2.5M16.5 17.5l-1 2.5"/>',
+  sneeuw: '<path d="M7 14.5h10.5a4 4 0 0 0 .3-8 6 6 0 0 0-11.4 1.7A3.2 3.2 0 0 0 7 14.5z"/><path d="M8.5 18.5h.01M12 20h.01M15.5 18.5h.01"/>',
+};
+function wxIcoon(woord, nacht) {
+  const w = woord || "";
+  const k = /sneeuw/.test(w) ? "sneeuw" : /regen/.test(w) ? "regen" : /half/.test(w) ? "half" : /bewolkt/.test(w) ? "wolk" : nacht ? "maan" : "zon";
+  return `<svg class="wx ${k}" viewBox="0 0 24 24" aria-hidden="true">${WX[k]}</svg>`;
+}
+function renderVooruit() {
+  const el = $("vooruit"), V = VOORUIT;
+  const kop = $("weerKop");
+  if (kop) {
+    kop.hidden = !(V && V.kop) || VIEW !== "vandaag";
+    if (V && V.kop) { const w = (V.kop.split(" · ")[1] || ""); const n = new Date().getHours();
+      kop.querySelector("svg").outerHTML = wxIcoon(w, n < 7 || n >= 18); kop.querySelector("span").textContent = V.kop; }
+  }
+  if (!el) return;
+  if (!V || !V.dagen || !V.dagen.length) { el.hidden = true; return; }
+  el.hidden = false;
+  VR_DAG = Math.min(VR_DAG, V.dagen.length - 1);
+  const D = V.dagen[VR_DAG];
+  const KL = { cheap: ["goedkoop", "ok"], mid: ["gemiddeld", ""], dear: ["duur", "duur"] };
+  const ct = (v) => Math.round(v * 100) + " ct";
+  const rij = (x) => {
+    const zon = x.zon ? `<span class="vr-zon" title="Verwachte zonnestroom, met de bandbreedte waarbinnen het meestal valt">${nl(x.zon.laag, 1)}–${nl(x.zon.hoog, 1)} kWh</span>` : "";
+    const pr = x.prijs ? `<span class="vr-prijs ${KL[x.prijs.klasse][1]}">${ct(x.prijs.gem)}</span>` : "";
+    const regen = x.regenkans != null && x.regenkans >= 30 ? `<span class="vr-regen">${x.regenkans}% kans op regen</span>` : "";
+    const doet = (x.doet || []).map((d) => `<li><b>${esc(d.tijd)}</b> ${esc(d.naam)} ${esc(d.wat || "")}${d.alternatief ? `<small>${esc(d.alternatief)}</small>` : ""}</li>`).join("");
+    return `<li class="vr-rij"><div class="vr-l"><b>${esc(x.deel[0].toUpperCase() + x.deel.slice(1))}</b><span>${esc(x.van)}–${esc(x.tot)}</span></div>
+      <div class="vr-w">${wxIcoon(x.woord, x.deel === "nacht" || x.deel === "avond")}<span class="num">${x.t == null ? "–" : x.t + "°"}</span><small>${esc(x.woord || "")}</small></div>
+      <div class="vr-r">${pr}${zon}</div>
+      ${doet || x.tip || regen ? `<div class="vr-x">${doet ? `<ul class="vr-doet">${doet}</ul>` : ""}${x.tip && !doet ? `<p>${esc(x.tip)}</p>` : ""}${regen ? `<p>${regen}</p>` : ""}</div>` : ""}</li>`;
+  };
+  const knoppen = V.dagen.map((d, i) => `<button type="button" data-vr="${i}" aria-pressed="${i === VR_DAG}">${esc(d.naam)}</button>`).join("");
+  const zonInfo = V.panelen && V.zonband && V.zonband.geleerd ? `<p class="vr-voet">De bandbreedte van de zon is geleerd uit ${V.zonband.dagen} dagen meting (${V.zonband.binnen_pct_nieuw}% raak).</p>`
+    : V.panelen ? `<p class="vr-voet">Zon als bandbreedte: meestal valt het daartussen. Zonnestuur leert de juiste breedte uit je eigen meting.</p>` : "";
+  const h = `<div class="vr-kop"><h2 class="sec" id="vrTitel">Vandaag en morgen</h2><div class="seg3 vr-seg" role="group" aria-label="Dag">${knoppen}</div></div>
+    <ul class="vr-lijst">${(D.delen || []).map(rij).join("") || `<li class="vr-leeg">Geen weer bekend voor deze dag.</li>`}</ul>${zonInfo}`;
+  if (el._h === h) return;
+  el.innerHTML = h; el._h = h;
+  el.querySelectorAll("[data-vr]").forEach((b) => b.onclick = () => { VR_DAG = +b.dataset.vr; renderVooruit(); });
 }
 // Je apparaten in het kort: wat elk nu doet, tik voor de knoppen
 function renderMiniApps(s) {
@@ -3873,13 +3958,15 @@ function renderInzicht() {
 document.querySelectorAll("#inzSeg button").forEach((b) => b.addEventListener("click", () => { INZ_P = b.dataset.p; INZ_GEKOZEN = true; renderInzicht(); }));
 // ---------- Home zelf indelen (zoals een grafiek vastzetten): volgorde en zichtbaarheid, per apparaat bewaard ----------
 const HOME_KAARTEN = [["cijfers", "Kerncijfers", "Opbrengst, verbruik en batterij"], ["tarKaart", "Stroomprijs", "Prijs nu en de goedkoopste uren"],
+  ["vooruit", "Vandaag en morgen", "Weer, zon en prijs per dagdeel"],
   ["miniApps", "Je apparaten", "Wat je apparaten nu doen"], ["aandacht", "Tips", "Wat je nu kunt doen"], ["planCard", "De komende 24 uur", "Wat Zonnestuur heeft gepland", true]];
 function homeIndeling() {
   let d = null; try { d = JSON.parse(localStorage.getItem("zs_home") || "null"); } catch (e) { d = null; }
   const ids = HOME_KAARTEN.map((k) => k[0]);
   const volg = ((d && d.volgorde) || []).filter((x) => ids.includes(x));
   for (const x of ids) if (!volg.includes(x)) volg.push(x);
-  return { volgorde: volg, weg: ((d && d.weg) || []).filter((x) => ids.includes(x)) };
+  // standaard: de losse tip weg, want 'Vandaag en morgen' zegt al wat er te doen is (verbeterplan nov. 2026)
+  return { volgorde: volg, weg: ((d && d.weg) || (d ? [] : ["aandacht"])).filter((x) => ids.includes(x)) };
 }
 function homeToepassen() {
   if (VIEW !== "vandaag") return;
@@ -3931,9 +4018,10 @@ async function refreshCharts() {
   CBUSY = Date.now(); clearTimeout(CRETRY);
   try {
     const r = await Promise.allSettled([api("api/today"), api("api/history?days=31"), api("api/prices"),
-      api(`api/usage?period=${USE_P}&offset=${USE_OFF}`), api("api/insight"), api("api/coach"), api("api/events")]);
+      api(`api/usage?period=${USE_P}&offset=${USE_OFF}`), api("api/insight"), api("api/coach"), api("api/events"), api("api/vooruit")]);
     const v = (i, d) => (r[i].status === "fulfilled" ? r[i].value : d);
     EVENTS = v(6, EVENTS);
+    VOORUIT = v(7, VOORUIT); renderVooruit();
     COACH = v(5, COACH);
     INSIGHT = v(4, null); $("feedBody").closest("section").hidden = !INSIGHT;
     TODAY = v(0, TODAY); MONTH = v(1, MONTH); PRICES = v(2, null); USAGE = v(3, null);

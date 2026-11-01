@@ -52,6 +52,14 @@
   .pijl { width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-top: 2px solid var(--zs-ink3); transform: rotate(45deg); margin-right: 6px; }
 </style>
 <link rel="stylesheet" href="stijl.css">
+<style>
+  .grens summary { cursor: pointer; list-style: none; min-height: 28px; display: flex; align-items: center; }
+  .grens summary::-webkit-details-marker { display: none; }
+  .grens summary::after { content: ""; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--zs-ink3); border-bottom: 2px solid var(--zs-ink3); transform: rotate(45deg); }
+  .grens[open] summary::after { transform: rotate(-135deg); }
+  .grens .gk { margin: 10px 0 4px; font-size: 13px; font-weight: 650; color: var(--zs-ink2); }
+  .grens ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.45; color: var(--zs-ink2); }
+</style>
 </head>
 <body>
 <main>
@@ -147,6 +155,13 @@ function teken() {
     ${schakel("notify.appliances", "was", "#60a5fa", "Wasmachine en vaatwasser", "Hoe laat hij start als je hem klaarzet, en wanneer hij begint", N.appliances !== false)}
     ${schakel("notify.reports", "rapport", "#34d399", "Weekrapport", "Op zondagavond wat je die week bespaarde", N.reports !== false)}
   </div>`;
+  if (GRENZEN && GRENZEN.length) {
+    h += `<h2>Grenzen en veiligheid</h2><p class="s" style="margin:-4px 0 10px;color:var(--zs-ink2)">Wat Zonnestuur nooit doet, en wat er gebeurt als iets uitvalt.</p><div class="lijst">
+      ${GRENZEN.map((g) => `<details class="rij grens" style="display:block"><summary><b>${esc(g.naam)}</b></summary>
+        ${g.nooit.length ? `<p class="gk">Nooit</p><ul>${g.nooit.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+        <p class="gk">Als er iets uitvalt</p><ul>${g.terugval.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></details>`).join("")}
+    </div>`;
+  }
   $("inhoud").innerHTML = h;
   $("inhoud").querySelectorAll("[data-k]").forEach((i) => i.onchange = () => bewaar(i.dataset.k, i.checked, i));
   if ($("dimSkip")) $("dimSkip").onclick = async () => {
@@ -182,7 +197,8 @@ async function bewaar(k, v, el) {
   catch (e) { melding(e.message); if (el.type === "checkbox") el.checked = !v; else teken(); }
 }
 let DIM = null;
-(async () => { try { [CFG, DIM] = await Promise.all([api("api/config"), api("api/dimmen").catch(() => null)]); teken(); } catch (e) { $("inhoud").innerHTML = `<p>${esc(e.message)}</p>`; } })();
+let GRENZEN = null;
+(async () => { try { [CFG, DIM, GRENZEN] = await Promise.all([api("api/config"), api("api/dimmen").catch(() => null), api("api/grenzen").catch(() => null)]); teken(); } catch (e) { $("inhoud").innerHTML = `<p>${esc(e.message)}</p>`; } })();
 </script>
 </body>
 </html>

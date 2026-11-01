@@ -1,5 +1,14 @@
 # Wijzigingen
 
+## 0.94.0
+- Het weer staat nu bovenaan Home: temperatuur, wolken en hoeveel uur zon er vandaag of morgen komt.
+- Nieuwe kaart 'Vandaag en morgen': per dagdeel het weer, de zon als bandbreedte (bijvoorbeeld 2,5–5,3 kWh), de prijs in groen, grijs of rood, en wat Zonnestuur dan doet.
+- Bij elke geplande actie staat wat het had gekost als hij nu meteen was gaan draaien.
+- 'Bespaard' toont ook de onzekerheid (± bedrag). Het weekrapport zegt erbij hoeveel van een verschil door de auto of het weer kwam.
+- Zonnestuur controleert of de zon echt binnen de bandbreedte valt en past die aan na een week meten.
+- Nieuw bij Slimme sturing: 'Grenzen en veiligheid', per apparaat wat Zonnestuur nooit doet en wat er gebeurt als iets uitvalt.
+- Dubbele meldingen bovenaan Home zijn samengevoegd.
+
 ## 0.93.5
 - Belangrijke reparatie: instellingen opslaan gaf sinds 0.88.0 een foutmelding. Dat werkt weer.
 
