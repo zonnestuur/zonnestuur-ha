@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.93.0
+- Energieprijzen op Home als staafjes per uur, met de laagste en hoogste prijs, een pijltje bij nu en morgen (of de verwachting) met de pijltjes ernaast.
+- Nieuw: 'Vind de goedkoopste reeks uren' (1, 2, 3, 4 of 6 uur achter elkaar). Tik op een staafje voor de prijs van dat uur.
+- Zonder zonnepanelen of batterij staat er nu een derde tegel: wat je stroom vandaag kost.
+
 ## 0.92.0
 - Nieuwe uitstraling: bovenaan Home staat nu in één grote zin wat er gebeurt, met een begroeting en de datum in de kop.
 - De tabbalk zweeft nu als een glazen balk onderin (effen als je op je telefoon 'minder transparantie' aan hebt).
