@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.93.4
+- Twee auto's aan één laadpaal: Zonnestuur herkent aan het laadvermogen welke auto laadt en toont elke laadbeurt bij de goede auto.
+- Laadt er een auto die (nog) niet bekend is, dan telt dat niet meer mee bij je andere auto.
+
 ## 0.93.3
 - Energieprijzen: ook op een dag met weinig prijsverschil zijn de goedkoopste uren groen en de duurste rood (het goedkoopste en duurste kwart van de dag).
 
