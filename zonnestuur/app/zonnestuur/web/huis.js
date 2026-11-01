@@ -178,11 +178,11 @@
     }
     // tik op het huis = volgende klusje (om alles te zien); anders kiest hij elk uur
     var k = o.forceer != null ? ALLE[o.forceer % ALLE.length] : keus[uur % keus.length];
-    var h = "", y = GRd + 11, S = " scale(1.35)", zeg = ZEG[k] || "";
+    var h = "", y = GRd + 11, S = " scale(1.7)", zeg = ZEG[k] || "";
     if (k === "slapen") {
       h = '<g transform="translate(214 ' + (o.dakY + 34) + ')" fill="' + inkt + '" font-weight="800">' +
-        '<text class="hz-pop-z" x="0" y="0" font-size="11">z</text><text class="hz-pop-z" x="8" y="-6" font-size="14" style="animation-delay:1s">z</text>' +
-        '<text class="hz-pop-z" x="17" y="-12" font-size="17" style="animation-delay:2s">Z</text></g>';
+        '<text class="hz-pop-z" x="0" y="0" style="font: 800 11px Inter, system-ui, sans-serif">z</text><text class="hz-pop-z" x="8" y="-6" style="font: 800 14px Inter, system-ui, sans-serif; animation-delay:1s">z</text>' +
+        '<text class="hz-pop-z" x="17" y="-12" style="font: 800 17px Inter, system-ui, sans-serif; animation-delay:2s">Z</text></g>';
     } else if (k === "maaien") {
       // heen en weer over het gazon voor het huis, met de grasmaaier voor zich uit
       var maaier = '<path d="M6 -14l9 9" stroke="' + inkt + '" stroke-width="1.6" stroke-linecap="round"/>' +
@@ -203,14 +203,14 @@
       var px = lx + (tx - lx) * 0.72 + 3 * dir, py = GRd + (o.dakY - 2 - GRd) * 0.72;
       var wisser = '<g class="hz-pop-arm" transform="translate(' + (4.5 * dir) + ' -15)"><path d="M0 0l' + 6 * dir + ' -6" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>' +
         '<path d="M' + 6 * dir + ' -6l' + 5 * dir + ' -5M' + 8 * dir + ' -13l' + 7 * dir + ' 3" stroke="' + inkt + '" stroke-width="1.6" stroke-linecap="round"/></g>';
-      h += '<g transform="translate(' + px.toFixed(1) + " " + py.toFixed(1) + ")" + (o.links ? S : " scale(-1.35 1.35)") + '">' + poppetje(inkt, wisser) + "</g>";
+      h += '<g transform="translate(' + px.toFixed(1) + " " + py.toFixed(1) + ")" + (o.links ? S : " scale(-1.7 1.7)") + '">' + poppetje(inkt, wisser) + "</g>";
       h += '<g transform="translate(' + (o.links ? 50 : 318) + " " + GRd + ')"><path d="M-5 0l1 -8h8l1 8z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width="1.2"/></g>';
     } else if (k === "auto") {
       // met een spons voor de auto langs, met zeepbellen
       var cx = (o.auto != null ? o.auto : 290) + 30;
       var spons = '<g class="hz-pop-arm" transform="translate(4.5 -15)"><path d="M0 0l6 -4" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>' +
         '<rect x="5" y="-8" width="6" height="4" rx="1.4" fill="#ffd34d" stroke="' + inkt + '" stroke-width="1"/></g>';
-      h = '<g transform="translate(' + cx + " " + GRd + ') scale(-1.35 1.35)">' + poppetje(inkt, spons) +
+      h = '<g transform="translate(' + cx + " " + GRd + ') scale(-1.7 1.7)">' + poppetje(inkt, spons) +
         '<path d="M-14 0l1 -8h8l1 8z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width="1.2"/>' +
         '<g fill="#fff" stroke="#8ab4e8" stroke-width=".8"><circle class="hz-pop-bel" cx="12" cy="-24" r="2.2"/><circle class="hz-pop-bel" cx="17" cy="-20" r="1.6" style="animation-delay:.7s"/>' +
         '<circle class="hz-pop-bel" cx="9" cy="-30" r="1.4" style="animation-delay:1.4s"/></g></g>';
@@ -235,7 +235,7 @@
       var armen = '<path d="M4.5 -15h8M-4.5 -15l-1 0" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>';
       h = '<g transform="translate(120 ' + y + ')' + S + '"><g class="hz-pop-heen" style="--ver:80px;animation-duration:30s"><g class="pyjama">' + poppetje(inkt, armen, true) + '</g>' +
         '<path d="M-4.6 -23.4l7 -8l3 6" fill="#e8553d" stroke="' + inkt + '" stroke-width="1"/><circle cx="2.4" cy="-31.4" r="1.6" fill="#fff"/>' +
-        '<text class="hz-pop-z" x="6" y="-30" font-size="8" font-weight="800" fill="' + inkt + '">z</text></g></g>';
+        '<text class="hz-pop-z" x="6" y="-30" style="font: 800 8px Inter, system-ui, sans-serif" fill="' + inkt + '">z</text></g></g>';
     } else if (k === "dansen") {
       var dans = '<g class="hz-pop-arm"><path d="M4.5 -15l5 -7" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/></g>';
       h = '<g transform="translate(150 ' + y + ')' + S + '"><g class="hz-pop-dans">' + poppetje(inkt, dans) + '</g>' +
@@ -256,10 +256,10 @@
     if (h && zeg) {
       // tekstwolkje dat af en toe verschijnt
       var bx = { slapen: 250, sterren: 300, maaien: 150, hol: 150, paraplu: 150, sneeuwpop: 300, auto: (o.auto || 300) - 10, panelen: 250, slaapwandelen: 150, dansen: 160, zwaaien: 160 }[k] || 200;
-      var by = k === "panelen" ? o.dakY - 30 : k === "slapen" ? o.dakY + 4 : GRd - 46, bw = 8 + zeg.length * 5.6;
-      h += '<g transform="translate(' + (bx - bw / 2) + " " + by + ')"><g class="hz-pop-zeg"><rect width="' + bw + '" height="17" rx="8.5" fill="#fff" stroke="' + inkt + '" stroke-width="1.1"/>' +
-        '<path d="M' + (bw / 2 - 4) + ' 16.4l4 5l3 -5.4" fill="#fff" stroke="' + inkt + '" stroke-width="1.1" stroke-linejoin="round"/>' +
-        '<text x="' + bw / 2 + '" y="12" text-anchor="middle" style="font: 700 10px Inter, system-ui, sans-serif" fill="' + inkt + '">' + esc(zeg) + "</text></g></g>";
+      var by = k === "panelen" ? o.dakY - 34 : k === "slapen" ? o.dakY + 2 : GRd - 62, bw = 12 + zeg.length * 6.6;
+      h += '<g transform="translate(' + (bx - bw / 2) + " " + by + ')"><g class="hz-pop-zeg"><rect width="' + bw + '" height="20" rx="10" fill="#fff" stroke="' + inkt + '" stroke-width="1.1"/>' +
+        '<path d="M' + (bw / 2 - 4) + ' 19.4l4 5l3 -5.4" fill="#fff" stroke="' + inkt + '" stroke-width="1.1" stroke-linejoin="round"/>' +
+        '<text x="' + bw / 2 + '" y="14" text-anchor="middle" style="font: 700 12px Inter, system-ui, sans-serif; fill: ' + inkt + ' !important">' + esc(zeg) + "</text></g></g>";
     }
     return h ? '<style>' + POP_CSS + '</style><g class="hz-pop" aria-hidden="true">' + h + "</g>" : "";
   }

@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.95.4
+- De klusjesman is groter en zijn tekstwolkje is nu goed te lezen (de tekst was op de telefoon onzichtbaar).
+
 ## 0.95.3
 - De klusjesman doet nu ook grappige dingen: zwaaien, dansen bij goedkope stroom, achter een op hol geslagen grasmaaier aan, 's nachts sterren kijken of slaapwandelen. Af en toe zegt hij iets in een tekstwolkje. Tik op het huis om te zien wat hij nog meer kan.
 
