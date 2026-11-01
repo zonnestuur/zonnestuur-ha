@@ -128,6 +128,92 @@
   }
 
   // ---------- de tekening ----------
+  // Klusje: een poppetje dat iets doet dat bij het weer en het uur past (maaien, panelen poetsen, auto wassen,
+  // paraplu, sneeuwpop; 's nachts slaapt hij boven). Elk uur kan hij iets anders kiezen.
+  var POP_CSS = "@keyframes hzPopHeen{0%{transform:translateX(0) scaleX(1)}47%{transform:translateX(var(--ver)) scaleX(1)}50%{transform:translateX(var(--ver)) scaleX(-1)}97%{transform:translateX(0) scaleX(-1)}100%{transform:translateX(0) scaleX(1)}}" +
+    "@keyframes hzPopStap{from{transform:translateY(0)}to{transform:translateY(-1.2px)}}" +
+    "@keyframes hzPopPoets{from{transform:rotate(-28deg)}to{transform:rotate(22deg)}}" +
+    "@keyframes hzPopBel{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:.9}100%{transform:translateY(-16px) scale(1.1);opacity:0}}" +
+    "@keyframes hzPopZ{0%{transform:translate(0,0);opacity:0}30%{opacity:.85}100%{transform:translate(8px,-18px);opacity:0}}" +
+    "@keyframes hzPopGras{0%{transform:translate(0,0);opacity:.9}100%{transform:translate(-7px,-5px);opacity:0}}" +
+    ".hz .hz-pop-heen{transform-box:fill-box;transform-origin:center;animation:hzPopHeen 16s linear infinite}" +
+    ".hz .hz-pop-stap{animation:hzPopStap .35s ease-in-out infinite alternate}" +
+    ".hz .hz-pop-arm{transform-box:fill-box;transform-origin:0 0;animation:hzPopPoets .5s ease-in-out infinite alternate}" +
+    ".hz .hz-pop-bel{transform-box:fill-box;transform-origin:center;animation:hzPopBel 2.2s ease-out infinite}" +
+    ".hz .hz-pop-z{animation:hzPopZ 3s ease-out infinite}.hz .hz-pop-gras{animation:hzPopGras .7s linear infinite}" +
+    "@media (prefers-reduced-motion: reduce){.hz [class*=hz-pop]{animation:none!important}}";
+
+  // poppetje met de voeten op (0,0), ± 26 hoog; arm = de rechterarm (getekend vanaf de schouder)
+  function poppetje(inkt, arm, stap) {
+    var b = '<g' + (stap ? ' class="hz-pop-stap"' : "") + '>' +
+      '<path d="M-2.5 0v-8M2.5 0v-8" stroke="' + inkt + '" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<rect x="-5" y="-18" width="10" height="11" rx="3" fill="#2659c4" stroke="' + inkt + '" stroke-width="1.2"/>' +
+      '<path d="M-3 -15h6" stroke="#ffb224" stroke-width="1.6"/>' +
+      '<path d="M-4.5 -15l-3 6" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>' +
+      '<circle cx="0" cy="-22.5" r="4.4" fill="#f4c9a4" stroke="' + inkt + '" stroke-width="1.2"/>' +
+      '<path d="M-4.6 -23.4a4.6 4.6 0 0 1 9.2 0h2.6" fill="#ffb224" stroke="' + inkt + '" stroke-width="1.1" stroke-linejoin="round"/>' +
+      '<circle cx="1.8" cy="-21.8" r=".7" fill="' + inkt + '"/>';
+    return b + (arm || '<path d="M4.5 -15l4 5" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>') + "</g>";
+  }
+  function klusje(o) {
+    var inkt = o.inkt, GRd = o.gr, uur = new Date().getHours(), keus = [];
+    if (o.fase === "nacht") keus = ["slapen"];
+    else if (o.sneeuw) keus = ["sneeuwpop"];
+    else if (o.nat) keus = ["paraplu"];
+    else {
+      if (o.t == null || o.t >= 6) keus.push("maaien");
+      if (o.panelen && !o.links) keus.push("panelen");          // ladder alleen als er geen auto voor staat
+      if (o.auto != null) keus.push("auto");
+      if (!keus.length) keus.push("panelen");
+    }
+    var k = keus[uur % keus.length], h = "", y = GRd + 11, S = " scale(1.35)";
+    if (k === "slapen") {
+      h = '<g transform="translate(214 ' + (o.dakY + 34) + ')" fill="' + inkt + '" font-weight="800">' +
+        '<text class="hz-pop-z" x="0" y="0" font-size="11">z</text><text class="hz-pop-z" x="8" y="-6" font-size="14" style="animation-delay:1s">z</text>' +
+        '<text class="hz-pop-z" x="17" y="-12" font-size="17" style="animation-delay:2s">Z</text></g>';
+    } else if (k === "maaien") {
+      // heen en weer over het gazon voor het huis, met de grasmaaier voor zich uit
+      var maaier = '<path d="M6 -14l9 9" stroke="' + inkt + '" stroke-width="1.6" stroke-linecap="round"/>' +
+        '<rect x="12" y="-7" width="13" height="6" rx="2" fill="#2fbf71" stroke="' + inkt + '" stroke-width="1.2"/>' +
+        '<circle cx="15" cy="0" r="2.2" fill="' + inkt + '"/><circle cx="23" cy="0" r="2.2" fill="' + inkt + '"/>' +
+        '<g fill="#5fae4a"><rect class="hz-pop-gras" x="11" y="-3" width="2" height="2"/><rect class="hz-pop-gras" x="10" y="-5" width="2" height="2" style="animation-delay:.3s"/></g>';
+      h = '<g transform="translate(112 ' + y + ')' + S + '"><g class="hz-pop-heen" style="--ver:86px">' +
+        poppetje(inkt, '<path d="M4.5 -15l3 3" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>', true) + maaier + "</g></g>";
+    } else if (k === "panelen") {
+      // op een ladder tegen de dakrand, met een wisser over de panelen
+      var lx = o.links ? 66 : 300, tx = o.links ? 86 : 282, dir = o.links ? 1 : -1;
+      h = '<g stroke="' + inkt + '" stroke-width="1.4" stroke-linecap="round"><path d="M' + lx + " " + GRd + "L" + tx + " " + (o.dakY - 2) + "M" + (lx + 7 * dir) + " " + GRd + "L" + (tx + 7 * dir) + " " + (o.dakY - 2) + '"/>';
+      for (var r = 1; r < 6; r++) {
+        var f = r / 6, ax = lx + (tx - lx) * f, ay = GRd + (o.dakY - 2 - GRd) * f;
+        h += '<path d="M' + ax.toFixed(1) + " " + ay.toFixed(1) + "h" + 7 * dir + '"/>';
+      }
+      h += "</g>";
+      var px = lx + (tx - lx) * 0.72 + 3 * dir, py = GRd + (o.dakY - 2 - GRd) * 0.72;
+      var wisser = '<g class="hz-pop-arm" transform="translate(' + (4.5 * dir) + ' -15)"><path d="M0 0l' + 6 * dir + ' -6" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<path d="M' + 6 * dir + ' -6l' + 5 * dir + ' -5M' + 8 * dir + ' -13l' + 7 * dir + ' 3" stroke="' + inkt + '" stroke-width="1.6" stroke-linecap="round"/></g>';
+      h += '<g transform="translate(' + px.toFixed(1) + " " + py.toFixed(1) + ")" + (o.links ? S : " scale(-1.35 1.35)") + '">' + poppetje(inkt, wisser) + "</g>";
+      h += '<g transform="translate(' + (o.links ? 50 : 318) + " " + GRd + ')"><path d="M-5 0l1 -8h8l1 8z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width="1.2"/></g>';
+    } else if (k === "auto") {
+      // met een spons voor de auto langs, met zeepbellen
+      var cx = o.auto + 30;
+      var spons = '<g class="hz-pop-arm" transform="translate(4.5 -15)"><path d="M0 0l6 -4" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<rect x="5" y="-8" width="6" height="4" rx="1.4" fill="#ffd34d" stroke="' + inkt + '" stroke-width="1"/></g>';
+      h = '<g transform="translate(' + cx + " " + GRd + ') scale(-1.35 1.35)">' + poppetje(inkt, spons) +
+        '<path d="M-14 0l1 -8h8l1 8z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width="1.2"/>' +
+        '<g fill="#fff" stroke="#8ab4e8" stroke-width=".8"><circle class="hz-pop-bel" cx="12" cy="-24" r="2.2"/><circle class="hz-pop-bel" cx="17" cy="-20" r="1.6" style="animation-delay:.7s"/>' +
+        '<circle class="hz-pop-bel" cx="9" cy="-30" r="1.4" style="animation-delay:1.4s"/></g></g>';
+    } else if (k === "paraplu") {
+      var scherm = '<path d="M4.5 -15l3 -2" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/><path d="M7 -17v-15" stroke="' + inkt + '" stroke-width="1.3"/>' +
+        '<path d="M-6 -31a13 9 0 0 1 26 0q-3.3 -2 -6.5 0q-3.2 -2 -6.5 0q-3.3 -2 -6.5 0q-3.2 -2 -6.5 0z" fill="#e8553d" stroke="' + inkt + '" stroke-width="1.2" stroke-linejoin="round"/>';
+      h = '<g transform="translate(112 ' + y + ')' + S + '"><g class="hz-pop-heen" style="--ver:86px;animation-duration:24s">' + poppetje(inkt, scherm, true) + "</g></g>";
+    } else if (k === "sneeuwpop") {
+      h = '<g transform="translate(320 ' + y + ')' + S + '">' + poppetje(inkt, '<path d="M4.5 -15l5 2" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>') +
+        '<g transform="translate(22 0)" fill="#fff" stroke="' + inkt + '" stroke-width="1.2"><circle cx="0" cy="-7" r="7"/><circle cx="0" cy="-18" r="5"/>' +
+        '<path d="M0 -18l4 1-4 1z" fill="#ff9a3d" stroke="none"/><circle cx="-1.5" cy="-19.5" r=".7" fill="' + inkt + '" stroke="none"/></g></g>';
+    }
+    return h ? '<style>' + POP_CSS + '</style><g class="hz-pop" aria-hidden="true">' + h + "</g>" : "";
+  }
+
   function teken(svg, s, onder) {
     if (!svg || !s) return;
     var hz = s.huis || {}, zon = hz.zon || {}, wr = hz.weer || {}, pr = hz.prijs || {};
@@ -263,6 +349,9 @@
       }
     });
 
+    if (s.poppetje !== false)
+      h += klusje({ inkt: inkt, gr: GR, dakY: dakY, fase: fase, nat: nat, sneeuw: nat && wr.t != null && wr.t <= 1, t: wr.t,
+        panelen: !!s.has_panels, auto: autos.length === 1 ? AX[0] + 44 : null, links: autos.length > 0 });
     h += "</g>";
     h += '<rect x=".5" y=".5" width="' + (W - 1) + '" height="' + (H - 1) + '" rx="22" fill="none" stroke="#13202b" stroke-opacity=".12"/>';
     var basis = h;

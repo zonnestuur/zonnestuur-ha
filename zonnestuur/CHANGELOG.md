@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.95.1
+- Bij het huis woont nu een klusjesman: hij maait het gras, poetst de zonnepanelen op een ladder, wast de auto, loopt met een paraplu als het regent, bouwt een sneeuwpop als het sneeuwt en slaapt 's nachts. Elk uur kan hij iets anders doen. Ook op het scherm in de huiskamer.
+
 ## 0.95.0
 - Home toont nu al je apparaten als kaarten, met hun knoppen: automatisch, nu aan, vandaag overslaan, klaar-tijd en bij de auto 'Nu laden'. Op de telefoon direct onder de cijfers, op een groot scherm over de hele breedte onder het huis. Per apparaat een link 'Alles over dit apparaat'.
 
