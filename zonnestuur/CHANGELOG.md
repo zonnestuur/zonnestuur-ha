@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.93.3
+- Energieprijzen: ook op een dag met weinig prijsverschil zijn de goedkoopste uren groen en de duurste rood (het goedkoopste en duurste kwart van de dag).
+
 ## 0.93.2
 - Goedkope uren zijn nu overal groen: in de app, de dagstrook, de laadbeurten, het wandscherm en op de Nest Hub. Ook de teksten zeggen nu 'groen' in plaats van 'blauw'.
 

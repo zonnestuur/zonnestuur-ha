@@ -2079,11 +2079,14 @@ function renderTarKaart(s) {
   const inR = (i) => rk && i >= rk.i && i < rk.i + TK.reeks;
   const imin = ps.indexOf(mn), imax = ps.indexOf(mx);
   const gemD = ps.reduce((a, v) => a + v, 0) / n;
+  // Kleur per uur t.o.v. de dag zelf: het goedkoopste kwart groen, het duurste kwart rood (ook op een dag met weinig verschil)
+  const gesorteerd = [...ps].sort((a, b) => a - b), q25 = gesorteerd[Math.floor((n - 1) * 0.25)], q75 = gesorteerd[Math.ceil((n - 1) * 0.75)];
+  const klasse = (v) => v < 0 || (v <= q25 && v < gemD - 0.003) ? "cheap" : v >= q75 && v > gemD + 0.003 ? "dear" : "mid";
   let lijnen = "", ylab = "";
   for (let v = lo; v <= hi + 1e-9; v += stap) { const yy = y(v); lijnen += `<line x1="0" x2="${W}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" class="tk-g"/>`;
     ylab += `<span style="top:${(yy / H * 100).toFixed(2)}%">${Math.round(v * 100)}</span>`; }
   const staaf = U.map((r, i) => { const top = y(Math.max(r.p, 0)), bot = y(Math.min(r.p, 0)), voorbij = r.end <= nu;
-    const k = priceClass(r.p, gemD) + (voorbij ? " oud" : rk ? (inR(i) ? " reeks" : " dim") : "");
+    const k = klasse(r.p) + (voorbij ? " oud" : rk ? (inR(i) ? " reeks" : " dim") : "");
     return `<rect x="${(i * bw + bw * .22).toFixed(1)}" y="${top.toFixed(1)}" width="${(bw * .56).toFixed(1)}" height="${Math.max(1.5, bot - top).toFixed(1)}" rx="${(bw * .28).toFixed(1)}" class="tk-b ${k}${D.verwacht ? " verw" : ""}"/>`; }).join("");
   const xp = (i) => ((i + .5) / n * 100).toFixed(2);
   const rand = (i) => i < 2 ? " links" : i > n - 3 ? " rechts" : "";
@@ -2124,7 +2127,7 @@ function renderTarKaart(s) {
     if (i < 0) return;
     const d0 = new Date(U[i].ts * 1000);
     zelf.innerHTML = `${hhmm(d0)}–${hhmm(new Date(U[i].end * 1000))} · ${ct(U[i].p)}`;
-    zelf.className = "tk-pil zelf " + priceClass(U[i].p, gemD).replace("cheap", "laag").replace("dear", "hoog") + rand(i);
+    zelf.className = "tk-pil zelf " + klasse(U[i].p).replace("cheap", "laag").replace("dear", "hoog") + rand(i);
     zelf.style.left = lijn.style.left = xp(i) + "%";
     zelf.style.top = (y(Math.max(U[i].p, 0)) / H * 100).toFixed(2) + "%";
   };
