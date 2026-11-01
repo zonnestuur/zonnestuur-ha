@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.96.2
+- Het tekstwolkje staat nu altijd boven het hoofd van de klusjesman, en loopt mee als hij loopt.
+
 ## 0.96.1
 - Op het scherm in de huiskamer is het huis groter en de klusjesman extra groot. De prijs van nu staat rechtsboven naast het huis.
 

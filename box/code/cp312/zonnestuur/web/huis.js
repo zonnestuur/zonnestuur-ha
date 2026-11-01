@@ -160,6 +160,7 @@
     ".hz .hz-pop-vuur{transform-box:fill-box;transform-origin:50% 100%;animation:hzPopVuur .35s ease-in-out infinite alternate}.hz .hz-pop-gooi{animation:hzPopGooi 1.4s ease-out infinite}" +
     ".hz .hz-pop-knip{transform-box:fill-box;transform-origin:center;animation:hzPopKnipper 3s linear infinite}.hz .hz-pop-spring{animation:hzPopSpring .9s ease-in-out infinite}" +
     ".hz .hz-pop-spat{animation:hzPopSpat .9s ease-out infinite}.hz .hz-pop-rij{transform-box:fill-box;transform-origin:center;animation:hzPopRij 14s linear infinite}" +
+    "@keyframes hzPopVolg{0%{transform:translateX(0)}47%,50%{transform:translateX(var(--ver))}97%,100%{transform:translateX(0)}}.hz .hz-pop-volg{animation:hzPopVolg 16s linear infinite}" +
     "@media (prefers-reduced-motion: reduce){.hz [class*=hz-pop]{animation:none!important}}";
 
   var ALLE = ["maaien", "panelen", "auto", "zwaaien", "dansen", "hol", "vlieger", "harken", "gieter", "zonnen", "bbq", "hond", "voetbal", "fiets",
@@ -247,7 +248,8 @@
     var Z = o.schaal || 1.7, h = "", y = GRd + 11, S = " scale(" + Z + ")", M = " scale(-" + Z + " " + Z + ")", bx = null, by = null;
     var L = function (d, w, kl) { return '<path d="' + d + '" stroke="' + (kl || inkt) + '" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'; };
     var arm = function (d) { return L(d); };
-    var plek = function (x, inhoud, spiegel, yy) { return '<g transform="translate(' + x + " " + (yy == null ? y : yy) + ")" + (spiegel ? M : S) + '">' + inhoud + "</g>"; };
+    var lx0 = null, ly0 = null;
+    var plek = function (x, inhoud, spiegel, yy) { lx0 = x; ly0 = yy == null ? y : yy; return '<g transform="translate(' + x + " " + (yy == null ? y : yy) + ")" + (spiegel ? M : S) + '">' + inhoud + "</g>"; };
     if (k === "slapen") {
       h = '<g transform="translate(214 ' + (o.dakY + 34) + ')" fill="' + inkt + '" font-weight="800">' +
         '<text class="hz-pop-z" x="0" y="0" style="font: 800 11px Inter, system-ui, sans-serif">z</text><text class="hz-pop-z" x="8" y="-6" style="font: 800 14px Inter, system-ui, sans-serif; animation-delay:1s">z</text>' +
@@ -441,14 +443,22 @@
       bx = 60; by = GRd - 100;
     }
     if (h && zeg) {
-      // tekstwolkje dat af en toe verschijnt
-      if (bx == null) bx = { slapen: 250, sterren: 300, maaien: 150, hol: 150, paraplu: 150, sneeuwpop: 300, auto: (o.auto || 300) - 10, panelen: 250, slaapwandelen: 150, dansen: 160, zwaaien: 160 }[k] || 200;
-      if (by == null) by = k === "panelen" ? o.dakY - 34 : k === "slapen" ? o.dakY + 2 : GRd - 66;
+      // tekstwolkje boven het hoofd: [x, y van de voeten, hoe ver hij loopt, in hoeveel seconden, hoogte boven de voeten]
+      var kop = 27 * Z, F;
+      var LOOP = { maaien: [112, y, 86, 16], hol: [112, y, 86, 5], paraplu: [112, y, 86, 24], slaapwandelen: [120, y, 80, 30], hond: [112, y, 80, 20],
+        fiets: [110, y - 8 * Z, 90, 14], stekker: [112, y, 86, 12], zaklamp: [112, y, 86, 22] };
+      var VAST = { panelen: [typeof px === "number" ? px : 250, typeof py === "number" ? py : o.dakY], auto: [typeof cx === "number" ? cx : 320, GRd],
+        sneeuwpop: [320, y], sterren: [330, y], dansen: [150, y - 3 * Z], zwaaien: [150, y], zonnen: [vx - 8 * Z, y, 0, 0, 14 * Z],
+        tv: [206, GRd - 1 - 4 * Z], handstand: [150, y], uil: [30, GRd - 52, 0, 0, 8 * Z], slapen: [226, o.dakY + 30, 0, 0, 0] };
+      F = LOOP[k] || VAST[k] || (lx0 != null ? [lx0, ly0] : [200, y]);
+      var ver = (F[2] || 0) * Z, duur = F[3] || 0, boven = F[4] != null ? F[4] : kop;
       var bw = 12 + zeg.length * 6.4;
-      bx = clamp(bx, bw / 2 + 6, W - bw / 2 - 6);
-      h += '<g transform="translate(' + (bx - bw / 2) + " " + by + ')"><g class="hz-pop-zeg"><rect width="' + bw + '" height="20" rx="10" fill="#fff" stroke="' + inkt + '" stroke-width="1.1"/>' +
-        '<path d="M' + (bw / 2 - 4) + ' 19.4l4 5l3 -5.4" fill="#fff" stroke="' + inkt + '" stroke-width="1.1" stroke-linejoin="round"/>' +
-        '<text x="' + bw / 2 + '" y="14" text-anchor="middle" style="font: 700 12px Inter, system-ui, sans-serif; fill: ' + inkt + ' !important">' + esc(zeg) + "</text></g></g>";
+      var links = clamp(F[0] - bw / 2, 6, W - bw - 6 - ver), staart = clamp(F[0] - links, 12, bw - 12);
+      var top = F[1] - boven - 27;
+      h += '<g transform="translate(' + links.toFixed(1) + " " + top.toFixed(1) + ')">' + (ver ? '<g class="hz-pop-volg" style="--ver:' + ver.toFixed(1) + 'px;animation-duration:' + duur + 's">' : "<g>") +
+        '<g class="hz-pop-zeg"><rect width="' + bw + '" height="20" rx="10" fill="#fff" stroke="' + inkt + '" stroke-width="1.1"/>' +
+        '<path d="M' + (staart - 4) + ' 19.4l4 5l3 -5.4" fill="#fff" stroke="' + inkt + '" stroke-width="1.1" stroke-linejoin="round"/>' +
+        '<text x="' + bw / 2 + '" y="14" text-anchor="middle" style="font: 700 12px Inter, system-ui, sans-serif; fill: ' + inkt + ' !important">' + esc(zeg) + "</text></g></g></g>";
     }
     return h ? '<style>' + POP_CSS + '</style><g class="hz-pop" aria-hidden="true">' + h + "</g>" : "";
   }
