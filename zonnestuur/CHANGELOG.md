@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.93.1
+- Energieprijzen: alleen de goedkope uren zijn groen, dure uren rood, de rest grijs.
+- Met je vinger over de staafjes schuiven werkt nu soepel: je ziet meteen tijd en prijs van elk uur. Tik nog eens op hetzelfde uur om het weg te halen.
+
 ## 0.93.0
 - Energieprijzen op Home als staafjes per uur, met de laagste en hoogste prijs, een pijltje bij nu en morgen (of de verwachting) met de pijltjes ernaast.
 - Nieuw: 'Vind de goedkoopste reeks uren' (1, 2, 3, 4 of 6 uur achter elkaar). Tik op een staafje voor de prijs van dat uur.

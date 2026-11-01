@@ -1111,13 +1111,16 @@ html, body { overscroll-behavior-y: none; }
   .tk-vlak { position: relative; height: 170px; touch-action: pan-y; cursor: crosshair; }
   .tk-vlak svg { width: 100%; height: 100%; display: block; overflow: visible; }
   .tk-g { stroke: var(--zs-lijn); stroke-width: 1; vector-effect: non-scaling-stroke; }
-  .tk-b { fill: var(--zs-teal); }
-  .tk-b.oud { fill: var(--zs-ink3); opacity: .45; }
-  .tk-b.dim { fill: var(--zs-teal); opacity: .3; }
-  .tk-b.reeks { fill: var(--zs-groen); }
-  .tk-b.verw { opacity: .5; } .tk-b.verw.dim { opacity: .2; } .tk-b.verw.reeks { opacity: 1; }
+  .tk-b { fill: color-mix(in srgb, var(--zs-ink) 42%, transparent); transition: opacity .15s; }
+  .tk-b.cheap { fill: var(--zs-groen); }
+  .tk-b.dear { fill: var(--t-rood, #f87171); }
+  .tk-b.oud { opacity: .3; }
+  .tk-b.dim { opacity: .25; }
+  .tk-b.verw { opacity: .55; } .tk-b.verw.dim { opacity: .2; } .tk-b.reeks { opacity: 1; }
   .tarkaart.tk:hover b { text-decoration: none; }
-  .tk-b.sel { fill: var(--zs-ink); opacity: 1; }
+  .tk-vlak.kiest .tk-b:not(.sel) { opacity: .35; } .tk-b.sel { opacity: 1; }
+  .tk-vlak.kiest .tk-std { visibility: hidden; }
+  .tk-lijn { position: absolute; top: 0; bottom: 24px; width: 0; border-left: 1.5px dashed var(--zs-ink2); pointer-events: none; transform: translateX(-50%); }
   .tk-nu { position: absolute; top: -9px; width: 0; height: 0; transform: translateX(-50%); border: 6px solid transparent; border-top: 7px solid var(--zs-ink2); }
   .tk-pil { position: absolute; transform: translate(-50%, calc(-100% - 8px)); white-space: nowrap; font: 700 13px/1 Inter, sans-serif; font-variant-numeric: tabular-nums;
     padding: 7px 9px; border-radius: 99px; background: var(--zs-kaart, var(--zs-vlak)); color: var(--zs-ink); box-shadow: 0 0 0 1px var(--zs-lijn), 0 6px 16px -8px rgba(0,0,0,.5); pointer-events: none; }
@@ -2075,18 +2078,18 @@ function renderTarKaart(s) {
   const rk = TK.reeks ? tkReeks(U, TK.reeks) : null;
   const inR = (i) => rk && i >= rk.i && i < rk.i + TK.reeks;
   const imin = ps.indexOf(mn), imax = ps.indexOf(mx);
+  const gemD = ps.reduce((a, v) => a + v, 0) / n;
   let lijnen = "", ylab = "";
   for (let v = lo; v <= hi + 1e-9; v += stap) { const yy = y(v); lijnen += `<line x1="0" x2="${W}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" class="tk-g"/>`;
     ylab += `<span style="top:${(yy / H * 100).toFixed(2)}%">${Math.round(v * 100)}</span>`; }
   const staaf = U.map((r, i) => { const top = y(Math.max(r.p, 0)), bot = y(Math.min(r.p, 0)), voorbij = r.end <= nu;
-    const k = voorbij ? "oud" : rk ? (inR(i) ? "reeks" : "dim") : "", g = i === TK.sel ? " sel" : "";
-    return `<rect x="${(i * bw + bw * .22).toFixed(1)}" y="${top.toFixed(1)}" width="${(bw * .56).toFixed(1)}" height="${Math.max(1.5, bot - top).toFixed(1)}" rx="${(bw * .28).toFixed(1)}" class="tk-b ${k}${g}${D.verwacht ? " verw" : ""}"/>`; }).join("");
+    const k = priceClass(r.p, gemD) + (voorbij ? " oud" : rk ? (inR(i) ? " reeks" : " dim") : "");
+    return `<rect x="${(i * bw + bw * .22).toFixed(1)}" y="${top.toFixed(1)}" width="${(bw * .56).toFixed(1)}" height="${Math.max(1.5, bot - top).toFixed(1)}" rx="${(bw * .28).toFixed(1)}" class="tk-b ${k}${D.verwacht ? " verw" : ""}"/>`; }).join("");
   const xp = (i) => ((i + .5) / n * 100).toFixed(2);
   const rand = (i) => i < 2 ? " links" : i > n - 3 ? " rechts" : "";
   const pil = (i, t, k) => `<span class="tk-pil ${k || ""}${rand(i)}" style="left:${xp(i)}%;top:${(y(Math.max(U[i].p, 0)) / H * 100).toFixed(2)}%">${t}</span>`;
   let pillen = "";
-  if (TK.sel >= 0 && TK.sel < n) pillen = pil(TK.sel, `${hhmm(new Date(U[TK.sel].ts * 1000))} · ${ct(U[TK.sel].p)}`, "zelf");
-  else if (rk) { const m = rk.i + Math.floor(TK.reeks / 2) - (TK.reeks % 2 ? 0 : .5); pillen = `<span class="tk-pil reeks" style="left:${((m + .5) / n * 100).toFixed(2)}%;top:${(Math.min(...U.slice(rk.i, rk.i + TK.reeks).map((r) => y(Math.max(r.p, 0)))) / H * 100).toFixed(2)}%">gem. ${ct(rk.g)}</span>`; }
+  if (rk) { const m = rk.i + Math.floor(TK.reeks / 2) - (TK.reeks % 2 ? 0 : .5); pillen = `<span class="tk-pil reeks" style="left:${((m + .5) / n * 100).toFixed(2)}%;top:${(Math.min(...U.slice(rk.i, rk.i + TK.reeks).map((r) => y(Math.max(r.p, 0)))) / H * 100).toFixed(2)}%">gem. ${ct(rk.g)}</span>`; }
   else { pillen = pil(imin, ct(mn), "laag") + (imax !== imin ? pil(imax, ct(mx), "hoog") : ""); }
   let xlab = "";
   U.forEach((r, i) => { const h = new Date(r.ts * 1000).getHours(); if (h % 3 === 0 && h > 0) xlab += `<span style="left:${xp(i)}%">${String(h).padStart(2, "0")}</span>`; });
@@ -2100,7 +2103,8 @@ function renderTarKaart(s) {
       <button type="button" class="tk-nav volgende" data-dag="1" aria-label="Volgende dag" ${TK.dag >= dagen.length - 1 ? "disabled" : ""}><span></span></button></div>
     <div class="tk-graf"><div class="tk-y" aria-hidden="true">${ylab}</div>
       <div class="tk-vlak"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Stroomprijs per uur ${D.naam.toLowerCase()}, laagste ${ct(mn)}, hoogste ${ct(mx)}">${lijnen}${staaf}</svg>
-        ${ni >= 0 ? `<span class="tk-nu" style="left:${xp(ni)}%" aria-hidden="true"></span>` : ""}${pillen}
+        ${ni >= 0 ? `<span class="tk-nu" style="left:${xp(ni)}%" aria-hidden="true"></span>` : ""}<span class="tk-std">${pillen}</span>
+        <span class="tk-lijn" hidden></span><span class="tk-pil zelf" hidden></span>
         <div class="tk-x" aria-hidden="true">${xlab}</div></div></div>
     <div class="tk-reeks"><span class="tk-rl" id="tkRl">Vind de goedkoopste reeks uren</span>
       <div class="seg3 tk-seg" role="group" aria-labelledby="tkRl">${knoppen}</div>
@@ -2110,12 +2114,28 @@ function renderTarKaart(s) {
   el.innerHTML = h; TK.h = h;
   el.querySelectorAll("[data-reeks]").forEach((b) => b.onclick = () => { TK.reeks = +b.dataset.reeks; TK.sel = -1; try { localStorage.setItem("zs_reeks", TK.reeks); } catch (e) { /* */ } renderTarKaart(STATUS); });
   el.querySelectorAll("[data-dag]").forEach((b) => b.onclick = () => { TK.dag = Math.max(0, TK.dag + +b.dataset.dag); TK.sel = -1; renderTarKaart(STATUS); });
-  const vlak = el.querySelector(".tk-vlak");
-  const kies = (e) => { const q = vlak.getBoundingClientRect(); const i = Math.max(0, Math.min(n - 1, Math.floor((e.clientX - q.left) / q.width * n)));
-    if (i !== TK.sel) { TK.sel = i; renderTarKaart(STATUS); } };
-  vlak.onpointerdown = (e) => { kies(e); vlak.setPointerCapture && vlak.setPointerCapture(e.pointerId); };
-  vlak.onpointermove = (e) => { if (e.buttons || e.pointerType === "touch") kies(e); };
-  vlak.onpointerleave = () => { if (TK.sel >= 0) { TK.sel = -1; renderTarKaart(STATUS); } };
+  // Schuiven met de vinger: alleen de staafjes en het prijslabel bijwerken (niet de hele kaart opnieuw tekenen)
+  const vlak = el.querySelector(".tk-vlak"), rects = vlak.querySelectorAll(".tk-b"), zelf = vlak.querySelector(".tk-pil.zelf"), lijn = vlak.querySelector(".tk-lijn");
+  const toon = (i) => {
+    TK.sel = i;
+    vlak.classList.toggle("kiest", i >= 0);
+    rects.forEach((r, j) => r.classList.toggle("sel", j === i));
+    zelf.hidden = lijn.hidden = i < 0;
+    if (i < 0) return;
+    const d0 = new Date(U[i].ts * 1000);
+    zelf.innerHTML = `${hhmm(d0)}–${hhmm(new Date(U[i].end * 1000))} · ${ct(U[i].p)}`;
+    zelf.className = "tk-pil zelf " + priceClass(U[i].p, gemD).replace("cheap", "laag").replace("dear", "hoog") + rand(i);
+    zelf.style.left = lijn.style.left = xp(i) + "%";
+    zelf.style.top = (y(Math.max(U[i].p, 0)) / H * 100).toFixed(2) + "%";
+  };
+  const index = (e) => { const q = vlak.getBoundingClientRect(); return Math.max(0, Math.min(n - 1, Math.floor((e.clientX - q.left) / q.width * n))); };
+  let sleep = false, start = -1;
+  vlak.onpointerdown = (e) => { sleep = true; const i = index(e); start = i === TK.sel ? i : -1; toon(i); try { vlak.setPointerCapture(e.pointerId); } catch (x) { /* */ } };
+  vlak.onpointermove = (e) => { if (!sleep && e.pointerType !== "mouse") return; const i = index(e); if (i !== TK.sel) { start = -1; toon(i); } };
+  vlak.onpointerup = () => { sleep = false; if (start >= 0) toon(-1); };          // nog eens tikken op hetzelfde uur = weer weg
+  vlak.onpointercancel = () => { sleep = false; };
+  vlak.onpointerleave = (e) => { if (e.pointerType === "mouse") toon(-1); };
+  if (TK.sel >= 0 && TK.sel < n) toon(TK.sel);
 }
 // Je apparaten in het kort: wat elk nu doet, tik voor de knoppen
 function renderMiniApps(s) {
