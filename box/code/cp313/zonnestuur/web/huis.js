@@ -145,12 +145,69 @@
     "@keyframes hzPopZeg{0%,55%{opacity:0;transform:translateY(3px)}62%,92%{opacity:1;transform:translateY(0)}100%{opacity:0}}" +
     ".hz .hz-pop-dans{transform-box:fill-box;transform-origin:50% 100%;animation:hzPopDans .6s ease-in-out infinite}" +
     ".hz .hz-pop-zeg{animation:hzPopZeg 9s ease-in-out infinite}.hz .pyjama rect{fill:#b18cff}.hz svg.hz,.hz{cursor:pointer}" +
+    "@keyframes hzPopZwaai{from{transform:rotate(-10deg)}to{transform:rotate(12deg)}}@keyframes hzPopStuit{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}" +
+    "@keyframes hzPopVal{0%{transform:translate(0,0) rotate(0);opacity:0}15%{opacity:1}100%{transform:translate(14px,70px) rotate(220deg);opacity:0}}" +
+    "@keyframes hzPopDrup{0%{transform:translate(0,0);opacity:1}100%{transform:translate(3px,10px);opacity:0}}@keyframes hzPopFlits{0%,86%,100%{opacity:0}90%{opacity:1}}" +
+    "@keyframes hzPopHup{0%,60%,100%{transform:translateY(0)}70%{transform:translateY(-4px)}80%{transform:translateY(0)}88%{transform:translateY(-3px)}}" +
+    "@keyframes hzPopJong{0%{transform:translate(0,0)}25%{transform:translate(4px,-16px)}50%{transform:translate(8px,0)}75%{transform:translate(4px,-6px)}100%{transform:translate(0,0)}}" +
+    "@keyframes hzPopFlik{0%{opacity:.9}20%{opacity:.4}40%{opacity:1}60%{opacity:.6}80%{opacity:.95}100%{opacity:.5}}@keyframes hzPopVuur{from{transform:scale(.85,.8)}to{transform:scale(1.08,1.15)}}" +
+    "@keyframes hzPopGooi{0%{transform:translate(0,0);opacity:1}100%{transform:translate(60px,-6px);opacity:0}}@keyframes hzPopKnipper{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}" +
+    "@keyframes hzPopSpring{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}}@keyframes hzPopSpat{0%{transform:translate(0,0);opacity:0}30%{opacity:1}100%{transform:translate(var(--dx),-9px);opacity:0}}" +
+    "@keyframes hzPopRij{0%{transform:translateX(0) scaleX(1)}48%{transform:translateX(var(--ver)) scaleX(1)}50%{transform:translateX(var(--ver)) scaleX(-1)}98%{transform:translateX(0) scaleX(-1)}100%{transform:translateX(0) scaleX(1)}}" +
+    ".hz .hz-pop-zwaai{transform-box:fill-box;transform-origin:50% 100%;animation:hzPopZwaai 1.6s ease-in-out infinite alternate}.hz .hz-pop-stuit{animation:hzPopStuit .8s cubic-bezier(.3,0,.7,1) infinite}" +
+    ".hz .hz-pop-val{animation:hzPopVal 4s linear infinite}.hz .hz-pop-drup{animation:hzPopDrup .6s linear infinite}.hz .hz-pop-flits{animation:hzPopFlits 3s linear infinite}" +
+    ".hz .hz-pop-hup{animation:hzPopHup 2s ease-in-out infinite}.hz .hz-pop-jong{animation:hzPopJong 1.2s linear infinite}.hz .hz-pop-flik{animation:hzPopFlik 1.4s steps(5) infinite}" +
+    ".hz .hz-pop-vuur{transform-box:fill-box;transform-origin:50% 100%;animation:hzPopVuur .35s ease-in-out infinite alternate}.hz .hz-pop-gooi{animation:hzPopGooi 1.4s ease-out infinite}" +
+    ".hz .hz-pop-knip{transform-box:fill-box;transform-origin:center;animation:hzPopKnipper 3s linear infinite}.hz .hz-pop-spring{animation:hzPopSpring .9s ease-in-out infinite}" +
+    ".hz .hz-pop-spat{animation:hzPopSpat .9s ease-out infinite}.hz .hz-pop-rij{transform-box:fill-box;transform-origin:center;animation:hzPopRij 14s linear infinite}" +
     "@media (prefers-reduced-motion: reduce){.hz [class*=hz-pop]{animation:none!important}}";
 
-  var ALLE = ["maaien", "panelen", "auto", "zwaaien", "dansen", "hol", "paraplu", "sneeuwpop", "sterren", "slaapwandelen", "slapen"];
-  var ZEG = { maaien: "Gras kort, stroom goedkoop!", panelen: "Schone panelen = meer zon", auto: "Blinkt als nieuw!", zwaaien: "Hoi!",
-    dansen: "Goedkope stroom, feestje!", hol: "Hé, wacht even!", paraplu: "Lekker weertje…", sneeuwpop: "Hij heet Watt",
-    sterren: "Morgen weer zon?", slaapwandelen: "Was ik de vaatwasser vergeten?", slapen: "Zonnestuur let wel op" };
+  var ALLE = ["maaien", "panelen", "auto", "zwaaien", "dansen", "hol", "vlieger", "harken", "gieter", "zonnen", "bbq", "hond", "voetbal", "fiets",
+    "vogels", "jongleren", "selfie", "meter", "knuffel", "dak", "handstand", "stekker", "duur", "paraplu", "plassen", "eendje", "sneeuwpop", "sneeuwbal",
+    "scheppen", "slapen", "sterren", "slaapwandelen", "tv", "zaklamp", "kampvuur", "uil"];
+  var ZEG = {
+    maaien: ["Gras kort, stroom goedkoop!", "Nog één baantje…", "Strak hè, die streepjes?"],
+    panelen: ["Schone panelen = meer zon", "Niet naar beneden kijken…", "Glimmen moeten ze!"],
+    auto: ["Blinkt als nieuw!", "Straks laden als het goedkoop is", "Wie heeft hier in de modder gereden?"],
+    zwaaien: ["Hoi!", "Goed bezig met je stroom!", "Zie je mij?"],
+    dansen: ["Goedkope stroom, feestje!", "Dit is mijn stroomdansje", "Laat de wasmachine maar draaien!"],
+    hol: ["Hé, wacht even!", "Hij heeft te veel zonne-energie!", "Remmen! Waar zit de rem?"],
+    vlieger: ["Wind = goedkope stroom!", "Hoger, hoger!", "Die molens draaien ook lekker"],
+    harken: ["Herfst, hè", "Nog 3 miljoen blaadjes", "Bladeren op de panelen? Niet bij mij!"],
+    gieter: ["Ook planten houden van zon", "Water geven, niet te veel", "Groeien jullie!"],
+    zonnen: ["Even opladen…", "De panelen werken, ik niet", "Zon voor mij én het dak"],
+    bbq: ["Wie wil er een worstje?", "Op houtskool, dus gratis stroom", "Bijna gaar!"],
+    hond: ["Kom, Wattje!", "Hij snuffelt aan de laadpaal", "Even een rondje"],
+    voetbal: ["Hoge bal!", "Hij is binnen!", "Niet tegen de panelen…"],
+    fiets: ["Mijn eigen dynamo!", "Rondje om het huis", "Kijk, zonder handen! Eh, nee."],
+    vogels: ["Piep piep!", "Wat kijk jij nou?", "Voor jullie, vogeltjes"],
+    jongleren: ["Drie ballen, nul stroom", "Kijk mij nou!", "Oei, bijna…"],
+    selfie: ["#zonnestuur", "Even met het huis op de foto", "Lach eens, huis!"],
+    meter: ["Even de meter checken", "Alles klopt, keurig!", "Hmm, wie heeft er zoveel gebruikt?"],
+    knuffel: ["Lieve warmtepomp ♥", "Wat ben je weer zuinig!", "Jij houdt ons warm"],
+    dak: ["Wat een uitzicht!", "Ik zie je panelen al werken", "Hallo daar beneden!"],
+    handstand: ["Alles op z'n kop!", "Kijk, ik sta op mijn handen", "Duizelig…"],
+    stekker: ["Stekker erin, het is goedkoop!", "Nu laden!", "Zware stekker, hoor"],
+    duur: ["Sst… stroom is nu duur", "Even niks aanzetten", "Daar gaat het geld!"],
+    paraplu: ["Lekker weertje…", "Goed voor de planten", "Regen spoelt de panelen schoon"],
+    plassen: ["Splash!", "Laarzen aan, dus het mag!", "Nog een plas!"],
+    eendje: ["Kwak!", "Die eend heeft het wel naar zijn zin", "Eendjesweer!"],
+    sneeuwpop: ["Hij heet Watt", "Een wortel als neus!", "Brrr, koud hè"],
+    sneeuwbal: ["Raak!", "Sneeuwballengevecht!", "Pas op!"],
+    scheppen: ["Sneeuw ruimen…", "De panelen zijn ook wit", "Pfff, zwaar werk"],
+    slapen: ["Zonnestuur let wel op", "zzz… goedkope stroom… zzz", "Morgen weer"],
+    sterren: ["Morgen weer zon?", "Kijk, een vallende ster!", "Ik zoek de zonnepanelen-ster"],
+    slaapwandelen: ["Was ik de vaatwasser vergeten?", "Waar is de koelkast…", "Is het al goedkoop?"],
+    tv: ["Nog één aflevering", "Tv op stroom van vanmiddag", "Spannend!"],
+    zaklamp: ["Wie is daar?", "Even rondkijken", "Was dat een kat?"],
+    kampvuur: ["Marshmallows!", "Lekker warm zo", "Vuurtje stoken zonder stroom"],
+    uil: ["Oehoe!", "Oehoe… alles rustig", "Ik let op, hoor"]
+  };
+  function hussel(lijst, zaad) {
+    var a = lijst.slice(), x = zaad % 2147483647 || 7;
+    for (var i = a.length - 1; i > 0; i--) { x = (x * 48271) % 2147483647; var j = x % (i + 1), t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
   // poppetje met de voeten op (0,0), ± 26 hoog; arm = de rechterarm (getekend vanaf de schouder)
   function poppetje(inkt, arm, stap) {
     var b = '<g' + (stap ? ' class="hz-pop-stap"' : "") + '>' +
@@ -164,21 +221,33 @@
     return b + (arm || '<path d="M4.5 -15l4 5" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/>') + "</g>";
   }
   function klusje(o) {
-    var inkt = o.inkt, GRd = o.gr, uur = new Date().getHours(), keus = [];
-    if (o.fase === "nacht") keus = ["slapen", "sterren", "slaapwandelen"];
-    else if (o.sneeuw) keus = ["sneeuwpop"];
-    else if (o.nat) keus = ["paraplu"];
+    var inkt = o.inkt, GRd = o.gr, nu = new Date(), uur = nu.getHours(), maand = nu.getMonth() + 1, keus = [];
+    var warm = o.t == null || o.t >= 6;
+    if (o.fase === "nacht") keus = ["slapen", "sterren", "slaapwandelen", "tv", "zaklamp", "kampvuur", "uil"];
+    else if (o.sneeuw) keus = ["sneeuwpop", "sneeuwbal", "scheppen"];
+    else if (o.nat) keus = ["paraplu", "plassen", "eendje"];
     else {
-      if (o.t == null || o.t >= 6) keus.push("maaien");
+      keus = ["zwaaien", "hol", "vlieger", "gieter", "hond", "voetbal", "fiets", "vogels", "jongleren", "selfie", "dak", "handstand"];
+      if (warm) keus.push("maaien");
       if (o.panelen && !o.links) keus.push("panelen");          // ladder alleen als er geen auto voor staat
       if (o.auto != null) keus.push("auto");
-      if (o.goedkoop) keus.push("dansen");                       // goedkope stroom: feestje
-      keus.push("zwaaien", "hol");
-      if (!keus.length) keus.push("panelen");
+      if (o.goedkoop) keus.push("dansen", "stekker");            // goedkope stroom: feestje
+      if (o.duur) keus.push("duur");
+      if (maand >= 9 && maand <= 11) keus.push("harken");
+      if (o.t != null && o.t >= 18) keus.push("zonnen");
+      if (uur >= 16 && uur <= 21 && (o.t == null || o.t >= 10)) keus.push("bbq");
+      if (o.wp != null) keus.push("knuffel");
+      if (!o.twee) keus.push("meter");
     }
-    // tik op het huis = volgende klusje (om alles te zien); anders kiest hij elk uur
-    var k = o.forceer != null ? ALLE[o.forceer % ALLE.length] : keus[uur % keus.length];
-    var h = "", y = GRd + 11, S = " scale(1.7)", zeg = ZEG[k] || "";
+    // elke 3 minuten iets anders; per dag een andere volgorde, en eerst alles één keer voordat iets terugkomt.
+    // Tik op het huis = het volgende (om alles te zien).
+    var slot = Math.floor(nu.getTime() / 180000), dag = Math.floor(nu.getTime() / 86400000);
+    var k = o.forceer != null ? ALLE[o.forceer % ALLE.length] : hussel(keus, dag * 31 + keus.length)[slot % keus.length];
+    var zinnen = ZEG[k] || [""], zeg = zinnen[(o.forceer != null ? o.forceer : Math.floor(slot / keus.length)) % zinnen.length];
+    var h = "", y = GRd + 11, S = " scale(1.7)", bx = null, by = null;
+    var L = function (d, w, kl) { return '<path d="' + d + '" stroke="' + (kl || inkt) + '" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'; };
+    var arm = function (d) { return L(d); };
+    var plek = function (x, inhoud, spiegel, yy) { return '<g transform="translate(' + x + " " + (yy == null ? y : yy) + ")" + (spiegel ? " scale(-1.7 1.7)" : S) + '">' + inhoud + "</g>"; };
     if (k === "slapen") {
       h = '<g transform="translate(214 ' + (o.dakY + 34) + ')" fill="' + inkt + '" font-weight="800">' +
         '<text class="hz-pop-z" x="0" y="0" style="font: 800 11px Inter, system-ui, sans-serif">z</text><text class="hz-pop-z" x="8" y="-6" style="font: 800 14px Inter, system-ui, sans-serif; animation-delay:1s">z</text>' +
@@ -253,10 +322,130 @@
       h = '<g transform="translate(112 ' + y + ')' + S + '"><g class="hz-pop-heen" style="--ver:86px;animation-duration:5s"><g transform="rotate(18)">' +
         poppetje(inkt, mee, true) + '</g>' + maai + '<path d="M-8 -6h-6M-8 -2h-9M-8 2h-5" stroke="' + inkt + '" stroke-width="1" stroke-opacity=".5" stroke-linecap="round"/></g></g>';
     }
+    var vx = o.leeg ? 330 : 150;                                 // vrije plek: voor het huis, of op de oprit zonder auto's
+    if (k === "vlieger") {
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l4 -8")) + '<g class="hz-pop-zwaai">' + L("M9 -24C20 -50 30 -60 38 -78", 0.8) +
+        '<path d="M38 -88l7 9l-7 9l-7 -9z" fill="#e8553d" stroke="' + inkt + '" stroke-width="1"/>' + L("M38 -70q-3 6 1 9q-4 4 0 8", 0.8) + "</g>");
+      bx = 150;
+    } else if (k === "harken") {
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l5 4")) + L("M2 -22l14 22", 1.4) + L("M12 0h8M13 0l-1 2M16 0v2M19 0l1 2", 1) +
+        '<path d="M20 0q6 -9 12 0z" fill="#d9822b" stroke="' + inkt + '" stroke-width="1"/>');
+      h += '<g fill="#d9822b"><path class="hz-pop-val" d="M24 190l4 -2l-1 4z"/><path class="hz-pop-val" style="animation-delay:1.3s" d="M36 196l4 -2l-1 4z" fill="#c8553d"/>' +
+        '<path class="hz-pop-val" style="animation-delay:2.6s" d="M18 200l4 -2l-1 4z"/></g>';
+      bx = 160;
+    } else if (k === "gieter") {
+      h = plek(vx, poppetje(inkt, arm("M4.5 -15l5 1")) + '<path d="M8 -16h7v6h-7z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width="1"/>' + L("M15 -15l5 -3", 1.2) +
+        '<g fill="#5b9dff"><circle class="hz-pop-drup" cx="20" cy="-16" r=".9"/><circle class="hz-pop-drup" style="animation-delay:.2s" cx="21" cy="-15" r=".9"/><circle class="hz-pop-drup" style="animation-delay:.4s" cx="19.5" cy="-14" r=".9"/></g>' +
+        L("M22 0v-7M27 0v-9", 1, "#3f8f3a") + '<circle cx="22" cy="-8" r="2.2" fill="#ff7ab8" stroke="' + inkt + '" stroke-width=".8"/><circle cx="27" cy="-10" r="2.2" fill="#ffd34d" stroke="' + inkt + '" stroke-width=".8"/>');
+      bx = vx;
+    } else if (k === "zonnen") {
+      h = '<g transform="translate(' + vx + " " + y + ')' + S + '"><path d="M-12 0l6 -8h18l3 8" stroke="' + inkt + '" stroke-width="1.2" fill="none"/><path d="M-6 -8l-6 -10" stroke="' + inkt + '" stroke-width="1.2"/>' +
+        '<path d="M-10 -9h22v-3h-20z" fill="#ff7ab8" stroke="' + inkt + '" stroke-width="1"/>' +
+        '<g transform="translate(2 -11) rotate(-75)">' + poppetje(inkt, arm("M4.5 -15l-2 -6")) + '</g><path d="M-16.5 -12.5h4" stroke="' + inkt + '" stroke-width="2"/></g>';
+      bx = vx;
+    } else if (k === "bbq") {
+      h = plek(vx, poppetje(inkt, '<g class="hz-pop-arm" transform="translate(4.5 -15)">' + L("M0 0l6 2l5 -2") + "</g>") +
+        '<path d="M12 -12h14a7 6 0 0 1 -14 0z" fill="' + inkt + '"/>' + L("M15 -7l-3 7M23 -7l3 7", 1.2) + '<path d="M14 -13h3M19 -13h3" stroke="#c8553d" stroke-width="2" stroke-linecap="round"/>' +
+        '<g fill="#cfd6df"><circle class="hz-pop-bel" cx="17" cy="-18" r="2"/><circle class="hz-pop-bel" style="animation-delay:.8s" cx="21" cy="-20" r="2.4"/></g>');
+      bx = vx;
+    } else if (k === "hond") {
+      var hond = '<g transform="translate(18 0)"><g class="hz-pop-stap"><ellipse cx="0" cy="-6" rx="6" ry="3.4" fill="#b07a4a" stroke="' + inkt + '" stroke-width="1"/>' +
+        '<circle cx="6" cy="-9" r="3" fill="#b07a4a" stroke="' + inkt + '" stroke-width="1"/><path d="M5 -12l1 -3l2 3" fill="#7a4f2a"/>' + L("M-4 -3v3M4 -3v3", 1.2) +
+        '<g class="hz-pop-zwaai">' + L("M-6 -7l-4 -4", 1.2) + "</g></g></g>";
+      h = '<g transform="translate(112 ' + y + ')' + S + '"><g class="hz-pop-heen" style="--ver:80px;animation-duration:20s">' + poppetje(inkt, arm("M4.5 -15l4 3"), true) + L("M8.5 -12q5 4 13 1", .8) + hond + "</g></g>";
+      bx = 160;
+    } else if (k === "voetbal") {
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l4 5")) + '<g class="hz-pop-stuit"><circle cx="14" cy="-3" r="3" fill="#fff" stroke="' + inkt + '" stroke-width="1"/><path d="M14 -4.5l1.3 1l-.5 1.5h-1.6l-.5 -1.5z" fill="' + inkt + '"/></g>');
+      bx = 160;
+    } else if (k === "fiets") {
+      var fiets = '<circle cx="-8" cy="-5" r="5" fill="none" stroke="' + inkt + '" stroke-width="1.3"/><circle cx="10" cy="-5" r="5" fill="none" stroke="' + inkt + '" stroke-width="1.3"/>' +
+        L("M-8 -5l6 -9h10l2 9M-2 -14l4 9h6M-3 -16h3M8 -14l1 -4h3", 1.3, "#e8553d");
+      h = '<g transform="translate(110 ' + y + ')' + S + '"><g class="hz-pop-rij" style="--ver:90px">' + fiets + '<g transform="translate(0 -8)">' + poppetje(inkt, arm("M4.5 -15l5 1")) + "</g></g></g>";
+      bx = 170;
+    } else if (k === "vogels") {
+      var vogel = function (x, d) { return '<g class="hz-pop-hup" style="animation-delay:' + d + 's"><path d="M' + x + ' -1a3 2.4 0 1 1 5 0z" fill="#5b7fa8" stroke="' + inkt + '" stroke-width=".8"/><path d="M' + (x + 5) + ' -2.5l2 .6l-2 .6z" fill="#ff9a3d"/></g>'; };
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l5 4")) + '<g fill="#d9b26a"><circle cx="11" cy="-.5" r=".7"/><circle cx="14" cy="-.4" r=".7"/><circle cx="17" cy="-.6" r=".7"/></g>' + vogel(12, 0) + vogel(19, .7));
+      bx = 160;
+    } else if (k === "jongleren") {
+      var bal = function (kl, d) { return '<g class="hz-pop-jong" style="animation-delay:' + d + 's"><circle cx="-4" cy="-30" r="2" fill="' + kl + '" stroke="' + inkt + '" stroke-width=".8"/></g>'; };
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l4 -4")) + L("M-4.5 -15l-3 -3") + bal("#e8553d", 0) + bal("#ffd34d", .4) + bal("#2fbf71", .8));
+      bx = 160;
+    } else if (k === "selfie") {
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l6 -9")) + '<rect x="9" y="-29" width="4" height="7" rx="1" fill="' + inkt + '"/>' +
+        '<circle class="hz-pop-flits" cx="11" cy="-27" r="9" fill="#fff"/>');
+      bx = 160;
+    } else if (k === "meter") {
+      h = plek(400, poppetje(inkt, arm("M4.5 -15l5 2")) + '<rect x="8" y="-19" width="6" height="8" rx="1" fill="#fff" stroke="' + inkt + '" stroke-width="1" transform="rotate(10 11 -15)"/>' +
+        L("M9.5 -16h3M9.5 -14h3", .6), false);
+      bx = 380;
+    } else if (k === "knuffel") {
+      var wx = o.wp != null ? o.wp : 76;
+      h = plek(wx + 24, poppetje(inkt, arm("M4.5 -15l5 1")) + L("M-4.5 -15l5 1") +
+        '<g fill="#ff5d7a"><path class="hz-pop-bel" d="M10 -28c-2 -3 -5 0 0 4c5 -4 2 -7 0 -4z"/><path class="hz-pop-bel" style="animation-delay:1.1s" d="M14 -32c-1.5 -2.4 -4 0 0 3c4 -3 1.5 -5.4 0 -3z"/></g>', true);
+      bx = wx + 24;
+    } else if (k === "dak") {
+      h = plek(196, '<g class="hz-pop-spring">' + poppetje(inkt, arm("M4.5 -15l4 -8")) + L("M-4.5 -15l-4 -8") + "</g>", false, o.nok);
+      bx = 196; by = o.nok - 66;
+    } else if (k === "handstand") {
+      h = '<g transform="translate(150 ' + y + ')' + S + '"><g class="hz-pop-zwaai"><g transform="rotate(180 0 -13.6)">' + poppetje(inkt, arm("M4.5 -15l1 9")) + L("M-4.5 -15l-1 9") + "</g></g></g>";
+      bx = 150; by = y - 72;
+    } else if (k === "stekker") {
+      h = '<g transform="translate(112 ' + y + ')' + S + '"><g class="hz-pop-heen" style="--ver:86px;animation-duration:12s">' + poppetje(inkt, arm("M4.5 -15l6 -2"), true) +
+        '<rect x="10" y="-22" width="9" height="11" rx="2.5" fill="#2fbf71" stroke="' + inkt + '" stroke-width="1"/>' + L("M13 -22v-4M16.5 -22v-4", 1.4) + L("M14.5 -11q-4 10 -26 11", 1.2) + "</g></g>";
+      bx = 160;
+    } else if (k === "duur") {
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l-2.5 -6")) +
+        '<g class="hz-pop-bel"><text x="10" y="-28" style="font: 800 9px Inter, system-ui, sans-serif; fill: #e8553d">€</text></g>' +
+        '<g class="hz-pop-bel" style="animation-delay:1s"><text x="15" y="-22" style="font: 800 7px Inter, system-ui, sans-serif; fill: #e8553d">€</text></g>');
+      bx = 160;
+    } else if (k === "plassen") {
+      var spat = function (dx, d) { return '<circle class="hz-pop-spat" style="--dx:' + dx + 'px;animation-delay:' + d + 's" cx="0" cy="0" r="1" fill="#5b9dff"/>'; };
+      h = plek(150, '<ellipse cx="0" cy="1" rx="13" ry="2.4" fill="#5b7fa8" opacity=".6"/><g class="hz-pop-spring">' + poppetje(inkt, arm("M4.5 -15l5 -5")) +
+        '<path d="M-4.5 -2h4v2h-4zM.5 -2h4v2h-4z" fill="#ffd34d"/></g>' + spat(-8, 0) + spat(7, .1) + spat(-4, .2) + spat(10, .3));
+      bx = 160;
+    } else if (k === "eendje") {
+      h = plek(150, poppetje(inkt, '<path d="M4.5 -15l3 -2" stroke="' + inkt + '" stroke-width="1.8" stroke-linecap="round"/><path d="M7 -17v-15" stroke="' + inkt + '" stroke-width="1.3"/>' +
+        '<path d="M-6 -31a13 9 0 0 1 26 0z" fill="#2659c4" stroke="' + inkt + '" stroke-width="1.2"/>') +
+        '<ellipse cx="22" cy="1" rx="11" ry="2.4" fill="#5b7fa8" opacity=".6"/><g class="hz-pop-zwaai"><path d="M18 -1a4 3 0 0 1 8 0z" fill="#ffd34d" stroke="' + inkt + '" stroke-width=".8"/>' +
+        '<circle cx="25" cy="-3.5" r="2" fill="#ffd34d" stroke="' + inkt + '" stroke-width=".8"/><path d="M27 -3.6l2 .5l-2 .6z" fill="#ff9a3d"/></g>');
+      bx = 170;
+    } else if (k === "sneeuwbal") {
+      h = plek(150, poppetje(inkt, '<g class="hz-pop-arm" transform="translate(4.5 -15)">' + L("M0 0l5 -6") + "</g>") +
+        '<g class="hz-pop-gooi"><circle cx="10" cy="-22" r="2.2" fill="#fff" stroke="' + inkt + '" stroke-width=".8"/></g>');
+      bx = 160;
+    } else if (k === "scheppen") {
+      h = plek(150, poppetje(inkt, arm("M4.5 -15l5 5")) + L("M0 -20l12 18", 1.3) + '<path d="M10 -2l6 -2l1 4h-6z" fill="#8ab4e8" stroke="' + inkt + '" stroke-width=".9"/>' +
+        '<path d="M18 0q6 -10 13 0z" fill="#fff" stroke="' + inkt + '" stroke-width=".9"/>');
+      bx = 160;
+    } else if (k === "tv") {
+      // binnen, beneden rechts: op de bank voor de tv
+      var bank = '<path d="M-9 -2h18v-6h-18z" fill="#b18cff" stroke="' + inkt + '" stroke-width="1"/>';
+      h = '<g transform="translate(206 ' + (GRd - 1) + ')' + S + '">' + bank + '<g transform="translate(0 -4)">' + poppetje(inkt, arm("M4.5 -15l5 3")) + "</g>" + bank.replace("-8h", "-5h") +
+        '<rect x="20" y="-22" width="12" height="9" rx="1" fill="' + inkt + '"/><rect class="hz-pop-flik" x="21" y="-21" width="10" height="7" fill="#8fd0ff"/>' + L("M26 -13v4M22 -9h8", 1.2) + "</g>";
+      bx = 214; by = o.dakY + 14;
+    } else if (k === "zaklamp") {
+      h = '<g transform="translate(112 ' + y + ')' + S + '"><g class="hz-pop-heen" style="--ver:86px;animation-duration:22s">' + poppetje(inkt, arm("M4.5 -15l5 1"), true) +
+        '<path d="M9 -15l30 -10v20z" fill="#fff3cf" opacity=".45"/><rect x="7" y="-16.5" width="4" height="3" fill="#cfd6df" stroke="' + inkt + '" stroke-width=".6"/></g></g>';
+      bx = 160;
+    } else if (k === "kampvuur") {
+      h = plek(vx, poppetje(inkt, arm("M4.5 -15l12 -3")) + L("M16 -18l3 -1", 1, "#fff") +
+        '<path d="M14 0l10 -3M14 -3l10 3" stroke="#7a4f2a" stroke-width="2" stroke-linecap="round"/>' +
+        '<g class="hz-pop-vuur"><path d="M19 -2c-5 -4 -2 -9 0 -12c1 4 5 5 3 10q-1 2 -3 2z" fill="#ff9a3d"/><path d="M19 -2c-2 -2 -1 -5 0 -6c1 2 2 4 0 6z" fill="#ffd34d"/></g>' +
+        '<circle cx="19" cy="-8" r="12" fill="#ff9a3d" opacity=".12"/>');
+      bx = vx;
+    } else if (k === "uil") {
+      // een uil in de boom; de klusjesman slaapt
+      h = '<g transform="translate(30 ' + (GRd - 52) + ')' + S + '"><ellipse cx="0" cy="0" rx="5" ry="6.5" fill="#8a6a4a" stroke="' + inkt + '" stroke-width="1"/>' +
+        '<path d="M-4 -5l1 -4l2 3M4 -5l-1 -4l-2 3" fill="#8a6a4a" stroke="' + inkt + '" stroke-width=".8"/><g class="hz-pop-knip"><circle cx="-2" cy="-2" r="1.8" fill="#ffd34d"/><circle cx="2" cy="-2" r="1.8" fill="#ffd34d"/>' +
+        '<circle cx="-2" cy="-2" r=".7" fill="' + inkt + '"/><circle cx="2" cy="-2" r=".7" fill="' + inkt + '"/></g><path d="M-1 0l1 2l1 -2z" fill="#ff9a3d"/></g>';
+      bx = 60; by = GRd - 100;
+    }
     if (h && zeg) {
       // tekstwolkje dat af en toe verschijnt
-      var bx = { slapen: 250, sterren: 300, maaien: 150, hol: 150, paraplu: 150, sneeuwpop: 300, auto: (o.auto || 300) - 10, panelen: 250, slaapwandelen: 150, dansen: 160, zwaaien: 160 }[k] || 200;
-      var by = k === "panelen" ? o.dakY - 34 : k === "slapen" ? o.dakY + 2 : GRd - 62, bw = 12 + zeg.length * 6.6;
+      if (bx == null) bx = { slapen: 250, sterren: 300, maaien: 150, hol: 150, paraplu: 150, sneeuwpop: 300, auto: (o.auto || 300) - 10, panelen: 250, slaapwandelen: 150, dansen: 160, zwaaien: 160 }[k] || 200;
+      if (by == null) by = k === "panelen" ? o.dakY - 34 : k === "slapen" ? o.dakY + 2 : GRd - 66;
+      var bw = 12 + zeg.length * 6.4;
+      bx = clamp(bx, bw / 2 + 6, W - bw / 2 - 6);
       h += '<g transform="translate(' + (bx - bw / 2) + " " + by + ')"><g class="hz-pop-zeg"><rect width="' + bw + '" height="20" rx="10" fill="#fff" stroke="' + inkt + '" stroke-width="1.1"/>' +
         '<path d="M' + (bw / 2 - 4) + ' 19.4l4 5l3 -5.4" fill="#fff" stroke="' + inkt + '" stroke-width="1.1" stroke-linejoin="round"/>' +
         '<text x="' + bw / 2 + '" y="14" text-anchor="middle" style="font: 700 12px Inter, system-ui, sans-serif; fill: ' + inkt + ' !important">' + esc(zeg) + "</text></g></g>";
@@ -402,7 +591,8 @@
     if (s.poppetje !== false)
       h += klusje({ inkt: inkt, gr: GR, dakY: dakY, fase: fase, nat: nat, sneeuw: nat && wr.t != null && wr.t <= 1, t: wr.t,
         panelen: !!s.has_panels, auto: autos.length === 1 ? AX[0] + 44 : null, links: autos.length > 0,
-        goedkoop: pr.niveau === "goedkoop", forceer: svg._klus });
+        goedkoop: pr.niveau === "goedkoop", duur: pr.niveau === "duur", forceer: svg._klus, twee: autos.length > 1, leeg: autos.length === 0,
+        wp: buiten ? (bat ? 58 : 76) : null, nok: nokY });
     // tik op het huis: de klusjesman doet iets anders (en na een minuut weer wat bij het moment past)
     if (!svg._klik && svg.addEventListener) {
       svg._klik = true;
@@ -414,6 +604,8 @@
       });
     }
     svg._s = [s, onder];
+    // elke 3 minuten iets anders, ook als er niets aan de status verandert
+    if (!svg._klusI && window.setInterval) svg._klusI = setInterval(function () { if (svg.isConnected && svg._s) teken(svg, svg._s[0], svg._s[1]); }, 30000);
     h += "</g>";
     h += '<rect x=".5" y=".5" width="' + (W - 1) + '" height="' + (H - 1) + '" rx="22" fill="none" stroke="#13202b" stroke-opacity=".12"/>';
     var basis = h;
