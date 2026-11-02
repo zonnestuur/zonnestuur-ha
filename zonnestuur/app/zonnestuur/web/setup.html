@@ -308,7 +308,7 @@ try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
 async function api(path, opts = {}) {
   opts.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, opts.headers || {});
   const r = await fetch(path, opts);
-  if (r.status === 401) {
+  if (r.status === 401 && await window.zsEigen401(r)) {
     const t = window.prompt ? prompt("Wachtwoord voor Zonnestuur") : "";
     token = t || ""; try { localStorage.setItem("zs_token", token); } catch (e) {}
     return api(path, opts);

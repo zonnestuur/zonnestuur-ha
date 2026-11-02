@@ -1650,7 +1650,7 @@ async function api(path, opts = {}) {
   const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 15000);   // nooit eindeloos wachten
   let r;
   try { r = await fetch(path, Object.assign({ signal: ctl.signal }, opts)); } finally { clearTimeout(tm); }
-  if (r.status === 401) {
+  if (r.status === 401 && await window.zsEigen401(r)) {
     token = prompt("Wachtwoord voor het dashboard") || "";
     try { localStorage.setItem("zs_token", token); } catch (e) {}
     return api(path, opts);

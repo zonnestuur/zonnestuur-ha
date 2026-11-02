@@ -92,7 +92,7 @@ const eur2 = (v) => (v < 0 ? "−€ " : "€ ") + nl(Math.abs(v), 2);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const hhmm = (t) => new Date(t * 1000).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
 let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
-async function api(p) { const r = await fetch(p, { headers: { "X-Token": token } }); if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p); } return r.json(); }
+async function api(p) { const r = await fetch(p, { headers: { "X-Token": token } }); if (r.status === 401 && await window.zsEigen401(r)) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p); } return r.json(); }
 let P = null, PER = "vandaag";
 function niveau(p, avg) { const band = Math.max(0.01, Math.abs(avg) * 0.15); return p <= avg - band ? "cheap" : p >= avg + band ? "dear" : "mid"; }
 const WOORD = { cheap: "Laag", mid: "Normaal", dear: "Hoog" };

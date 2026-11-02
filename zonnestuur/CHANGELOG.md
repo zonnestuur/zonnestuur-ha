@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.99.2
+- Geen onterechte vraag meer om een wachtwoord als de app een tijd op de achtergrond stond: Zonnestuur laadt de pagina dan even opnieuw. Annuleren stopt het vragen ook.
+
 ## 0.99.1
 - In de app op je telefoon stond op Home het tabblad 'Meer' gekozen. Nu staat het goed.
 

@@ -32,3 +32,23 @@
     zon: function (op, onder) { try { localStorage.setItem("zs_zon", JSON.stringify({ dag: new Date().toDateString(), op: op, onder: onder })); } catch (e) {} return zet(); }
   };
 })();
+
+/* 0.99.2: een geweigerd verzoek (HTTP 401). Alleen als Zonnestuur zelf om het wachtwoord vraagt ('token vereist') mag de pagina
+   ernaar vragen, hoogstens 2 keer. Een 401 van de koppelmotor-app (toegang verlopen terwijl de app op de achtergrond stond) is
+   geen wachtwoordvraag: dan de pagina na 3 s opnieuw laden (hoogstens 1× per minuut). */
+window.zsEigen401 = async function (r) {
+  var eigen = false;
+  try { var j = await r.clone().json(); eigen = !!(j && j.error === "token vereist"); } catch (e) {}
+  if (!eigen) {
+    var t = 0;
+    try { t = +sessionStorage.getItem("zs_herlaad") || 0; } catch (e) {}
+    if (Date.now() - t > 60000) {
+      try { sessionStorage.setItem("zs_herlaad", String(Date.now())); } catch (e) {}
+      setTimeout(function () { location.reload(); }, 3000);
+    }
+    throw new Error("Verbinding even weg: de pagina wordt opnieuw geladen");
+  }
+  window.__zsVraag = (window.__zsVraag || 0) + 1;
+  if (window.__zsVraag > 2) throw new Error("Geen wachtwoord ingevuld");
+  return true;
+};

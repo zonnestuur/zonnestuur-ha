@@ -59,7 +59,7 @@ let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e
 async function api(p, o = {}) {
   o.headers = Object.assign({ "X-Token": token, "Content-Type": "application/json" }, o.headers || {});
   const r = await fetch(p, o);
-  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
+  if (r.status === 401 && await window.zsEigen401(r)) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p, o); }
   const d = await r.json().catch(() => ({}));
   if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
   return d;
