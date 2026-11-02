@@ -64,7 +64,7 @@
   </nav>
 
   <h2>Weergave</h2>
-  <div class="card"><button type="button" class="rij" id="themaKnop"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span><span><b id="themaTitel">Donker</b><span class="sub">Tik om te wisselen tussen donker en licht</span></span></button></div>
+  <div class="card"><button type="button" class="rij" id="themaKnop"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span><span><b id="themaTitel">Volgt de zon</b><span class="sub" id="themaSub">Overdag licht, 's avonds donker. Tik om te wisselen.</span></span></button></div>
 
   <h2>Hulp</h2>
   <nav class="card" aria-label="Hulp">
@@ -78,9 +78,10 @@
 <script>
 (function () {
   const k = document.getElementById("themaKnop"), t = document.getElementById("themaTitel");
-  const zet = () => { t.textContent = document.documentElement.dataset.theme === "light" ? "Licht" : "Donker"; };
-  k.onclick = () => { const n = document.documentElement.dataset.theme === "light" ? "dark" : "light"; document.documentElement.dataset.theme = n;
-    try { localStorage.setItem("zs_theme", n); } catch (e) {} zet(); };
+  // Daglicht: volgt de zon → altijd licht → altijd donker → volgt de zon
+  const NAAM = { zon: ["Volgt de zon", "Overdag licht, 's avonds donker. Tik om te wisselen."], light: ["Altijd licht", "Tik om te wisselen."], dark: ["Altijd donker", "Tik om te wisselen."] };
+  const zet = () => { const st = window.zsThema ? window.zsThema.stand() : "zon"; t.textContent = NAAM[st][0]; document.getElementById("themaSub").textContent = NAAM[st][1]; };
+  k.onclick = () => { if (!window.zsThema) return; const st = window.zsThema.stand(); window.zsThema.vast(st === "zon" ? "light" : st === "light" ? "dark" : null); zet(); };
   zet();
 })();
 (async () => {

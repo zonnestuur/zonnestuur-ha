@@ -617,7 +617,7 @@
     // elke 3 minuten iets anders, ook als er niets aan de status verandert
     if (!svg._klusI && window.setInterval) svg._klusI = setInterval(function () { if (svg.isConnected && svg._s) teken(svg, svg._s[0], svg._s[1]); }, 30000);
     h += "</g>";
-    h += '<rect x=".5" y=".5" width="' + (W - 1) + '" height="' + (H - 1) + '" rx="22" fill="none" stroke="#13202b" stroke-opacity=".12"/>';
+    if (!los) h += '<rect x=".5" y=".5" width="' + (W - 1) + '" height="' + (H - 1) + '" rx="22" fill="none" stroke="#13202b" stroke-opacity=".12"/>';
     var basis = h;
     // labels (los van de tekening, zodat bewegende wolken niet opnieuw beginnen als een getal verandert)
     h = "";

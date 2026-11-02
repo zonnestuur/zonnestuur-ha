@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.99.0
+- Nieuw ontwerp "Daglicht": de app volgt de zon. Overdag licht, na zonsondergang donker. Wil je het altijd licht of altijd donker? Meer → Weergave.
+- Zonkleur (amber) is de nieuwe merkkleur; goedkoop blijft groen.
+- Op de computer staat het menu nu vast aan de zijkant en gebruiken de pagina's de hele breedte.
+- Het huis op Home staat vrij in de lucht van het moment.
+- Elk apparaat heeft een groot beeld op zijn pagina: de boiler als vat dat volloopt met warm water, de auto met een accuring.
+- De website heeft hetzelfde nieuwe ontwerp.
+
 ## 0.98.1
 - Zonnestuur vindt een apparaat zelf terug als het modem het een ander adres gaf (bijvoorbeeld na een stroomstoring). Hij onthoudt het vaste nummer van het apparaat zelf en zoekt dat op als het apparaat niet meer antwoordt. Het nieuwe adres komt vanzelf in de instellingen en in het logboek. Werkt voor de warmtepomp, laadpaal, slimme stekkers, P1-meter, omvormer en batterij met een eigen adres.
 

@@ -32,7 +32,7 @@
     ".zs-tabs a svg{width:23px;height:23px}",
     ".zs-tabs a[aria-current=page]{color:var(--zs-ink,#eef3fa)}",
     /* 0.98: het gekozen tabblad is een losse pil, zodat hij bij het wisselen van pagina naar zijn nieuwe plek glijdt */
-    ".zs-tabs .zs-pil{position:absolute;inset:0;border-radius:inherit;z-index:-1;background:color-mix(in srgb,var(--zs-accent,#60a5fa) 20%,transparent);",
+    ".zs-tabs .zs-pil{position:absolute;inset:0;border-radius:inherit;z-index:-1;background:color-mix(in srgb,var(--zs-knop,#ffb547) 20%,transparent);",
     "box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}",
     ".zs-tabs a{isolation:isolate}",
     ".zs-tabs a:active svg{scale:.88}.zs-tabs a svg{transition:scale .4s var(--zs-veer,ease)}",
@@ -40,35 +40,42 @@
     ".zs-tabs:not(.in-kop)::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;",
     "background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0) 38%,rgba(0,0,0,0) 70%,rgba(0,0,0,.10));mix-blend-mode:soft-light}",
     "@media (prefers-reduced-transparency:reduce){.zs-tabs::before{display:none}}",
-    ".zs-tabs a[aria-current=page] svg{color:var(--zs-accent,#60a5fa)}",
+    ".zs-tabs a[aria-current=page] svg{color:var(--zs-accent,#ffb547)}",
     ".zs-tabs a:focus-visible{outline:2px solid var(--zs-knop,#2f7cf6);outline-offset:-2px}",
     "body.zs-met-tabs{padding-bottom:calc(96px + env(safe-area-inset-bottom))}",
     /* oude losse navigatie weg: alles loopt nu via de tabbladen */
     "body.zs-met-tabs #secnav,body.zs-met-tabs header.top a.link,body.zs-met-tabs header.top a.icon-btn[href]:not(.blijf),body.zs-met-tabs .naar-dash{display:none!important}",
-    /* computer: in de kopregel */
-    ".zs-tabs.in-kop{position:static!important;margin:0 auto!important;padding:4px;width:auto;border:1px solid var(--zs-lijn,rgba(140,172,220,.15));border-radius:16px;gap:2px;",
-    "background:color-mix(in srgb,var(--zs-vlak,#0f1c2f) 92%,transparent)}",
-    ".zs-tabs.in-kop a{flex-direction:row;gap:8px;padding:8px 14px;min-height:40px;font-size:14px;border-radius:12px}",
-    ".zs-tabs.in-kop a svg{width:18px;height:18px}",
-    ".zs-tabs.in-kop a[aria-current=page]{color:var(--zs-knop-ink,#fff)}",
-    ".zs-tabs.in-kop a[aria-current=page] svg{color:var(--zs-knop-ink,#fff)}",
-    ".zs-tabs.in-kop .zs-pil{background:var(--zs-knop,#2f7cf6);box-shadow:0 6px 16px -8px var(--zs-knop,#2f7cf6)}",
-    ".zs-tabs.in-kop a[aria-current=page]::before{display:none}",
-    "@media (min-width:900px){body.zs-met-tabs{padding-bottom:0}}",
+    /* Daglicht (0.99) — computer: vaste menubalk aan de zijkant met logo, de vijf onderdelen en onderaan hulp */
+    ".zs-tabs.rail{position:fixed!important;left:0;top:0;bottom:0;right:auto;width:248px;flex-direction:column;align-items:stretch;gap:4px;padding:26px 16px 22px;border-radius:0;",
+    "background:var(--zs-dag,#0b0d11);box-shadow:1px 0 0 var(--zs-lijn,rgba(255,255,255,.08));backdrop-filter:none;-webkit-backdrop-filter:none}",
+    ".zs-tabs.rail::before{display:none}",
+    ".zs-tabs.rail .zs-merk{display:flex;align-items:center;gap:10px;margin:0 10px 26px;font:750 19px/1 'Inter Tight',Inter,sans-serif;letter-spacing:-.02em;color:var(--zs-ink,#f3efe8);text-decoration:none}",
+    ".zs-tabs.rail .zs-merk img{width:28px;height:28px}",
+    ".zs-tabs.rail a{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;padding:11px 12px;min-height:44px;font-size:15px;font-weight:560;border-radius:14px}",
+    ".zs-tabs.rail a svg{width:21px;height:21px}",
+    ".zs-tabs.rail .zs-pil{background:var(--zs-vlak2,#1b1f27);box-shadow:none}",
+    ".zs-tabs.rail a:hover:not([aria-current]){background:var(--zs-zacht,rgba(255,255,255,.05))}",
+    ".zs-tabs.rail .zs-onder{margin-top:auto;display:flex;flex-direction:column;gap:2px}",
+    ".zs-tabs.rail .zs-onder a{color:var(--zs-ink2,#a9adb4)}",
+    ".zs-tabs:not(.rail) .zs-merk,.zs-tabs:not(.rail) .zs-onder{display:none}",
+    "@media (min-width:1000px){body.zs-met-tabs{padding-bottom:0!important;padding-left:248px!important}",
+    "body.zs-met-tabs header.top .brand,body.zs-met-tabs .top>.brand,body.zs-met-tabs .kop .brand{display:none!important}",
+    ".testfase{margin-left:-248px;padding-left:calc(248px + 16px)!important}}",
     "@media print{.zs-tabs{display:none}body.zs-met-tabs{padding-bottom:0}}"
   ].join("");
   document.head.appendChild(css);
   var nav = document.createElement("nav");
   nav.className = "zs-tabs"; nav.setAttribute("aria-label", "Hoofdmenu");
-  nav.innerHTML = TABS.map(function (t) {
+  nav.innerHTML = '<a class="zs-merk" href="./" aria-label="Zonnestuur, naar Home"><img src="zon.svg" alt="">Zonnestuur</a>' + TABS.map(function (t) {
     return '<a href="' + t[1] + '"' + (t[0] === tab ? ' aria-current="page"' : "") + '>' + (t[0] === tab ? '<span class="zs-pil" aria-hidden="true"></span>' : "") + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[t[0]] + "</svg><span>" + t[2] + "</span></a>";
-  }).join("");
-  var mq = window.matchMedia ? window.matchMedia("(min-width: 900px)") : null;
+  }).join("") + '<div class="zs-onder"><a href="hulp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><span>Hulp</span></a></div>';
+  var mq = window.matchMedia ? window.matchMedia("(min-width: 1000px)") : null;
   function plaats() {
     var kop = document.querySelector("main > header.top, main > .top, header.top");
     var merk = kop && kop.querySelector(".brand");
-    if (mq && mq.matches && kop) { nav.classList.add("in-kop"); if (merk && merk.nextSibling !== nav) merk.after(nav); else if (!merk) kop.appendChild(nav); }
-    else { nav.classList.remove("in-kop"); if (nav.parentNode !== document.body) document.body.appendChild(nav); }
+    // Daglicht: op de computer altijd de zijbalk (ook zonder kopregel); op de telefoon de zwevende balk onderin
+    if (nav.parentNode !== document.body) document.body.appendChild(nav);
+    nav.classList.toggle("rail", !!(mq && mq.matches));
   }
   function zet() {
     document.body.appendChild(nav); plaats();

@@ -257,6 +257,7 @@ html, body { overscroll-behavior-y: none; }
 
   /* 0.76b: instellingen als menu met rijen, in dezelfde stijl als Apparaten */
   .inst-menu { display: grid; gap: 0; }
+  .settings.met-nav > .inst-menu { grid-column: 1 / -1; max-width: 760px; width: 100%; }   /* 0.99: niet in de smalle kolom van 230 px */
   .inst-g { font: 650 17px/1.3 "Inter Tight", Inter, sans-serif !important; margin: 20px 4px 8px !important; }
   .inst-lijst { background: var(--zs-kaart, var(--card)); border-radius: 20px; box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
   .inst-rij { display: grid; grid-template-columns: 44px minmax(0, 1fr) 12px; gap: 2px 14px; align-items: center; padding: 13px 16px; border-top: 1px solid var(--line); min-height: 66px; text-decoration: none; color: inherit; }

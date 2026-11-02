@@ -240,7 +240,7 @@ a.rij:active, a.app-rij:active, a.kaart:active { transform: scale(.985); }
 
 /* 2. Kaarten komen zacht in beeld als je scrolt (draait in de grafische kaart, niet in de hoofdtaak).
       :where() = zwakste regel, dus pagina's met een eigen opkomst-animatie (Home) houden die. */
-@keyframes zs-op { from { opacity: 0; translate: 0 22px; scale: .985; } }
+@keyframes zs-op { from { translate: 0 26px; scale: .985; } }   /* zonder doorzichtig: onder de vouw blijft alles leesbaar (meekijken, controles) */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     :where(.card, .kaart, section.card) { animation: zs-op linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
@@ -280,3 +280,66 @@ p, li, .uitleg, .sub, .lead { text-wrap: pretty; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
   dialog, dialog::backdrop, .btn, details::details-content, label.check-row > input[type="checkbox"]::after { transition: none !important; }
 }
+
+/* ===== 0.99 — DAGLICHT: het nieuwe ontwerp (volgt de zon) ======================================================
+   Overdag licht papier, 's avonds warm zwart. Amber (zon) is de merkkleur en de kleur van de belangrijkste knop;
+   groen = goedkoop en besparing, rood = duur, blauw alleen nog voor stroom van het net. Geen navy meer.
+   Dit blok staat onderaan en wint dus van alles hierboven; pagina's hoeven niets te veranderen. */
+:root, :root[data-theme="light"] {
+  color-scheme: light;
+  --zs-dag: #f3efe7; --zs-vlak: #fffdf9; --zs-vlak2: #f7f2e9; --zs-ink: #17140f; --zs-ink2: #57524a; --zs-ink3: #6b665d;
+  --zs-lijn: rgba(40, 30, 10, .09); --zs-zacht: rgba(40, 30, 10, .05);
+  --zs-zon: #f2a024; --zs-knop: #f2a024; --zs-knop-ink: #1a1203; --zs-accent: #9a5800; --zs-blauw: #9a5800;
+  --zs-groen: #11774a; --zs-amber: #8a4b00; --zs-rood: #b4301f; --t-rood: #b4301f;
+  --zs-kaart: var(--zs-vlak); --zs-gloed: radial-gradient(900px 420px at 50% -180px, rgba(242, 160, 36, .10), rgba(242, 160, 36, 0) 70%);
+  --zs-schaduw: 0 1px 2px rgba(40, 30, 10, .05), 0 24px 50px -36px rgba(40, 30, 10, .30);
+  --zs-r: 24px; --zs-lucht1: #8ec9f0; --zs-lucht2: #dcefff;
+  --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: var(--zs-vlak);
+  --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn); --shadow: var(--zs-schaduw);
+  --ink: var(--zs-ink); --ink-2: var(--zs-ink2); --ink-3: var(--zs-ink3); --chip: var(--zs-zacht);
+  --seg: rgba(40, 30, 10, .06); --seg-on: var(--zs-vlak); --cheap: var(--zs-groen); --good: var(--zs-groen); --glow: var(--zs-zon);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --zs-dag: #0b0d11; --zs-vlak: #14171d; --zs-vlak2: #1b1f27; --zs-ink: #f3efe8; --zs-ink2: #a9adb4; --zs-ink3: #8d929a;
+  --zs-lijn: rgba(255, 255, 255, .08); --zs-zacht: rgba(255, 255, 255, .05);
+  --zs-zon: #ffb547; --zs-knop: #ffb547; --zs-knop-ink: #1a1203; --zs-accent: #ffb547; --zs-blauw: #ffb547;
+  --zs-groen: #45d69a; --zs-amber: #ffc46b; --zs-rood: #ff7a66; --t-rood: #ff7a66; --zs-paars: #b9a3ff; --zs-teal: #4fd1c5;
+  --zs-kaart: var(--zs-vlak); --zs-gloed: radial-gradient(1000px 480px at 50% -200px, rgba(255, 181, 71, .08), rgba(255, 181, 71, 0) 70%);
+  --zs-schaduw: inset 0 1px 0 rgba(255, 255, 255, .04), 0 30px 60px -40px rgba(0, 0, 0, .8);
+  --zs-lucht1: #1d2d57; --zs-lucht2: #0e1630;
+  --bg: var(--zs-dag); --card: var(--zs-vlak); --card-hi: var(--zs-vlak); --card-solid: var(--zs-vlak); --field: var(--zs-vlak2);
+  --card-line: var(--zs-lijn); --line: var(--zs-lijn); --rule: var(--zs-lijn); --shadow: var(--zs-schaduw);
+  --ink: var(--zs-ink); --ink-2: var(--zs-ink2); --ink-3: var(--zs-ink3); --chip: var(--zs-zacht);
+  --seg: rgba(255, 255, 255, .06); --seg-on: var(--zs-knop); --cheap: var(--zs-groen); --good: var(--zs-groen); --glow: var(--zs-zon); --mid: #5b616b;
+}
+/* stromen: net blijft blauw, de rest volgt het nieuwe palet */
+:root, :root[data-theme="light"] { --e-zon: #b86e00; --e-net: #2e62c9; --e-terug: #11774a; --e-bat: #0f7d74; --e-auto: #6d4bd8; --e-huis: #57524a; }
+:root[data-theme="dark"] { --e-zon: #ffb547; --e-net: #8bbcff; --e-terug: #45d69a; --e-bat: #4fd1c5; --e-auto: #b9a3ff; --e-huis: #c9c4bb; }
+
+body { background: var(--zs-gloed), var(--zs-dag) !important; background-repeat: no-repeat !important; color: var(--zs-ink); }
+/* kaarten: effen, zacht schaduw, geen rand meer nodig */
+.card, section.card, article.card, .kaart, .panel .box { background: var(--zs-vlak) !important; box-shadow: var(--zs-schaduw), 0 0 0 1px var(--zs-lijn) !important; border-color: transparent !important; }
+.card, .kaart { border-radius: var(--zs-r); }
+/* knoppen: de belangrijkste in zonkleur met donkere tekst */
+.btn, .btn-line.on-sun, .evc-go, button.primary, .knop-hoofd { background: var(--zs-knop) !important; color: var(--zs-knop-ink) !important; border-color: var(--zs-knop) !important;
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--zs-knop) 80%, transparent); font-weight: 650; }
+.btn.ghost, .btn.secondary, .btn.line, .btn-line:not(.on-sun) { background: var(--zs-vlak2) !important; color: var(--zs-ink) !important; border-color: transparent !important; box-shadow: none !important; }
+.seg button.active, .seg button.on, .chips button.on, .days button.on { background: var(--zs-knop) !important; color: var(--zs-knop-ink) !important; border-color: var(--zs-knop) !important; }
+/* vinkjes, rondjes en schakelaars in zonkleur */
+input[type="checkbox"]:not(.schakel input):not(.sw input):checked, input[type="radio"]:not(.schakel input):not(.sw input):checked { background: var(--zs-knop) !important; border-color: var(--zs-knop) !important; }
+input[type="checkbox"]:not(.schakel input):not(.sw input)::after { border-color: var(--zs-knop-ink) !important; }
+input[type="radio"]:not(.schakel input):not(.sw input)::after { background: var(--zs-knop-ink) !important; }
+label.check-row > input[type="checkbox"]:not([hidden]):checked { background: var(--zs-knop) !important; }
+input[type="range"] { accent-color: var(--zs-knop); }
+/* velden */
+input[type="text"], input[type="number"], input[type="time"], input[type="email"], input[type="password"], input[type="search"], input[type="tel"], input:not([type]), select, textarea {
+  background: var(--zs-vlak2) !important; border-color: transparent !important; color: var(--zs-ink) !important; border-radius: 14px !important; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--zs-accent) !important; outline-offset: 1px; }
+/* koppen: Inter Tight, strak */
+h1, .headline, .page-title { font-family: "Inter Tight", "Inter", system-ui, sans-serif; letter-spacing: -.035em; font-weight: 780; }
+/* testfase-balk: rustig, in de kleuren van het thema */
+.testfase { background: var(--zs-vlak2) !important; color: var(--zs-ink2) !important; border-bottom: 1px solid var(--zs-lijn) !important; }
+.testfase strong { color: var(--zs-accent) !important; }
+:root[data-theme="dark"] .testfase { background: #15181e !important; color: #c9c4bb !important; }
+:root[data-theme="dark"] .testfase strong { color: #ffb547 !important; }
