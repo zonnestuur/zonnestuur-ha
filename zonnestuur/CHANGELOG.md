@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.99.1
+- In de app op je telefoon stond op Home het tabblad 'Meer' gekozen. Nu staat het goed.
+
 ## 0.99.0
 - Nieuw ontwerp "Daglicht": de app volgt de zon. Overdag licht, na zonsondergang donker. Wil je het altijd licht of altijd donker? Meer → Weergave.
 - Zonkleur (amber) is de nieuwe merkkleur; goedkoop blijft groen.

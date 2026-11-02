@@ -5,7 +5,8 @@
   if (document.querySelector(".zs-tabs")) return;
   try { if (window.top !== window.self && window.parent.document.querySelector(".zs-tabs")) return; } catch (e) {}
   if (/[?&](kaal|voorbeeld)=1/.test(location.search)) return;
-  var pad = location.pathname.replace(/\/+$/, "").split("/").pop() || "";
+  // in de app van de koppelmotor staat er '/api/hassio_ingress/<sleutel>' voor: dat is Home, niet de paginanaam
+  var pad = location.pathname.replace(/^.*\/hassio_ingress\/[^/]+/, "").replace(/\/+$/, "").split("/").pop() || "";
   var zoek = location.search;
   var tab = (pad === "" || pad === "index.html") ? "home"
     : (pad === "apparaten" || pad === "koppelen" || pad === "apparaat" || pad === "verwarming" || pad === "warmtepomp" || (pad === "instellingen" && /[?&](apparaat|onderdeel)=/.test(zoek) && !/[?&]van=inst/.test(zoek))) ? "apparaten"
