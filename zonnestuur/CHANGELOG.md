@@ -1,17 +1,7 @@
 # Wijzigingen
 
-## 0.98.0
-- Nieuwe uitstraling: pagina's lopen vloeiend in elkaar over, het gekozen tabblad glijdt mee en de tabbalk blijft staan.
-- Kaarten komen zacht in beeld als je scrolt, vensters komen op met een veer, en uitklappen gaat vloeiend.
-- Tabbladen staan er sneller: Zonnestuur haalt ze alvast op zodra je ze aanraakt.
-- De statusbalk van je telefoon krijgt de kleur van het thema dat je koos, en op Android voel je een kort tikje bij schakelaars.
-- Wie op de telefoon 'minder beweging' of 'minder transparantie' aan heeft, krijgt alles rustig en effen.
-
 ## 0.97.0
-- Auto en boiler met een klaar-tijd rekenen nu voorzichtiger met je verbruik: als je huis 's avonds vaak meer trekt dan verwacht, houdt Zonnestuur daar rekening mee bij het inschatten van de zon.
-- De planner zoekt nu echt samen naar het goedkoopste plan voor auto, boiler en batterij tegelijk (niet alleen om de beurt).
-- Na een aanbeveling die Zonnestuur uitvoerde, vergelijkt hij de COP bij hetzelfde weer, zodat een koude week niet als "slechter" telt. Wordt het slechter, dan stelt hij voor het terug te draaien.
-- Handleidingen COP meten en Vloerverwarming hebben nu een schema en meer uitleg.
+- Zonnestuur vindt een apparaat zelf terug als het modem het een ander adres gaf (bijvoorbeeld na een stroomstoring). Hij onthoudt het vaste nummer van het apparaat zelf en zoekt dat op als het apparaat niet meer antwoordt. Het nieuwe adres komt vanzelf in de instellingen en in het logboek. Werkt voor de warmtepomp, laadpaal, slimme stekkers, P1-meter, omvormer en batterij met een eigen adres.
 
 ## 0.96.2
 - Het tekstwolkje staat nu altijd boven het hoofd van de klusjesman, en loopt mee als hij loopt.
