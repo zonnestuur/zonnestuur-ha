@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.98.0
+- Nieuwe uitstraling: pagina's lopen vloeiend in elkaar over, het gekozen tabblad glijdt mee en de tabbalk blijft staan.
+- Kaarten komen zacht in beeld als je scrolt, vensters komen op met een veer, en uitklappen gaat vloeiend.
+- Tabbladen staan er sneller: Zonnestuur haalt ze alvast op zodra je ze aanraakt.
+- De statusbalk van je telefoon krijgt de kleur van het thema dat je koos, en op Android voel je een kort tikje bij schakelaars.
+- Wie op de telefoon 'minder beweging' of 'minder transparantie' aan heeft, krijgt alles rustig en effen.
+
 ## 0.97.0
 - Auto en boiler met een klaar-tijd rekenen nu voorzichtiger met je verbruik: als je huis 's avonds vaak meer trekt dan verwacht, houdt Zonnestuur daar rekening mee bij het inschatten van de zon.
 - De planner zoekt nu echt samen naar het goedkoopste plan voor auto, boiler en batterij tegelijk (niet alleen om de beurt).

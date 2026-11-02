@@ -30,7 +30,16 @@
     ".zs-tabs a{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px 5px;border-radius:22px;text-decoration:none;",
     "color:var(--zs-ink2,#a6b5ca);font:600 11px/1.2 Inter,system-ui,sans-serif;min-height:52px;justify-content:center;position:relative;transition:background .2s ease,color .2s ease}",
     ".zs-tabs a svg{width:23px;height:23px}",
-    ".zs-tabs a[aria-current=page]{color:var(--zs-ink,#eef3fa);background:color-mix(in srgb,var(--zs-accent,#60a5fa) 20%,transparent)}",
+    ".zs-tabs a[aria-current=page]{color:var(--zs-ink,#eef3fa)}",
+    /* 0.98: het gekozen tabblad is een losse pil, zodat hij bij het wisselen van pagina naar zijn nieuwe plek glijdt */
+    ".zs-tabs .zs-pil{position:absolute;inset:0;border-radius:inherit;z-index:-1;background:color-mix(in srgb,var(--zs-accent,#60a5fa) 20%,transparent);",
+    "box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}",
+    ".zs-tabs a{isolation:isolate}",
+    ".zs-tabs a:active svg{scale:.88}.zs-tabs a svg{transition:scale .4s var(--zs-veer,ease)}",
+    /* glas met een lichtrand: bovenkant vangt licht, onderkant iets donkerder (Liquid Glass, maar rustig) */
+    ".zs-tabs:not(.in-kop)::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;",
+    "background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0) 38%,rgba(0,0,0,0) 70%,rgba(0,0,0,.10));mix-blend-mode:soft-light}",
+    "@media (prefers-reduced-transparency:reduce){.zs-tabs::before{display:none}}",
     ".zs-tabs a[aria-current=page] svg{color:var(--zs-accent,#60a5fa)}",
     ".zs-tabs a:focus-visible{outline:2px solid var(--zs-knop,#2f7cf6);outline-offset:-2px}",
     "body.zs-met-tabs{padding-bottom:calc(96px + env(safe-area-inset-bottom))}",
@@ -41,7 +50,9 @@
     "background:color-mix(in srgb,var(--zs-vlak,#0f1c2f) 92%,transparent)}",
     ".zs-tabs.in-kop a{flex-direction:row;gap:8px;padding:8px 14px;min-height:40px;font-size:14px;border-radius:12px}",
     ".zs-tabs.in-kop a svg{width:18px;height:18px}",
-    ".zs-tabs.in-kop a[aria-current=page]{background:var(--zs-knop,#2f7cf6);color:var(--zs-knop-ink,#fff)}",
+    ".zs-tabs.in-kop a[aria-current=page]{color:var(--zs-knop-ink,#fff)}",
+    ".zs-tabs.in-kop a[aria-current=page] svg{color:var(--zs-knop-ink,#fff)}",
+    ".zs-tabs.in-kop .zs-pil{background:var(--zs-knop,#2f7cf6);box-shadow:0 6px 16px -8px var(--zs-knop,#2f7cf6)}",
     ".zs-tabs.in-kop a[aria-current=page]::before{display:none}",
     "@media (min-width:900px){body.zs-met-tabs{padding-bottom:0}}",
     "@media print{.zs-tabs{display:none}body.zs-met-tabs{padding-bottom:0}}"
@@ -50,7 +61,7 @@
   var nav = document.createElement("nav");
   nav.className = "zs-tabs"; nav.setAttribute("aria-label", "Hoofdmenu");
   nav.innerHTML = TABS.map(function (t) {
-    return '<a href="' + t[1] + '"' + (t[0] === tab ? ' aria-current="page"' : "") + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[t[0]] + "</svg><span>" + t[2] + "</span></a>";
+    return '<a href="' + t[1] + '"' + (t[0] === tab ? ' aria-current="page"' : "") + '>' + (t[0] === tab ? '<span class="zs-pil" aria-hidden="true"></span>' : "") + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[t[0]] + "</svg><span>" + t[2] + "</span></a>";
   }).join("");
   var mq = window.matchMedia ? window.matchMedia("(min-width: 900px)") : null;
   function plaats() {
@@ -73,4 +84,34 @@
     }
   }
   if (document.body) zet(); else document.addEventListener("DOMContentLoaded", zet);
+
+  // 0.98: kleur van de statusbalk van de telefoon gelijk aan het gekozen thema (niet aan dat van de telefoon)
+  function statusbalk() {
+    try {
+      var kleur = getComputedStyle(document.body).backgroundColor;
+      var metas = document.querySelectorAll('meta[name="theme-color"]');
+      for (var i = 0; i < metas.length; i++) metas[i].remove();
+      var m = document.createElement("meta"); m.name = "theme-color"; m.content = kleur; document.head.appendChild(m);
+    } catch (e) {}
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", statusbalk); else statusbalk();
+  try { new MutationObserver(statusbalk).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] }); } catch (e) {}
+
+  // 0.98: een tabblad alvast ophalen zodra je het aanraakt of erboven zweeft: de pagina staat er dan meteen
+  try {
+    if (HTMLScriptElement.supports && HTMLScriptElement.supports("speculationrules")) {
+      var sr = document.createElement("script"); sr.type = "speculationrules";
+      sr.textContent = JSON.stringify({ prefetch: [{ where: { selector_matches: ".zs-tabs a" }, eagerness: "moderate" }] });
+      document.head.appendChild(sr);
+    }
+  } catch (e) {}
+
+  // 0.98: een kort tikje voelen bij schakelaars en tabbladen (alleen telefoons die trillen ondersteunen; niet bij 'minder beweging')
+  var stil = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function tik(ms) { if (!stil && navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {} }
+  document.addEventListener("change", function (ev) {
+    var t = ev.target;
+    if (t && t.type === "checkbox" && t.closest && t.closest("label.check-row, .schakel, .sw")) tik(8);
+  }, true);
+  nav.addEventListener("click", function (ev) { var a = ev.target.closest && ev.target.closest("a"); if (a && !a.hasAttribute("aria-current")) tik(5); });
 })();
