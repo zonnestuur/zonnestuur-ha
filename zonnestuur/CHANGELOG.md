@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.97.0
+- Auto en boiler met een klaar-tijd rekenen nu voorzichtiger met je verbruik: als je huis 's avonds vaak meer trekt dan verwacht, houdt Zonnestuur daar rekening mee bij het inschatten van de zon.
+- De planner zoekt nu echt samen naar het goedkoopste plan voor auto, boiler en batterij tegelijk (niet alleen om de beurt).
+- Na een aanbeveling die Zonnestuur uitvoerde, vergelijkt hij de COP bij hetzelfde weer, zodat een koude week niet als "slechter" telt. Wordt het slechter, dan stelt hij voor het terug te draaien.
+- Handleidingen COP meten en Vloerverwarming hebben nu een schema en meer uitleg.
+
 ## 0.96.2
 - Het tekstwolkje staat nu altijd boven het hoofd van de klusjesman, en loopt mee als hij loopt.
 
