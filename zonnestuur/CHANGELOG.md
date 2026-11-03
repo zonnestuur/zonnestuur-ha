@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.99.4
+- Zonnestuur beoordeelt zijn eigen keuzes achteraf. Bij "Waarom deed hij dat?" staat per besluit of het een goede keuze was (voordeel), gelijk aan meteen starten, of achteraf duurder. Bovenaan zie je de laatste 7 dagen: hoeveel procent goed, wat het samen opleverde en de duurste missers. Wat jij afdwong (handmatig, klaar-tijd) telt niet mee.
+
 ## 0.99.3
 - Nieuw: "Waarom deed hij dat?" (Meer, onder Inzichten). Bij elk besluit bewaart Zonnestuur nu ook hoe je huis er toen bij stond: zon, net, buitentemperatuur, accu en wat er verder aan stond. Je ziet per dag elk besluit met die feiten erbij.
 

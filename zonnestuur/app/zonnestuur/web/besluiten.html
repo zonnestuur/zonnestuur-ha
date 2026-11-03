@@ -42,6 +42,10 @@
   .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
     padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
   .dagkeuze { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 14px; }
+  .oordeel { font-size: 13.5px; font-weight: 600; margin: 0; grid-column: 1 / -1; }
+  .oordeel.goed { color: #6ee7b7; } .oordeel.duur { color: #fcd34d; } .oordeel.neutraal { color: var(--zs-ink2); }
+  [data-theme="light"] .oordeel.goed { color: #047857; } [data-theme="light"] .oordeel.duur { color: #92400e; }
+  #weekblok { margin-bottom: 14px; }
   .dagkeuze b { text-transform: capitalize; }
   .dagkeuze .btn[disabled] { opacity: .4; cursor: default; }
 </style>
@@ -53,6 +57,7 @@
   <a class="terug" href="inzicht">← Inzichten</a>
   <h1>Waarom deed hij dat?</h1>
   <p class="intro">Bij elk besluit onthoudt Zonnestuur hoe je huis er op dat moment bij stond: zon, net, buitentemperatuur, accu en wat er verder aan stond. Zo zie je achteraf waarom een apparaat aan of uit ging.</p>
+  <div class="lijst" id="weekblok" hidden></div>
   <div class="dagkeuze"><button class="btn ghost" id="vorige" type="button">Vorige dag</button><b id="dagnaam"></b><button class="btn ghost" id="volgende" type="button">Volgende dag</button></div>
   <div class="lijst" id="lijst"><div class="item"><p>Laden…</p></div></div>
   <p class="veilig" id="voet"></p>
@@ -69,17 +74,29 @@ async function api(p) {
   return d;
 }
 let dag = "";
+const OORDEEL = { goed: "Goede keuze", duur: "Achteraf duurder", neutraal: "Geen verschil" };
+function week(w) {
+  const b = $("weekblok");
+  if (!w || !w.beoordeeld) { b.hidden = true; return; }
+  const eur = (w.eur >= 0 ? "+ € " : "− € ") + Math.abs(w.eur).toFixed(2).replace(".", ",");
+  b.hidden = false;
+  b.innerHTML = `<div class="item"><h2>Laatste 7 dagen</h2><span class="zeker ${w.pct_goed >= 70 ? "hoog" : "redelijk"}">${w.pct_goed}% goed</span>
+    <p class="wat">${w.beoordeeld} keuzes beoordeeld: ${w.goed} goed, ${w.neutraal} gelijk aan meteen starten, ${w.duur} achteraf duurder. Samen ≈ ${eur}.</p>
+    ${(w.duurste || []).length ? `<p class="bron">Duurste misser${w.duurste.length > 1 ? "s" : ""}: ${w.duurste.map((x) => esc(x.apparaat) + " (€ " + Math.abs(x.eur).toFixed(2).replace(".", ",") + ")").join(", ")}</p>` : ""}</div>`;
+}
 function verschuif(n) { const d = new Date((dag || new Date().toISOString().slice(0, 10)) + "T12:00:00"); d.setDate(d.getDate() + n); return d.toLocaleDateString("sv-SE"); }
 async function laad() {
   let d;
   try { d = await api("api/besluiten" + (dag ? "?dag=" + dag : "")); } catch (e) { $("lijst").innerHTML = `<div class="item"><p>${esc(e.message)}</p></div>`; return; }
   dag = d.dag;
+  week(d.week);
   $("dagnaam").textContent = d.vandaag ? "Vandaag" : new Date(d.dag + "T12:00:00").toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
   $("volgende").disabled = d.vandaag;
   $("lijst").innerHTML = d.besluiten.length ? d.besluiten.map((b) => `<div class="item">
       <h2>${esc(b.apparaat)} ${b.actie === "on" ? "aan" : "uit"}</h2><span class="zeker ${b.actie === "on" ? "hoog" : "redelijk"}">${esc(b.tijd)}</span>
       <p class="wat">${esc(b.tekst)}</p>
       ${b.feiten.length ? `<p class="bron">${b.feiten.map(esc).join(" · ")}</p>` : `<p class="bron">Van dit moment is geen momentopname bewaard.</p>`}
+      ${b.oordeel && ["goed","duur","neutraal"].includes(b.oordeel.label) ? `<p class="oordeel ${b.oordeel.label}">${OORDEEL[b.oordeel.label]}: ${esc(b.oordeel.tekst)}</p>` : ""}
       </div>`).join("") : `<div class="item"><p>Geen besluiten op deze dag.</p></div>`;
   $("voet").textContent = d.besluiten.length ? `${d.met_toestand} van ${d.besluiten.length} besluiten hebben een momentopname.` : "";
 }
