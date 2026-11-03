@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Waarom deed hij dat?</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 760px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  .terug { color: var(--zs-ink2); text-decoration: none; font-weight: 600; font-size: 14.5px; display: inline-block; padding: 4px 2px; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 60ch; }
+  .lijst { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); overflow: hidden; }
+  .item { padding: 16px 18px; border-top: 1px solid var(--zs-lijn); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; }
+  .item:first-child { border-top: 0; }
+  .item h2 { font: 680 17px/1.3 "Inter Tight", Inter, sans-serif; margin: 0; }
+  .item p { margin: 0; grid-column: 1 / -1; font-size: 14.5px; }
+  .item .wat { color: var(--zs-ink); font-size: 15px; }
+  .item .bron, .item .uitleg { color: var(--zs-ink2); }
+  .zeker { font-size: 12.5px; font-weight: 700; padding: 3px 9px; border-radius: 99px; align-self: start; white-space: nowrap; }
+  .zeker.hoog { background: color-mix(in srgb, #34d399 18%, transparent); color: #6ee7b7; }
+  .zeker.redelijk { background: color-mix(in srgb, #60a5fa 18%, transparent); color: #93c5fd; }
+  .zeker.laag { background: color-mix(in srgb, #fbbf24 16%, transparent); color: #fcd34d; }
+  [data-theme="light"] .zeker.hoog { color: #047857; } [data-theme="light"] .zeker.redelijk { color: #1d4ed8; } [data-theme="light"] .zeker.laag { color: #92400e; }
+  .voorsp { background: var(--zs-zacht); padding: 8px 12px; border-radius: 12px; }
+  .acties { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; grid-column: 1 / -1; }
+  .btn { font: inherit; font-weight: 650; font-size: 14px; border: 0; cursor: pointer; padding: 9px 14px; border-radius: 999px; min-height: 40px; text-decoration: none; display: inline-flex; align-items: center; }
+  h2.sec { font: 700 20px/1.25 "Inter Tight", Inter, sans-serif; margin: 26px 2px 6px; }
+  .zeker.verdacht { background: color-mix(in srgb, #f87171 18%, transparent); color: #fca5a5; }
+  [data-theme="light"] .zeker.verdacht { color: #b91c1c; }
+  .logregel { font-size: 13.5px; color: var(--zs-ink2); }
+  .veilig { margin: 16px 4px; color: var(--zs-ink2); font-size: 14px; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  .dagkeuze { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 14px; }
+  .dagkeuze b { text-transform: capitalize; }
+  .dagkeuze .btn[disabled] { opacity: .4; cursor: default; }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <a class="terug" href="inzicht">← Inzichten</a>
+  <h1>Waarom deed hij dat?</h1>
+  <p class="intro">Bij elk besluit onthoudt Zonnestuur hoe je huis er op dat moment bij stond: zon, net, buitentemperatuur, accu en wat er verder aan stond. Zo zie je achteraf waarom een apparaat aan of uit ging.</p>
+  <div class="dagkeuze"><button class="btn ghost" id="vorige" type="button">Vorige dag</button><b id="dagnaam"></b><button class="btn ghost" id="volgende" type="button">Volgende dag</button></div>
+  <div class="lijst" id="lijst"><div class="item"><p>Laden…</p></div></div>
+  <p class="veilig" id="voet"></p>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p) {
+  const r = await fetch(p, { headers: { "X-Token": token } });
+  if (r.status === 401) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+let dag = "";
+function verschuif(n) { const d = new Date((dag || new Date().toISOString().slice(0, 10)) + "T12:00:00"); d.setDate(d.getDate() + n); return d.toLocaleDateString("sv-SE"); }
+async function laad() {
+  let d;
+  try { d = await api("api/besluiten" + (dag ? "?dag=" + dag : "")); } catch (e) { $("lijst").innerHTML = `<div class="item"><p>${esc(e.message)}</p></div>`; return; }
+  dag = d.dag;
+  $("dagnaam").textContent = d.vandaag ? "Vandaag" : new Date(d.dag + "T12:00:00").toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
+  $("volgende").disabled = d.vandaag;
+  $("lijst").innerHTML = d.besluiten.length ? d.besluiten.map((b) => `<div class="item">
+      <h2>${esc(b.apparaat)} ${b.actie === "on" ? "aan" : "uit"}</h2><span class="zeker ${b.actie === "on" ? "hoog" : "redelijk"}">${esc(b.tijd)}</span>
+      <p class="wat">${esc(b.tekst)}</p>
+      ${b.feiten.length ? `<p class="bron">${b.feiten.map(esc).join(" · ")}</p>` : `<p class="bron">Van dit moment is geen momentopname bewaard.</p>`}
+      </div>`).join("") : `<div class="item"><p>Geen besluiten op deze dag.</p></div>`;
+  $("voet").textContent = d.besluiten.length ? `${d.met_toestand} van ${d.besluiten.length} besluiten hebben een momentopname.` : "";
+}
+$("vorige").onclick = () => { dag = verschuif(-1); laad(); };
+$("volgende").onclick = () => { dag = verschuif(1); laad(); };
+laad();
+</script>
+</body>
+</html>

@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.99.3
+- Nieuw: "Waarom deed hij dat?" (Meer, onder Inzichten). Bij elk besluit bewaart Zonnestuur nu ook hoe je huis er toen bij stond: zon, net, buitentemperatuur, accu en wat er verder aan stond. Je ziet per dag elk besluit met die feiten erbij.
+
 ## 0.99.2
 - Geen onterechte vraag meer om een wachtwoord als de app een tijd op de achtergrond stond: Zonnestuur laadt de pagina dan even opnieuw. Annuleren stopt het vragen ook.
 
