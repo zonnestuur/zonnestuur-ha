@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.99.5
+- Zonnestuur let op herhaalde missers. Bleken de keuzes voor een apparaat de afgelopen 7 dagen vaak achteraf duurder (minstens 3 van de 5 of meer, en 30% of meer), dan staat dat bij "Waarom deed hij dat?" met de waarschijnlijke oorzaak, bijvoorbeeld een te vroege klaar-tijd. Eén misser telt niet.
+
 ## 0.99.4
 - Zonnestuur beoordeelt zijn eigen keuzes achteraf. Bij "Waarom deed hij dat?" staat per besluit of het een goede keuze was (voordeel), gelijk aan meteen starten, of achteraf duurder. Bovenaan zie je de laatste 7 dagen: hoeveel procent goed, wat het samen opleverde en de duurste missers. Wat jij afdwong (handmatig, klaar-tijd) telt niet mee.
 

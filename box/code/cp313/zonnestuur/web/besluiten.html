@@ -82,6 +82,7 @@ function week(w) {
   b.hidden = false;
   b.innerHTML = `<div class="item"><h2>Laatste 7 dagen</h2><span class="zeker ${w.pct_goed >= 70 ? "hoog" : "redelijk"}">${w.pct_goed}% goed</span>
     <p class="wat">${w.beoordeeld} keuzes beoordeeld: ${w.goed} goed, ${w.neutraal} gelijk aan meteen starten, ${w.duur} achteraf duurder. Samen ≈ ${eur}.</p>
+    ${(w.let_op || []).map((x) => `<p class="oordeel duur">${esc(x.apparaat)}: ${x.duur} van ${x.beoordeeld} keuzes achteraf duurder (≈ € ${Math.abs(x.eur).toFixed(2).replace(".", ",")}). ${esc(x.oorzaak)}</p>`).join("")}
     ${(w.duurste || []).length ? `<p class="bron">Duurste misser${w.duurste.length > 1 ? "s" : ""}: ${w.duurste.map((x) => esc(x.apparaat) + " (€ " + Math.abs(x.eur).toFixed(2).replace(".", ",") + ")").join(", ")}</p>` : ""}</div>`;
 }
 function verschuif(n) { const d = new Date((dag || new Date().toISOString().slice(0, 10)) + "T12:00:00"); d.setDate(d.getDate() + n); return d.toLocaleDateString("sv-SE"); }
