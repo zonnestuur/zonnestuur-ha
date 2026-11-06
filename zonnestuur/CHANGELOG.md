@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.99.6
+- Warmtepomp en boiler met een vat: Zonnestuur leert hoe snel het water opwarmt (per temperatuur en bij welk buitenweer) en plant het opwarmen op de echte watertemperatuur. Is het vat al warm, dan draait hij niet onnodig ("het water is al warm genoeg"); koelt het tussendoor af, dan plant hij het bij. De apparaatpagina zegt hoe lang opwarmen nog duurt.
+- Met genoeg eigen COP-metingen rekent de planner met de gemeten COP van jouw warmtepomp in plaats van een vaste formule. Zo kiest hij vaker het warmere (zuinigere) deel van de dag.
+- Tappen tijdens het opwarmen wordt herkend en telt niet mee in de COP-meting. Valt de temperatuurmeting even weg, dan houdt Zonnestuur de laatste waarde 15 minuten vast.
+
 ## 0.99.5
 - Zonnestuur let op herhaalde missers. Bleken de keuzes voor een apparaat de afgelopen 7 dagen vaak achteraf duurder (minstens 3 van de 5 of meer, en 30% of meer), dan staat dat bij "Waarom deed hij dat?" met de waarschijnlijke oorzaak, bijvoorbeeld een te vroege klaar-tijd. Eén misser telt niet.
 

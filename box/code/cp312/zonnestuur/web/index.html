@@ -2546,6 +2546,8 @@ function appHeld(wrap, d) {
     if (d.water_c != null) {
       const doel = d.doel_c || 55; niveau = Math.max(.06, Math.min(1, (d.water_c - 15) / Math.max(10, doel - 15)));
       lbl = "Warm water"; groot = `${nl(d.water_c)}<u>°C</u>`; tekst = d.doel_c ? `Doel ${nl(d.doel_c)} °C` : "";
+      const o = d.opwarm;                                   // geleerd: hoe lang opwarmen nog duurt
+      if (o) tekst = o.need_min > 0 ? `Nog ± ${o.need_min >= 90 ? nl(o.need_min / 60, 1) + " uur" : o.need_min + " min"} opwarmen tot ${nl(o.doel)} °C` : `Warm genoeg (doel ${nl(o.doel)} °C)`;
     } else if (d.guarantee_min) {
       const m = d.run_minutes_today || 0; niveau = Math.max(.06, Math.min(1, m / d.guarantee_min));
       lbl = "Vandaag opgewarmd"; groot = `${nl(Math.round(100 * Math.min(1, m / d.guarantee_min)))}<u>%</u>`; tekst = `${nl(m)} van ${nl(d.guarantee_min)} minuten`;
