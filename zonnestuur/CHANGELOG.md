@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.100.0
+- Sneller klaar met instellen: heb je in het Energie-dashboard van de koppelmotor al je meter en zonnepanelen aangewezen, dan neemt Zonnestuur die vanzelf over.
+- De auto: Zonnestuur leert uit de stekker wanneer je meestal wegrijdt (per weekdag) en hoeveel je per keer laadt. Met één tik op 'Gebruik deze tijden' worden dat je vertrektijden. Wat je zelf instelt, gaat altijd voor.
+- Thuisbatterij: elke nacht speelt Zonnestuur de dag ervoor opnieuw met het echte verbruik, de echte zon en de echte prijzen, en leert zo hoeveel de batterij 's avonds het best over kan houden.
+- Thuisbatterij: Zonnestuur leest terug of een opdracht echt is aangekomen. Zo niet (3 keer na elkaar), dan zie je een melding in plaats van dat het stilletjes misgaat. Telt de vermogensmeting van je batterij andersom, dan merkt Zonnestuur dat en draait hij de meting zelf om.
+- Feestdagen tellen nu als vrije dag bij het voorspellen van verbruik en prijzen (Tweede Kerstdag lijkt op een zondag).
+- De zonvoorspelling krijgt een eigen correctie bij bewolking en bij een heldere lucht.
+
 ## 0.99.7
 - Vloerverwarming: de vorstbeveiliging houdt de pompen nu pas aan als het buiten −5 °C of kouder is (was 2 °C). Bij 2 °C draaiden de pompen elke koude nacht door: het warmwatervat liep leeg en de warmtepomp moest juist op het koudste (duurste) moment draaien. Leidingen in huis bevriezen niet, en de ondergrens per kamer blijft altijd gelden. Had je de oude standaard, dan wordt die eenmalig omgezet; een eigen keuze blijft staan.
 
