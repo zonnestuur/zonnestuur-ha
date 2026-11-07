@@ -2522,8 +2522,12 @@ async function editDevice(i) {
       <div class="field"><label for="e_night">Alleen 's nachts (22–06) zolang deze aan staat</label><input id="e_night" value="${esc(P.night_only_entity || "")}" placeholder="bijv. input_boolean.koelseizoen"></div>
     </div><div class="row">
       <div class="field"><label for="e_eco">Lager tijdens dure stroom (°C)</label><input id="e_eco" type="number" step="0.5" min="0" max="15" value="${P.eco_delta || 0}"><span class="hint">Bijv. 1: in de duurste uren van de dag staat hij zoveel lager. 0 = uit.</span></div>
-      <div class="field"><label class="check"><input type="checkbox" id="e_leg" ${P.legionella ? "checked" : ""}> Wekelijks heet (legionella)</label>
+      <div class="field"><label class="check"><input type="checkbox" id="e_leg" ${(P.legionella ?? d.kind === "boiler") ? "checked" : ""}> Wekelijks heet (legionella)</label>
         <input id="e_legt" type="number" step="1" min="55" max="70" value="${P.legionella_temp || 60}" aria-label="Temperatuur legionellaronde"><span class="hint">Eén keer per week naar deze temperatuur, op het zonnigste of goedkoopste uur. Doet je warmtepomp dit zelf? Laat het uit.</span></div></div>` : ""}
+    ${(d.kind === "boiler" || d.kind === "heatpump") && d.driver !== "ha_setpoint" ? `<div class="row">
+      <div class="field"><label class="check"><input type="checkbox" id="e_leg2" ${(P.legionella ?? d.kind === "boiler") ? "checked" : ""}> Wekelijks heet (legionella)</label>
+        <input id="e_legt2" type="number" step="1" min="55" max="70" value="${P.legionella_temp || 60}" aria-label="Temperatuur legionellaronde"><span class="hint">Eén keer per week naar deze temperatuur, op het zonnigste of goedkoopste uur. Met een temperatuursensor controleert Zonnestuur of het water echt zo heet werd. De thermostaat van de boiler zelf blijft altijd de beveiliging.</span></div>
+      ${d.driver !== "sprsun" ? `<div class="field"><label for="e_tent">Watertemperatuur (optioneel)</label><input id="e_tent" value="${esc(P.temp_entity || "")}" placeholder="bijv. sensor.boiler_temperatuur"><span class="hint">Een temperatuursensor op of in de boiler. Dan weet Zonnestuur hoe warm het water is.</span></div>` : ""}</div>` : ""}
     ${d.driver === "ha_current" ? `<div class="row">
       <div class="field"><label for="e_ph">Fasen</label><select id="e_ph"><option ${P.phases == 1 ? "selected" : ""}>1</option><option ${P.phases == 3 ? "selected" : ""}>3</option></select></div>
       <div class="field"><label for="e_mina">Minimaal (A)</label><input id="e_mina" type="number" min="6" max="32" value="${P.min_a}"></div>
@@ -2621,6 +2625,8 @@ async function editDevice(i) {
     if ($("e_tn")) { n.params.normal_temp = num("e_tn", n.params.normal_temp); n.params.boost_temp = num("e_tb", n.params.boost_temp); }
     if ($("e_blk")) { const b = $("e_blk").value.split(",").map((x) => x.trim()).filter(Boolean); if (b.length) n.params.block_entities = b; else delete n.params.block_entities;
       const ne = $("e_night").value.trim(); if (ne) n.params.night_only_entity = ne; else delete n.params.night_only_entity; }
+    if ($("e_leg2")) { n.params.legionella = $("e_leg2").checked; n.params.legionella_temp = num("e_legt2", 60); }
+    if ($("e_tent")) { const te = $("e_tent").value.trim(); if (te) n.params.temp_entity = te; else delete n.params.temp_entity; }
     if ($("e_eco")) { n.params.eco_delta = Math.max(0, Math.min(15, num("e_eco", 0))); n.params.legionella = $("e_leg").checked; n.params.legionella_temp = num("e_legt", 60); }
     if ($("e_ss")) { n.params.solar_share = Math.max(0, Math.min(100, num("e_ss", 100)));
       for (const [id, k] of [["e_pse", "phase_switch_entity"], ["e_p1", "phase_1"], ["e_p3", "phase_3"]]) { const v = $(id).value.trim(); if (v) n.params[k] = v; else delete n.params[k]; } }

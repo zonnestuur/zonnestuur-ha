@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.101.0
+- Legionella: elke boiler met een temperatuurmeting gaat nu vanzelf één keer per week naar 60 °C, in het zonnigste of goedkoopste uur (ook zonder Pro). Zonnestuur controleert of het water echt zo heet werd; was het die week al vanzelf zo heet, dan is er geen extra ronde nodig. Lukt het niet, dan zie je dat (vaak staat de thermostaat van de boiler zelf lager) en probeert hij het de volgende dag opnieuw. Op de apparaatpagina zie je wanneer het voor het laatst lukte. Bij een gewone boiler kun je nu ook een losse temperatuursensor invullen.
+- Overal dezelfde knoppen: Slim, Direct en Vandaag niet (bij de auto: Direct laden en Terug naar slim laden).
+- Op de apparaatkaart zie je nu als een apparaat niet reageert op aanzetten ('Aanzetten gevraagd; het apparaat reageert nog niet').
+- Website: nieuw blok 'In drie stappen minder betalen' en een uitgebreidere uitleg over de boiler op zonnestroom (wat je nodig hebt, veiligheid, rekenvoorbeeld).
+
 ## 0.100.1
 - Twee auto's aan één laadpaal: de gewoontes (vertrektijd, kWh per keer) worden nu per auto geleerd, verdeeld op het laadvermogen. Eerst kregen beide auto's dezelfde.
 

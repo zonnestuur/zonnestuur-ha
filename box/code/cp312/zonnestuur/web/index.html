@@ -1266,7 +1266,7 @@ html, body { overscroll-behavior-y: none; }
   .ah-groot u { text-decoration: none; font-size: .34em; color: var(--zs-ink2); letter-spacing: 0; margin-left: 3px; }
   .ah-sub { color: var(--zs-ink2); margin-top: 8px; font-size: 15px; }
   .ah-chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 8px 13px; border-radius: 99px; background: var(--zs-vlak2); font-size: 13.5px; font-weight: 600; }
-  .ah-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--zs-zon); } .ah-chip i.ok { background: var(--zs-groen); }
+  .ah-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--zs-zon); } .ah-chip i.ok { background: var(--zs-groen); } .ah-chip + .ah-chip { margin-top: 8px; } .ah-tekst .ah-chip { display: flex; width: fit-content; max-width: 100%; }
   .ah-vat { position: relative; width: 112px; height: 236px; border-radius: 56px; background: var(--zs-vlak2); box-shadow: inset 0 0 0 2px var(--zs-lijn); overflow: hidden; }
   .ah-vat .water { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, #ffcb6b, #ff8a3d 60%, #ff6b3d); transition: height 1.2s var(--zs-uit, ease); }
   .ah-vat .water::before { content: ""; position: absolute; left: -50%; top: -9px; width: 200%; height: 18px; border-radius: 45%; background: #ffcb6b; }
@@ -2570,7 +2570,15 @@ function appHeld(wrap, d) {
     lbl = "Nu"; groot = `${nl((d.power_w || 0) / 1000, 2)}<u>kW</u>`; sub = d.reason ? d.reason.charAt(0).toUpperCase() + d.reason.slice(1) : "";
     beeld = `<div class="ah-puls${d.on ? " aan" : ""}" aria-hidden="true"><span></span></div>`;
   }
-  el.innerHTML = `<div class="ah-tekst"><div class="ah-lbl">${esc(lbl)}</div><div class="ah-groot">${groot}</div>${sub ? `<div class="ah-sub">${esc(sub)}</div>` : ""}${chip}</div>${beeld}`;
+  const L = d.legionella;                               // wekelijks heet (legionella), gemeten als dat kan
+  let leg = "";
+  if (L) {
+    const dag = L.laatst ? new Date(L.laatst + "T12:00").toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" }) : "";
+    const t = L.bezig ? `Nu wekelijks heet: naar ${nl(L.doel)} °C` : L.mislukt ? `Wekelijks heet niet gehaald (${nl(L.mislukt_temp)} °C), morgen opnieuw`
+      : L.laatst ? `Wekelijks heet: ${nl(L.temp || L.doel)} °C op ${dag}` : L.uur != null ? `Vandaag om ${String(L.uur).padStart(2, "0")}:00 wekelijks heet` : "Wekelijks heet staat aan";
+    leg = `<span class="ah-chip" title="Tegen legionella: één keer per week naar ${nl(L.doel)} °C"><i class="${L.laatst && !L.mislukt ? "ok" : ""}"></i>${esc(t)}</span>`;
+  }
+  el.innerHTML = `<div class="ah-tekst"><div class="ah-lbl">${esc(lbl)}</div><div class="ah-groot">${groot}</div>${sub ? `<div class="ah-sub">${esc(sub)}</div>` : ""}${chip}${leg}</div>${beeld}`;
 }
 // ---- Bediening van de warmtepomp zelf (zoals in de app van het merk), alleen op de apparaatpagina
 let BED_BEZIG = false, BED_T = 0, BED_LAST = null, BED_ZUINIG_OPEN = false;
@@ -2707,6 +2715,8 @@ function renderDevices(s) {
       <div class="strip" role="img" aria-label="Dagplanning">${strip}</div>
       <div class="strip-axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
       <div class="facts">
+        ${d.reageert === "wacht" ? `<div class="fact"><i class="dot" style="background:var(--sun)"></i><span>Aanzetten gevraagd; het apparaat reageert nog niet.</span></div>`
+          : d.reageert === "weigert" ? `<div class="fact"><i class="dot" style="background:var(--dear, #c2410c)"></i><span><b>Gaat niet aan.</b> Misschien is hij al vol of wacht hij zelf. Zonnestuur probeert het over 15 minuten opnieuw.</span></div>` : ""}
         ${bestTxt ? `<div class="fact"><i class="dot" style="background:var(--glow)"></i><span>${PRICE ? "Goedkoopste uren gepland" : "Gepland vandaag"} <b>${bestTxt}</b></span></div>` : ""}
         ${readyTxt ? `<div class="fact"><i class="dot" style="background:${d.next_ready_ok ? "var(--good)" : "var(--ink)"}"></i><span>${
           d.next_ready_ok ? `${READY_WORD[d.kind] || "Klaar"} voor <b>${readyTxt}</b>: gelukt` : d.ev && d.ev.short ? `Om <b>${readyTxt}</b> ± ${d.ev.short.pct}%: zo veel als er nog in past` : `${READY_WORD[d.kind] || "Klaar"} voor <b>${readyTxt}</b> gegarandeerd`}</span></div>` : ""}
@@ -2724,10 +2734,10 @@ function renderDevices(s) {
       ${d.driver === "ha_start_button" ? progRow(d) : ""}
       ${d.last_event ? `<div class="why"><b>Waarom?</b> ${esc(d.last_event.text)}${d.last_event.outcome ? ` <span class="muted">${d.last_event.running ? "Tot nu: " : ""}${esc(d.last_event.outcome)}</span>` : ""}</div>` : ""}
       <div class="seg" role="group" aria-label="Bediening ${esc(d.name)}">
-        <button data-mode="auto" class="${d.mode === "auto" && !(d.ev && d.ev.mode === "vol") ? "active" : ""}">Automatisch</button>
-        ${d.ev && d.ev.cars.length ? `<button data-evmode="vol" class="${d.ev.mode === "vol" && d.mode === "auto" ? "active" : ""}">Nu vol laden</button>`
-          : `<button data-mode="on" data-hours="2" class="${d.mode === "on" ? "active" : ""}">Nu aan (2 u)</button>`}
-        <button data-mode="off" data-skip="1" class="${d.mode === "off" ? "active" : ""}">Vandaag overslaan</button>
+        <button data-mode="auto" class="${d.mode === "auto" && !(d.ev && d.ev.mode === "vol") ? "active" : ""}" title="Zonnestuur kiest de zonnigste of goedkoopste tijd">Slim</button>
+        ${d.ev && d.ev.cars.length ? `<button data-evmode="vol" class="${d.ev.mode === "vol" && d.mode === "auto" ? "active" : ""}" title="Meteen laden tot vol">Direct</button>`
+          : `<button data-mode="on" data-hours="2" class="${d.mode === "on" ? "active" : ""}" title="Meteen aan, 2 uur lang; daarna weer slim">Direct</button>`}
+        <button data-mode="off" data-skip="1" class="${d.mode === "off" ? "active" : ""}" title="Tot morgen uit">Vandaag niet</button>
       </div>
       ${d.mode !== "auto" && d.override_until ? `<div class="small muted" style="margin-top:6px">Door jou ${d.mode === "on" ? "aangezet" : "uitgezet"} tot ${esc(d.override_until.slice(11, 16))}${d.override_until.slice(0, 10) !== s.now.slice(0, 10) ? " (morgen)" : ""}. Daarna weer automatisch.</div>` : ""}`;
     el.querySelectorAll("[data-check]").forEach((b) => b.addEventListener("click", async () => {
@@ -3082,9 +3092,9 @@ function evCard(s, d) {
       <p class="small muted" style="margin:6px 0 0">Zonnestuur laadt dan alleen in de goedkoopste of zonnigste uren tot dat moment, ook over meerdere dagen. Voor de dagen waarvan de prijs nog niet bekend is, gebruikt hij de verwachting uit het weer.</p></details>`;
   // knop: één duidelijke actie
   const vol = E.mode === "vol" && d.mode === "auto";
-  const go = reached ? "" : vol ? `<button class="evc-go uit" data-evmode="slim">Toch slim laden</button>`
-    : `<button class="evc-go" data-evmode="vol">${charging ? "Doorladen tot vol" : "Nu laden"}</button>`;
-  const skip = d.mode === "off" ? `<button class="evc-lnk" data-mode="auto">Weer automatisch</button>` : `<button class="evc-lnk" data-mode="off" data-skip="1">Vandaag niet laden</button>`;
+  const go = reached ? "" : vol ? `<button class="evc-go uit" data-evmode="slim">Terug naar slim laden</button>`
+    : `<button class="evc-go" data-evmode="vol">${charging ? "Direct vol laden" : "Direct laden"}</button>`;
+  const skip = d.mode === "off" ? `<button class="evc-lnk" data-mode="auto">Terug naar slim laden</button>` : `<button class="evc-lnk" data-mode="off" data-skip="1">Vandaag niet laden</button>`;
   const warn = [];
   if (!car.handmatig && car.stale_days != null && car.stale_days >= 2) warn.push(`Het percentage van de ${esc(car.name)} is ${Math.round(car.stale_days)} dagen oud.`);
   if (car.conn === false) warn.push(`Geen verbinding met de ${esc(car.name)}. Zonnestuur rekent met het laatst bekende percentage.`);

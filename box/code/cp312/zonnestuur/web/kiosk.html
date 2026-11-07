@@ -340,7 +340,7 @@ function stateText(d) {
   if (m) return `Wacht op goedkoper uur, ${m[1]}`;
   if ((d.best_hours || []).length) return `Gepland om ${d.best_hours[0]}`;
   if (/vandaag klaar|niets gepland/.test(r)) return "Klaar voor vandaag";
-  return r ? r.charAt(0).toUpperCase() + r.slice(1) : "Automatisch";
+  return r ? r.charAt(0).toUpperCase() + r.slice(1) : "Slim";
 }
 function drawDevices() {
   const box = $("devices"), devs = ((S && S.devices) || []).filter((d) => !PREF.hide.includes(d.id));
@@ -367,10 +367,10 @@ function drawDevices() {
       ${evBlock(d)}
       <div class="controls">
         <div class="seg" role="group" aria-label="${esc(d.name)} bedienen">
-          <button data-id="${esc(d.id)}" data-mode="auto" class="${d.mode === "auto" && !(d.ev && d.ev.mode === "vol") ? "on" : ""}">Automatisch</button>
-          ${d.ev && d.ev.cars.length ? `<button data-id="${esc(d.id)}" data-evmode="vol" class="${d.ev.mode === "vol" && d.mode === "auto" ? "on" : ""}">Nu vol</button>`
-            : `<button data-id="${esc(d.id)}" data-mode="on" data-hours="2" class="${d.mode === "on" ? "on" : ""}">Nu aan</button>`}
-          <button data-id="${esc(d.id)}" data-mode="off" data-hours="${midnight}" class="${d.mode === "off" ? "on" : ""}">Overslaan</button>
+          <button data-id="${esc(d.id)}" data-mode="auto" class="${d.mode === "auto" && !(d.ev && d.ev.mode === "vol") ? "on" : ""}">Slim</button>
+          ${d.ev && d.ev.cars.length ? `<button data-id="${esc(d.id)}" data-evmode="vol" class="${d.ev.mode === "vol" && d.mode === "auto" ? "on" : ""}">Direct</button>`
+            : `<button data-id="${esc(d.id)}" data-mode="on" data-hours="2" class="${d.mode === "on" ? "on" : ""}">Direct</button>`}
+          <button data-id="${esc(d.id)}" data-mode="off" data-hours="${midnight}" class="${d.mode === "off" ? "on" : ""}">Vandaag niet</button>
         </div>
         ${d.kind === "ev" || ready ? `<div class="stepper"><span>${d.kind === "ev" ? "Vol om" : "Klaar om"}</span><button data-id="${esc(d.id)}" data-step="-30" aria-label="Eerder">−</button><b class="num">${esc(ready || "–")}</b><button data-id="${esc(d.id)}" data-step="30" aria-label="Later">+</button></div>` : ""}
         ${evCar(d) ? `<div class="stepper"><span>Tot</span><button data-id="${esc(d.id)}" data-evt="-10" aria-label="Minder">−</button><b class="num">${evCar(d).target_pct}%</b><button data-id="${esc(d.id)}" data-evt="10" aria-label="Meer">+</button></div>` : ""}
