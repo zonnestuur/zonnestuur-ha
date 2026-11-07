@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.100.1
+- Twee auto's aan één laadpaal: de gewoontes (vertrektijd, kWh per keer) worden nu per auto geleerd, verdeeld op het laadvermogen. Eerst kregen beide auto's dezelfde.
+
 ## 0.100.0
 - Sneller klaar met instellen: heb je in het Energie-dashboard van de koppelmotor al je meter en zonnepanelen aangewezen, dan neemt Zonnestuur die vanzelf over.
 - De auto: Zonnestuur leert uit de stekker wanneer je meestal wegrijdt (per weekdag) en hoeveel je per keer laadt. Met één tik op 'Gebruik deze tijden' worden dat je vertrektijden. Wat je zelf instelt, gaat altijd voor.
