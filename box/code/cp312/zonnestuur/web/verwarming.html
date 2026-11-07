@@ -186,7 +186,7 @@ function velden(r) {
     <p class="hint breed" style="margin:6px 0 0"><b>Pomp of klep</b>: zo gaat Zonnestuur er veilig mee om.</p>
     ${f("f_minaan", "Minstens zo lang aan (min)", r.min_aan ?? 10, 'type="number" step="1" min="0" max="120" inputmode="numeric"')}
     ${f("f_minuit", "Minstens zo lang uit (min)", r.min_uit ?? 10, 'type="number" step="1" min="0" max="120" inputmode="numeric"')}
-    ${f("f_vorst", "Altijd aan als het buiten zo koud is (°C)", r.vorst_buiten ?? 2, 'type="number" step="0.5" min="-10" max="8" inputmode="decimal"')}
+    ${f("f_vorst", "Altijd aan als het buiten zo koud is (°C)", r.vorst_buiten ?? -5, 'type="number" step="0.5" min="-10" max="8" inputmode="decimal"')}
     <label class="v">Pomp af en toe even laten draaien<select id="f_kick"><option value="1" ${r.pompkick !== false ? "selected" : ""}>Ja, na een dag stilstand 3 minuten</option><option value="0" ${r.pompkick === false ? "selected" : ""}>Nee</option></select></label>
     ${(DATA.warmtepompen || []).length ? `<label class="v breed">Heeft de warmtepomp deze pomp nodig voor zijn waterstroom?<select id="f_wpflow"><option value="">Nee</option>${DATA.warmtepompen.map((x) => `<option value="${esc(x.id)}" ${x.id === r.wp_flow ? "selected" : ""}>Ja: ${esc(x.naam)} (pomp blijft aan zolang die draait)</option>`).join("")}</select></label>` : ""}
     <label class="v breed">Stroommeting van de pomp (niet verplicht)<select id="f_pompw"><option value="">Geen</option>${((KAND || {}).vermogens || []).map((x) => `<option value="${esc(x.entity)}" ${x.entity === r.pomp_vermogen ? "selected" : ""}>${esc(x.naam)}${x.w != null ? " · " + Math.round(x.w) + " W" : ""}</option>`).join("")}</select></label>
@@ -285,7 +285,7 @@ function waarden(box, r) {
     minimaal: num("f_min"), slim: g("f_slim").value === "1", omhoog: num("f_omhoog"), omlaag: num("f_omlaag"),
     bron: g("f_bron") ? g("f_bron").value : (r.bron || ""), koel: g("f_koel") ? num("f_koel") : (r.koel ?? 24),
     min_aan: g("f_minaan") ? num("f_minaan") : (r.min_aan ?? 10), min_uit: g("f_minuit") ? num("f_minuit") : (r.min_uit ?? 10),
-    vorst_buiten: g("f_vorst") ? num("f_vorst") : (r.vorst_buiten ?? 2), pompkick: g("f_kick") ? g("f_kick").value === "1" : r.pompkick !== false,
+    vorst_buiten: g("f_vorst") ? num("f_vorst") : (r.vorst_buiten ?? -5), vorst_v2: true, pompkick: g("f_kick") ? g("f_kick").value === "1" : r.pompkick !== false,
     pomp_vermogen: g("f_pompw") ? g("f_pompw").value : (r.pomp_vermogen || ""),
     wp_flow: g("f_wpflow") ? g("f_wpflow").value : (r.wp_flow || "") });
   if (g("f_naam")) uit.naam = g("f_naam").value.trim();

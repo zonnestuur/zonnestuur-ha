@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.99.7
+- Vloerverwarming: de vorstbeveiliging houdt de pompen nu pas aan als het buiten −5 °C of kouder is (was 2 °C). Bij 2 °C draaiden de pompen elke koude nacht door: het warmwatervat liep leeg en de warmtepomp moest juist op het koudste (duurste) moment draaien. Leidingen in huis bevriezen niet, en de ondergrens per kamer blijft altijd gelden. Had je de oude standaard, dan wordt die eenmalig omgezet; een eigen keuze blijft staan.
+
 ## 0.99.6
 - Warmtepomp en boiler met een vat: Zonnestuur leert hoe snel het water opwarmt (per temperatuur en bij welk buitenweer) en plant het opwarmen op de echte watertemperatuur. Is het vat al warm, dan draait hij niet onnodig ("het water is al warm genoeg"); koelt het tussendoor af, dan plant hij het bij. De apparaatpagina zegt hoe lang opwarmen nog duurt.
 - Met genoeg eigen COP-metingen rekent de planner met de gemeten COP van jouw warmtepomp in plaats van een vaste formule. Zo kiest hij vaker het warmere (zuinigere) deel van de dag.
