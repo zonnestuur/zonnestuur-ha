@@ -1076,6 +1076,14 @@ function contractHtml(c) {
       <div class="field"><label for="cp_tou">Eigen tijdvakken (€ per kWh)</label><input id="cp_tou" value="${esc((c.grid_tou || []).map((b) => `${b.from}-${b.to} ${String(b.eur_kwh).replace(".", ",")}`).join("; "))}" placeholder="07:00-11:00 0,03; 17:00-21:00 0,05"><span class="hint">Alleen als je netbeheerder andere tijdvakken heeft. De planning ontwijkt dure tijdvakken.</span></div>
       <div class="field" style="flex:0 1 200px"><label for="cp_tf">Geldt vanaf</label><input id="cp_tf" type="date" value="${esc(c.grid_tou_from || "2028-01-01")}"></div>
     </div></details>
+    <details style="margin-top:10px" ${c.deel_prijs != null ? "open" : ""}><summary>Stroom delen met de buren</summary>
+      <p class="small muted" style="margin-top:8px">Sinds 2026 mag je zonnestroom delen met buren, via je leverancier. Biedt jouw leverancier dat aan? Vul dan in wat je per gedeelde kWh krijgt. Zonnestuur rekent en plant daar dan mee. Zonnestuur regelt het delen zelf niet.</p>
+      <div class="row" style="margin-top:8px">
+      <div class="field"><label for="cp_dl">Deelprijs per kWh</label><input id="cp_dl" type="number" step="0.001" min="0" max="1" value="${c.deel_prijs ?? ""}" placeholder="leeg = ik deel niet"><span class="hint">Wat jij netto krijgt, na belasting.</span></div>
+      <div class="field"><label for="cp_da">Hoeveel gebruiken je buren?</label><select id="cp_da">
+        ${[[0.25, "Ongeveer een kwart"], [0.5, "Ongeveer de helft"], [0.75, "Ongeveer driekwart"], [1, "Alles"]].map(([v, n]) => `<option value="${v}" ${Math.abs((c.deel_aandeel ?? 0.5) - v) < 0.01 ? "selected" : ""}>${n}</option>`).join("")}</select>
+        <span class="hint">Van wat jij teruglevert. Je buren moeten de stroom op hetzelfde moment gebruiken.</span></div>
+    </div></details>
     ${ps.length ? `<div class="field" style="margin-top:12px"><label for="cp_pe">Actuele prijs uit de koppelmotor (optioneel)</label><select id="cp_pe">
       <option value="">Niet gebruiken</option>${ps.map((x) => `<option value="${esc(x.entity)}" ${x.entity === c.price_entity ? "selected" : ""}>${esc(x.name)} (nu ${esc(x.state)} ${esc(x.unit)})</option>`).join("")}</select>
       <span class="hint">De prijs die je leverancier zelf doorgeeft, bijvoorbeeld via de Tibber-koppeling. Dan klopt de besparing precies.</span></div>` : ""}`;
@@ -1088,6 +1096,11 @@ function readContract(c) {
     c.dal_van = $("cp_dv").value || "23:00"; c.dal_tot = "07:00";
   }
   if ($("cp_sm")) { c.supplier_markup = Number($("cp_sm").value) || 0; c.feed_in_adjust = Number($("cp_fa").value); c.energy_tax = $("cp_et").value === "" ? null : Number($("cp_et").value); }
+  if ($("cp_dl")) {
+    const dl = Number(String($("cp_dl").value).replace(",", "."));
+    c.deel_prijs = $("cp_dl").value !== "" && !isNaN(dl) ? dl : null;
+    c.deel_aandeel = Number($("cp_da").value) || 0.5;
+  }
   if ($("cp_pe")) c.price_entity = $("cp_pe").value;
   if ($("cp_rm")) {
     const n = (x) => Number(String(x).trim().replace(",", "."));

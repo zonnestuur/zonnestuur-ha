@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.106.0
+- Nieuw bij Inzichten: "Zou delen met de buren iets opleveren?" Zonnestuur rekent uit wat je overschot het afgelopen jaar had opgeleverd als je het met je buren had gedeeld in plaats van teruggeleverd.
+- Biedt je leverancier stroom delen aan? Vul dan je deelprijs in bij je contract (onder "Stroom delen met de buren"). Zonnestuur rekent en plant daar dan mee. Het delen zelf regelt je leverancier.
+
 ## 0.105.0
 - Pas reageren als het echt zo blijft: een warme kraan of een open raam laat een meting even diep zakken. Het vat van de warmtepomp telt pas als te koel na 5 minuten, een kamer pas als te koud na een kwartier.
 - De omvormer wordt gespaard: een nieuwe teruglevergrens wordt in zijn geheugen geschreven, en dat kan maar een beperkt aantal keren. Beginnen, stoppen en helemaal dicht gaan nog steeds meteen; kleine bijstellingen hoogstens eens per 5 minuten.

@@ -981,7 +981,8 @@ html, body { overscroll-behavior-y: none; }
   .inzicht-links b { font-weight: 650; } .inzicht-links span { font-size: 13px; color: var(--zs-ink2); }
   .inzicht-links a:hover b { text-decoration: underline; }
   @media (max-width: 700px) { .inzicht-links { grid-template-columns: 1fr 1fr; } .inzicht-links a:nth-child(3) { border-left: 0; } .inzicht-links a:nth-child(n+3) { border-top: 1px solid var(--zs-lijn); } }
-  .c-bespaard { grid-column: 1 / -1; }
+  .c-bespaard, .delen-buren { grid-column: 1 / -1; }
+  .delen-buren p { max-width: 68ch; } .delen-buren details { margin-top: 10px; } .delen-buren .btn { margin-top: 10px; }
   .c-bespaard .hsave { margin: 0; padding: 0; background: none; box-shadow: none; }
   body.v-inzicht .c-geleerd { grid-column: 1 / -1; }
   body.v-inzicht #hTips { display: none; }
@@ -1330,6 +1331,7 @@ html, body { overscroll-behavior-y: none; }
       <a href="opbrengst"><b>Jaaroverzicht</b><span>per maand</span></a><a href="rapport"><b>Weekrapport</b><span>laatste 7 dagen</span></a>
       <a href="vergelijk"><b>Vergelijken</b><span>met je leverancier</span></a><a href="laadtijdlijn"><b>Laadbeurten</b><span>wanneer en voor welke prijs</span></a>
     </nav>
+    <section class="card adv delen-buren" id="delenBuren" hidden aria-labelledby="delenKop"></section>
     <section class="card c-bespaard adv" aria-label="Bespaard"><div class="hsave" id="hSave" hidden></div><div class="htips" id="hTips"></div></section>
 
     <!-- Vandaag: nu -->
@@ -4045,7 +4047,32 @@ function renderInzicht() {
   // nog geen zon vandaag (ochtend, of een grijze dag): begin bij deze week
   if (!INZ_GEKOZEN) INZ_P = sc && sc.today && sc.today.pv_kwh > 0.2 ? "today" : "week";
   const P = INZ_P;
-  document.querySelectorAll("#inzSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === P)));
+  // ---------- Inzichten: zou stroom delen met de buren iets opleveren? ----------
+async function delenKaart() {
+  const k = $("delenBuren");
+  if (!k || VIEW !== "inzicht") return;
+  let d; try { d = await api("api/delen"); } catch (e) { return; }
+  const r = d && d.uitkomst;
+  if (!d.panelen || !r || r.geen_overschot) return;
+  const ct = (v) => nl(v * 100, 0) + " cent";
+  const meer = r.meer_eur_jaar || 0;
+  const kop = d.ingevuld ? "Delen met de buren" : "Zou delen met de buren iets opleveren?";
+  const uitkomst = meer >= 5
+    ? `Met delen had je ongeveer <b>${eur(meer)} per jaar meer</b> gekregen: ${eur(r.delen_eur_jaar)} in plaats van ${eur(r.nu_eur_jaar)}.`
+    : `Delen levert je weinig op: hooguit ${eur(Math.max(0, meer))} per jaar meer. Je levert ${nl(r.export_kwh_jaar, 0)} kWh per jaar terug.`;
+  k.innerHTML = `<h2 class="sec" id="delenKop">${kop}</h2>
+    <p>Je levert ongeveer <b>${nl(r.export_kwh_jaar, 0)} kWh per jaar</b> terug. Nu krijg je daar ${eur(r.nu_eur_jaar)} voor.</p>
+    <p>${uitkomst}</p>
+    <p class="small muted">${r.voorbeeld
+      ? `Gerekend met een voorbeeldprijs van ${ct(r.deel_prijs)} per kWh: midden tussen wat jij gemiddeld betaalt (${ct(r.gem_inkoop)}) en wat je voor terugleveren krijgt (${ct(Math.max(0, r.gem_terug))}). Dan hebben jij en je buur er allebei voordeel van.`
+      : `Gerekend met jouw deelprijs van ${ct(r.deel_prijs)} per kWh.`}
+      En met de aanname dat je buren ${nl(r.aandeel * 100, 0)}% van je overschot op hetzelfde moment gebruiken. Gebaseerd op ${r.dagen} dagen meten.</p>
+    <details><summary>Hoe werkt delen?</summary><p class="small" style="margin-top:8px">Sinds 2026 mag je zonnestroom delen met buren, maar alleen via je energieleverancier: jullie zitten dan bij dezelfde leverancier, die de stroom verdeelt. Er gaat gewoon belasting over. Nog weinig leveranciers bieden het aan. Zonnestuur regelt het delen zelf niet. Doe je mee, vul dan je deelprijs in bij Instellingen, onder je contract: Zonnestuur plant je apparaten daar dan op.</p>
+      <a class="btn ghost" href="instellingen?onderdeel=inst_contract">Deelprijs invullen</a></details>`;
+  k.hidden = false;
+}
+if (VIEW === "inzicht") delenKaart();
+document.querySelectorAll("#inzSeg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.p === P)));
   const t = sc && sc[P];
   const bat = (s.batteries || [])[0];
   const bp = bat && (P === "today" ? bat.today : P === "month" ? bat.month : null);
