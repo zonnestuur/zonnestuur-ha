@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.104.1
+- SPRSUN-warmtepomp: alleen Zonnestuur bepaalt nog wanneer hij aangaat. Zet Zonnestuur hem uit, dan staat in de warmtepomp alleen een veilige ondergrens (normaal doel − 7 °C), zodat hij niet meer zelf korte beurtjes maakt. Zakt het vat onder het normale doel, dan warmt Zonnestuur zelf bij tot 2 °C erboven; komt er binnen een uur een goedkoop uur, dan wacht hij daarop. Valt Zonnestuur weg, dan houdt de warmtepomp het vat nog steeds op de ondergrens. Wie de oude manier wil: `zelf_starten: true`.
+
 ## 0.104.0
 - Nieuwe tekeningen in de app, in een eigen zachte stijl: een huis waar overdag de zon naar het warmwatervat stroomt en 's nachts een groen lampje laat zien dat stroom goedkoop is, en een klusjesman die meet, helpt en zwaait.
 - Eerste keer openen: eerst een kort welkom van drie schermen (overdag, 's nachts, beginnen), daarna zoekt Zonnestuur je apparaten.
