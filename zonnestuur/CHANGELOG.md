@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.103.0
+- Nest-scherm: bovenin een getekend Hollands landschap met het huis, dat meegaat met de dag (overdag, zonsondergang, nacht). De tegels, prijzen en het nieuws staan eronder op een rustige ondergrond, zodat alles goed leesbaar blijft. Uitzetten kan met `sfeer: false` in de kaart.
+
 ## 0.102.1
 - Nest-scherm: de melding welke browser het scherm heeft komt nu echt in het logboek (één keer per nieuwe versie).
 

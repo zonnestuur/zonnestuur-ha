@@ -12,7 +12,9 @@
  *
  * Optioneel bij elke kaart: entity: sensor.zonnestuur
  */
-const ZS_VERSION = "1.11.1";
+const ZS_VERSION = "1.12.0";
+// Waar dit bestand vandaan kwam (bij het laden uit de foutmelding-stapel gelezen: werkt ook als script-module)
+const ZS_SRC = (() => { try { throw new Error("zs"); } catch (e) { const m = String(e.stack || "").match(/(https?:\/\/[^\s)"']*?zonnestuur-cards\.js)/); return m ? m[1] : ""; } })();
 
 const ZS_CSS = `
   :host { --zs-sun: #ffb000; --zs-save: #08654a; --zs-cheap: #16733e; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
@@ -418,6 +420,22 @@ const ZS_HUB_CSS = `
   .lite .news .np { display: none; }
   @media (prefers-reduced-motion: reduce) { .hub *, .hub { animation: none !important; transition: none !important; } }
   @supports (text-wrap: balance) { .news .kop { text-wrap: balance; } }
+
+  /* Sfeerbeeld (1.12): een getekend landschap met het huis bovenin, dat met de zon meegaat (dag, zonsondergang, nacht).
+     Het loopt naar links en naar onderen weg in de achtergrond; de tegels, prijzen en het nieuws staan op een rustige band. */
+  .sfeerbeeld { position: absolute; z-index: 0; top: 0; right: 0; width: 82%; height: 72%; background-size: cover; background-position: right center;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 38%), linear-gradient(0deg, transparent 0, #000 22%);
+    -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 0, #000 38%), linear-gradient(0deg, transparent 0, #000 22%);
+    mask-composite: intersect; pointer-events: none; }
+  .hub.sfeer > *:not(.sfeerbeeld) { z-index: 1; }
+  .hub.sfeer .hubhuis::before { display: none; }
+  .hub.sfeer .hubhuis .hz { visibility: hidden; }
+  .hub.sfeer .onder { background: var(--bg); margin: 0 -4.6vw -3.8vh; padding: 2vh 4.6vw 3.8vh; border-radius: 28px 28px 0 0;
+    box-shadow: 0 -18px 40px -26px rgba(40,30,10,.45); }
+  .hub.sfeer.donker .onder { box-shadow: 0 -18px 40px -22px rgba(0,0,0,.9); }
+  .hub.sfeer .regelt { text-shadow: 0 0 12px var(--bg), 0 0 4px var(--bg); }
+  .hub.sfeer .brand, .hub.sfeer .clock { text-shadow: 0 0 14px var(--bg), 0 0 4px var(--bg); }
+  .hub.sfeer.dicht .sfeerbeeld { height: 62%; }
 `;
 const ZS_HUB_ICON = {
   bolt: '<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6l1-8z"/>',
@@ -816,8 +834,12 @@ class ZonnestuurHubCard extends HTMLElement {
     const donker = cf.thema === "donker" || (cf.thema !== "licht" && fase !== "dag");
     const acc = ZS_ACCENT[cf.accent] && on ? ZS_ACCENT[cf.accent] : null;
     const stijl = [acc ? `--held-acc:${acc[0]}` : "", `--zs-zoom:${({ groot: 1.15, extra: 1.3 })[cf.tekst] || 1}`].filter(Boolean).join(";");
+    const sfeerLaag = (k) => k ? `<div class="sfeerbeeld" style="background-image:url('${zsBase()}img/hub/${beeld}.webp')" aria-hidden="true"></div>` : "";
+    // Sfeerbeeld bovenin (dag, zonsondergang, nacht), met de prijzen op een rustige band eronder; uit met sfeer: false
+    const sfeer = cf.sfeer !== false && cf.huis !== false && (cf.thema !== "licht" || fase === "dag") && (cf.thema !== "donker" || fase !== "dag");
+    const beeld = fase === "dag" ? "dag" : fase === "schemer" ? "schemer" : "nacht";
     const klas = ["hub", donker ? "donker" : "licht", on ? "goed" : piek ? "piek" : "wacht", "f-" + (fase === "dag" && wolken >= 75 ? "bewolkt" : fase),
-      lite ? "lite" : "", dicht ? "dicht" : ""].filter(Boolean).join(" ");
+      sfeer ? "sfeer" : "", lite ? "lite" : "", dicht ? "dicht" : ""].filter(Boolean).join(" ");
     const uur = new Date().getHours();
     const groet = cf.begroeting ? `<span class="groet">${uur < 6 ? "Goedenacht" : uur < 12 ? "Goedemorgen" : uur < 18 ? "Goedemiddag" : "Goedenavond"}${cf.wie ? ", " + zsEsc(cf.wie) : ""}</span>` : "";
     const logo = `<svg class="logo" viewBox="0 0 48 48" fill="none" stroke="#f2a024" stroke-width="3.4" stroke-linecap="round" aria-hidden="true"><path d="M11 33a13 13 0 0 1 26 0"/><path d="M24 7v5M8.5 13.5l3.5 3.5M39.5 13.5 36 17M3 33h5M40 33h5"/><path d="M7 39h34" stroke-opacity=".55"/></svg>`;
@@ -844,7 +866,7 @@ class ZonnestuurHubCard extends HTMLElement {
     }
     // Het huis van nu (dezelfde tekening als op Vandaag), vrij in de lucht van het moment
     const huis = cf.huis !== false && a.huis && a.huis.z && window.zsHuis;
-    return `<div class="${klas}" style="${stijl}">${top}
+    return `<div class="${klas}" style="${stijl}">${sfeerLaag(sfeer && huis)}${top}
       <div class="mid${huis ? "" : " zonder-huis"}"><div class="links">${held}${doTip}${regelt}</div>
         ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" data-pop="2.3" viewBox="4 66 436 204" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div></div>` : ""}</div>
       <div class="onder">${onder}</div>
@@ -913,12 +935,17 @@ function zsNacht(van, tot) {
   return a <= b ? m >= a && m < b : m >= a || m < b;
 }
 // Inter en Inter Tight (zoals de app) vanaf dezelfde plek als dit bestand: /local/zonnestuur/fonts of de Box /cards/fonts
+// De map waar dit bestand vandaan kwam (/local/zonnestuur/ of de Box /cards/): lettertypen en sfeerbeelden staan ernaast
+function zsBase() {
+  if (window.__zsBase) return window.__zsBase;
+  let src = ZS_SRC;
+  try { src = src || (performance.getEntriesByType("resource").map((x) => x.name).find((n) => /zonnestuur-cards\.js/.test(n))) || ""; } catch (e) {}
+  return (window.__zsBase = src ? src.replace(/zonnestuur-cards\.js.*$/, "") : "/local/zonnestuur/");
+}
 function zsLettertypen() {
   if (window.__zsFont || !window.FontFace || !document.fonts) return;
   window.__zsFont = 1;
-  let src = "";
-  try { src = (performance.getEntriesByType("resource").map((x) => x.name).find((n) => /zonnestuur-cards\.js/.test(n))) || ""; } catch (e) {}
-  const base = src ? src.replace(/zonnestuur-cards\.js.*$/, "") : "/local/zonnestuur/";
+  const base = zsBase();
   for (const [fam, f] of [["Inter", "inter.woff2"], ["Inter Tight", "inter-tight.woff2"]]) {
     try { new FontFace(fam, `url(${base}fonts/${f})`, { weight: "100 900", display: "swap" }).load().then((x) => document.fonts.add(x)).catch(() => {}); } catch (e) {}
   }
