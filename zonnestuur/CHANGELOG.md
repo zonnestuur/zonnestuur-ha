@@ -1,5 +1,15 @@
 # Wijzigingen
 
+## 0.105.0
+- Pas reageren als het echt zo blijft: een warme kraan of een open raam laat een meting even diep zakken. Het vat van de warmtepomp telt pas als te koel na 5 minuten, een kamer pas als te koud na een kwartier.
+- De omvormer wordt gespaard: een nieuwe teruglevergrens wordt in zijn geheugen geschreven, en dat kan maar een beperkt aantal keren. Beginnen, stoppen en helemaal dicht gaan nog steeds meteen; kleine bijstellingen hoogstens eens per 5 minuten.
+- Hoofdzekering: een korte piek (waterkoker, oven) mag, net als bij een echte zekering. Pas als het een tijd te veel is, of bij een heel hoge piek, gaat er iets uit of laadt de auto langzamer.
+- Verwarming leert ook wat de zon door de ramen en harde wind met je huis doen. Je ziet het op de pagina Verwarming.
+- Laadpaal: Zonnestuur ziet of de auto echt laadt wat er gevraagd wordt, en zegt anders waarom niet (bijvoorbeeld: laadt op 1 fase, accu bijna vol, of de auto begrenst zelf).
+- Laden voor een gastauto: kies hoeveel kWh en eventueel hoe laat, dan laadt Zonnestuur dat in de goedkoopste uren.
+- Meer dan één omvormer: zet de opwek-sensoren achter elkaar met een komma; Zonnestuur telt ze op.
+- Klaar-tijd uit de koppelmotor: koppel een datum/tijd-helper aan een apparaat, dan plant Zonnestuur meteen opnieuw als je die verzet (ook met een automatisering).
+
 ## 0.104.1
 - SPRSUN-warmtepomp: alleen Zonnestuur bepaalt nog wanneer hij aangaat. Zet Zonnestuur hem uit, dan staat in de warmtepomp alleen een veilige ondergrens (normaal doel − 7 °C), zodat hij niet meer zelf korte beurtjes maakt. Zakt het vat onder het normale doel, dan warmt Zonnestuur zelf bij tot 2 °C erboven; komt er binnen een uur een goedkoop uur, dan wacht hij daarop. Valt Zonnestuur weg, dan houdt de warmtepomp het vat nog steeds op de ondergrens. Wie de oude manier wil: `zelf_starten: true`.
 

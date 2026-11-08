@@ -1914,7 +1914,7 @@ async function settings() {
         <div class="field"><label for="s_rg">Provincie</label><select id="s_rg">${Object.keys(REGIONS).map((r) => `<option ${r === nearestRegion(s.latitude, s.longitude) ? "selected" : ""}>${r}</option>`).join("")}</select></div>
       </div></div>
       <div class="row"><div class="field"><label for="s_base">Sluipverbruik huis (W)</label><input id="s_base" type="number" step="10" value="${s.base_load_w}"><span class="hint">Alleen voor de eerste dagen: daarna leert Zonnestuur je verbruik per uur zelf.</span></div>
-        ${CFG.has_ha ? `<div class="field"><label for="s_pv">Opwek-sensor (optioneel)</label><input id="s_pv" list="s_pvl" placeholder="sensor.…" value="${esc(s.pv_entity || "")}"><datalist id="s_pvl"></datalist><span class="hint">Met je echte opwek stelt Zonnestuur de zonvoorspelling bij voor jouw dak.</span></div>` : ""}</div>
+        ${CFG.has_ha ? `<div class="field"><label for="s_pv">Opwek-sensor (optioneel)</label><input id="s_pv" list="s_pvl" placeholder="sensor.…" value="${esc(s.pv_entity || "")}"><datalist id="s_pvl"></datalist><span class="hint">Met je echte opwek stelt Zonnestuur de zonvoorspelling bij voor jouw dak. Meer dan één omvormer? Zet de sensoren achter elkaar met een komma ertussen; Zonnestuur telt ze op.</span></div>` : ""}</div>
     </section>
     <section class="card" id="batCard"><h2 class="t">Thuisbatterij</h2>
       ${batteryHtml(B)}
@@ -2514,6 +2514,9 @@ async function editDevice(i) {
       <div class="field"><label for="e_prio">Prioriteit</label><input id="e_prio" type="number" min="1" max="20" value="${d.priority}"><span class="hint">1 krijgt als eerste de zon.</span></div>
       <div class="field" style="flex:0 1 200px"><label for="e_nb">Nooit vóór</label><input id="e_nb" type="time" value="${esc(P.not_before || "")}"><span class="hint">Bijv. niet vóór 08:00 (geluid). Leeg = altijd.</span></div>
     </div>
+    ${CFG.has_ha && ["ev", "boiler", "heatpump"].includes(d.kind) ? `<div class="row">
+      <div class="field"><label for="e_klaarent">Klaar-tijd uit de koppelmotor (optioneel)</label><input id="e_klaarent" value="${esc(P.klaar_entity || "")}" placeholder="bijv. input_datetime.auto_klaar"><span class="hint">Een datum/tijd-helper. Zet je die (ook met een automatisering), dan moet ${esc(d.name)} op dat moment klaar zijn en plant Zonnestuur meteen opnieuw.</span></div>
+      ${d.kind === "ev" ? `<div class="field"><label for="e_klaarpct">Hoe vol, uit de koppelmotor (optioneel)</label><input id="e_klaarpct" value="${esc(P.klaar_pct_entity || "")}" placeholder="bijv. input_number.auto_procent"></div>` : ""}</div>` : ""}
     ${d.driver === "ha_setpoint" ? `<div class="row">
       <div class="field"><label for="e_tn">Normale temperatuur (°C)</label><input id="e_tn" type="number" step="0.5" value="${P.normal_temp}"></div>
       <div class="field"><label for="e_tb">Temperatuur bij zon of goedkope stroom (°C)</label><input id="e_tb" type="number" step="0.5" value="${P.boost_temp}"></div></div>
@@ -2621,6 +2624,8 @@ async function editDevice(i) {
     n.min_on_s = Math.max(0, num("e_minon", 10)) * 60; n.min_off_s = Math.max(0, num("e_minoff", 5)) * 60; n.detect_full = $("e_full").checked;
     n.params = n.params || {};
     if ($("e_nb").value) n.params.not_before = $("e_nb").value; else delete n.params.not_before;
+    if ($("e_klaarent")) { const ke = $("e_klaarent").value.trim(); if (ke) n.params.klaar_entity = ke; else delete n.params.klaar_entity;
+      const kp = $("e_klaarpct") ? $("e_klaarpct").value.trim() : ""; if (kp) n.params.klaar_pct_entity = kp; else delete n.params.klaar_pct_entity; }
     if ($("e_fs")) { n.params = n.params || {}; n.params.failsafe = $("e_fs").checked; n.params.failsafe_window = $("e_fsw").value; }
     if ($("e_tn")) { n.params.normal_temp = num("e_tn", n.params.normal_temp); n.params.boost_temp = num("e_tb", n.params.boost_temp); }
     if ($("e_blk")) { const b = $("e_blk").value.split(",").map((x) => x.trim()).filter(Boolean); if (b.length) n.params.block_entities = b; else delete n.params.block_entities;

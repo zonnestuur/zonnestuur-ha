@@ -2717,6 +2717,7 @@ function renderDevices(s) {
       <div class="strip" role="img" aria-label="Dagplanning">${strip}</div>
       <div class="strip-axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
       <div class="facts">
+        ${d.volgt && d.volgt.pct < 90 && d.volgt.tekst ? `<div class="fact"><i class="dot" style="background:var(--sun)"></i><span><b>Deed ${d.volgt.pct}% van de tijd wat Zonnestuur vroeg.</b> ${esc(d.volgt.tekst)}</span></div>` : ""}
         ${d.reageert === "wacht" ? `<div class="fact"><i class="dot" style="background:var(--sun)"></i><span>Aanzetten gevraagd; het apparaat reageert nog niet.</span></div>`
           : d.reageert === "weigert" ? `<div class="fact"><i class="dot" style="background:var(--dear, #c2410c)"></i><span><b>Gaat niet aan.</b> Misschien is hij al vol of wacht hij zelf. Zonnestuur probeert het over 15 minuten opnieuw.</span></div>` : ""}
         ${bestTxt ? `<div class="fact"><i class="dot" style="background:var(--glow)"></i><span>${PRICE ? "Goedkoopste uren gepland" : "Gepland vandaag"} <b>${bestTxt}</b></span></div>` : ""}
@@ -3092,6 +3093,14 @@ function evCard(s, d) {
       <label>Hoe vol<select data-rit-pct><option value="">zoals altijd (${car.target_pct}%)</option>${[50, 60, 70, 80, 90, 100].map((v) => `<option value="${v}">${v}%</option>`).join("")}</select></label>
       <button class="evc-go" data-rit-ok>Opslaan</button></div>
       <p class="small muted" style="margin:6px 0 0">Zonnestuur laadt dan alleen in de goedkoopste of zonnigste uren tot dat moment, ook over meerdere dagen. Voor de dagen waarvan de prijs nog niet bekend is, gebruikt hij de verwachting uit het weer.</p></details>`;
+  // gastauto (idee: EnergyWizard): een auto die niet van jou is, een vast aantal kWh
+  const G = E.gast || null;
+  const gast = G ? `<div class="evc-rit on"><div><b>Gastauto: ${nl(G.geladen, 1)} van ${nl(G.kwh, 0)} kWh geladen</b><small>${G.klaar ? `klaar om ${esc(dagTijd(G.klaar, s.now))}, ` : ""}in de goedkoopste uren.</small></div><button class="evc-lnk" data-gast-uit>Stoppen</button></div>`
+    : `<details class="evc-rit"><summary>Laadt er een gastauto? <span>Kies hoeveel</span></summary>
+      <div class="rit-f"><label>Hoeveel<select data-gast-kwh>${[5, 10, 15, 20, 30, 40].map((v) => `<option value="${v}" ${v === 10 ? "selected" : ""}>${v} kWh (± ${v * 6} km)</option>`).join("")}</select></label>
+      <label>Klaar om<input type="time" data-gast-tijd value="" step="900"></label>
+      <button class="evc-go" data-gast-ok>Laden</button></div>
+      <p class="small muted" style="margin:6px 0 0">Zonnestuur laadt dan zoveel kWh in de goedkoopste uren (vóór de tijd die je kiest, of binnen een dag). Laat de tijd leeg als het niet uitmaakt.</p></details>`;
   // knop: één duidelijke actie
   const vol = E.mode === "vol" && d.mode === "auto";
   const go = reached ? "" : vol ? `<button class="evc-go uit" data-evmode="slim">Terug naar slim laden</button>`
@@ -3117,6 +3126,7 @@ function evCard(s, d) {
       return `<div class="evc-why"><b>Snelheid:</b> ${t}${hoog ? `; boven 80% gaat deze auto naar ± ${nl(hoog, 1)} kW` : ""}. ${geleerd ? "Zonnestuur meet dat bij elke laadbeurt en past de planning steeds aan." : "Zonnestuur leert de echte snelheid van deze auto tijdens het laden."}</div>`; })()}
     ${tl}
     ${rit}
+    ${gast}
     ${gewoonteBlok(d.gewoonte, d.ready_week, true)}
     <div class="evc-act">${go}${skip}</div>
     <div class="evc-why"><a href="laadtijdlijn?bron=dev:${encodeURIComponent(d.id)}">Laadbeurten: wanneer geladen en wat het kostte</a></div>
@@ -3152,6 +3162,12 @@ function bindEv(el, d) {
     const m = b.parentElement.querySelector("[data-evhand-model]"), naam = m && m.selectedOptions[0] ? m.selectedOptions[0].textContent : "Mijn auto";
     go({ add_cars: [{ handmatig: true, model: m ? m.value : "other", name: naam }] });
   });
+  el.querySelectorAll("[data-gast-ok]").forEach((b) => b.onclick = () => {
+    const f = b.closest(".rit-f"), tijd = f.querySelector("[data-gast-tijd]").value;
+    const nu = new Date(), dag = `${nu.getFullYear()}-${String(nu.getMonth() + 1).padStart(2, "0")}-${String(nu.getDate()).padStart(2, "0")}`;
+    go({ gast: { kwh: Number(f.querySelector("[data-gast-kwh]").value), at: tijd ? `${dag}T${tijd}` : null } });
+  });
+  el.querySelectorAll("[data-gast-uit]").forEach((b) => b.onclick = () => go({ gast: null }));
   if (!car) return;
   el.querySelectorAll("[data-soc-range]").forEach((rg) => rg.oninput = () => { const v = rg.parentElement.querySelector("[data-soc-v]"); if (v) v.textContent = rg.value + "%"; });
   el.querySelectorAll("[data-soc-ok]").forEach((b) => b.onclick = () => {

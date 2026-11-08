@@ -122,7 +122,9 @@ function geleerdHtml(r) {
   const g = r.geleerd || {};
   if (g.ok) {
     const af = g.afkoelen ? `Zonder stoken koelt hij nu ongeveer ${graad(g.afkoelen)} °C per uur af.` : "Zonder stoken blijft hij nu lang warm.";
-    return `<div class="geleerd"><b>Geleerd:</b> deze ruimte warmt ongeveer <b>${graad(g.opwarmen)} °C per uur</b> op. ${af} Daarmee rekent Zonnestuur uit wanneer hij moet beginnen.</div>`;
+    const zw = (g.zon_per_uur ? ` Volle zon door de ramen geeft er gratis ± ${graad(g.zon_per_uur)} °C per uur bij.` : "")
+      + (g.wind_per_uur ? ` Harde wind (30 km/u) kost op een koude dag ± ${graad(g.wind_per_uur)} °C per uur extra.` : "");
+    return `<div class="geleerd"><b>Geleerd:</b> deze ruimte warmt ongeveer <b>${graad(g.opwarmen)} °C per uur</b> op. ${af}${zw} Daarmee rekent Zonnestuur uit wanneer hij moet beginnen.</div>`;
   }
   const pct = Math.min(100, Math.round(100 * Math.min(g.stoken || 0, g.nodig || 40) / (g.nodig || 40) / 2 + 100 * Math.min(g.rust || 0, g.nodig || 40) / (g.nodig || 40) / 2));
   const vl = g.voorlopig ? ` Tot die tijd rekent hij met wat hij leerde in ${g.voorlopig.huizen || "een paar"} huizen met dezelfde verwarming: ± ${graad(g.voorlopig.opwarmen)} °C per uur opwarmen.` : " Tot die tijd rekent Zonnestuur voorzichtig.";
