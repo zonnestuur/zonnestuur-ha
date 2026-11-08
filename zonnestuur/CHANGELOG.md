@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.106.1
+- Delen met de buren: vreemde prijzen uit oude metingen tellen niet meer mee in de berekening.
+
 ## 0.106.0
 - Nieuw bij Inzichten: "Zou delen met de buren iets opleveren?" Zonnestuur rekent uit wat je overschot het afgelopen jaar had opgeleverd als je het met je buren had gedeeld in plaats van teruggeleverd.
 - Biedt je leverancier stroom delen aan? Vul dan je deelprijs in bij je contract (onder "Stroom delen met de buren"). Zonnestuur rekent en plant daar dan mee. Het delen zelf regelt je leverancier.
