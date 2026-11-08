@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.102.0
+- Nest-scherm (groot scherm) in de nieuwe stijl van de app: overdag licht, na zonsondergang donker, 's nachts gedimd en warm van kleur. De hoofdboodschap ('goedkoop tot 13:00', 'goedkoop vanaf 10:00') staat groot in een eigen groen of rood vlak, met de prijs van nu erbij; de rest is rustiger. De prijs schuift niet meer over het huis en de planning wordt niet meer afgekapt.
+- Tik op het scherm: 30 seconden lang zie je wat Zonnestuur vandaag regelt, per apparaat. Daarna wordt het vanzelf weer rustig.
+- Schermeditor: achtergrond 'Volgt de zon' (nieuw, standaard), 'Licht' of 'Donker'.
+- Werkt ook op oudere Nest Hubs; nieuwere krijgen er zachte overgangen en beter meeschalen bij. Het scherm meldt één keer per dag in het logboek welke browser het heeft.
+
 ## 0.101.0
 - Legionella: elke boiler met een temperatuurmeting gaat nu vanzelf één keer per week naar 60 °C, in het zonnigste of goedkoopste uur (ook zonder Pro). Zonnestuur controleert of het water echt zo heet werd; was het die week al vanzelf zo heet, dan is er geen extra ronde nodig. Lukt het niet, dan zie je dat (vaak staat de thermostaat van de boiler zelf lager) en probeert hij het de volgende dag opnieuw. Op de apparaatpagina zie je wanneer het voor het laatst lukte. Bij een gewone boiler kun je nu ook een losse temperatuursensor invullen.
 - Overal dezelfde knoppen: Slim, Direct en Vandaag niet (bij de auto: Direct laden en Terug naar slim laden).

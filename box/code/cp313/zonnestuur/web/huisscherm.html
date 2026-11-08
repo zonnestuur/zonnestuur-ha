@@ -173,7 +173,7 @@ html, body { overscroll-behavior-y: none; }
       <div class="sub">Jouw stijl</div>
       <div class="row" style="align-items:flex-end">
         <div class="field" style="flex:0 0 auto"><label>Kleur</label><div class="kleur" id="s_accent" role="group" aria-label="Kleur"></div><span class="hint">Zie je als de stroom goedkoop is</span></div>
-        <div class="field" style="flex:0 0 auto"><label>Achtergrond</label><div class="seg" role="group" aria-label="Achtergrond" id="s_thema"><button type="button" data-v="donker">Donker</button><button type="button" data-v="licht">Licht</button></div></div>
+        <div class="field" style="flex:0 0 auto"><label>Achtergrond</label><div class="seg" role="group" aria-label="Achtergrond" id="s_thema"><button type="button" data-v="zon">Volgt de zon</button><button type="button" data-v="licht">Licht</button><button type="button" data-v="donker">Donker</button></div></div>
         <div class="field" style="flex:0 0 auto"><label>Tekst</label><div class="seg" role="group" aria-label="Tekstgrootte" id="s_tekst"><button type="button" data-v="normaal">Normaal</button><button type="button" data-v="groot">Groot</button><button type="button" data-v="extra">Extra groot</button></div></div>
       </div>
       <label class="small" style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" id="s_groet"> Begroeting bovenin (Goedemorgen, Goedemiddag …)</label>
@@ -342,7 +342,7 @@ function open(s) {
   ED = Object.assign({ scherm: true, van: "", tot: "", blokken: {}, nieuws: [], radio: {} }, s);
   ED.radio = Object.assign({ naam: "", url: "", aan: "", uit: "", dagen: DAGEN.map((d) => d[0]), volume: 20, knop: true }, ED.radio || {});
   BLOKKEN.forEach(([k]) => { if (ED.blokken[k] == null) ED.blokken[k] = true; });
-  ED.stijl = Object.assign({ accent: "groen", thema: "donker", tekst: "normaal", nacht_van: "", nacht_tot: "", begroeting: false, wie: "", tegels: [], volgorde: ["info", "prijs", "nieuws"] }, ED.stijl || {});
+  ED.stijl = Object.assign({ accent: "groen", thema: "zon", tekst: "normaal", nacht_van: "", nacht_tot: "", begroeting: false, wie: "", tegels: [], volgorde: ["info", "prijs", "nieuws"] }, ED.stijl || {});
   ED.stijl.tegels = (ED.stijl.tegels || []).slice(); ED.stijl.volgorde = (ED.stijl.volgorde || []).slice();
   for (const k of ["info", "prijs", "nieuws"]) if (!ED.stijl.volgorde.includes(k)) ED.stijl.volgorde.push(k);
   stijl();
@@ -476,7 +476,6 @@ function draw() {
   for (const k of ["huis", "afval", "weer", "witgoed", "agenda", "besparing", "prijs", "auto", "plan"]) if (!b[k]) cfg[k] = false;
   const st = ED.stijl || {}, tg = {};
   Object.assign(cfg, { accent: st.accent, thema: st.thema, tekst: st.tekst, begroeting: st.begroeting, wie: st.wie, volgorde: st.volgorde, tegels: st.tegels });
-  if (st.thema === "licht") cfg.licht = false;   // het lichte thema heeft zijn eigen achtergrond
   // Voorbeeld van eigen tegels: we kennen hier alleen naam en eenheid, dus "…" als waarde
   for (const t of st.tegels || []) { const k = (OV.tegels || []).find((x) => x.entity === t.entity) || {}; tg[t.entity] = { state: k.waarde ?? "…", attributes: { friendly_name: k.naam || t.entity, unit_of_measurement: k.eenheid || "" } }; }
   c.setConfig(cfg);

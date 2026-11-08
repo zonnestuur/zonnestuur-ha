@@ -12,7 +12,7 @@
  *
  * Optioneel bij elke kaart: entity: sensor.zonnestuur
  */
-const ZS_VERSION = "1.10.0";
+const ZS_VERSION = "1.11.0";
 
 const ZS_CSS = `
   :host { --zs-sun: #ffb000; --zs-save: #08654a; --zs-cheap: #16733e; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
@@ -237,215 +237,187 @@ class ZonnestuurApparatenCard extends ZonnestuurBase {
 
 // ------------------------------------------------------------------ Nest Hub / wandscherm: groot en rustig, leesbaar van de bank
 const ZS_HUB_CSS = `
+  /* ===== Zonnestuur op de Nest Hub: Daglicht (kaarten 1.11, Zonnestuur 0.102.0) =====
+     Overdag licht papier, na zonsondergang warm zwart, 's nachts gedimd en warm. Eén hoofdboodschap groot in een eigen vlak;
+     de rest rustig. Basis werkt op de oude Cast-browser (Chrome 90): vaste kleuren en vh. Waar het kan: container queries. */
   :host { display: block; }
-  .hub { --g: #3ee08f; --g2: #0f5f3b; --bg: #05100b; --ink: #f2f7f4; --ink2: rgba(242,247,244,.66); --ink3: rgba(242,247,244,.4);
+  .hub { --u: 1vh; --w: 1vw;
+    --bg: #f3efe7; --vlak: #fffdf9; --vlak2: #f1ebe0; --ink: #17140f; --ink2: #57524a; --ink3: #77716a; --lijn: rgba(40,30,10,.10);
+    --schaduw: 0 1px 2px rgba(40,30,10,.06), 0 14px 30px -22px rgba(40,30,10,.38);
+    --zon: #f2a024; --knop: #f2a024; --knop-ink: #1a1203; --groen: #11774a; --rood: #b4301f; --net: #2e62c9; --bat: #0f7d74; --auto: #6d4bd8;
+    --held: #fffdf9; --held-ink: #17140f; --held-acc: #11774a;
+    --bar: rgba(40,30,10,.13); --bar-ch: #7cc4a0; --bar-blk: #11774a; --bar-dr: #e3998c;
+    --lucht-a: #8ec9f0; --lucht-b: #dcefff;
     position: relative; overflow: hidden; box-sizing: border-box; height: var(--zs-hub-h, 100vh); min-height: 360px;
-    background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-    padding: clamp(20px, 5vh, 44px) clamp(24px, 5vw, 56px); display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: minmax(0, 1fr); gap: 2vh; -webkit-font-smoothing: antialiased; }
-  .hub.duur { --g: #ffb000; --g2: #5a3a00; --bg: #0b0d10; }
-  .hub.piek { --g: #ff7a59; --g2: #5c1d10; }
-  .plan { margin-top: 2.6vh; display: flex; flex-wrap: wrap; align-items: baseline; gap: .5em 1.4em; font-size: clamp(14px, 3vh, 23px); color: var(--ink2); }
-  .plan .pl { color: var(--ink3); font-size: .82em; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; width: 100%; }
-  .plan .pi { white-space: nowrap; } .plan .pi b { color: var(--ink); font-variant-numeric: tabular-nums; margin-right: .4em; }
-  .hub::before { content: ""; position: absolute; inset: -30%; pointer-events: none;
-    background: radial-gradient(42% 46% at 22% 58%, color-mix(in srgb, var(--g) 34%, transparent), transparent 70%),
-                radial-gradient(30% 34% at 84% 18%, color-mix(in srgb, var(--g2) 60%, transparent), transparent 70%);
-    animation: zsglow 9s ease-in-out infinite alternate; }
-  .hub.duur::before { opacity: .45; }
-  @keyframes zsglow { from { transform: translate3d(-2%, 1%, 0) scale(1); } to { transform: translate3d(3%, -2%, 0) scale(1.08); } }
-  @media (prefers-reduced-motion: reduce) { .hub::before { animation: none; } }
-  /* Licht: voor een Nest Hub of oud tablet. Geen bewegende achtergrond of animaties; een te zware pagina laat de Hub vallen. */
-  .hub.lite::before { animation: none; inset: 0; }
-  .lite .radio.speelt .eq i { animation: none; height: 70%; }
-  .lite .news .np, .lite .kop.in { animation: none; }
-  .lite .news .np { display: none; }
-  .hub > * { position: relative; }
-  .mid, .onder { zoom: var(--zs-zoom, 1); }
-  .groet { font-weight: 650; color: var(--ink); }
-  /* Licht thema: voor een kamer met veel daglicht */
-  .hub.lt { --bg: #eef3f6; --ink: #0f1d26; --ink2: rgba(15,29,38,.68); --ink3: rgba(15,29,38,.42); }
-  .hub.lt.duur { --bg: #f4f1ea; }
-  .hub.lt::before { opacity: .55; }
-  .hub.lt .chip { background: rgba(15,29,38,.06); }
-  /* Nachtstand: donker en rustig */
-  .hub.nacht { --bg: #000; --ink: rgba(242,247,244,.55); --ink2: rgba(242,247,244,.4); }
-  .hub.nacht::before { display: none; }
-  .nmid { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-  .nklok { font: 300 clamp(80px, 26vh, 220px)/1 Inter, system-ui, sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; color: var(--ink); }
-  .nreg { margin-top: 2vh; font-size: clamp(16px, 3.4vh, 28px); color: var(--ink2); }
-  .rv { position: fixed; right: 0; bottom: 0; width: 4px; height: 4px; opacity: .02; pointer-events: none; }
-  .top { display: flex; justify-content: space-between; align-items: center; color: var(--ink2); font-size: clamp(14px, 2.6vh, 20px); font-weight: 500; }
-  .brand { display: inline-flex; align-items: center; gap: 10px; letter-spacing: .01em; }
-  .brand .sv { font-style: normal; color: var(--ink2); padding-left: 12px; margin-left: 2px; border-left: 1px solid rgba(255,255,255,.18); }
-  .brand i { width: 12px; height: 12px; border-radius: 50%; background: var(--g); box-shadow: 0 0 18px var(--g); }
-  .tr { display: flex; align-items: center; gap: 18px; }
-  .radio { display: inline-flex; align-items: center; gap: 9px; padding: .3em .85em; border-radius: 99px; background: rgba(255,255,255,.08); color: var(--ink); font-size: clamp(13px, 2.4vh, 18px); }
-  .radio.tik { background: var(--g); color: #04140c; font-weight: 600; cursor: pointer; }
+    background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 4.4vh 4.6vw 3.8vh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); gap: 2.2vh;
+    -webkit-font-smoothing: antialiased; transition: background-color 1.2s ease, color 1.2s ease; }
+  @supports (height: 1cqh) { .hub { container-type: size; --u: 1cqh; --w: 1cqw; } }
+  .hub.donker { --bg: #0b0d11; --vlak: #15181e; --vlak2: #1d2129; --ink: #f3efe8; --ink2: #b1b5bb; --ink3: #8f949b; --lijn: rgba(255,255,255,.08);
+    --schaduw: inset 0 1px 0 rgba(255,255,255,.04), 0 18px 40px -28px rgba(0,0,0,.9);
+    --zon: #ffb547; --knop: #ffb547; --groen: #45d69a; --rood: #ff7a66; --net: #8bbcff; --bat: #4fd1c5; --auto: #b9a3ff;
+    --held: #15181e; --held-ink: #f3efe8; --held-acc: #45d69a;
+    --bar: rgba(255,255,255,.12); --bar-ch: #2f8f63; --bar-blk: #45d69a; --bar-dr: #9b4136; --lucht-a: #1d2d57; --lucht-b: #0e1630; }
+  .hub.f-schemer { --lucht-a: #3b3f78; --lucht-b: #e39a6b; }
+  .hub.f-bewolkt { --lucht-a: #9fb0be; --lucht-b: #dfe6ec; }
+  /* de toestand bepaalt het hoofdvlak: goedkoop = groen, duur = rood, wachten = rustig */
+  .hub.goed { --held: #dff1e6; --held-ink: #0d3a25; --held-acc: #11774a; }
+  .hub.piek { --held: #f9e2dc; --held-ink: #4a1209; --held-acc: #b4301f; }
+  .hub.donker.goed { --held: #10281d; --held-ink: #e6f7ee; --held-acc: #45d69a; }
+  .hub.donker.piek { --held: #2b1612; --held-ink: #fbe9e5; --held-acc: #ff7a66; }
+  .hub > * { position: relative; min-width: 0; }
+  .num, .clock, .h, .prijs b { font-variant-numeric: tabular-nums; }
+
+  /* kopregel */
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 2vw; z-index: 3; font-size: 2.9vh; font-size: calc(2.9 * var(--u)); }
+  .brand { display: inline-flex; align-items: center; gap: .55em; font: 700 1em/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.01em; color: var(--ink); min-width: 0; white-space: nowrap; }
+  .brand .logo { width: 1.55em; height: 1.55em; flex: none; }
+  .brand .sv { font: 600 .82em/1 Inter, sans-serif; color: var(--groen); background: rgba(17,119,74,.11); padding: .45em .8em; border-radius: 99px; margin-left: .3em; }
+  .hub.donker .brand .sv { background: rgba(69,214,154,.13); }
+  .groet { color: var(--ink); }
+  .tr { display: flex; align-items: center; gap: 1.4vw; }
+  .clock { font: 650 1.25em/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; color: var(--ink); }
+  .rknop { display: inline-flex; align-items: center; gap: .5em; min-height: 48px; padding: 0 1.05em; border-radius: 99px; border: 0; font: 650 .9em/1 Inter, sans-serif;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .15s ease; }
+  .rknop.aan { background: var(--vlak); color: var(--ink); box-shadow: var(--schaduw), 0 0 0 1px var(--lijn); }
+  .rknop.aan svg { color: var(--zon); }
+  .rknop.uit { background: var(--vlak2); color: var(--ink); }
+  .rknop:active { transform: scale(.95); }
+  .rknop svg { width: 1em; height: 1em; }
+  .radio { display: inline-flex; align-items: center; gap: .55em; padding: .45em .9em; border-radius: 99px; background: var(--vlak2); color: var(--ink); font-size: .85em; font-weight: 600; }
+  .radio.tik { background: var(--knop); color: var(--knop-ink); cursor: pointer; }
   .eq { display: inline-flex; align-items: flex-end; gap: 2px; height: .9em; }
-  .eq i { width: 3px; height: 35%; border-radius: 1px; background: var(--g); }
+  .eq i { width: 3px; height: 35%; border-radius: 1px; background: var(--zon); }
+  .radio.tik .eq i { background: var(--knop-ink); }
   .radio.speelt .eq i { animation: zseq 1.1s ease-in-out infinite; }
   .radio.speelt .eq i:nth-child(2) { animation-delay: -.4s; } .radio.speelt .eq i:nth-child(3) { animation-delay: -.8s; }
-  .radio.tik .eq i { background: #04140c; }
-  /* Radio aan/uit: groot genoeg om op een Nest Hub met een vinger te raken */
-  .rknop { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 1.1em; border-radius: 99px; border: 0; font: inherit; font-size: clamp(14px, 2.6vh, 19px); font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .rknop.uit { background: rgba(255,255,255,.14); color: var(--ink); }
-  .rknop.aan { background: var(--g); color: #04140c; }
-  .rknop:active { transform: scale(.96); }
-  .rknop svg { width: 1.05em; height: 1.05em; }
   @keyframes zseq { 0%, 100% { height: 30%; } 50% { height: 100%; } }
-  .clock { font-family: "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; font-size: clamp(18px, 4vh, 30px); color: var(--ink); font-weight: 600; }
-  .mid { align-self: center; display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 4vw; }
-  .kick { font-size: clamp(16px, 3.4vh, 26px); color: var(--g); font-weight: 600; display: flex; align-items: center; gap: 10px; }
-  .kick svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  .h { font: 750 clamp(44px, 15vh, 120px)/0.95 "Inter Tight", Inter, sans-serif; letter-spacing: -.045em; margin: 1.2vh 0 0; }
-  .h small { display: block; font-size: min(.5em, 3.6vw); font-weight: 600; color: var(--ink2); letter-spacing: -.03em; margin-top: 1.4vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-  .do { margin-top: 3vh; font-size: clamp(16px, 3.6vh, 28px); color: var(--ink); display: flex; gap: 12px; align-items: center; }
-  .do span { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 30%; background: color-mix(in srgb, var(--g) 20%, transparent); color: var(--g); flex: none; }
-  .do svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .price { text-align: right; }
-  .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 46%); align-items: center; }
-  .hubhuis { display: grid; gap: 1.2vh; justify-items: end; }
-  .hubhuis .hz { width: 100%; max-height: 50vh; height: auto; display: block; overflow: visible;
+  .rv { position: fixed; right: 0; bottom: 0; width: 4px; height: 4px; opacity: .02; pointer-events: none; }
+
+  /* midden: links de boodschap, rechts het huis in de lucht van nu */
+  .mid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 52%); gap: 3vw; align-items: stretch; min-height: 0; }
+  .mid.zonder-huis { grid-template-columns: minmax(0, 1fr); }
+  .links { display: flex; flex-direction: column; justify-content: center; gap: 1.6vh; gap: calc(1.6 * var(--u)); min-height: 0; }
+  .held { background: var(--held); color: var(--held-ink); border-radius: 26px; padding: 2.8vh 2.6vw 3vh; padding: calc(2.8 * var(--u)) calc(2.6 * var(--w)) calc(3 * var(--u));
+    box-shadow: var(--schaduw); transition: background-color 1s ease; min-width: 0; }
+  .status { display: flex; align-items: center; gap: .5em; font-size: 2.9vh; font-size: calc(2.9 * var(--u)); font-weight: 650; color: var(--held-acc); }
+  .status i { width: .62em; height: .62em; border-radius: 50%; background: currentColor; flex: none; }
+  .hub.goed:not(.lite) .status i { animation: zspuls 2.4s ease-in-out infinite; }
+  @keyframes zspuls { 0%, 100% { box-shadow: 0 0 0 0 rgba(17,119,74,.45); } 50% { box-shadow: 0 0 0 .45em rgba(17,119,74,0); } }
+  .h { font: 780 12.5vh/.92 "Inter Tight", Inter, sans-serif; font-size: calc(12.5 * var(--u)); letter-spacing: -.05em; margin-top: .9vh; white-space: nowrap; }
+  .sub { margin-top: 1vh; font-size: 3.2vh; font-size: calc(3.2 * var(--u)); font-weight: 600; opacity: .78; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prijs { margin-top: 1.8vh; display: flex; align-items: baseline; flex-wrap: wrap; gap: .25em .55em; font-size: 2.6vh; font-size: calc(2.6 * var(--u)); }
+  .prijs b { font: 700 1.6em/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; }
+  .prijs span { opacity: .75; }
+  .prijs em { font-style: normal; font-weight: 650; font-size: .9em; padding: .3em .7em; border-radius: 99px; background: rgba(17,119,74,.13); color: var(--groen); }
+  .hub.donker .prijs em { background: rgba(69,214,154,.14); }
+  .prijs em.duur { background: rgba(180,48,31,.12); color: var(--rood); }
+  .hub.donker .prijs em.duur { background: rgba(255,122,102,.14); }
+  .do { display: flex; align-items: center; gap: .6em; font-size: 2.7vh; font-size: calc(2.7 * var(--u)); color: var(--ink); font-weight: 550; }
+  .do span { display: inline-grid; place-items: center; width: 1.8em; height: 1.8em; border-radius: 30%; background: var(--vlak); box-shadow: var(--schaduw); color: var(--groen); flex: none; }
+  .do svg, .status svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .regelt { font-size: 2.5vh; font-size: calc(2.5 * var(--u)); color: var(--ink2); display: flex; gap: .45em 1.1em; flex-wrap: wrap; overflow: hidden; max-height: 1.5em; line-height: 1.5; }
+  .regelt b { color: var(--ink); font-weight: 650; margin-right: .3em; font-variant-numeric: tabular-nums; }
+  .regelt .pl { color: var(--ink3); }
+  .regelt span { white-space: nowrap; }
+
+  .hubhuis { position: relative; min-height: 0; display: flex; align-items: flex-end; justify-content: flex-end; }
+  /* de lucht van het moment, zonder kader: loopt naar alle kanten weg in de achtergrond */
+  .hubhuis::before { content: ""; position: absolute; inset: -6% -8% 2% -4%; pointer-events: none; border-radius: 50%;
+    background: radial-gradient(closest-side, var(--lucht-b), rgba(220,239,255,0)); opacity: .9; }
+  .hub.donker .hubhuis::before { background: radial-gradient(closest-side, var(--lucht-a), rgba(29,45,87,0)); opacity: .85; }
+  .hub.f-schemer .hubhuis::before { background: radial-gradient(closest-side, rgba(227,154,107,.55), rgba(59,63,120,0)); }
+  .hstage { position: relative; height: 100%; max-height: 100%; aspect-ratio: 436 / 204; max-width: 100%; }
+  .hstage .hz { width: 100%; height: 100%; display: block; overflow: visible;
     -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent); mask-image: linear-gradient(180deg, #000 82%, transparent); }
-  .price.klein b { display: inline; font-size: clamp(22px, 6vh, 44px); margin-right: .3em; }
-  .price.klein br { display: none; } .price.klein em { margin: 0 0 0 .5em; }
-  .price b { display: block; font: 700 clamp(36px, 11vh, 88px)/1 "Inter Tight", Inter, sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-  .price span { color: var(--ink2); font-size: clamp(13px, 2.6vh, 20px); }
-  .price em { font-style: normal; display: inline-block; margin-top: 1vh; padding: .25em .7em; border-radius: 99px; background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); font-weight: 600; font-size: clamp(13px, 2.5vh, 19px); }
-  .info { display: flex; gap: clamp(10px, 2vw, 18px); margin-bottom: 2.4vh; flex-wrap: wrap; overflow: hidden; height: clamp(54px, 11vh, 74px); }
-  .info > .chip { height: 100%; box-sizing: border-box; white-space: nowrap; }
-  .chip { display: flex; align-items: center; gap: 12px; padding: 10px 16px 10px 12px; border-radius: 18px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.06); }
-  .chip b { display: block; font-size: clamp(14px, 2.7vh, 20px); font-weight: 650; letter-spacing: -.01em; line-height: 1.15; }
-  .chip span { display: block; color: var(--ink2); font-size: clamp(12px, 2.2vh, 16px); line-height: 1.2; }
-  .chip.nu { background: color-mix(in srgb, var(--bin) 24%, transparent); border-color: color-mix(in srgb, var(--bin) 70%, transparent); }
+  .hstage .hz .hz-labels, .hstage .hz > rect[fill="none"] { display: none; }
+  .hch { position: absolute; display: flex; align-items: center; gap: .45em; padding: .32em .75em .32em .32em; border-radius: 14px; background: var(--vlak); color: var(--ink);
+    box-shadow: var(--schaduw), 0 0 0 1px var(--lijn); font-size: 2.1vh; font-size: calc(2.1 * var(--u)); line-height: 1.15; z-index: 2; }
+  .hch .i { width: 1.9em; height: 1.9em; border-radius: 10px; display: grid; place-items: center; background: var(--vlak2); color: var(--k); }
+  .hch .i svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .hch small { display: block; font-size: .78em; color: var(--ink2); font-weight: 550; }
+  .hch b { display: block; font: 700 1em/1.1 "Inter Tight", Inter, sans-serif; white-space: nowrap; }
+  .hch.zon { --k: var(--zon); left: 2%; top: 4%; } .hch.bat { --k: var(--bat); left: 2%; top: 30%; }
+  .hch.net { --k: var(--net); left: 2%; bottom: 6%; } .hch.net.terug { --k: var(--groen); } .hch.auto { --k: var(--auto); right: 2%; bottom: 6%; }
+
+  /* onder: tegels, prijs per uur, nieuws */
+  .onder { display: flex; flex-direction: column; gap: 1.6vh; gap: calc(1.6 * var(--u)); min-width: 0; }
+  .mid, .onder { zoom: var(--zs-zoom, 1); }
+  .info { display: flex; gap: 1.4vw; flex-wrap: wrap; overflow: hidden; height: 9.6vh; height: calc(9.6 * var(--u)); }
+  .chip { height: 100%; box-sizing: border-box; white-space: nowrap; display: flex; align-items: center; gap: .7em; padding: 0 1.1em 0 .8em; border-radius: 18px;
+    background: var(--vlak); box-shadow: var(--schaduw), 0 0 0 1px var(--lijn); font-size: 2.3vh; font-size: calc(2.3 * var(--u)); }
+  .chip b { display: block; font-size: 1.08em; font-weight: 680; letter-spacing: -.01em; line-height: 1.15; }
+  .chip span { display: block; color: var(--ink2); font-size: .9em; line-height: 1.2; }
+  .chip.nu { box-shadow: var(--schaduw), inset 0 0 0 2px var(--bin, var(--zon)); }
   .chip.nu span { color: var(--ink); }
-  .bin { width: clamp(26px, 6vh, 40px); height: auto; flex: none; }
-  .wx { width: clamp(28px, 6vh, 40px); height: clamp(28px, 6vh, 40px); flex: none; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .wx .sun { stroke: #ffc53d; } .wx .rain { stroke: #6cb4ff; }
-  .news { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(12px, 2vw, 20px);
-    margin-top: 2vh; padding: clamp(10px, 2vh, 16px) clamp(14px, 2vw, 20px); border-radius: 18px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.06); }
+  .bin { width: 1.7em; height: auto; flex: none; }
+  .wx { width: 1.8em; height: 1.8em; flex: none; fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .wx .sun { stroke: var(--zon); } .wx .rain { stroke: var(--net); }
+
+  .strip { position: relative; display: flex; align-items: flex-end; gap: .35vw; height: 9.5vh; height: calc(9.5 * var(--u)); }
+  .strip.met-label { margin-top: 3.4vh; margin-top: calc(3.4 * var(--u)); }
+  .strip i { flex: 1; border-radius: 5px 5px 2px 2px; background: var(--bar); min-height: 4px; transition: height .6s ease; }
+  .strip i.ch { background: var(--bar-ch); }
+  .strip i.blk { background: var(--bar-blk); }
+  .strip i.dr { background: var(--bar-dr); }
+  .strip i.past { opacity: .35; }
+  .strip i.now { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
+  .blklab { position: absolute; top: -.5em; transform: translate(-50%, -100%); white-space: nowrap; font-size: 2vh; font-size: calc(2 * var(--u)); font-weight: 680;
+    color: #fff; background: var(--bar-blk); padding: .25em .7em; border-radius: 99px; }
+  .hub.donker .blklab { color: #06150e; }
+  .ax { position: relative; height: 1.3em; color: var(--ink3); font-size: 1.9vh; font-size: calc(1.9 * var(--u)); margin-top: -.4vh; font-variant-numeric: tabular-nums; }
+  .ax span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .ax span.d { transform: none; color: var(--ink2); font-weight: 650; }
+  .plijn { position: relative; height: 9vh; }
+  .plijn svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .plijn path[stroke] { stroke: var(--groen); } .plijn stop { stop-color: var(--groen); }
+  .plijn .nu { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--ink3); }
+  .plijn .nu i { position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 3px var(--bg); transform: translateY(-50%); }
+  .plijn .blkl { position: absolute; top: 0; bottom: 0; border-radius: 10px; background: rgba(17,119,74,.12); }
+  .plijn .blkl b { position: absolute; top: -.2em; left: 50%; transform: translate(-50%, -100%); white-space: nowrap; font-size: 1.9vh; color: #fff; font-weight: 650; background: var(--bar-blk); padding: .2em .6em; border-radius: 99px; }
+
+  .news { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 1.6vw;
+    padding: 1.4vh 1.6vw; border-radius: 18px; background: var(--vlak); box-shadow: var(--schaduw), 0 0 0 1px var(--lijn); }
   .news .src { display: grid; justify-items: start; gap: 4px; }
-  .news .src b { font-size: clamp(12px, 2.2vh, 15px); font-weight: 800; letter-spacing: .08em; color: #0b0e12; background: var(--nc, #f2f7f4); padding: .25em .6em; border-radius: 7px; }
-  .news .src time { font-size: clamp(11px, 2vh, 14px); color: var(--ink3); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .news .kop { font: 600 clamp(16px, 3.6vh, 27px)/1.25 "Inter Tight", Inter, sans-serif; letter-spacing: -.01em; color: var(--ink);
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .news .src b { font-size: 1.9vh; font-size: calc(1.9 * var(--u)); font-weight: 800; letter-spacing: .06em; color: var(--bg); background: var(--nc, var(--ink)); padding: .25em .6em; border-radius: 7px; }
+  .news .src time { font-size: 1.8vh; font-size: calc(1.8 * var(--u)); color: var(--ink3); white-space: nowrap; }
+  .news .kop { font: 620 3vh/1.25 "Inter Tight", Inter, sans-serif; font-size: calc(3 * var(--u)); letter-spacing: -.01em; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
   .news .kop.in { animation: zsfade .9s ease; }
-  .news .np { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--g); opacity: .55; transform-origin: left; animation: zsnp 15s linear forwards; }
+  .news .np { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--zon); opacity: .7; transform-origin: left; animation: zsnp 15s linear forwards; }
   @keyframes zsnp { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @keyframes zsfade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-  .strip { display: flex; align-items: flex-end; gap: 3px; height: clamp(40px, 11vh, 96px); }
-  .strip i { flex: 1; border-radius: 3px 3px 1px 1px; background: rgba(255,255,255,.14); min-height: 4px; }
-  .strip i.ch { background: color-mix(in srgb, var(--g) 55%, transparent); }
-  .strip i.blk { background: var(--g); box-shadow: 0 0 14px color-mix(in srgb, var(--g) 60%, transparent); }
-  .strip i.past { opacity: .35; }
-  .strip i.now { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .ax { position: relative; height: 1.4em; color: var(--ink3); font-size: clamp(11px, 2vh, 15px); margin-top: 8px; font-variant-numeric: tabular-nums; }
-  .ax span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
-  .ax span.d { transform: none; color: var(--ink2); font-weight: 600; padding-left: 0; }
   .empty { align-self: center; font-size: 22px; color: var(--ink2); }
-  @media (max-aspect-ratio: 1/1) { .mid, .mid.met-huis { grid-template-columns: 1fr; } .hubhuis { justify-items: start; } .price { text-align: left; } .info { height: auto; max-height: calc(2 * clamp(54px, 11vh, 74px) + 18px); } }
-  /* ===== 0.77: zelfde stijl als de app (donkerblauw, kaarten met een haarlijn, prijslijn) ===== */
-  .hub { --g: #34d399; --g2: #17305a; --bg: #08111f; --ink: #eef3fa; --ink2: #a6b5ca; --ink3: #8597ae; --lijn: rgba(140,172,220,.15);
-    --kaart: linear-gradient(180deg, #12223a 0%, #0e1a2d 100%); --teal: #2dd4bf; }
-  .hub.duur { --g: #fbbf24; --g2: #17305a; --bg: #08111f; }
-  .hub.piek { --g: #f87171; --g2: #17305a; }
-  .hub::before { inset: 0; animation: none; background: radial-gradient(70% 55% at 50% -12%, #17305a 0%, rgba(23,48,90,0) 72%),
-    radial-gradient(38% 40% at 18% 62%, color-mix(in srgb, var(--g) 16%, transparent), transparent 72%); }
-  .hub.duur::before { opacity: 1; }
-  .brand { font-weight: 700; color: var(--ink); font-family: "Inter Tight", Inter, sans-serif; letter-spacing: -.01em; }
-  .brand .logo { width: 1.7em; height: 1.7em; flex: none; }
-  .brand .sv { font-family: Inter, sans-serif; font-weight: 600; color: var(--g); border-left: 0; margin-left: 6px; padding: .25em .75em; border-radius: 99px;
-    background: color-mix(in srgb, var(--g) 14%, transparent); font-size: .85em; }
-  .hub.duur .brand .sv, .hub.piek .brand .sv { color: #34d399; background: rgba(52,211,153,.14); }
-  .plan { gap: .45em 1.2em; }
-  .plan .pl { text-transform: none; letter-spacing: 0; font-size: .8em; color: var(--ink3); }
-  .plan .pi { display: inline-flex; align-items: baseline; gap: .1em; padding: .3em .75em; border-radius: 12px; background: rgba(160,190,235,.08); box-shadow: inset 0 0 0 1px var(--lijn); }
-  .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 50%); }
-  .hubhuis { position: relative; justify-items: stretch; }
-  .mid { min-height: 0; }
-  /* het huis staat los op het scherm (geen kader): de achtergrond van het scherm is de lucht */
-  .hstage { position: relative; height: 46vh; aspect-ratio: 436 / 204; max-width: 100%; justify-self: end; margin: -1vh 0 -2vh; }
-  .hubhuis .hstage .hz { width: 100%; height: 100%; max-height: none; display: block; overflow: visible;
-    -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent); mask-image: linear-gradient(180deg, #000 80%, transparent); }
-  .hch.zon, .hch.bat { top: 0; } .hch.net, .hch.auto { bottom: 2%; }
-  .hubhuis { justify-items: end; }
-  .hubhuis .price.klein { justify-self: end; }
-  .hstage .hz .hz-labels, .hstage .hz > rect[fill="none"] { display: none; }
-  .hch { position: absolute; display: flex; align-items: center; gap: .45em; padding: .3em .7em .3em .3em; border-radius: 12px; background: rgba(8,17,31,.82);
-    box-shadow: 0 0 0 1.5px var(--k), 0 8px 20px -10px rgba(0,0,0,.7); color: #fff; font-size: clamp(11px, 2.1vh, 16px); line-height: 1.15; }
-  .hch .i { width: 1.9em; height: 1.9em; border-radius: 9px; display: grid; place-items: center; background: color-mix(in srgb, var(--k) 22%, transparent); color: var(--k); }
-  .hch .i svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .hch small { display: block; font-size: .78em; color: rgba(255,255,255,.75); font-weight: 550; }
-  .hch b { display: block; font-weight: 700; font-family: "Inter Tight", Inter, sans-serif; white-space: nowrap; }
-  .hch.zon { --k: #fbbf24; left: 3%; top: 5%; } .hch.bat { --k: #2dd4bf; right: 3%; top: 5%; } .hch.net { --k: #60a5fa; left: 3%; bottom: 6%; } .hch.net.terug { --k: #34d399; } .hch.auto { --k: #a78bfa; right: 3%; bottom: 6%; }
-  .price.klein { text-align: left; display: flex; align-items: baseline; flex-wrap: wrap; gap: .2em .5em; }
-  .price em { background: color-mix(in srgb, var(--g) 16%, transparent); }
-  .chip { background: var(--kaart); border: 0; box-shadow: inset 0 0 0 1px var(--lijn); border-radius: 18px; }
-  .chip.nu { background: color-mix(in srgb, var(--bin) 18%, #0e1a2d); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--bin) 70%, transparent); }
-  .news { background: var(--kaart); border: 0; box-shadow: inset 0 0 0 1px var(--lijn); }
-  .rknop.uit { background: rgba(160,190,235,.12); }
-  .rknop.aan { background: #2563eb; color: #fff; }
-  .radio.tik { background: #2563eb; color: #fff; } .radio.tik .eq i { background: #fff; }
-  /* prijsblokjes per uur: goedkoop groen, het goedkoopste blok fel met een label, duur rood */
-  .strip { position: relative; gap: 4px; height: clamp(44px, 11vh, 96px); margin-top: 3.2vh; }
-  .strip i { background: rgba(160,190,235,.18); border-radius: 4px 4px 2px 2px; }
-  .strip i.ch { background: rgba(52,211,153,.5); }
-  .strip i.blk { background: #34d399; box-shadow: 0 0 14px rgba(52,211,153,.55); }
-  .strip i.dr { background: rgba(248,113,113,.55); }
-  .strip i.past { opacity: .3; }
-  .strip i.now { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .blklab { position: absolute; top: -.4em; transform: translate(-50%, -100%); white-space: nowrap; font-size: clamp(11px, 2.1vh, 16px); font-weight: 650; color: #34d399;
-    background: #0e1a2d; padding: .2em .65em; border-radius: 8px; box-shadow: 0 0 0 1px rgba(52,211,153,.5); }
-  .hub.lt .blklab { background: #fff; }
-  /* ruimte voor het label boven de blokjes, anders valt het over de tegels erboven (bijv. afval) */
-  .strip:has(.blklab) { margin-top: calc(clamp(11px, 2.1vh, 16px) * 1.75 + 1.6vh); }
-  /* prijs per uur als lijn (prijs_stijl: lijn) */
-  .plijn { position: relative; height: clamp(40px, 9vh, 90px); margin-top: 2.2vh; }
-  .h { font-size: clamp(40px, 13vh, 110px); }
-  .plan { margin-top: 2vh; font-size: clamp(13px, 2.6vh, 21px); }
-  .plan .pi { padding: .2em .65em; }
-  .info { height: clamp(50px, 10vh, 70px); margin-bottom: 1.4vh; }
-  .plijn svg { width: 100%; height: 100%; display: block; overflow: visible; }
-  .plijn .nu { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed rgba(238,243,250,.45); }
-  .plijn .nu i { position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 3px #08111f; transform: translateY(-50%); }
-  .plijn .blkl { position: absolute; top: 0; bottom: 0; border-radius: 10px; background: color-mix(in srgb, var(--teal) 15%, transparent); }
-  .plijn .blkl b { position: absolute; top: -.2em; left: 50%; transform: translate(-50%, -100%); white-space: nowrap; font-size: clamp(11px, 2vh, 15px); color: var(--teal);
-    font-weight: 650; background: #0e1a2d; padding: .2em .6em; border-radius: 8px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--teal) 50%, transparent); }
-  .hub.lt { --bg: #eef3f6; --kaart: #fff; --lijn: rgba(19,32,43,.10); --ink: #0f1d26; --ink2: rgba(15,29,38,.68); --ink3: rgba(15,29,38,.5); }
-  .hub.lt::before { background: none; }
-  .hub.lt .plijn .nu i { box-shadow: 0 0 0 3px #eef3f6; }
-  /* 0.89.2: niets meer over elkaar op kleine schermen (Nest Hub 1024×600). Het midden mag nooit buiten zijn rij lopen:
-     wat niet past wordt afgesneden in plaats van over de kopregel of de tegels te schuiven. */
-  .top { z-index: 3; }
-  .mid { align-self: stretch; min-height: 0; overflow: hidden; }
-  .mid > div:first-child { min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: safe center; }
-  .mid .hubhuis { min-height: 0; }
-  .hstage { max-height: 100%; }
-  .h { white-space: nowrap; }
-  .kick { flex-wrap: wrap; }
-  .kick.groen { color: #34d399; }          /* goedkope uren zijn altijd groen */
-  .mid .hubhuis { display: flex; flex-direction: column; align-items: flex-end; height: 100%; gap: .8vh; }
-  .mid .hubhuis .hstage { height: auto; flex: 1 1 0; min-height: 0; margin: 0; }
-  .mid .hubhuis .price.klein { flex: none; }
-  /* 0.96.1: het huis mag de hele hoogte gebruiken; de prijs staat rechtsboven in de lucht naast het huis */
-  .mid.met-huis { grid-template-columns: minmax(0, 1fr) minmax(0, 56%); }
-  .mid .hubhuis { position: relative; justify-content: flex-end; }
-  .mid .hubhuis .price.klein { position: absolute; top: 0; right: 0; z-index: 2; text-align: right; text-shadow: 0 0 12px #0b1630, 0 0 4px #0b1630; }
-  .mid .hubhuis .price.klein br { display: block; } .mid .hubhuis .price.klein em { display: block; margin: 0; }
-  .hstage .hch.bat { left: 3%; right: auto; top: 24%; }
-  .mid .hubhuis .price.klein b { font-size: clamp(20px, 5.4vh, 38px); margin: 0; }
-  .mid .hubhuis .price.klein em { font-size: clamp(11px, 2.2vh, 15px); }
+
+  /* dichtbij: na een tik 30 seconden meer (wat Zonnestuur regelt, per apparaat), daarna weer rustig */
+  .meer { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2vh 1.4vw; }
+  .meer .rij { display: flex; align-items: center; gap: .8em; padding: 1.3vh 1.2vw; border-radius: 18px; background: var(--vlak); box-shadow: var(--schaduw), 0 0 0 1px var(--lijn);
+    font-size: 2.4vh; font-size: calc(2.4 * var(--u)); }
+  .meer .rij b { font: 700 1.15em/1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; min-width: 3.2em; }
+  .meer .rij span { color: var(--ink2); } .meer .rij strong { color: var(--ink); font-weight: 650; display: block; }
+  .meer .rij.nu b { color: var(--groen); }
+  .meer-kop { display: flex; justify-content: space-between; align-items: baseline; font-size: 2.4vh; font-size: calc(2.4 * var(--u)); color: var(--ink2); }
+  .meer-kop b { color: var(--ink); font-weight: 700; }
+  .hub.dicht .meer { animation: zsfade .4s ease; }
+
+  /* nacht: gedimd en warm, alleen de klok en wanneer het goedkoop is (zoals een nachtklok) */
+  .hub.nacht { --bg: #000; --ink: #c0553a; --ink2: #8a3e2b; --vlak2: #140806; --knop: #5a2416; --knop-ink: #f1b8a3; }
+  .nmid { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .nklok { font: 300 26vh/1 "Inter Tight", Inter, system-ui, sans-serif; letter-spacing: -.04em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .nreg { margin-top: 2vh; font-size: 3.4vh; color: var(--ink2); }
+  .hub.nacht .brand, .hub.nacht .clock { color: var(--ink2); } .hub.nacht .brand .logo { opacity: .5; }
+
+  /* kleinere schermen (Nest Hub 1024×600) en staand */
   @media (max-height: 640px) { .brand .sv { display: none; } }
-  @media (max-height: 820px) {
-    .kick { font-size: clamp(14px, 3vh, 20px); }
-    .h { font-size: clamp(36px, 11.5vh, 80px); margin-top: .6vh; }
-    .h small { margin-top: .8vh; }
-    .plan { margin-top: 1.2vh; flex-wrap: nowrap; overflow: hidden; font-size: clamp(12px, 2.5vh, 17px); }
-    .plan .pl { display: none; }
-    .info { height: clamp(46px, 9vh, 60px); margin-bottom: 1vh; }
-    .news { padding-top: 1.2vh; padding-bottom: 1.2vh; }
-    .news .kop { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; font-size: clamp(15px, 3.3vh, 22px); }
-  }
+  @container (max-height: 640px) { .brand .sv { display: none; } }
+  @container (max-width: 760px) { .mid { grid-template-columns: minmax(0, 1fr); } .hubhuis { display: none; } }
+  @media (max-aspect-ratio: 1/1) { .mid { grid-template-columns: minmax(0, 1fr); } .hubhuis { display: none; } }
+  /* Licht (Nest Hub, oud tablet): geen bewegende dingen; een te zware pagina laat de Hub vallen */
+  .lite .radio.speelt .eq i { animation: none; height: 70%; }
+  .lite .news .np, .lite .kop.in, .hub.lite.dicht .meer { animation: none; }
+  .lite .news .np { display: none; }
+  @media (prefers-reduced-motion: reduce) { .hub *, .hub { animation: none !important; transition: none !important; } }
+  @supports (text-wrap: balance) { .news .kop { text-wrap: balance; } }
 `;
 const ZS_HUB_ICON = {
   bolt: '<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6l1-8z"/>',
@@ -489,7 +461,8 @@ class ZonnestuurHubCard extends HTMLElement {
     this._radioSync();
     const st = hass.states[this._config.entity];
     const slot = Math.floor(Date.now() / 15000);
-    const key = (st ? st.last_updated : "none") + new Date().getMinutes() + this._radioState();
+    const dicht = this._dicht && Date.now() < this._dicht;
+    const key = (st ? st.last_updated : "none") + new Date().getMinutes() + this._radioState() + (dicht ? "d" : "");
     if (key === this._key) {
       // Alleen de nieuwskop wisselt: dan alleen die balk vervangen, niet het hele scherm opnieuw opbouwen.
       if (slot !== this._nslot && this._c) {
@@ -505,8 +478,13 @@ class ZonnestuurHubCard extends HTMLElement {
       this.shadowRoot.addEventListener("click", (e) => {
         const k = e.target.closest("[data-radio]");
         if (k) { this._radioKnop(k.dataset.radio === "aan"); return; }
-        if (e.target.closest(".radio") && this._audio) this._audio.play().catch(() => {});
+        if (e.target.closest(".radio") && this._audio) { this._audio.play().catch(() => {}); return; }
+        // Dichtbij: een tik ergens op het scherm toont 30 seconden meer; nog een tik = weer rustig
+        this._dicht = this._dicht && Date.now() < this._dicht ? 0 : Date.now() + 30000;
+        this._key = null; this._hass && (this.hass = this._hass);
       });
+      zsLettertypen();
+      zsMeldBrowser(hass);
       this._t = setInterval(() => { this._hass && (this.hass = this._hass); }, 5000);
     }
     if (!this._c) {
@@ -514,15 +492,23 @@ class ZonnestuurHubCard extends HTMLElement {
       this._c = this.shadowRoot.getElementById("c");
       if (this._audio) this.shadowRoot.appendChild(this._audio);
     }
-    this._c.innerHTML = st && st.attributes.moment ? this.render(st.attributes) : `<div class="hub"><div></div><div class="empty">Zonnestuur is nog niet bereikbaar.</div><div></div></div>`;
-    const hz = this._c.querySelector(".hubhuis svg");
-    if (hz && window.zsHuis) {
-      if (!this.shadowRoot.getElementById("hzcss")) {
-        const c = document.createElement("style"); c.id = "hzcss"; c.textContent = window.zsHuis.css; this.shadowRoot.appendChild(c);
+    const html = st && st.attributes.moment ? this.render(st.attributes) : `<div class="hub"><div></div><div class="empty">Zonnestuur is nog niet bereikbaar.</div><div></div></div>`;
+    const teken = () => {
+      this._c.innerHTML = html;
+      const hz = this._c.querySelector(".hubhuis svg");
+      if (hz && window.zsHuis) {
+        if (!this.shadowRoot.getElementById("hzcss")) {
+          const c = document.createElement("style"); c.id = "hzcss"; c.textContent = window.zsHuis.css; this.shadowRoot.appendChild(c);
+        }
+        try { window.zsHuis.teken(hz, zsHuisStatus(st.attributes), null); } catch (e) { console.warn("zonnestuur huis", e); }
       }
-      try { window.zsHuis.teken(hz, zsHuisStatus(st.attributes), null); } catch (e) { console.warn("zonnestuur huis", e); }
-    }
-    if (this._config.height) this._c.querySelector(".hub").style.setProperty("--zs-hub-h", this._config.height);
+      if (this._config.height) this._c.querySelector(".hub").style.setProperty("--zs-hub-h", this._config.height);
+    };
+    // Wisselt de toestand (goedkoop/duur, dag/avond, tik voor meer), dan zacht overvloeien met View Transitions als de browser dat kan
+    const toestand = (html.match(/class="(hub[^"]*)"/) || [])[1] || "";
+    const wissel = this._toestand && this._toestand !== toestand && document.startViewTransition && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+    this._toestand = toestand;
+    if (wissel) { try { document.startViewTransition(teken); } catch (e) { teken(); } } else teken();
   }
   // Radio in het scherm: zo speelt de muziek door terwijl het scherm in beeld is (een Nest Hub draait maar één cast-app).
   // radio_entity: een input_text met een stream-URL (of een Music Assistant-id "builtin://radio/<url>"); leeg = geen radio.
@@ -806,41 +792,62 @@ class ZonnestuurHubCard extends HTMLElement {
     const nuRij = H.find((r) => now >= r[0] && now < r[0] + 3600), piek = !on && nuRij && nuRij[2] === "dear";
     // Advies: alleen als het past bij het uur (geen wasmachine midden in de nacht)
     const tip = uurNu < 6 ? "" : uurNu >= 22 ? "Start de vaatwasser voor je gaat slapen" : this._config.tip;
-    const wacht = nx ? zsEsc(nx.from) : "";       // 'morgen' staat in de regel erboven: zo blijft de grote tijd op één regel
-    const head = on
-      ? `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.bolt}</svg>Stroom is nu goedkoop</div><div class="h">tot ${zsEsc(C.until)}<small>${zsHubLeft(C.until_ts - now)}</small></div>
-         ${this._witgoed().some((w) => !w.nu) || !tip ? "" : `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(tip)}</div>`}`
-      : nx
-        ? `<div class="kick groen"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${(nx.zelf ? (piek ? "Nu duur · het goedkoopst" : "Het goedkoopst") : piek ? "Nu duur · goedkoop" : "Goedkope stroom") + (nx.day ? " morgen vanaf" : " vanaf")}</div><div class="h">${wacht}<small>tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}</small></div>`
-        : `<div class="kick"><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wait}</svg>${piek ? "Stroom is nu duur" : "Nog even wachten"}</div><div class="h">Wacht even<small>De prijzen van morgen komen rond 13:00</small></div>`;
-    // Wat Zonnestuur straks doet (per apparaat de eerste keer), zodat je ziet dat het geregeld is
-    const gezien = new Set(), plan = (a.plan || []).filter((x) => !gezien.has(x.n) && gezien.add(x.n)).slice(0, 3);
-    const planHtml = plan.length && this._config.plan !== false ? `<div class="plan"><span class="pl">${on ? "Nu en straks" : "Zonnestuur regelt"}</span>${plan.map((x) =>
-      `<span class="pi"><b>${x.now ? "nu" : (x.day ? "morgen " : "") + zsEsc(x.s)}</b>${zsEsc(x.n)} ${zsEsc(x.w)}</span>`).join("")}</div>` : "";
     const cf = this._config, lite = cf.licht ?? /CrKey|Fuchsia/i.test(navigator.userAgent);
-    const acc = ZS_ACCENT[cf.accent] && !(!on && cf.accent === "oranje") ? ZS_ACCENT[cf.accent] : null;
-    const stijl = [acc && on ? `--g:${acc[0]};--g2:${acc[1]}` : "", `--zs-zoom:${({ groot: 1.15, extra: 1.3 })[cf.tekst] || 1}`].filter(Boolean).join(";");
-    const klas = ["hub", on ? "" : "duur", piek ? "piek" : "", lite ? "lite" : "", cf.thema === "licht" ? "lt" : ""].join(" ");
+    const dicht = this._dicht && Date.now() < this._dicht;
+    // Hoofdvlak: één boodschap groot (goedkoop tot / goedkoop vanaf / wachten), met de prijs van nu erbij
+    let status, groot, sub;
+    if (on) { status = "Stroom is nu goedkoop"; groot = `tot ${zsEsc(C.until)}`; sub = zsHubLeft(C.until_ts - now); }
+    else if (nx) {
+      status = (nx.zelf ? (piek ? "Nu duur · het goedkoopst" : "Het goedkoopst") : piek ? "Nu duur · goedkoop" : "Goedkope stroom") + (nx.day ? " morgen vanaf" : " vanaf");
+      groot = zsEsc(nx.from); sub = `tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}`;
+    } else { status = piek ? "Stroom is nu duur" : "Nog even wachten"; groot = "Wacht even"; sub = "De prijzen van morgen komen rond 13:00"; }
+    const avg = C.avg || P.avg, over = !on && avg && pnow ? Math.round((pnow / avg - 1) * 100) : null;
+    const prijsHtml = `<div class="prijs"><b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<em>${under}% onder gemiddeld</em>`
+      : over != null && over >= 10 ? `<em class="duur">${over}% boven gemiddeld</em>` : ""}</div>`;
+    const held = `<div class="held"><div class="status"><i></i>${status}</div><div class="h">${groot}</div><div class="sub">${sub}</div>${prijsHtml}</div>`;
+    const doTip = on && !this._witgoed().some((w) => !w.nu) && tip ? `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(tip)}</div>` : "";
+    // Wat Zonnestuur straks doet (per apparaat de eerste keer), zodat je ziet dat het geregeld is
+    const gezien = new Set(), plan = (a.plan || []).filter((x) => !gezien.has(x.n) && gezien.add(x.n));
+    const wanneer = (x) => x.now ? "nu" : (x.day ? "morgen " : "") + zsEsc(x.s);
+    const regelt = plan.length && cf.plan !== false && !doTip ? `<div class="regelt"><span class="pl">Zonnestuur regelt</span>${plan.slice(0, 2).map((x) =>
+      `<span><b>${wanneer(x)}</b>${zsEsc(x.n)} ${zsEsc(x.w)}</span>`).join("")}</div>` : "";
+    // Thema: volgt de zon (zoals de app), tenzij vast gekozen
+    const z = (a.huis || {}).z || {}, fase = (z.zon || {}).fase || (uurNu >= 8 && uurNu < 17 ? "dag" : "nacht"), wolken = (z.weer || {}).wolken;
+    const donker = cf.thema === "donker" || (cf.thema !== "licht" && fase !== "dag");
+    const acc = ZS_ACCENT[cf.accent] && on ? ZS_ACCENT[cf.accent] : null;
+    const stijl = [acc ? `--held-acc:${acc[0]}` : "", `--zs-zoom:${({ groot: 1.15, extra: 1.3 })[cf.tekst] || 1}`].filter(Boolean).join(";");
+    const klas = ["hub", donker ? "donker" : "licht", on ? "goed" : piek ? "piek" : "wacht", "f-" + (fase === "dag" && wolken >= 75 ? "bewolkt" : fase),
+      lite ? "lite" : "", dicht ? "dicht" : ""].filter(Boolean).join(" ");
     const uur = new Date().getHours();
     const groet = cf.begroeting ? `<span class="groet">${uur < 6 ? "Goedenacht" : uur < 12 ? "Goedemorgen" : uur < 18 ? "Goedemiddag" : "Goedenavond"}${cf.wie ? ", " + zsEsc(cf.wie) : ""}</span>` : "";
-    const logo = `<svg class="logo" viewBox="0 0 48 48" fill="none" stroke="#fbbf24" stroke-width="3.4" stroke-linecap="round" aria-hidden="true"><path d="M11 33a13 13 0 0 1 26 0"/><path d="M24 7v5M8.5 13.5l3.5 3.5M39.5 13.5 36 17M3 33h5M40 33h5"/><path d="M7 39h34" stroke-opacity=".55"/></svg>`;
+    const logo = `<svg class="logo" viewBox="0 0 48 48" fill="none" stroke="#f2a024" stroke-width="3.4" stroke-linecap="round" aria-hidden="true"><path d="M11 33a13 13 0 0 1 26 0"/><path d="M24 7v5M8.5 13.5l3.5 3.5M39.5 13.5 36 17M3 33h5M40 33h5"/><path d="M7 39h34" stroke-opacity=".55"/></svg>`;
     const top = `<div class="top"><span class="brand">${logo}${groet || "Zonnestuur"}${(a.save || {}).month > 0.5 && cf.besparing !== false ? `<em class="sv">${zsEur(a.save.month)} bespaard deze maand</em>` : ""}</span><span class="tr">${this._radioPill()}${this._radioKnopHtml()}<span class="clock">${clock}</span></span></div>`;
     if (zsNacht(cf.nacht_van, cf.nacht_tot)) {
-      // Nachtstand: rustig en donker, alleen de klok en wanneer het goedkoop is.
-      return `<div class="${klas} nacht" style="${stijl}">${top}
+      // Nachtstand: gedimd en warm, alleen de klok en wanneer het goedkoop is.
+      return `<div class="hub donker nacht${lite ? " lite" : ""}" style="${stijl}">${top}
         <div class="mid nmid"><div class="nklok">${clock}</div><div class="nreg">${on ? `Goedkoop tot ${zsEsc(C.until)} · ${zsEur(pnow)}` : nx ? `Goedkoop ${nx.day ? "morgen " : ""}vanaf ${zsEsc(nx.from)}` : ""}</div></div><div></div></div>`;
     }
-    const delen = { info: this._info(a), prijs: bars && cf.prijs !== false ? (cf.prijs_stijl === "lijn" ? zsPrijsLijn(H, now, blkFrom, blkTo) : `<div class="strip" role="img" aria-label="Stroomprijs per uur">${zsBlokLabel(H, blkFrom, blkTo)}${bars}</div>`) + ax : "", nieuws: this._nieuws() };
-    const volg = (Array.isArray(cf.volgorde) && cf.volgorde.length ? cf.volgorde : ["info", "prijs", "nieuws"]).filter((k) => k in delen);
-    for (const k of ["info", "prijs", "nieuws"]) if (!volg.includes(k)) volg.push(k);
-    // Het huis van nu (dezelfde tekening als op Vandaag), met de prijs eronder
+    const metLabel = !!blkFrom && H.some((r) => r[0] >= blkFrom);
+    const prijsDeel = bars && cf.prijs !== false ? (cf.prijs_stijl === "lijn" ? zsPrijsLijn(H, now, blkFrom, blkTo) : `<div class="strip${metLabel ? " met-label" : ""}" role="img" aria-label="Stroomprijs per uur">${zsBlokLabel(H, blkFrom, blkTo)}${bars}</div>`) + ax : "";
+    let onder;
+    if (dicht) {
+      // Dichtbij: alles wat Zonnestuur vandaag regelt, per apparaat, en wat de rest doet
+      const rijen = plan.slice(0, 6).map((x) => `<div class="rij${x.now ? " nu" : ""}"><b>${wanneer(x)}</b><div><strong>${zsEsc(x.n)}</strong><span>${zsEsc(x.w)}</span></div></div>`);
+      for (const d of (a.devices || []).filter((d) => !gezien.has(d.name)).slice(0, Math.max(0, 6 - rijen.length)))
+        rijen.push(`<div class="rij${d.on ? " nu" : ""}"><b>${d.on ? "aan" : "uit"}</b><div><strong>${zsEsc(d.name)}</strong><span>${zsEsc(d.why || (d.on ? "draait" : "wacht"))}</span></div></div>`);
+      onder = `<div class="meer-kop"><b>Wat Zonnestuur regelt</b><span>tik om te sluiten</span></div><div class="meer">${rijen.join("") || `<div class="rij"><b>—</b><div><strong>Niets gepland</strong><span>Zonnestuur wacht op zon of een goedkoop moment</span></div></div>`}</div>${prijsDeel}`;
+    } else {
+      const delen = { info: this._info(a), prijs: prijsDeel, nieuws: this._nieuws() };
+      const volg = (Array.isArray(cf.volgorde) && cf.volgorde.length ? cf.volgorde : ["info", "prijs", "nieuws"]).filter((k) => k in delen);
+      for (const k of ["info", "prijs", "nieuws"]) if (!volg.includes(k)) volg.push(k);
+      onder = volg.map((k) => delen[k]).join("");
+    }
+    // Het huis van nu (dezelfde tekening als op Vandaag), vrij in de lucht van het moment
     const huis = cf.huis !== false && a.huis && a.huis.z && window.zsHuis;
-    const prijsHtml = `<b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<br><em>${under}% onder gemiddeld</em>` : ""}`;
     return `<div class="${klas}" style="${stijl}">${top}
-      <div class="mid${huis ? " met-huis" : ""}"><div>${head}${planHtml}</div>
-        ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" data-pop="2.3" viewBox="4 66 436 204" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div><div class="price klein">${prijsHtml}</div></div>`
-          : `<div class="price">${prijsHtml}</div>`}</div>
-      <div class="onder">${volg.map((k) => delen[k]).join("")}</div>
+      <div class="mid${huis ? "" : " zonder-huis"}"><div class="links">${held}${doTip}${regelt}</div>
+        ${huis ? `<div class="hubhuis"><div class="hstage"><svg class="hz" data-los="1" data-pop="2.3" viewBox="4 66 436 204" role="img" aria-label="Je huis"></svg>${zsHubChips(a)}</div></div>` : ""}</div>
+      <div class="onder">${onder}</div>
     </div>`;
   }
   getCardSize() { return 12; }
@@ -904,6 +911,28 @@ function zsNacht(van, tot) {
   if (!/^\d\d:\d\d$/.test(van || "") || !/^\d\d:\d\d$/.test(tot || "")) return false;
   const d = new Date(), m = d.getHours() * 60 + d.getMinutes(), a = +van.slice(0, 2) * 60 + +van.slice(3), b = +tot.slice(0, 2) * 60 + +tot.slice(3);
   return a <= b ? m >= a && m < b : m >= a || m < b;
+}
+// Inter en Inter Tight (zoals de app) vanaf dezelfde plek als dit bestand: /local/zonnestuur/fonts of de Box /cards/fonts
+function zsLettertypen() {
+  if (window.__zsFont || !window.FontFace || !document.fonts) return;
+  window.__zsFont = 1;
+  let src = "";
+  try { src = (performance.getEntriesByType("resource").map((x) => x.name).find((n) => /zonnestuur-cards\.js/.test(n))) || ""; } catch (e) {}
+  const base = src ? src.replace(/zonnestuur-cards\.js.*$/, "") : "/local/zonnestuur/";
+  for (const [fam, f] of [["Inter", "inter.woff2"], ["Inter Tight", "inter-tight.woff2"]]) {
+    try { new FontFace(fam, `url(${base}fonts/${f})`, { weight: "100 900", display: "swap" }).load().then((x) => document.fonts.add(x)).catch(() => {}); } catch (e) {}
+  }
+}
+// Eén keer per dag in het logboek van de koppelmotor: welke browser dit scherm heeft (zo weten we welke techniek er echt draait)
+function zsMeldBrowser(hass) {
+  try {
+    const dag = new Date().toDateString();
+    if (!hass || !hass.callService || localStorage.getItem("zs_hub_ua") === dag) return;
+    localStorage.setItem("zs_hub_ua", dag);
+    const kan = (p, v) => { try { return CSS.supports(p, v) ? 1 : 0; } catch (e) { return 0; } };
+    const msg = `Zonnestuur-scherm ${ZS_VERSION}: ${navigator.userAgent} | ${innerWidth}x${innerHeight} | cq=${kan("container-type", "size")} mix=${kan("color", "color-mix(in srgb, red, blue)")} vt=${document.startViewTransition ? 1 : 0}`;
+    hass.callService("system_log", "write", { message: msg, level: "info", logger: "zonnestuur.hub" }).catch(() => {});
+  } catch (e) {}
 }
 function zsHubLeft(sec) {
   const m = Math.max(0, Math.round(sec / 60));
