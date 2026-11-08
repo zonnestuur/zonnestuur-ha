@@ -12,7 +12,7 @@
  *
  * Optioneel bij elke kaart: entity: sensor.zonnestuur
  */
-const ZS_VERSION = "1.11.0";
+const ZS_VERSION = "1.11.1";
 
 const ZS_CSS = `
   :host { --zs-sun: #ffb000; --zs-save: #08654a; --zs-cheap: #16733e; --zs-dear: #e34948; --zs-mid: #8a9199; --zs-warn: #c2410c;
@@ -923,15 +923,16 @@ function zsLettertypen() {
     try { new FontFace(fam, `url(${base}fonts/${f})`, { weight: "100 900", display: "swap" }).load().then((x) => document.fonts.add(x)).catch(() => {}); } catch (e) {}
   }
 }
-// Eén keer per dag in het logboek van de koppelmotor: welke browser dit scherm heeft (zo weten we welke techniek er echt draait)
+// Eén keer per kaartversie in het logboek van de koppelmotor: welke browser dit scherm heeft (zo weten we welke techniek er echt
+// draait). Als waarschuwing, want gewone meldingen bewaart de koppelmotor standaard niet.
 function zsMeldBrowser(hass) {
   try {
-    const dag = new Date().toDateString();
+    const dag = ZS_VERSION;
     if (!hass || !hass.callService || localStorage.getItem("zs_hub_ua") === dag) return;
     localStorage.setItem("zs_hub_ua", dag);
     const kan = (p, v) => { try { return CSS.supports(p, v) ? 1 : 0; } catch (e) { return 0; } };
     const msg = `Zonnestuur-scherm ${ZS_VERSION}: ${navigator.userAgent} | ${innerWidth}x${innerHeight} | cq=${kan("container-type", "size")} mix=${kan("color", "color-mix(in srgb, red, blue)")} vt=${document.startViewTransition ? 1 : 0}`;
-    hass.callService("system_log", "write", { message: msg, level: "info", logger: "zonnestuur.hub" }).catch(() => {});
+    hass.callService("system_log", "write", { message: msg, level: "warning", logger: "zonnestuur.hub" }).catch(() => {});
   } catch (e) {}
 }
 function zsHubLeft(sec) {

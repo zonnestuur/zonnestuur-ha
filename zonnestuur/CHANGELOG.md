@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.102.1
+- Nest-scherm: de melding welke browser het scherm heeft komt nu echt in het logboek (één keer per nieuwe versie).
+
 ## 0.102.0
 - Nest-scherm (groot scherm) in de nieuwe stijl van de app: overdag licht, na zonsondergang donker, 's nachts gedimd en warm van kleur. De hoofdboodschap ('goedkoop tot 13:00', 'goedkoop vanaf 10:00') staat groot in een eigen groen of rood vlak, met de prijs van nu erbij; de rest is rustiger. De prijs schuift niet meer over het huis en de planning wordt niet meer afgekapt.
 - Tik op het scherm: 30 seconden lang zie je wat Zonnestuur vandaag regelt, per apparaat. Daarna wordt het vanzelf weer rustig.
