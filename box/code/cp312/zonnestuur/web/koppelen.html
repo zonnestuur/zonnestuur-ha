@@ -1294,7 +1294,8 @@ function huisTekenen() {
       + (zon ? rijHtml("instellingen?onderdeel=inst_zon,feedCard", "zon", "Zonnepanelen", zon) : "") : "")
     + (STAND._verw ? rijHtml("verwarming", "thermo", "Verwarming", STAND._verw.leeg ? { kw: "", label: "", extra: "Thermostaat koppelen: slim stoken op goedkope uren" } : STAND._verw) : "")
     + (mee.some((d) => d.kind === "heatpump") ? rijHtml("warmtepomp", "heatpump", "Warmtepomp en COP", { kw: "", label: "", extra: "Hoe zuinig hij werkt: gemeten, berekend en geschat" }) : "")
-    + `<button type="button" class="rij link plusrij${mee.length ? "" : " leegrij"}" id="plusRij">${ico("plus")}<span><b>${mee.length ? "Apparaat toevoegen" : "Voeg je eerste apparaat toe"}</b><span class="sub">${mee.length ? "Laadpaal, boiler, warmtepomp, batterij of wasmachine" : g.length ? "Of kies hierboven wat Zonnestuur gevonden heeft." : "Zonnestuur zoekt ook vanzelf in je huis."}</span></span>${PIJL}</button>`;
+    + (!mee.length && !zon ? `<div class="leegbeeld"><img src="img/ill/toevoegen.svg" alt="" loading="lazy"><div class="in"><h2>Nog geen apparaten</h2><p>${g.length ? "Kies hierboven wat Zonnestuur gevonden heeft, of voeg zelf een apparaat toe." : "Voeg je boiler, laadpaal of warmtepomp toe. Zonnestuur zoekt ook zelf mee in je wifi."}</p><button type="button" class="btn" id="plusRij">Apparaat toevoegen</button></div></div>` : "")
+    + (!mee.length && !zon ? "" : `<button type="button" class="rij link plusrij" id="plusRij">${ico("plus")}<span><b>${mee.length ? "Apparaat toevoegen" : "Voeg je eerste apparaat toe"}</b><span class="sub">${mee.length ? "Laadpaal, boiler, warmtepomp, batterij of wasmachine" : "Zonnepanelen staan er al; voeg nu een apparaat toe"}</span></span>${PIJL}</button>`);
   $("plusRij").onclick = () => openToevoegen("");
   const NAAR_BASIS = { meter: "inst_meter", zon: "inst_zon,feedCard", prijs: "inst_contract" };
   $("basis").innerHTML = (h.basis || []).filter((b) => b.soort !== "zon" || !STAND._zon).map((b) => `<a class="rij link" href="instellingen?onderdeel=${NAAR_BASIS[b.soort] || "inst_meter"}">${ico(b.soort)}<span><b>${esc(b.naam)}</b><span class="sub">${b.ok ? "" : '<i class="let-op">Nog instellen · </i>'}${esc(b.tekst)}</span></span>${PIJL}</a>`).join("");
@@ -1418,6 +1419,9 @@ async function meterAanbod() {
   };
 }
 (async () => {
+  // eerste start: één keer per browser eerst het korte welkom (overdag, 's nachts, beginnen)
+  if (new URLSearchParams(location.search).has("start")) { let gezien = true; try { gezien = localStorage.getItem("zs_welkom") === "1"; localStorage.setItem("zs_welkom", "1"); } catch (e) {}
+    if (!gezien) { location.replace("kennismaking?start=1"); return; } }
   try { LIST = await (await fetch("koppellijst.json")).json(); } catch (e) { LIST = []; }
   const cats = [...new Set(LIST.map((r) => r.categorie))].sort();
   $("cats").innerHTML = `<button class="on" data-c="">Alles</button>` + cats.map((c) => `<button data-c="${esc(c)}">${esc(c)}</button>`).join("");

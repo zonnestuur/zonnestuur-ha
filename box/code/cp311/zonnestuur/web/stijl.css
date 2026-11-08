@@ -343,3 +343,12 @@ h1, .headline, .page-title { font-family: "Inter Tight", "Inter", system-ui, san
 .testfase strong { color: var(--zs-accent) !important; }
 :root[data-theme="dark"] .testfase { background: #15181e !important; color: #c9c4bb !important; }
 :root[data-theme="dark"] .testfase strong { color: #ffb547 !important; }
+
+/* 0.104 Illustraties (stijl B, img/ill/*.svg): leeg scherm of welkom met een getekend beeld */
+.leegbeeld { padding: 0 !important; overflow: hidden; display: grid; }
+.leegbeeld img { width: 100%; display: block; aspect-ratio: 3 / 2; object-fit: cover; background: #f6ead4; }
+.leegbeeld .in { padding: 16px 20px 20px; }
+.leegbeeld h2 { margin: 0 0 6px; font-size: 1.25rem; }
+.leegbeeld p { margin: 0; color: var(--ink-2); line-height: 1.45; }
+.leegbeeld .btn { margin-top: 14px; justify-self: start; }
+.leegbeeld[hidden] { display: none; }

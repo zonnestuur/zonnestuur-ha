@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.104.0
+- Nieuwe tekeningen in de app, in een eigen zachte stijl: een huis waar overdag de zon naar het warmwatervat stroomt en 's nachts een groen lampje laat zien dat stroom goedkoop is, en een klusjesman die meet, helpt en zwaait.
+- Eerste keer openen: eerst een kort welkom van drie schermen (overdag, 's nachts, beginnen), daarna zoekt Zonnestuur je apparaten.
+- Lege schermen hebben nu een tekening en één duidelijke stap: Inzichten ("We zijn aan het meten"), Apparaten ("Nog geen apparaten") en Werkt alles? ("Alles werkt zoals het hoort").
+- Nest-scherm: de zin over goedkope stroom is duidelijker, bijvoorbeeld "Goedkope stroom vandaag, van 10:00 tot 13:00, dan € 0,34 per kWh".
+
 ## 0.103.0
 - Nest-scherm: bovenin een getekend Hollands landschap met het huis, dat meegaat met de dag (overdag, zonsondergang, nacht). De tegels, prijzen en het nieuws staan eronder op een rustige ondergrond, zodat alles goed leesbaar blijft. Uitzetten kan met `sfeer: false` in de kaart.
 

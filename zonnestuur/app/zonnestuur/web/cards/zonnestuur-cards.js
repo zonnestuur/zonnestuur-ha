@@ -816,11 +816,15 @@ class ZonnestuurHubCard extends HTMLElement {
     let status, groot, sub;
     if (on) { status = "Stroom is nu goedkoop"; groot = `tot ${zsEsc(C.until)}`; sub = zsHubLeft(C.until_ts - now); }
     else if (nx) {
-      status = (nx.zelf ? (piek ? "Nu duur · het goedkoopst" : "Het goedkoopst") : piek ? "Nu duur · goedkoop" : "Goedkope stroom") + (nx.day ? " morgen vanaf" : " vanaf");
-      groot = zsEsc(nx.from); sub = `tot ${zsEsc(nx.until)} · vanaf ${zsEur(nx.min)}`;
+      // In gewone woorden: "Goedkope stroom vandaag / 10:00 / van 10:00 tot 13:00 / dan € 0,34 per kWh, nu € 0,40"
+      status = piek ? `Nu duur · ${nx.zelf ? "goedkoopste uren" : "goedkope stroom"}${nx.day ? " morgen" : " vandaag"}`
+        : (nx.zelf ? "Goedkoopste uren" : "Goedkope stroom") + (nx.day ? " morgen" : " vandaag");
+      groot = zsEsc(nx.from); sub = `van ${zsEsc(nx.from)} tot ${zsEsc(nx.until)}`;
     } else { status = piek ? "Stroom is nu duur" : "Nog even wachten"; groot = "Wacht even"; sub = "De prijzen van morgen komen rond 13:00"; }
     const avg = C.avg || P.avg, over = !on && avg && pnow ? Math.round((pnow / avg - 1) * 100) : null;
-    const prijsHtml = `<div class="prijs"><b>${zsEur(pnow)}</b><span>per kWh nu</span>${under != null && under > 0 ? `<em>${under}% onder gemiddeld</em>`
+    const prijsHtml = !on && nx && nx.min != null
+      ? `<div class="prijs"><b>${zsEur(nx.min)}</b><span>per kWh dan, nu ${zsEur(pnow)}</span></div>`
+      : `<div class="prijs"><b>${zsEur(pnow)}</b><span>per kWh${on ? "" : " nu"}</span>${under != null && under > 0 ? `<em>${under}% onder gemiddeld</em>`
       : over != null && over >= 10 ? `<em class="duur">${over}% boven gemiddeld</em>` : ""}</div>`;
     const held = `<div class="held"><div class="status"><i></i>${status}</div><div class="h">${groot}</div><div class="sub">${sub}</div>${prijsHtml}</div>`;
     const doTip = on && !this._witgoed().some((w) => !w.nu) && tip ? `<div class="do"><span><svg viewBox="0 0 24 24">${ZS_HUB_ICON.wash}</svg></span>${zsEsc(tip)}</div>` : "";
@@ -847,7 +851,7 @@ class ZonnestuurHubCard extends HTMLElement {
     if (zsNacht(cf.nacht_van, cf.nacht_tot)) {
       // Nachtstand: gedimd en warm, alleen de klok en wanneer het goedkoop is.
       return `<div class="hub donker nacht${lite ? " lite" : ""}" style="${stijl}">${top}
-        <div class="mid nmid"><div class="nklok">${clock}</div><div class="nreg">${on ? `Goedkoop tot ${zsEsc(C.until)} · ${zsEur(pnow)}` : nx ? `Goedkoop ${nx.day ? "morgen " : ""}vanaf ${zsEsc(nx.from)}` : ""}</div></div><div></div></div>`;
+        <div class="mid nmid"><div class="nklok">${clock}</div><div class="nreg">${on ? `Goedkoop tot ${zsEsc(C.until)} · ${zsEur(pnow)}` : nx ? `Goedkope stroom ${nx.day ? "morgen " : ""}van ${zsEsc(nx.from)} tot ${zsEsc(nx.until)}` : ""}</div></div><div></div></div>`;
     }
     const metLabel = !!blkFrom && H.some((r) => r[0] >= blkFrom);
     const prijsDeel = bars && cf.prijs !== false ? (cf.prijs_stijl === "lijn" ? zsPrijsLijn(H, now, blkFrom, blkTo) : `<div class="strip${metLabel ? " met-label" : ""}" role="img" aria-label="Stroomprijs per uur">${zsBlokLabel(H, blkFrom, blkTo)}${bars}</div>`) + ax : "";

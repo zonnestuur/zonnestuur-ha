@@ -1080,6 +1080,7 @@ html, body { overscroll-behavior-y: none; }
   .dlegenda i { width: 12px; height: 12px; border-radius: 50%; } .dlegenda span { color: var(--zs-ink2); } .dlegenda b { font-variant-numeric: tabular-nums; }
   @media (max-width: 420px) { .donut-rij { grid-template-columns: 124px minmax(0, 1fr); gap: 14px; } .donut svg { width: 124px; height: 124px; } }
   .inz-tegels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .inz-tegels[hidden], .donutkaart[hidden] { display: none; }
   .inz-t { display: grid; gap: 3px; align-content: start; padding: 16px !important; }
   .inz-t .ti { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 8px; color: #fff; }
   .inz-t .ti svg { width: 24px; height: 24px; }
@@ -1321,6 +1322,7 @@ html, body { overscroll-behavior-y: none; }
     <section class="inz-top adv" aria-label="Overzicht">
       <div class="seg3" role="group" aria-label="Periode" id="inzSeg"><button type="button" data-p="today" aria-pressed="true">Vandaag</button><button type="button" data-p="week" aria-pressed="false">Deze week</button><button type="button" data-p="month" aria-pressed="false">Deze maand</button><button type="button" data-p="year" aria-pressed="false">Dit jaar</button></div>
       <a class="btn ghost inz-dl" id="inzDownload" href="api/download.csv?periode=today" download>Download voor Excel</a>
+      <div class="card leegbeeld" id="inzMeten" hidden><img src="img/ill/meten.svg" alt="" loading="lazy"><div class="in"><h2>We zijn aan het meten</h2><p>Na een paar dagen zie je hier wat Zonnestuur opleverde: hoeveel eigen zon je gebruikte en wat je bespaarde.</p></div></div>
       <div class="card donutkaart" id="donutKaart"><h2 class="sec">Energieverdeling</h2><div class="donut-rij"><div class="donut" id="donut"></div><ul class="dlegenda" id="dLegenda"></ul></div><p class="small muted" id="donutNote"></p></div>
       <div class="inz-tegels"><div class="card inz-t" id="inzBesp"></div><div class="card inz-t" id="inzCo2"></div></div>
     </section>
@@ -4034,6 +4036,9 @@ function renderInzicht() {
   const batZon = bp ? Math.max(0, (bp.charged_kwh || 0) - (bp.grid_kwh || 0)) : 0;
   const evZon = P === "month" ? (s.devices || []).filter((d) => d.kind === "ev").reduce((a, d) => a + ((d.month || {}).kwh_solar || 0), 0) : 0;
   const kaart = $("donutKaart");
+  // nog (bijna) niets gemeten deze maand: een getekend beeld in plaats van lege kaarten met € 0,00
+  const m = sc && sc.month, leeg = !m || ((m.import_kwh || 0) + (m.pv_kwh || 0) + (m.export_kwh || 0)) < 0.5;
+  $("inzMeten").hidden = !leeg; kaart.hidden = leeg; document.querySelector(".inz-tegels").hidden = leeg;
   if (!s.has_panels || !t || !(t.pv_kwh > 0.05)) {
     kaart.querySelector("#donut").innerHTML = ""; $("dLegenda").innerHTML = "";
     $("donutNote").textContent = s.has_panels ? "Nog geen zonnestroom in deze periode." : "Zonder zonnepanelen is er geen opbrengst om te verdelen.";

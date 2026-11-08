@@ -233,7 +233,7 @@ function checks(d) {
     "Je hoeft niets te doen: wij krijgen deze melding automatisch en lossen het op in een volgende versie.");
   add(true, "Versie", `${d.versie}${d.kanaal === "test" ? " (testkanaal)" : ""}`);
   const kop = mis ? `<p class="sam warn">${mis === 1 ? "1 punt vraagt" : mis + " punten vragen"} aandacht. Hieronder staat wat je kunt doen.</p>`
-    : `<p class="sam">Alles in orde ✓</p>`;
+    : `<div class="leegbeeld alles-goed"><img src="img/ill/alles-goed.svg" alt="" loading="lazy"><div class="in"><h2>Alles werkt zoals het hoort</h2><p>Meter, prijzen en apparaten zijn bereikbaar. Hieronder staat per onderdeel wat Zonnestuur controleerde.</p></div></div>`;
   $("checks").innerHTML = kop + out.join("");
 }
 function wanneer(t) { if (!t) return "nog niet"; const m = Math.round((Date.now() / 1000 - t) / 60); return m < 2 ? "net" : m < 90 ? m + " minuten geleden" : Math.round(m / 60) + " uur geleden"; }

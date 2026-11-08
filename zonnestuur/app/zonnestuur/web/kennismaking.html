@@ -26,6 +26,7 @@
   h2 { font: 720 20px/1.2 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; margin: 0 0 4px; }
   .lead { font-size: 18px; color: var(--zs-ink2); margin: 0 0 20px; max-width: 58ch; }
   p { margin: 0 0 10px; }
+  .beeld { display: block; margin: 4px auto 18px; width: min(100%, 360px); height: auto; max-height: min(38vh, 400px); aspect-ratio: 4 / 5; object-fit: contain; }
   .film { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; border: 0; padding: 0; cursor: pointer;
           background: #13202b; color: #fff; }
   .film img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .9; }
@@ -79,6 +80,18 @@
   </header>
 
   <div class="slides" id="slides">
+    <section tabindex="0" class="slide" aria-label="Overdag" data-welkom="1">
+      <img class="beeld" src="img/ill/dag.svg" alt="Een huis in doorsnede: de zon schijnt op de panelen en de stroom loopt naar het warmwatervat">
+      <h1>Overdag gaat je eigen zon naar je apparaten</h1>
+      <p class="lead">Schijnt de zon, dan zet Zonnestuur de boiler aan. Zo gebruik je je eigen stroom in plaats van hem weg te geven.</p>
+    </section>
+
+    <section tabindex="0" class="slide" aria-label="'s Nachts" data-welkom="1">
+      <img class="beeld" src="img/ill/nacht.svg" alt="Hetzelfde huis 's nachts: alleen een groen lampje op het vat brandt">
+      <h1>'s Nachts warmt de boiler op als stroom goedkoop is</h1>
+      <p class="lead">Geen zon? Dan kiest Zonnestuur de goedkoopste uren. Het groene lampje betekent: nu is het voordelig.</p>
+    </section>
+
     <section tabindex="0" class="slide" aria-label="Welkom">
       <div class="eyebrow">Kennismaking van 2 minuten</div>
       <h1>Je huis kiest zelf het beste moment</h1>
@@ -137,7 +150,7 @@
       <div id="nodig"></div>
     </section>
 
-    <section tabindex="0" class="slide" aria-label="Beginnen">
+    <section tabindex="0" class="slide" aria-label="Beginnen" data-welkom="1">
       <div class="eyebrow">Beginnen</div>
       <h1 id="eindKop">Klaar om te beginnen</h1>
       <p class="lead" id="eindTekst">Koppelen duurt ongeveer 5 minuten. Zonnestuur zoekt je meter en apparaten zelf in je thuisnetwerk; je hoeft geen adressen of codes over te typen.</p>
@@ -156,8 +169,11 @@
 <script src="nodig.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const S = $("slides"), slides = [...S.children], START = new URLSearchParams(location.search).has("start");
-if (START) $("skip").href = "apparaten";
+const START = new URLSearchParams(location.search).has("start"), S = $("slides");
+// eerste start: alleen het korte welkom (overdag, 's nachts, beginnen); de rest staat later onder Uitleg
+if (START) [...S.children].forEach((s) => { if (!s.dataset.welkom) s.remove(); });
+const slides = [...S.children];
+if (START) { $("skip").href = "apparaten"; $("eindTekst").textContent = "Zonnestuur zoekt nu je meter en apparaten in je thuisnetwerk. Dat duurt een paar minuten; je hoeft geen adressen of codes over te typen."; }
 else { $("start").href = "./"; $("start").textContent = "Naar het dashboard"; $("eindKop").textContent = "Dat was de kennismaking";
   $("eindTekst").textContent = "Meer weten over een onderdeel? Bij Meer uitleg staat per kaart wat je ziet en hoe Zonnestuur rekent."; }
 $("dots").innerHTML = slides.map((s, i) => `<button type="button" aria-label="${s.getAttribute("aria-label")}" data-i="${i}"></button>`).join("");
@@ -175,14 +191,14 @@ $("vorige").onclick = () => naar(nu() - 1);
 $("volgende").onclick = () => { const i = nu(); if (i === slides.length - 1) location.href = $("start").getAttribute("href"); else naar(i + 1); };
 document.addEventListener("keydown", (e) => { if (e.target.closest("input,textarea")) return; if (e.key === "ArrowRight") naar(nu() + 1); if (e.key === "ArrowLeft") naar(nu() - 1); });
 // De video staat op zonnestuur.nl (zo blijft Zonnestuur zelf klein); pas laden als je op afspelen drukt.
-$("film").onclick = () => {
+if ($("film")) $("film").onclick = () => {
   const v = document.createElement("video");
   v.controls = true; v.autoplay = true; v.playsInline = true; v.poster = "img/uitleg.webp";
   v.innerHTML = '<source src="https://zonnestuur.nl/video/uitleg.mp4" type="video/mp4"><source src="https://zonnestuur.nl/video/uitleg.webm" type="video/webm">';
   v.onerror = () => {};
   const f = $("film"); f.replaceWith(Object.assign(document.createElement("div"), { className: "film", id: "film" })); $("film").append(v); v.play().catch(() => {});
 };
-zsNodig($("nodig"), { koppelUrl: "koppelen" });
+if ($("nodig")) zsNodig($("nodig"), { koppelUrl: "koppelen" });
 bij();
 </script>
 </body>
