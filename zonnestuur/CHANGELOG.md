@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.109.0
+- De controle van de verbruiksvoorspelling telt laden dat je leverancier stuurt (of een andere auto) niet meer mee als huisverbruik. Zo is de vergelijking eerlijk en klopt de bijsturing beter.
+- Brein: hoe zeker de voorspelling is, hangt nu ook af van hoe goed hij uitkwam, met de reden erbij.
+- Energielab: wat je stroom nu kost staat bovenaan, en bij de batterij en de auto zie je wat er gebeurt als de prijsverschillen kleiner of groter worden. De slijtage van de batterij staat er apart bij.
+
 ## 0.108.1
 - Energielab rekent alleen met dagen waarop uurprijzen gemeten zijn. Oudere dagen zonder prijs maakten de uitkomst van batterij en auto te laag.
 

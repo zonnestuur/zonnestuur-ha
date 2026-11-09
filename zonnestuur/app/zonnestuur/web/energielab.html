@@ -95,12 +95,15 @@ async function laad() {
   }
   let h = "";
   if (r.seizoen_mist) h += `<p class="intro">Gerekend met ${r.dagen} dagen met uurprijzen. Een heel jaar is er nog niet: seizoenen die ontbreken tellen niet mee (de winter is duurder dan de zomer), dus lees de bedragen als een eerste indruk.</p>`;
+  if (r.nu) h += `<section class="kaart" aria-labelledby="kNu"><h2 id="kNu">Nu</h2><p class="groot">${eur(r.nu.kosten_jaar)} per jaar</p>
+    <p class="band">Wat je stroom nu kost: je gemeten verbruik${r.panelen ? " en zon" : ""} met de echte uurprijzen, omgerekend naar een jaar${r.heeft_batterij ? ", zonder je batterij" : ""}. Hieronder staat wat er verandert.</p></section>`;
   const B = r.batterij || [];
   h += `<section class="kaart" aria-labelledby="kBat"><h2 id="kBat">${r.heeft_batterij ? "Een (extra) thuisbatterij" : "Een thuisbatterij"}</h2>
     <div class="drie">${B.map((b) => `<div class="blok"><span>${nl(b.kwh)} kWh · ${nl(b.kw, 1)} kW</span><b>${eur(b.per_jaar)}</b><span>per jaar (tussen ${eur(b.laag)} en ${eur(b.hoog)})</span>
       <span style="margin-top:8px">Kost ± ${eur(b.invest)}</span>
       <span class="${b.terugverdiend ? "ok" : "nee"}">${b.terug_jaar == null ? "Verdient zich niet terug" : b.terugverdiend ? "Terug in ± " + nl(b.terug_jaar, 1) + " jaar" : "Pas na ± " + nl(b.terug_jaar) + " jaar terug"}</span>
-      <span>± ${nl(b.cycli_jaar)} keer per jaar leeg</span></div>`).join("")}</div>
+      <span>± ${nl(b.cycli_jaar)} keer per jaar leeg, slijtage ± ${eur(b.slijtage_jaar)} per jaar (al afgetrokken)</span>
+      <span>Kleinere prijsverschillen: ${eur(b.kleiner)}, grotere: ${eur(b.groter)}</span></div>`).join("")}</div>
     <ul class="nadeel"><li>Gerekend met 88% rendement heen en terug en € 0,03 slijtage per kWh.</li><li>Een thuisbatterij gaat 10 tot 15 jaar mee; verdient hij zich later terug, dan is het een gok.</li><li>Prijzen van volgend jaar zijn onbekend. De bandbreedte komt uit de verschillen tussen jouw dagen.</li>${r.panelen ? "" : "<li>Zonder zonnepanelen verdient een batterij alleen aan prijsverschillen tussen nacht en avond.</li>"}</ul></section>`;
   const C = r.contract;
   if (C) {
@@ -117,8 +120,10 @@ async function laad() {
     h += `<section class="kaart" aria-labelledby="kAuto"><h2 id="kAuto">Een elektrische auto</h2>
       <p class="groot">${eur(A.verschil)} per jaar goedkoper met slim laden</p>
       <p class="band">${nl(A.km)} km per jaar is ± ${nl(A.kwh_jaar)} kWh thuis laden (met laadverlies). Direct laden bij thuiskomst om 18:00 kost ± ${eur(A.direct)} per jaar, laden in de goedkoopste uren tussen 18:00 en 07:00 ± ${eur(A.slim)}.</p>
+      <p class="band">Als de prijsverschillen binnen een dag een kwart kleiner worden: ${eur(A.kleiner)}; een kwart groter: ${eur(A.groter)}.</p>
       <ul class="nadeel"><li>Gerekend met 0,18 kWh per km en 12% laadverlies, elke dag dezelfde rit.</li><li>Laden met eigen zonnestroom overdag kan nog goedkoper, als de auto dan thuis is.</li></ul></section>`;
   }
+  h += `<p class="hint" style="margin:18px 2px 0">Gemeten: je meterstanden en uurprijzen. Berekend: wat er met dezelfde uren anders was gegaan. Aangenomen: de prijzen en kilometers bovenaan, rendement en slijtage. Prijsscenario's maken de verschillen binnen een dag kleiner of groter; het gemiddelde blijft gelijk.</p>`;
   $("inhoud").innerHTML = h;
 }
 $("reken").onclick = laad;

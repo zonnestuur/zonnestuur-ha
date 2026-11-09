@@ -87,7 +87,7 @@ async function laad() {
   $("lijst").innerHTML = (d.items || []).map((x) => `<div class="item">
     <h2>${esc(x.naam)}</h2><span class="zeker ${esc(x.zeker)}">${ZEKER[x.zeker] || ""}</span>
     <p class="wat">${esc(x.wat)}</p>
-    <p class="bron">Gebaseerd op: ${esc(x.gegevens)}</p>
+    <p class="bron">Gebaseerd op: ${esc(x.gegevens)}${x.zeker_reden ? `. ${esc(ZEKER[x.zeker] || "")}: ${esc(x.zeker_reden)}` : ""}</p>
     ${x.voorspelling ? `<p class="voorsp">${esc(x.voorspelling.tekst)}</p>` : ""}
     ${x.uitleg ? `<p class="uitleg">${esc(x.uitleg)}</p>` : ""}
     ${x.vergeet || x.link ? `<div class="acties">${x.link ? `<a class="btn ghost" href="${esc(x.link)}">Bekijken</a>` : ""}${x.vergeet ? `<button class="btn ghost" type="button" data-vergeet="${esc(x.id)}" data-naam="${esc(x.naam)}">Vergeten en opnieuw leren</button>` : ""}</div>` : ""}
