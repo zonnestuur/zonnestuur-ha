@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -35,8 +35,9 @@ jobs:
 
       - name: Gereedschap voor de motor (arm64 via qemu)
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq qemu-user-static binfmt-support
+          # alleen de binfmt-regels zijn nodig (die zet het docker-image hieronder); apt mag mislukken (pakketnamen wisselen per Ubuntu)
+          sudo apt-get update -qq || true
+          sudo apt-get install -y -qq qemu-user-static binfmt-support || sudo apt-get install -y -qq qemu-user-binfmt || true
           docker run --privileged --rm tonistiigi/binfmt --install arm64
 
       - name: Beeld bouwen
