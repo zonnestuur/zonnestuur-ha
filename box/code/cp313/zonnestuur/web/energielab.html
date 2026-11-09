@@ -90,11 +90,11 @@ async function laad() {
   const I = r.instellingen || {};
   if (eerste) { $("bp").value = I.bat_prijs; $("vt").value = I.vast; $("km").value = I.km; eerste = false; }
   if (r.te_weinig) {
-    $("inhoud").innerHTML = `<section class="kaart"><h2>Nog even meten</h2><p>Er zijn ${r.dagen} volledige dagen gemeten. Het Energielab rekent vanaf 14 dagen, en het wordt beter naarmate er meer seizoenen in zitten.</p></section>`;
+    $("inhoud").innerHTML = `<section class="kaart"><h2>Nog even meten</h2><p>Er zijn ${r.dagen} volledige dagen met uurprijzen gemeten. Het Energielab rekent vanaf 14 dagen, en het wordt beter naarmate er meer seizoenen in zitten.</p></section>`;
     return;
   }
   let h = "";
-  if (r.seizoen_mist) h += `<p class="intro">Gerekend met ${r.dagen} dagen. Een heel jaar is er nog niet: seizoenen die ontbreken tellen niet mee, dus lees de bedragen als een eerste indruk.</p>`;
+  if (r.seizoen_mist) h += `<p class="intro">Gerekend met ${r.dagen} dagen met uurprijzen. Een heel jaar is er nog niet: seizoenen die ontbreken tellen niet mee (de winter is duurder dan de zomer), dus lees de bedragen als een eerste indruk.</p>`;
   const B = r.batterij || [];
   h += `<section class="kaart" aria-labelledby="kBat"><h2 id="kBat">${r.heeft_batterij ? "Een (extra) thuisbatterij" : "Een thuisbatterij"}</h2>
     <div class="drie">${B.map((b) => `<div class="blok"><span>${nl(b.kwh)} kWh · ${nl(b.kw, 1)} kW</span><b>${eur(b.per_jaar)}</b><span>per jaar (tussen ${eur(b.laag)} en ${eur(b.hoog)})</span>
