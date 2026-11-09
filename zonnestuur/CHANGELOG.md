@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.107.0
+- Updates komen nu echt vanzelf: met "Updates vanzelf installeren" aan installeert Zonnestuur 's nachts tussen 3 en 5 uur zelf de nieuwste versie. Eerder gebeurde dat soms dagenlang niet, omdat er vaker dan eens per dag een nieuwe versie kwam.
+
 ## 0.106.1
 - Delen met de buren: vreemde prijzen uit oude metingen tellen niet meer mee in de berekening.
 
