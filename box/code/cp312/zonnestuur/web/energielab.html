@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08111f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Energielab</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Inter Tight"; src: url("fonts/inter-tight.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100vh; color: var(--zs-ink); font: 15.5px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px 120px; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 6px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; text-decoration: none; color: inherit; }
+  h1 { font: 760 clamp(30px, 6vw, 40px)/1.05 "Inter Tight", Inter, sans-serif; letter-spacing: -.03em; margin: 6px 2px 8px; }
+  h2 { font: 680 19px/1.25 "Inter Tight", Inter, sans-serif; margin: 0 0 10px; }
+  .intro { color: var(--zs-ink2); margin: 0 2px 18px; max-width: 62ch; }
+  .kaart { background: var(--zs-kaart, var(--zs-vlak)); border-radius: 22px; box-shadow: 0 0 0 1px var(--zs-lijn); padding: 18px; margin-bottom: 14px; }
+  .standen { display: grid; gap: 8px; }
+  .standen label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border-radius: 14px; box-shadow: 0 0 0 1px var(--zs-lijn); cursor: pointer; font-size: 14.5px; }
+  .standen label:has(input:checked) { box-shadow: 0 0 0 1.5px var(--zs-knop); background: color-mix(in srgb, var(--zs-knop) 8%, transparent); }
+  .drie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .blok { padding: 12px 14px; border-radius: 16px; background: var(--zs-zacht); }
+  .blok.hier { box-shadow: inset 0 0 0 1.5px var(--zs-groen, #34d399); }
+  .blok b { display: block; font: 720 24px/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; }
+  .blok span { display: block; font-size: 13px; color: var(--zs-ink2); }
+  .graf { width: 100%; height: auto; display: block; }
+  .graf text { fill: var(--zs-ink2); font: 11px Inter, sans-serif; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--zs-ink2); margin-top: 8px; }
+  .legenda span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .rij { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--zs-lijn); }
+  .rij:first-of-type { border-top: 0; }
+  .rij small { color: var(--zs-ink2); grid-column: 1 / -1; }
+  .hint { font-size: 13px; color: var(--zs-ink2); margin: 8px 0 0; }
+  .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
+    padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
+  .velden { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .velden label { display: grid; gap: 4px; font-size: 13.5px; color: var(--zs-ink2); }
+  .velden input { font: inherit; color: var(--zs-ink); background: var(--zs-zacht); border: 1.5px solid var(--zs-lijn); border-radius: 12px; padding: 9px 11px; width: 100%; }
+  #reken { font: 650 15px/1 Inter, sans-serif; padding: 12px 20px; min-height: 44px; border: 0; border-radius: 99px; background: var(--zs-knop); color: var(--zs-knop-ink, #1b1405); cursor: pointer; }
+  .groot { font: 760 clamp(26px, 5vw, 32px)/1.1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; margin: 2px 0 4px; }
+  .band { font-size: 13.5px; color: var(--zs-ink2); }
+  .ok { color: var(--zs-groen, #34d399); font-weight: 650; }
+  .nee { color: var(--zs-ink2); font-weight: 650; }
+  ul.nadeel { margin: 8px 0 0; padding-left: 18px; color: var(--zs-ink2); font-size: 13.5px; }
+  @media (max-width: 560px) { .drie, .velden { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+<main>
+  <header class="top"><a class="brand" href="./"><img src="zon.svg" alt="" width="28" height="28">Zonnestuur</a></header>
+  <h1>Energielab</h1>
+  <p class="intro">Wat levert een verandering op? Zonnestuur rekent het na met jouw eigen meterstanden en prijzen van het afgelopen jaar. Er wordt niets geschakeld: dit is alleen rekenen.</p>
+  <section class="kaart" aria-labelledby="kAann">
+    <h2 id="kAann">Jouw aannames</h2>
+    <div class="velden">
+      <label>Thuisbatterij, prijs per kWh incl. installatie<input id="bp" type="number" min="100" max="2000" step="10" inputmode="decimal"></label>
+      <label>Vast tarief per kWh om mee te vergelijken<input id="vt" type="number" min="0.05" max="1" step="0.01" inputmode="decimal"></label>
+      <label>Kilometers per jaar met een elektrische auto<input id="km" type="number" min="0" max="80000" step="500" inputmode="numeric"></label>
+    </div>
+    <p class="hint">Standaard: € 500 per kWh (offertes 2026: € 400 tot € 700), € 0,32 (goedkoopste vaste tarief, 6 november 2026), 10.000 km. Pas ze aan naar jouw situatie.</p>
+    <p style="margin:10px 0 0"><button class="btn" id="reken" type="button">Opnieuw rekenen</button></p>
+  </section>
+  <div id="inhoud"><p class="intro">Rekenen…</p></div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let token = ""; try { token = localStorage.getItem("zs_token") || ""; } catch (e) {}
+async function api(p) {
+  const r = await fetch(p, { headers: { "X-Token": token } });
+  if (r.status === 401 && await window.zsEigen401(r)) { token = prompt("Wachtwoord voor Zonnestuur") || ""; try { localStorage.setItem("zs_token", token); } catch (e) {} return api(p); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || d.error) throw new Error(d.error || "Dat lukte niet (" + r.status + ")");
+  return d;
+}
+const eur = (x) => "€\u00a0" + Number(x || 0).toLocaleString("nl-NL", { maximumFractionDigits: 0 });
+const nl = (x, d = 0) => x == null ? "–" : Number(x).toLocaleString("nl-NL", { maximumFractionDigits: d });
+let eerste = true;
+async function laad() {
+  const qs = eerste ? "" : `?bat_prijs=${encodeURIComponent($("bp").value)}&vast=${encodeURIComponent($("vt").value)}&km=${encodeURIComponent($("km").value)}`;
+  $("inhoud").innerHTML = '<p class="intro">Rekenen…</p>';
+  let r;
+  try { r = await api("api/energielab" + qs); } catch (e) { $("inhoud").innerHTML = `<p class="intro">${esc(e.message)}</p>`; return; }
+  const I = r.instellingen || {};
+  if (eerste) { $("bp").value = I.bat_prijs; $("vt").value = I.vast; $("km").value = I.km; eerste = false; }
+  if (r.te_weinig) {
+    $("inhoud").innerHTML = `<section class="kaart"><h2>Nog even meten</h2><p>Er zijn ${r.dagen} volledige dagen gemeten. Het Energielab rekent vanaf 14 dagen, en het wordt beter naarmate er meer seizoenen in zitten.</p></section>`;
+    return;
+  }
+  let h = "";
+  if (r.seizoen_mist) h += `<p class="intro">Gerekend met ${r.dagen} dagen. Een heel jaar is er nog niet: seizoenen die ontbreken tellen niet mee, dus lees de bedragen als een eerste indruk.</p>`;
+  const B = r.batterij || [];
+  h += `<section class="kaart" aria-labelledby="kBat"><h2 id="kBat">${r.heeft_batterij ? "Een (extra) thuisbatterij" : "Een thuisbatterij"}</h2>
+    <div class="drie">${B.map((b) => `<div class="blok"><span>${nl(b.kwh)} kWh · ${nl(b.kw, 1)} kW</span><b>${eur(b.per_jaar)}</b><span>per jaar (tussen ${eur(b.laag)} en ${eur(b.hoog)})</span>
+      <span style="margin-top:8px">Kost ± ${eur(b.invest)}</span>
+      <span class="${b.terugverdiend ? "ok" : "nee"}">${b.terug_jaar == null ? "Verdient zich niet terug" : b.terugverdiend ? "Terug in ± " + nl(b.terug_jaar, 1) + " jaar" : "Pas na ± " + nl(b.terug_jaar) + " jaar terug"}</span>
+      <span>± ${nl(b.cycli_jaar)} keer per jaar leeg</span></div>`).join("")}</div>
+    <ul class="nadeel"><li>Gerekend met 88% rendement heen en terug en € 0,03 slijtage per kWh.</li><li>Een thuisbatterij gaat 10 tot 15 jaar mee; verdient hij zich later terug, dan is het een gok.</li><li>Prijzen van volgend jaar zijn onbekend. De bandbreedte komt uit de verschillen tussen jouw dagen.</li>${r.panelen ? "" : "<li>Zonder zonnepanelen verdient een batterij alleen aan prijsverschillen tussen nacht en avond.</li>"}</ul></section>`;
+  const C = r.contract;
+  if (C) {
+    const goedkoper = C.verschil > 0;
+    h += `<section class="kaart" aria-labelledby="kCon"><h2 id="kCon">Dynamisch tegenover vast</h2>
+      <p class="groot">${goedkoper ? eur(C.verschil) + " voordeliger" : eur(-C.verschil) + " duurder"}</p>
+      <p class="band">Je dynamische contract kostte voor ${nl(C.kwh_jaar)} kWh per jaar ± ${eur(C.dynamisch)} (gemiddeld € ${nl(C.gem_dynamisch, 3)} per kWh). Met een vast tarief van € ${nl(C.vast_prijs, 2)} was dat ± ${eur(C.vast)}.</p>
+      <ul class="nadeel"><li>Alleen wat je afneemt. Wat je teruglevert hangt te veel af van de voorwaarden per leverancier.</li><li>Vaste kosten per maand verschillen ook per contract en tellen hier niet mee.</li></ul></section>`;
+  } else {
+    h += `<section class="kaart" aria-labelledby="kCon"><h2 id="kCon">Dynamisch tegenover vast</h2><p class="band">Dit rekent Zonnestuur uit met je eigen uurprijzen. Die zijn er alleen als je een dynamisch contract hebt.</p></section>`;
+  }
+  const A = r.auto;
+  if (A) {
+    h += `<section class="kaart" aria-labelledby="kAuto"><h2 id="kAuto">Een elektrische auto</h2>
+      <p class="groot">${eur(A.verschil)} per jaar goedkoper met slim laden</p>
+      <p class="band">${nl(A.km)} km per jaar is ± ${nl(A.kwh_jaar)} kWh thuis laden (met laadverlies). Direct laden bij thuiskomst om 18:00 kost ± ${eur(A.direct)} per jaar, laden in de goedkoopste uren tussen 18:00 en 07:00 ± ${eur(A.slim)}.</p>
+      <ul class="nadeel"><li>Gerekend met 0,18 kWh per km en 12% laadverlies, elke dag dezelfde rit.</li><li>Laden met eigen zonnestroom overdag kan nog goedkoper, als de auto dan thuis is.</li></ul></section>`;
+  }
+  $("inhoud").innerHTML = h;
+}
+$("reken").onclick = laad;
+laad();
+</script>
+</body>
+</html>

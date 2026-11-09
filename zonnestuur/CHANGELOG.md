@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.108.0
+- Nieuw: het Energielab (Inzichten en Meer). Met je eigen meterstanden van het afgelopen jaar rekent Zonnestuur uit wat een thuisbatterij van 5, 10 of 15 kWh had opgeleverd (met terugverdientijd en bandbreedte), wat je dynamische contract kostte tegenover een vast tarief, en wat slim laden van een elektrische auto scheelt. Je kunt de prijzen en kilometers zelf aanpassen.
+- Delen met de buren rekende met de verkeerde prijseenheid; dat is hersteld.
+
 ## 0.107.0
 - Updates komen nu echt vanzelf: met "Updates vanzelf installeren" aan installeert Zonnestuur 's nachts tussen 3 en 5 uur zelf de nieuwste versie. Eerder gebeurde dat soms dagenlang niet, omdat er vaker dan eens per dag een nieuwe versie kwam.
 
