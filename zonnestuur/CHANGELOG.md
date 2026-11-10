@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.113.0
+- Verbruik per dag: tik op een apparaat en je ziet onderaan per dag hoeveel stroom het gebruikte (14 of 30 dagen), met vandaag, gisteren en het gemiddelde. Tik op een dag voor de details. Werkt ook bij een auto die je leverancier laadt.
+- Planning toont nu alle apparaten. Wat op dit moment geen uren nodig heeft, staat er ook bij, met de reden (bijvoorbeeld: is al warm genoeg, staat op Vandaag niet, of wordt door je leverancier gestuurd).
+
 ## 0.112.1
 - Nest Hub: nieuwe sfeerbeelden voor dag, schemer en nacht, zonder auto en laadpaal. Het dagbeeld is ook scherper.
 

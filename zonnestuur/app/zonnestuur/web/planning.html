@@ -39,6 +39,9 @@
   .melding { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--zs-vlak); color: var(--zs-ink);
     padding: 10px 16px; border-radius: 99px; box-shadow: 0 0 0 1px var(--zs-lijn), 0 12px 30px -12px rgba(0,0,0,.6); font-weight: 600; font-size: 14px; z-index: 60; }
   @media (max-width: 560px) { .drie { grid-template-columns: 1fr; } }
+  /* 0.113: apparaten die nu niet in het plan zitten staan er wel bij, met de reden */
+  a.rij.rust { display: grid; text-decoration: none; color: inherit; }
+  a.rij.rust > span { color: var(--ink-3, var(--zs-ink3)); }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -86,7 +89,8 @@ async function laad(nu) {
   const ids = Object.keys(p.namen || {});
   h += `<section class="kaart"><h2>Per uur</h2>${grafiek(p, ids)}<div class="legenda"><span style="--c:var(--e-huis)">Huis</span>${ids.map((k, i) => `<span style="--c:${KLEUR[i % KLEUR.length]}">${esc(p.namen[k])}</span>`).join("")}<span style="--c:var(--e-bat)">Batterij laden</span><span style="--c:var(--e-zon)">Zon</span></div></section>`;
   h += `<section class="kaart"><h2>Apparaten</h2>${(p.apparaten || []).map((a) => { const u = (p.uren_per_apparaat || {})[a.id] || [];
-      return `<div class="rij"><b>${esc(a.naam)}</b><span>${kwh(a.kwh)}</span><small>${u.length ? "Gepland: " + u.map(uur).join(", ") : "Geen uren nodig"} · klaar vóór ${a.klaar ? dagUur(a.klaar) : "–"}${(S.tekort || {})[a.id] ? ` · past niet helemaal: ${kwh(S.tekort[a.id])} tekort` : ""}</small></div>`; }).join("") || `<p class="hint">Er hoeft nu geen apparaat iets.</p>`}
+      return `<div class="rij"><b>${esc(a.naam)}</b><span>${kwh(a.kwh)}</span><small>${u.length ? "Gepland: " + u.map(uur).join(", ") : "Geen uren nodig"} · klaar vóór ${a.klaar ? dagUur(a.klaar) : "–"}${(S.tekort || {})[a.id] ? ` · past niet helemaal: ${kwh(S.tekort[a.id])} tekort` : ""}</small></div>`; }).join("") || ((p.niet_gepland || []).length ? "" : `<p class="hint">Er hoeft nu geen apparaat iets.</p>`)}
+    ${(p.niet_gepland || []).map((a) => `<a class="rij rust" href="apparaat?id=${encodeURIComponent(a.id)}"><b>${esc(a.naam)}</b><span>nu niets te plannen</span><small>${esc(a.reden)}</small></a>`).join("")}
     ${p.batterij ? `<div class="rij"><b>Thuisbatterij</b><span>${kwh(p.batterij.soc_kwh)} van ${kwh(p.batterij.cap_kwh)}</span><small>Levert ${kwh(S.batterij_uit_kwh)} in deze periode.</small></div>` : ""}
     <p class="hint">Berekend ${dagUur(p.t)} in ${String(p.rekentijd_s).replace(".", ",")} s. <button class="btn ghost small" type="button" id="opnieuw">Nu opnieuw rekenen</button></p></section>`;
   $("inhoud").innerHTML = h;

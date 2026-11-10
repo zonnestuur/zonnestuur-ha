@@ -278,6 +278,29 @@ html, body { overscroll-behavior-y: none; }
   @keyframes hzDamp { 0% { transform: translateY(2px); opacity: 0; } 50% { opacity: .6; } 100% { transform: translateY(-6px); opacity: 0; } }
   .flow.paused .hz * { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { .hz * { animation: none !important; } }
+  /* 0.113 verbruik per dag op de apparaatpagina */
+  .verbruik { margin-top: 14px; }
+  .vb-kop { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .vb-kop h2 { margin: 0; }
+  .vb-seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--zs-vlak2, rgba(127,127,127,.14)); }
+  .vb-seg button { border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; min-height: 32px; cursor: pointer; }
+  .vb-seg button[aria-pressed="true"] { background: var(--zs-kaart, var(--card)); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.18); }
+  .vb-cijfers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 6px; }
+  .vb-cijfers span { display: block; font-size: 12.5px; color: var(--ink-2); }
+  .vb-cijfers b { font: 750 clamp(18px, 5vw, 24px)/1.2 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; }
+  .vb-staven { display: flex; align-items: stretch; gap: 3px; height: 150px; margin-top: 10px; }
+  .vb-staven.n30 { gap: 2px; }
+  .vb-staven button { flex: 1 1 0; min-width: 0; padding: 0; border: 0; background: none; color: var(--ink-3); font: inherit; cursor: pointer;
+    display: grid; grid-template-rows: 1fr auto; gap: 5px; -webkit-tap-highlight-color: transparent; }
+  .vb-staven button i { align-self: end; display: block; width: 100%; border-radius: 5px 5px 2px 2px; background: var(--zs-accent, #f5a524); opacity: .42; transition: height .5s var(--zs-uit, ease), opacity .15s; }
+  .vb-staven button.vb-nu i { opacity: .75; }   /* niet 'nu': die klasse verbergt Home-onderdelen op deze pagina */
+  .vb-staven button.sel i, .vb-staven button:hover i { opacity: 1; }
+  .vb-staven button span { font-size: 10.5px; line-height: 1.15; min-height: 2.3em; text-align: center; white-space: nowrap; }
+  .vb-staven.n30 button span { min-height: 1.2em; }
+  .vb-staven button.sel span { color: var(--ink); font-weight: 700; }
+  .vb-staven button:focus-visible { outline: 2px solid var(--zs-accent); outline-offset: 2px; border-radius: 6px; }
+  .vb-detail { margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--zs-vlak2, rgba(127,127,127,.12)); font-size: 14px; }
+  .vb-detail b { margin-right: 6px; }
   .runrep { margin-top: 8px; font-size: 13px; color: var(--ink-2); display: flex; gap: 6px; align-items: baseline; }
   .runrep b { color: var(--ink); }
   .devtip { margin-top: 8px; font-size: 13px; padding: 8px 10px; border-radius: 10px; background: var(--good-soft); color: var(--ink); }
@@ -2598,6 +2621,57 @@ function apparaatAlleen(s, wrap) {
   if (!deze) wrap.innerHTML = `<div class="card"><p>Dit apparaat bestaat niet (meer). <a href="apparaten">Naar Apparaten</a></p></div>`;
   else if (d) appHeld(wrap, d);
   if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
+  if (deze && (d || w)) verbruikKlaar(wrap, d ? d.id : "obs-" + w.id, w ? (w.leverancier || "") : "");
+}
+// ---- 0.113: verbruik per dag van dit apparaat (laatste 14 of 30 dagen). Tik op een dag voor het bedrag van die dag.
+let VB = null, VB_T = 0, VB_N = 14, VB_SEL = -1;
+try { VB_N = Number(localStorage.getItem("zs_vb_n")) === 30 ? 30 : 14; } catch (e) {}
+function verbruikKlaar(wrap, bron, lev) {
+  let box = $("verbruik");
+  if (!box) {                                        // wordt bij opnieuw tekenen weer gemaakt, zoals de bediening
+    box = document.createElement("article");
+    box.id = "verbruik"; box.className = "card verbruik";
+    box.innerHTML = `<h2 class="t">Verbruik per dag</h2><p class="small muted">Bezig met ophalen…</p>`;
+    wrap.appendChild(box);
+    if (VB) verbruikTekenen(box, lev);
+  }
+  if (Date.now() - VB_T > 300000) {
+    VB_T = Date.now();
+    api1("api/verbruik?dagen=30&bron=" + encodeURIComponent(bron)).then((r) => { VB = r; verbruikTekenen($("verbruik") || box, lev); }).catch(() => { VB_T = 0; });
+  }
+}
+function verbruikTekenen(box, lev) {
+  const r = VB;
+  if (!r || !r.ok) { box.hidden = true; return; }
+  box.hidden = false;
+  const D = r.dagen.slice(-VB_N), max = Math.max(0.5, ...D.map((x) => x.kwh));
+  const kwh = (v) => nl(v, v >= 10 ? 0 : 1) + " kWh";
+  if (VB_SEL < 0 || VB_SEL >= D.length) VB_SEL = D.length - 1;
+  const uitleg = { gemeten: "Gemeten aan het apparaat zelf, de hele dag. Dus ook wat hij deed zonder dat Zonnestuur hem aanzette.",
+    alleen_aan: "Telt alleen wat hij gebruikte terwijl Zonnestuur hem aan had staan. Wat hij zelf bijwarmde, zit er niet in.",
+    meekijken: `Wat ${esc(lev || "je leverancier")} laadde, gemeten aan de laadpaal.`,
+    geteld: "Geteld uit het vermogen van het apparaat terwijl het aan stond." }[r.soort] || "";
+  if (!r.dagen_met) {
+    box.innerHTML = `<h2 class="t">Verbruik per dag</h2><p class="small muted" style="margin:0">Nog niets gemeten. Zodra dit apparaat stroom gebruikt, zie je hier per dag hoeveel.</p>`;
+    return;
+  }
+  const detail = (x) => `<b>${esc(x.label)}</b> ${kwh(x.kwh)}`
+    + (x.kosten != null ? ` · ${eur(x.kosten)}` : "")
+    + (x.zon_kwh != null && x.zon_kwh >= 0.05 ? ` · ${nl(x.zon_kwh, 1)} van eigen zon` : "")
+    + (x.bespaard != null && Math.abs(x.bespaard) >= 0.005 ? ` · ${eur(Math.abs(x.bespaard))} ${x.bespaard >= 0 ? "bespaard" : "duurder"}` : "");
+  box.innerHTML = `<div class="vb-kop"><h2 class="t">Verbruik per dag</h2>
+      <div class="seg vb-seg" role="group" aria-label="Periode">${[14, 30].map((n) => `<button type="button" data-n="${n}" aria-pressed="${n === VB_N}">${n} dagen</button>`).join("")}</div></div>
+    <div class="vb-cijfers"><div><span>Vandaag</span><b class="num">${kwh(r.vandaag)}</b></div><div><span>Gisteren</span><b class="num">${kwh(r.gisteren)}</b></div>
+      <div><span>Gemiddeld</span><b class="num">${r.gemiddeld != null ? kwh(r.gemiddeld) : "–"}</b></div></div>
+    <div class="vb-staven n${VB_N}" role="group" aria-label="Verbruik per dag, tik op een dag">${D.map((x, i) => `<button type="button" class="${i === D.length - 1 ? "vb-nu" : ""}${i === VB_SEL ? " sel" : ""}" data-i="${i}" aria-label="${esc(x.label)}: ${kwh(x.kwh)}"><i style="height:${Math.max(x.kwh > 0 ? 3 : 0, x.kwh / max * 100).toFixed(1)}%"></i><span>${VB_N === 14 ? esc(x.label.split(" ")[0]) + "<br>" + esc(x.label.split(" ")[1]) : (D.length - 1 - i) % 5 === 0 ? esc(x.label.split(" ")[1]) : "&nbsp;"}</span></button>`).join("")}</div>
+    <p class="vb-detail" id="vbDetail" aria-live="polite">${detail(D[VB_SEL])}</p>
+    <p class="small muted" style="margin:6px 0 0">${uitleg}</p>`;
+  box.querySelectorAll(".vb-seg button").forEach((b) => b.onclick = () => { VB_N = Number(b.dataset.n); VB_SEL = -1; try { localStorage.setItem("zs_vb_n", VB_N); } catch (e) {} verbruikTekenen(box, lev); });
+  box.querySelectorAll(".vb-staven button").forEach((b) => b.onclick = () => {
+    VB_SEL = Number(b.dataset.i);
+    box.querySelectorAll(".vb-staven button").forEach((x) => x.classList.toggle("sel", x === b));
+    $("vbDetail").innerHTML = detail(D[VB_SEL]);
+  });
 }
 // ---- Daglicht (0.99): het hoofdbeeld van een apparaat. Alleen echte gegevens: watertemperatuur als die er is, anders
 // hoeveel hij vandaag al opwarmde; de accu van de auto; anders het vermogen van nu.
