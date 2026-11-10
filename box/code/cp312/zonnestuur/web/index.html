@@ -2115,6 +2115,7 @@ function renderChips(s) {
   if (ev > 0) c.push(["auto", autoPlek, "Auto laden", kwT(ev)]);
   else if (auto && autoSoc != null) c.push(["auto", autoPlek, auto.name, nl(autoSoc) + "%"]);
   el.innerHTML = c.map(([k, plek, l, v]) => `<div class="hchip ${k} ${plek}"><span class="hi">${SVGI(HI[k.split(" ")[0]])}</span><span><small>${esc(l)}</small><b class="num">${esc(v)}</b></span></div>`).join("");
+  if (window.zsRol) zsRol(el.querySelectorAll("b.num"), "chips:" + c.map((x) => x[0]).join());
 }
 // kleine lijn van de laatste dagen (voor de tegels)
 function lijntje(vals, kleur) {
@@ -2160,6 +2161,7 @@ function renderCijfers(s) {
       <span class="d">vandaag${kg != null ? `, gem. ${Math.round(kg * 100)} ct` : ""}</span></a>`);
   }
   el.innerHTML = k.join("");
+  if (window.zsRol) zsRol(el.querySelectorAll("b.v"), "cijfers" + k.length);
 }
 // Goedkoopste aaneengesloten blok van 3 uur in de rest van vandaag (of morgen)
 function goedkoopBlok() {

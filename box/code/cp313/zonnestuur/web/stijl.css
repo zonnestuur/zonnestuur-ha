@@ -357,3 +357,27 @@ h1, .headline, .page-title { font-family: "Inter Tight", "Inter", system-ui, san
   .leegbeeld img { height: 100%; min-height: 220px; }
   .leegbeeld .in { padding: 24px 28px; }
 }
+
+/* 0.111 NIEUWE TECHNIEK (nov. 2026): alles als extraatje; een browser die het niet kent toont gewoon het oude.
+   - zachte 'squircle'-hoeken zoals op een iPhone (corner-shape; Chrome/Android 142+)
+   - rijen en tegels komen na elkaar binnen (sibling-index(); Chrome 138, Safari 26.2, Firefox 154); alleen schuiven,
+     nooit doorzichtig (meekijken en de contrastcontrole zien anders lege vlakken)
+   - tekstvakken groeien mee met wat je typt (field-sizing)
+   - getallen rollen naar hun nieuwe waarde (zsRol in nav.js) */
+@supports (corner-shape: squircle) {
+  .card, .kaart, .tegel, .inst-lijst, .app-held, .leegbeeld, dialog, .blad { corner-shape: squircle; }
+  .card, .kaart, .leegbeeld { border-radius: calc(var(--zs-r, 22px) * 1.35); }
+}
+@supports (order: sibling-index()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* alleen lijsten die één keer getekend worden: wat elke halve minuut ververst, zou steeds opnieuw binnenschuiven */
+    .inst-lijst > .inst-rij, .inzicht-links > a, body.p-meer .lijst > a.rij {
+      animation: zs-na-elkaar .5s var(--zs-uit, cubic-bezier(.2, .8, .2, 1)) backwards;
+      animation-delay: calc(min(sibling-index(), 10) * 28ms);
+    }
+  }
+}
+@keyframes zs-na-elkaar { from { translate: 0 10px; } }
+textarea { field-sizing: content; min-height: 3lh; max-height: 14lh; }
+/* getallen die naar hun nieuwe waarde rollen (zsRol in nav.js) staan stil op hun plek */
+.rolt { font-variant-numeric: tabular-nums; }

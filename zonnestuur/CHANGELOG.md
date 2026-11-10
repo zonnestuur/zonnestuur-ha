@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.111.0
+- Apparaat instellen is veel korter: bovenaan alleen de naam, de temperatuur, wanneer het klaar moet zijn en wekelijks heet. Alles wat Zonnestuur zelf goed kiest, staat onder één knop "Meer instellingen".
+- Instellingen: elke regel zegt kort wat het is of wat je nu hebt ingesteld (bijvoorbeeld "Vast · € 0,29 per kWh").
+- Mooier: zachtere hoeken, rijen die rustig na elkaar binnenkomen en getallen die naar hun nieuwe waarde tellen in plaats van te verspringen (op toestellen die dat kunnen).
+- Nest Hub: de labels bij het huis zijn groter, bij het goedkope blok staat de prijs en het duurste uur dat nog komt krijgt een eigen label.
+
 ## 0.110.0
 - Sneller: de app opent meteen met wat je de vorige keer zag en ververst daarna. Pagina's zijn kleiner en worden onthouden, en Home haalt alles in één keer op in plaats van in tientallen losse vragen.
 - Inzichten is korter: bovenaan wat het opleverde en acht duidelijke tegels (ook Energielab, Waarom deed hij dat?, Wat Zonnestuur weet en Met en zonder sturing). De uitgebreide grafieken en het logboek staan achter één knop.

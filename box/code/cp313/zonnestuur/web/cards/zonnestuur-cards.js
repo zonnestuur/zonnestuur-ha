@@ -12,7 +12,7 @@
  *
  * Optioneel bij elke kaart: entity: sensor.zonnestuur
  */
-const ZS_VERSION = "1.12.0";
+const ZS_VERSION = "1.13.0";
 // Waar dit bestand vandaan kwam (bij het laden uit de foutmelding-stapel gelezen: werkt ook als script-module)
 const ZS_SRC = (() => { try { throw new Error("zs"); } catch (e) { const m = String(e.stack || "").match(/(https?:\/\/[^\s)"']*?zonnestuur-cards\.js)/); return m ? m[1] : ""; } })();
 
@@ -334,7 +334,7 @@ const ZS_HUB_CSS = `
     -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent); mask-image: linear-gradient(180deg, #000 82%, transparent); }
   .hstage .hz .hz-labels, .hstage .hz > rect[fill="none"] { display: none; }
   .hch { position: absolute; display: flex; align-items: center; gap: .45em; padding: .32em .75em .32em .32em; border-radius: 14px; background: var(--vlak); color: var(--ink);
-    box-shadow: var(--schaduw), 0 0 0 1px var(--lijn); font-size: 2.1vh; font-size: calc(2.1 * var(--u)); line-height: 1.15; z-index: 2; }
+    box-shadow: var(--schaduw), 0 0 0 1px var(--lijn); font-size: 2.6vh; font-size: calc(2.6 * var(--u)); line-height: 1.15; z-index: 2; }
   .hch .i { width: 1.9em; height: 1.9em; border-radius: 10px; display: grid; place-items: center; background: var(--vlak2); color: var(--k); }
   .hch .i svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .hch small { display: block; font-size: .78em; color: var(--ink2); font-weight: 550; }
@@ -367,6 +367,11 @@ const ZS_HUB_CSS = `
   .blklab { position: absolute; top: -.5em; transform: translate(-50%, -100%); white-space: nowrap; font-size: 2vh; font-size: calc(2 * var(--u)); font-weight: 680;
     color: #fff; background: var(--bar-blk); padding: .25em .7em; border-radius: 99px; }
   .hub.donker .blklab { color: #06150e; }
+  /* 1.13: ook het duurste uur dat nog komt krijgt een label, en de prijs staat erbij (leesbaar vanaf de bank) */
+  .blklab.duur { background: var(--bar-dr); color: #fff; }
+  .hub.donker .blklab.duur { color: #1c0906; }
+  .blklab b { font-weight: 800; }
+  @supports (corner-shape: squircle) { .held, .hch, .tegel, .nws { corner-shape: squircle; } .held { border-radius: 38px; } }
   .ax { position: relative; height: 1.3em; color: var(--ink3); font-size: 1.9vh; font-size: calc(1.9 * var(--u)); margin-top: -.4vh; font-variant-numeric: tabular-nums; }
   .ax span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
   .ax span.d { transform: none; color: var(--ink2); font-weight: 650; }
@@ -853,8 +858,9 @@ class ZonnestuurHubCard extends HTMLElement {
       return `<div class="hub donker nacht${lite ? " lite" : ""}" style="${stijl}">${top}
         <div class="mid nmid"><div class="nklok">${clock}</div><div class="nreg">${on ? `Goedkoop tot ${zsEsc(C.until)} · ${zsEur(pnow)}` : nx ? `Goedkope stroom ${nx.day ? "morgen " : ""}van ${zsEsc(nx.from)} tot ${zsEsc(nx.until)}` : ""}</div></div><div></div></div>`;
     }
-    const metLabel = !!blkFrom && H.some((r) => r[0] >= blkFrom);
-    const prijsDeel = bars && cf.prijs !== false ? (cf.prijs_stijl === "lijn" ? zsPrijsLijn(H, now, blkFrom, blkTo) : `<div class="strip${metLabel ? " met-label" : ""}" role="img" aria-label="Stroomprijs per uur">${zsBlokLabel(H, blkFrom, blkTo)}${bars}</div>`) + ax : "";
+    const duurLab = zsDuurLabel(H, now, blkFrom, blkTo);
+    const metLabel = (!!blkFrom && H.some((r) => r[0] >= blkFrom)) || !!duurLab;
+    const prijsDeel = bars && cf.prijs !== false ? (cf.prijs_stijl === "lijn" ? zsPrijsLijn(H, now, blkFrom, blkTo) : `<div class="strip${metLabel ? " met-label" : ""}" role="img" aria-label="Stroomprijs per uur">${zsBlokLabel(H, blkFrom, blkTo)}${duurLab}${bars}</div>`) + ax : "";
     let onder;
     if (dicht) {
       // Dichtbij: alles wat Zonnestuur vandaag regelt, per apparaat, en wat de rest doet
@@ -906,7 +912,19 @@ function zsBlokLabel(H, van, tot) {
   const bi = H.findIndex((r) => r[0] >= van), be = H.findIndex((r) => r[0] >= tot);
   if (bi < 0) return "";
   const e = be < 0 ? H.length : be, hm = (t) => new Date(t * 1000).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
-  return `<span class="blklab" style="left:${((bi + e) / 2 / H.length * 100).toFixed(2)}%">goedkoop ${hm(van)}–${hm(tot)}</span>`;
+  const pr = H.slice(bi, e).map((r) => r[1]).filter((v) => v != null), gem = pr.length ? pr.reduce((a, b) => a + b, 0) / pr.length : null;
+  return `<span class="blklab" style="left:${((bi + e) / 2 / H.length * 100).toFixed(2)}%">goedkoop ${hm(van)}–${hm(tot)}${gem != null ? ` · <b>${Math.round(gem * 100)} ct</b>` : ""}</span>`;
+}
+// Label boven het duurste uur dat nog komt (alleen als het niet tegen het goedkoop-label aan staat)
+function zsDuurLabel(H, now, van, tot) {
+  let di = -1;
+  H.forEach((r, i) => { if (r[0] + 3600 > now && r[2] === "dear" && (di < 0 || r[1] > H[di][1])) di = i; });
+  if (di < 0) return "";
+  const bi = H.findIndex((r) => r[0] >= van), be = H.findIndex((r) => r[0] >= tot);
+  const midden = bi < 0 ? -99 : (bi + (be < 0 ? H.length : be)) / 2;
+  if (Math.abs(di + 0.5 - midden) / H.length < 0.22) return "";
+  const links = Math.min(92, Math.max(8, (di + 0.5) / H.length * 100));
+  return `<span class="blklab duur" style="left:${links.toFixed(2)}%">duurst ${new Date(H[di][0] * 1000).getHours()}:00 · <b>${Math.round(H[di][1] * 100)} ct</b></span>`;
 }
 function zsLucht(z) {
   const f = (z && z.zon && z.zon.fase) || "dag";

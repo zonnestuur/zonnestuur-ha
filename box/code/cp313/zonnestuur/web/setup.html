@@ -256,6 +256,15 @@ html, body { overscroll-behavior-y: none; }
   details.gevorderd .field { margin-top: 10px; }
 
   /* 0.76b: instellingen als menu met rijen, in dezelfde stijl als Apparaten */
+  #e_times .time-row:only-child .e_rm { display: none; }
+  #editCard .actions > .row { display: flex !important; flex-direction: row !important; flex-wrap: nowrap; gap: 8px; width: auto; margin: 0; }
+  #editCard .actions { flex-wrap: nowrap; }
+  details.meer-inst { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 6px; }
+  details.meer-inst > summary { font-weight: 650; min-height: 44px; display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; }
+  details.meer-inst > summary::-webkit-details-marker { display: none; }
+  details.meer-inst > summary::after { content: ""; width: 8px; height: 8px; margin-left: auto; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); transition: transform .25s var(--zs-veer, ease); }
+  details.meer-inst[open] > summary::after { transform: rotate(-135deg); }
+  details.meer-inst details { margin-top: 14px; }
   .inst-menu { display: grid; gap: 0; }
   .settings.met-nav > .inst-menu { grid-column: 1 / -1; max-width: 760px; width: 100%; }   /* 0.99: niet in de smalle kolom van 230 px */
   .inst-g { font: 650 17px/1.3 "Inter Tight", Inter, sans-serif !important; margin: 20px 4px 8px !important; }
@@ -1877,7 +1886,24 @@ function groepeer() {
     bat: '<rect x="7" y="4.5" width="10" height="16" rx="2.5"/><path d="M10 2.5h4"/>', zon: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
     meter: '<path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l4-5"/>', tand: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>' };
   const titel = (x) => ((x.querySelector("h2") || {}).textContent || "").replace(/\?\s*$/, "").trim();
-  const subVan = (x) => { const p = x.querySelector(":scope > p.small, :scope > p.muted, :scope > p"); const t = p ? p.textContent.trim() : ""; return t.length > 90 ? t.slice(0, 88).replace(/\s+\S*$/, "") + "…" : t; };
+  // 0.111: één korte regel per rij (geen afgebroken zinnen); waar het kan staat er wat je nu hebt ingesteld
+  const C = CFG.contract || {}, EUR = (v) => "€ " + Number(v).toFixed(2).replace(".", ",");
+  const KORT = [[/^Energiecontract/, () => (C.type === "dynamic" ? "Dynamisch" + (((SUP && SUP.dynamic[C.supplier]) || {}).name ? " · " + SUP.dynamic[C.supplier].name : "") : C.dal_price ? "Dag- en nachttarief" : "Vast" + (C.import_price ? " · " + EUR(C.import_price) + " per kWh" : ""))],
+    [/^Jouw doel/, "Besparen, eigen zon gebruiken of het net ontzien"], [/^Meten wat/, "Eerlijk meten wat sturen oplevert"],
+    [/^Apparaten/, () => { const n = (CFG.devices || []).length; return n ? n + (n === 1 ? " apparaat" : " apparaten") + " · toevoegen en aanpassen" : "Nog geen apparaten · voeg er een toe"; }],
+    [/^Zonnepanelen/, () => (CFG.solar && CFG.solar.kwp ? String(CFG.solar.kwp).replace(".", ",") + " kWp" : "Hoeveel panelen en welke kant op")],
+    [/^Thuisbatterij/, () => ((CFG.batteries || []).length ? (CFG.batteries[0].name || "Batterij") + " · zo gebruikt Zonnestuur hem" : "Nog geen batterij")],
+    [/^Meekijken/, "Laat een andere partij laden; Zonnestuur kijkt mee"], [/^Omvormer/, "Zien wat je panelen nu opwekken"],
+    [/^Meter/, "Waar Zonnestuur je verbruik afleest"], [/^Meldingen/, "Wanneer en waar je een bericht krijgt"],
+    [/^Sensoren/, "Het goede moment op een lamp of dashboard"], [/^Huisscherm/, "Zonnestuur op je Nest Hub of tv"], [/^Wandscherm/, "Een tablet of scherm aan de muur"],
+    [/^Hulp/, "Kijken of alles werkt en iets melden"], [/^Installateur/, "Rapport voor wie het heeft ingericht"],
+    [/^Beveiliging/, "Wie het dashboard mag openen"], [/^Zonnestuur Pro/, "Je proef of abonnement"],
+    [/^Andere systemen/, "MQTT, Homey, Domoticz en meer"], [/^Auto's via/, "Niet nodig; alleen met een eigen account"],
+    [/^Apparaat via/, "Voor apparaten zonder eigen koppeling"], [/^Eigen domoticaserver/, "De koppelmotor die je al had"]];
+  const subVan = (x) => { const k = KORT.find(([re]) => re.test(titel(x)));
+    if (k) { try { return typeof k[1] === "function" ? k[1]() : k[1]; } catch (e) { return ""; } }
+    const p = x.querySelector(":scope > p.small, :scope > p.muted, :scope > p"); const t = (p ? p.textContent.trim() : "").split(/(?<=[.!?])\s/)[0];
+    return t.length > 64 ? "" : t; };
   const menu = document.createElement("div"); menu.className = "inst-menu";
   const GRP = [["geld", "Energie"], ["huis", "Je huis"], ["schermen", "Meldingen en schermen"], ["account", "Pro en hulp"], ["koppelingen", "Voor gevorderden"]];
   menu.innerHTML = GRP.map(([g, t]) => {
@@ -2505,6 +2531,24 @@ async function settings() {
 }
 const DAYL = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 const DAGNAAM = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
+// 0.111: bovenaan alleen wat een huishouden zelf kiest (naam, temperatuur, klaar-tijd, wekelijks heet); de rest kiest
+// Zonnestuur goed en staat ingeklapt onder 'Meer instellingen'. De velden blijven bestaan, dus opslaan werkt hetzelfde.
+const MEER_VELDEN = ["e_kind", "e_power", "e_prio", "e_nb", "e_klaarent", "e_klaarpct", "e_blk", "e_night", "e_eco", "e_tent",
+  "e_ph", "e_mina", "e_maxa", "e_int", "e_ss", "e_pse", "e_p1", "e_p3", "e_g", "e_look"];
+function eenvoudigApparaat(box) {
+  const meer = document.createElement("details"); meer.className = "gevorderd meer-inst"; meer.id = "e_meer";
+  meer.innerHTML = '<summary>Meer instellingen</summary><p class="hint">Deze kiest Zonnestuur zelf goed. Je hoeft hier niets te doen.</p><div class="row" id="e_meerrij"></div>';
+  const rij = meer.querySelector("#e_meerrij");
+  MEER_VELDEN.forEach((id) => { const el = $(id), f = el && el.closest(".field"); if (f) rij.appendChild(f); });
+  box.querySelectorAll("[data-meer]").forEach((x) => meer.appendChild(x));
+  const leg = ($("e_leg") || $("e_leg2") || { closest() { return null; } }).closest(".field");      // eerst de klaar-tijd, dan wekelijks heet
+  if (leg) leg.style.marginTop = "22px";
+  box.querySelector(".actions").before(...(leg ? [leg] : []), meer);
+  box.querySelectorAll(".row").forEach((r) => { if (!r.children.length) r.remove(); });
+  const kop = box.querySelector("h3.sub-t"); if (kop && kop.textContent === "Algemeen") kop.remove();
+  try { if (new URLSearchParams(location.search).get("meer") === "1" || localStorage.getItem("zs_meer_inst") === "1") meer.open = true; } catch (e) {}
+  meer.addEventListener("toggle", () => { try { localStorage.setItem("zs_meer_inst", meer.open ? "1" : "0"); } catch (e) {} });
+}
 async function editDevice(i) {
   const d = CFG.devices[i], box = $("editCard"), P = d.params || {};
   let learned = null;
@@ -2571,18 +2615,18 @@ async function editDevice(i) {
       <div class="field"><label for="e_look">Telt als klaar als hij binnen zoveel uur ervoor vol was</label><input id="e_look" type="number" min="1" max="24" step="0.5" value="${d.full_lookback_h}"></div>
     </div>`}
 
-    ${d.driver === "shelly" ? `<h3 class="sub-t">Vangnet</h3>
+    ${d.driver === "shelly" ? `<div data-meer><h3 class="sub-t">Vangnet</h3>
     <label class="check-row"><input type="checkbox" id="e_fs" ${(P.failsafe ?? d.kind === "boiler") ? "checked" : ""}> Doet de Box het niet, dan zet de Shelly ${esc(d.name)} zelf aan</label>
     <div class="row" style="margin-top:8px"><div class="field" style="flex:0 1 260px"><label for="e_fsw">Elke dag tussen</label>
       <select id="e_fsw">${["10-13", "11-14", "12-15", "13-16", "11-15"].map((w) => `<option value="${w}" ${(P.failsafe_window || "12-15") === w ? "selected" : ""}>${w.replace("-", ":00 en ")}:00 uur</option>`).join("")}</select>
-      <span class="hint">Er komt een klein script op de Shelly. Hoort hij 3 uur niets van de Box, dan verwarmt hij zelf in dit venster. Zo is er altijd warm water.</span></div></div>` : ""}
+      <span class="hint">Er komt een klein script op de Shelly. Hoort hij 3 uur niets van de Box, dan verwarmt hij zelf in dit venster. Zo is er altijd warm water.</span></div></div></div>` : ""}
 
-    <h3 class="sub-t">Hoe lang per dag</h3>
+    <div data-meer><h3 class="sub-t">Hoe lang per dag</h3>
     <label class="check-row"><input type="checkbox" id="e_learn" ${d.learn_run === false ? "" : "checked"}> Zelf leren uit wat ${esc(d.name)} echt gebruikt <span class="muted">(aanbevolen)</span></label>
     <p class="hint" style="margin:6px 0 8px">${esc(learnTxt)}</p>
-    <div class="row"><div class="field" style="flex:0 1 260px"><label for="e_run">${d.learn_run === false ? "Looptijd per dag (min)" : "Tot er genoeg geleerd is (min per dag)"}</label><input id="e_run" type="number" min="0" step="15" value="${d.expected_run_min}"></div></div>
+    <div class="row"><div class="field" style="flex:0 1 260px"><label for="e_run">${d.learn_run === false ? "Looptijd per dag (min)" : "Tot er genoeg geleerd is (min per dag)"}</label><input id="e_run" type="number" min="0" step="15" value="${d.expected_run_min}"></div></div></div>
 
-    <details><summary>Geavanceerd: reageren op zon</summary><div class="row" style="margin-top:12px">
+    <details data-meer><summary>Reageren op zon</summary><div class="row" style="margin-top:12px">
       <div class="field"><label for="e_start">Aan bij overschot van (W)</label><input id="e_start" type="number" step="50" value="${d.start_surplus_w ?? ""}" placeholder="automatisch (90% van vermogen)"></div>
       <div class="field"><label for="e_sd">…gedurende (s)</label><input id="e_sd" type="number" step="10" value="${d.start_delay_s}"></div>
       <div class="field"><label for="e_stop">Uit bij afname van meer dan (W)</label><input id="e_stop" type="number" step="50" value="${d.stop_import_w}"></div>
@@ -2595,6 +2639,7 @@ async function editDevice(i) {
     </details>
     <div class="actions"><button class="btn danger small" id="e_del">Verwijderen</button>
       <div class="row"><button class="btn ghost small" id="e_cancel">Annuleren</button><button class="btn small" id="e_save">Opslaan</button></div></div>`;
+  eenvoudigApparaat(box);
   box.scrollIntoView({ behavior: "smooth", block: "start" });
   const bindRm = () => box.querySelectorAll(".e_rm").forEach((b) => b.onclick = () => { const rows = box.querySelectorAll(".time-row"); if (rows.length > 1) b.closest(".time-row").remove(); else rows[0].querySelector("input").value = ""; });
   bindRm();

@@ -114,6 +114,31 @@
     }
   } catch (e) {}
 
+  // 0.111: getallen rollen naar hun nieuwe waarde in plaats van te verspringen. zsRol(elementen, sleutel): het eerste getal in
+  // de eerste tekst van elk element; de vorige waarde wordt per sleutel onthouden. Niet bij 'minder beweging'.
+  var rolVorig = {};
+  window.zsRol = function (els, sleutel) {
+    var rustig = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    Array.prototype.forEach.call(els || [], function (el, i) {
+      var tn = el.firstChild; if (!tn || tn.nodeType !== 3) return;
+      var m = /^(\D*?)(-?\d[\d.]*(?:,\d+)?)(.*)$/.exec(tn.nodeValue); if (!m) return;
+      var doel = parseFloat(m[2].replace(/\./g, "").replace(",", ".")), dec = (m[2].split(",")[1] || "").length;
+      var k = sleutel + ":" + i, van = rolVorig[k]; rolVorig[k] = doel;
+      if (rustig || van == null || van === doel || !isFinite(doel) || document.hidden) return;
+      var t0 = null, duur = 650, eind = tn.nodeValue;
+      el.classList.add("rolt");
+      function stap(t) {
+        if (!tn.parentNode) return;
+        if (t0 == null) t0 = t;
+        var f = Math.min(1, (t - t0) / duur), e = 1 - Math.pow(1 - f, 3);
+        if (f >= 1) { tn.nodeValue = eind; return; }
+        tn.nodeValue = m[1] + (van + (doel - van) * e).toLocaleString("nl-NL", { minimumFractionDigits: dec, maximumFractionDigits: dec }) + m[3];
+        requestAnimationFrame(stap);
+      }
+      requestAnimationFrame(stap);
+    });
+  };
+
   // 0.98: een kort tikje voelen bij schakelaars en tabbladen (alleen telefoons die trillen ondersteunen; niet bij 'minder beweging')
   var stil = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function tik(ms) { if (!stil && navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {} }
