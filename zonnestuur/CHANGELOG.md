@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.112.1
+- Nest Hub: nieuwe sfeerbeelden voor dag, schemer en nacht, zonder auto en laadpaal. Het dagbeeld is ook scherper.
+
 ## 0.112.0
 - Tik je op een apparaat, dan groeit die regel vloeiend uit tot de pagina van dat apparaat (op toestellen die dat kunnen).
 - Keuzelijsten op de computer hebben nu de stijl van de app in plaats van die van de browser.

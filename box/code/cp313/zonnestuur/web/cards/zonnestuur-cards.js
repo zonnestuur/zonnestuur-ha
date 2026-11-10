@@ -12,7 +12,7 @@
  *
  * Optioneel bij elke kaart: entity: sensor.zonnestuur
  */
-const ZS_VERSION = "1.13.0";
+const ZS_VERSION = "1.13.1";
 // Waar dit bestand vandaan kwam (bij het laden uit de foutmelding-stapel gelezen: werkt ook als script-module)
 const ZS_SRC = (() => { try { throw new Error("zs"); } catch (e) { const m = String(e.stack || "").match(/(https?:\/\/[^\s)"']*?zonnestuur-cards\.js)/); return m ? m[1] : ""; } })();
 
@@ -843,7 +843,7 @@ class ZonnestuurHubCard extends HTMLElement {
     const donker = cf.thema === "donker" || (cf.thema !== "licht" && fase !== "dag");
     const acc = ZS_ACCENT[cf.accent] && on ? ZS_ACCENT[cf.accent] : null;
     const stijl = [acc ? `--held-acc:${acc[0]}` : "", `--zs-zoom:${({ groot: 1.15, extra: 1.3 })[cf.tekst] || 1}`].filter(Boolean).join(";");
-    const sfeerLaag = (k) => k ? `<div class="sfeerbeeld" style="background-image:url('${zsBase()}img/hub/${beeld}.webp')" aria-hidden="true"></div>` : "";
+    const sfeerLaag = (k) => k ? `<div class="sfeerbeeld" style="background-image:url('${zsBase()}img/hub/${beeld}.webp?v=${ZS_VERSION}')" aria-hidden="true"></div>` : "";
     // Sfeerbeeld bovenin (dag, zonsondergang, nacht), met de prijzen op een rustige band eronder; uit met sfeer: false
     const sfeer = cf.sfeer !== false && cf.huis !== false && (cf.thema !== "licht" || fase === "dag") && (cf.thema !== "donker" || fase !== "dag");
     const beeld = fase === "dag" ? "dag" : fase === "schemer" ? "schemer" : "nacht";
