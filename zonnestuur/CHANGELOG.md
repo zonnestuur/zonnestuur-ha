@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.112.0
+- Tik je op een apparaat, dan groeit die regel vloeiend uit tot de pagina van dat apparaat (op toestellen die dat kunnen).
+- Keuzelijsten op de computer hebben nu de stijl van de app in plaats van die van de browser.
+- De uitklappers "Meer instellingen" en "Voor gevorderden" zien er overal hetzelfde uit; de extra instellingen van een apparaat staan netjes in twee kolommen.
+
 ## 0.111.0
 - Apparaat instellen is veel korter: bovenaan alleen de naam, de temperatuur, wanneer het klaar moet zijn en wekelijks heet. Alles wat Zonnestuur zelf goed kiest, staat onder één knop "Meer instellingen".
 - Instellingen: elke regel zegt kort wat het is of wat je nu hebt ingesteld (bijvoorbeeld "Vast · € 0,29 per kWh").

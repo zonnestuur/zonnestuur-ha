@@ -139,6 +139,17 @@
     });
   };
 
+  // 0.112: een rij of kaart van een apparaat groeit uit tot de kop van de apparaatpagina (view-transition-name zs-app; de
+  // apparaatpagina geeft #appHeld dezelfde naam). Kent de browser het niet, of staat de kop er nog niet: gewone overgang.
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest('a[href*="apparaat?id="]');
+    if (!a || ev.defaultPrevented || ev.metaKey || ev.ctrlKey) return;
+    var oud = document.querySelectorAll('[style*="view-transition-name: zs-app"]');
+    Array.prototype.forEach.call(oud, function (x) { x.style.viewTransitionName = ""; });
+    var bron = a.classList.contains("dev-meer") ? (a.closest(".dev, .card, article") || a) : a;
+    try { bron.style.viewTransitionName = "zs-app"; } catch (e) {}
+  }, true);
+
   // 0.98: een kort tikje voelen bij schakelaars en tabbladen (alleen telefoons die trillen ondersteunen; niet bij 'minder beweging')
   var stil = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function tik(ms) { if (!stil && navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {} }

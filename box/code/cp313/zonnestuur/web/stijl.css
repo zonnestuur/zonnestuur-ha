@@ -381,3 +381,34 @@ h1, .headline, .page-title { font-family: "Inter Tight", "Inter", system-ui, san
 textarea { field-sizing: content; min-height: 3lh; max-height: 14lh; }
 /* getallen die naar hun nieuwe waarde rollen (zsRol in nav.js) staan stil op hun plek */
 .rolt { font-variant-numeric: tabular-nums; }
+
+/* 0.112 — vervolg nieuwe techniek
+   - apparaatrij groeit uit tot de kop van de apparaatpagina (nav.js zet de naam op de aangetikte rij) */
+body.v-apparaat #appHeld { view-transition-name: zs-app; }
+::view-transition-group(zs-app) { animation-duration: .42s; animation-timing-function: var(--zs-uit, cubic-bezier(.2, .8, .2, 1)); }
+::view-transition-old(zs-app), ::view-transition-new(zs-app) { height: 100%; object-fit: cover; object-position: top left; }
+/* - keuzelijsten in de eigen stijl (appearance: base-select; Chrome 134+). Alleen met muis: op een telefoon is de
+     keuzelijst van het toestel zelf prettiger. */
+@supports (appearance: base-select) {
+  @media (hover: hover) and (pointer: fine) {
+    select:not([multiple]):not([size]), select:not([multiple]):not([size])::picker(select) { appearance: base-select; }
+    select:not([multiple]):not([size]) { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
+    select::picker(select) { margin-top: 6px; padding: 6px; border-radius: 16px; border: 1px solid var(--zs-lijn, var(--line));
+      background: var(--zs-kaart, var(--card, #fff)); color: var(--zs-ink, inherit); box-shadow: var(--zs-schaduw, 0 12px 32px rgba(0, 0, 0, .25));
+      opacity: 0; translate: 0 -6px; transition: opacity .16s ease, translate .22s var(--zs-uit, ease), overlay .22s allow-discrete, display .22s allow-discrete; }
+    select:open::picker(select) { opacity: 1; translate: 0 0; }
+    @starting-style { select:open::picker(select) { opacity: 0; translate: 0 -6px; } }
+    select option { padding: 9px 12px; border-radius: 10px; min-height: 40px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    select option:hover, select option:focus-visible { background: var(--zs-vlak2, rgba(127, 127, 127, .14)); outline: none; }
+    select option:checked { font-weight: 650; }
+    select option::checkmark { color: var(--zs-accent, currentColor); }
+    select::picker-icon { color: var(--zs-ink3, currentColor); transition: rotate .2s ease; }
+    select:open::picker-icon { rotate: 180deg; }
+  }
+}
+/* - alle uitklappers 'Meer instellingen' en 'Voor gevorderden' hetzelfde */
+details.gevorderd > summary { font-weight: 650; min-height: 44px; display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; }
+details.gevorderd > summary::-webkit-details-marker { display: none; }
+details.gevorderd:not(.meer-inst) > summary::after { content: ""; flex: none; width: 8px; height: 8px; margin-left: auto;
+  border-right: 2px solid var(--ink-3, currentColor); border-bottom: 2px solid var(--ink-3, currentColor); transform: rotate(45deg); transition: transform .25s ease; }
+details.gevorderd:not(.meer-inst)[open] > summary::after { transform: rotate(-135deg); }
