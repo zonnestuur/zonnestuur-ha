@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.110.0
+- Sneller: de app opent meteen met wat je de vorige keer zag en ververst daarna. Pagina's zijn kleiner en worden onthouden, en Home haalt alles in één keer op in plaats van in tientallen losse vragen.
+- Inzichten is korter: bovenaan wat het opleverde en acht duidelijke tegels (ook Energielab, Waarom deed hij dat?, Wat Zonnestuur weet en Met en zonder sturing). De uitgebreide grafieken en het logboek staan achter één knop.
+- Meer is opgeruimd: wat over terugkijken gaat, staat nu bij Inzichten.
+- Een gevonden auto is op Home één regel in plaats van een heel formulier; tik erop om hem in te stellen.
+- Op een breed scherm staat het plaatje bij een leeg scherm naast de tekst.
+
 ## 0.109.0
 - De controle van de verbruiksvoorspelling telt laden dat je leverancier stuurt (of een andere auto) niet meer mee als huisverbruik. Zo is de vergelijking eerlijk en klopt de bijsturing beter.
 - Brein: hoe zeker de voorspelling is, hangt nu ook af van hoe goed hij uitkwam, met de reden erbij.

@@ -352,3 +352,8 @@ h1, .headline, .page-title { font-family: "Inter Tight", "Inter", system-ui, san
 .leegbeeld p { margin: 0; color: var(--ink-2); line-height: 1.45; }
 .leegbeeld .btn { margin-top: 14px; justify-self: start; }
 .leegbeeld[hidden] { display: none; }
+@media (min-width: 900px) {   /* breed scherm: plaatje naast de tekst, niet schermvullend */
+  .leegbeeld { grid-template-columns: minmax(0, 340px) 1fr; align-items: center; }
+  .leegbeeld img { height: 100%; min-height: 220px; }
+  .leegbeeld .in { padding: 24px 28px; }
+}

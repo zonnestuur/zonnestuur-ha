@@ -980,7 +980,21 @@ html, body { overscroll-behavior-y: none; }
   .inzicht-links a + a { border-left: 1px solid var(--zs-lijn); }
   .inzicht-links b { font-weight: 650; } .inzicht-links span { font-size: 13px; color: var(--zs-ink2); }
   .inzicht-links a:hover b { text-decoration: underline; }
-  @media (max-width: 700px) { .inzicht-links { grid-template-columns: 1fr 1fr; } .inzicht-links a:nth-child(3) { border-left: 0; } .inzicht-links a:nth-child(n+3) { border-top: 1px solid var(--zs-lijn); } }
+  .inzicht-links a:nth-child(4n+1) { border-left: 0; } .inzicht-links a:nth-child(n+5) { border-top: 1px solid var(--zs-lijn); }
+  @media (max-width: 700px) { .inzicht-links { grid-template-columns: 1fr 1fr; } .inzicht-links a:nth-child(odd) { border-left: 0; } .inzicht-links a:nth-child(n+3) { border-top: 1px solid var(--zs-lijn); } }
+  /* 0.110: Inzichten kort. De zware grafieken en het logboek staan achter één knop. */
+  body.v-inzicht:not(.inz-alles) :is(#s-planning, .c-plan, .c-log, #s-inzicht, .c-today, .c-feed, .c-learn, .c-compare) { display: none !important; }
+  .inz-meer { grid-column: 1 / -1; display: flex; justify-content: center; padding: 4px 0 8px; }
+  /* 0.110: gevonden auto als één regel; het formulier pas na een tik */
+  .c-evoffer.klein { padding: 0; }
+  .c-evoffer.klein .evo { display: none; }
+  .c-evoffer:not(.klein) .evo-kort { display: none; }
+  .evo-kort { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; width: 100%; padding: 14px 16px; background: none; border: 0;
+    color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: inherit; min-height: 64px; }
+  .evo-kort .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--e-auto, #a78bfa) 18%, transparent); color: var(--e-auto, #a78bfa); }
+  .evo-kort .ic svg { width: 22px; height: 22px; }
+  .evo-kort b { display: block; font-weight: 650; } .evo-kort small { display: block; font-size: 13px; color: var(--zs-ink2); }
+  .evo-kort .knop { font-weight: 650; font-size: 14px; padding: 8px 14px; border-radius: 99px; background: var(--zs-knop); color: var(--zs-knop-ink, #1b1405); white-space: nowrap; }
   .c-bespaard, .delen-buren { grid-column: 1 / -1; }
   .delen-buren p { max-width: 68ch; } .delen-buren details { margin-top: 10px; } .delen-buren .btn { margin-top: 10px; }
   .c-bespaard .hsave { margin: 0; padding: 0; background: none; box-shadow: none; }
@@ -1330,6 +1344,8 @@ html, body { overscroll-behavior-y: none; }
     <nav class="inzicht-links adv" aria-label="Overzichten">
       <a href="opbrengst"><b>Jaaroverzicht</b><span>per maand</span></a><a href="rapport"><b>Weekrapport</b><span>laatste 7 dagen</span></a>
       <a href="vergelijk"><b>Vergelijken</b><span>met je leverancier</span></a><a href="laadtijdlijn"><b>Laadbeurten</b><span>wanneer en voor welke prijs</span></a>
+      <a href="energielab"><b>Energielab</b><span>wat levert een batterij of auto op</span></a><a href="besluiten"><b>Waarom deed hij dat?</b><span>elk besluit uitgelegd</span></a>
+      <a href="brein"><b>Wat Zonnestuur weet</b><span>geleerd over je huis</span></a><a href="benchmark"><b>Met en zonder sturing</b><span>wat het verschil is</span></a>
     </nav>
     <section class="card adv delen-buren" id="delenBuren" hidden aria-labelledby="delenKop"></section>
     <section class="card c-bespaard adv" aria-label="Bespaard"><div class="hsave" id="hSave" hidden></div><div class="htips" id="hTips"></div></section>
@@ -1424,7 +1440,9 @@ html, body { overscroll-behavior-y: none; }
     </section>
 
     <!-- auto laden -->
-    <section class="card c-welcome c-evoffer nu" id="evOffer" hidden aria-labelledby="evTitle">
+    <section class="card c-welcome c-evoffer klein nu" id="evOffer" hidden aria-labelledby="evTitle">
+      <button class="evo-kort" id="evKort" type="button" aria-expanded="false"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v2H3z"/><circle cx="7.5" cy="18.5" r="1.5"/><circle cx="16.5" cy="18.5" r="1.5"/></svg></span>
+        <span><b>Auto gevonden</b><small id="evKortSub">Laat hem laden op de goedkoopste uren</small></span><span class="knop">Instellen</span></button>
       <div class="evo">
         <div class="evo-viz" id="evoViz" aria-hidden="true"></div>
         <div class="evo-main">
@@ -1562,6 +1580,7 @@ html, body { overscroll-behavior-y: none; }
       <div class="title-row"><div><div class="eyebrow">2027</div><h2 class="sec" id="cmpTitle">Welk contract past bij je?</h2></div><span class="t-end"><span class="small muted" id="cmpNote"></span><a class="help-q" href="help#contract" aria-label="Uitleg over de vergelijking">?</a></span></div>
       <div id="cmpBody"><button class="btn-line" id="cmpBtn" style="margin-top:12px">Uitrekenen</button></div>
     </section>
+    <div class="adv inz-meer"><button type="button" class="btn ghost" id="inzMeerBtn" aria-expanded="false">Alle grafieken en het logboek tonen</button></div>
   </div>
 
   <div class="nu indeling-knop"><button type="button" class="btn ghost" id="indelingBtn">Home indelen</button></div>
@@ -1649,7 +1668,42 @@ if (VIEW === "apparaat") {
   });
 })();
 
-async function api(path, opts = {}) {
+// Vragen die tegelijk gesteld worden gaan in één keer naar de server (api/bundel): één verbinding in plaats van twintig.
+// De status gaat altijd los: die mag nooit op een tragere vraag wachten.
+let BQ = null;
+const LOS = /^api\/(status|koppel\/|setup\/|device\/|battery\/|inverter\/|bundel)/;
+function api(path, opts) {
+  if (opts || LOS.test(path)) return api1(path, opts || {});
+  return new Promise((res, rej) => {
+    if (!BQ) { BQ = []; setTimeout(bundelNu, 0); }
+    BQ.push({ path, res, rej });
+  });
+}
+async function bundelNu() {
+  const q = BQ; BQ = null;
+  if (q.length === 1) { api1(q[0].path).then(q[0].res, q[0].rej); return; }
+  let d;
+  try { d = await api1("api/bundel?p=" + encodeURIComponent(JSON.stringify([...new Set(q.map((x) => x.path))]))); }
+  catch (e) { q.forEach((x) => x.rej(e)); return; }
+  for (const x of q) {
+    const r = d && d[x.path];
+    if (!r) api1(x.path).then(x.res, x.rej);                  // oudere server of een vraag die niet te bundelen is
+    else if (r.s >= 500) x.rej(new Error("HTTP " + r.s));
+    else x.res(r.d);
+  }
+}
+// Meteen iets laten zien: de laatste stand uit het geheugen van de browser, tot de echte er is.
+const SNEL = "zs_snel";
+function snelLees() { try { const c = JSON.parse(localStorage.getItem(SNEL) || "null"); return c && Date.now() - c.t < 6 * 3600e3 ? c : null; } catch (e) { return null; } }
+let SNEL_T = 0;
+function snelBewaar(deel) {
+  try {
+    const c = snelLees() || {};
+    Object.assign(c, deel, { t: Date.now() });
+    localStorage.setItem(SNEL, JSON.stringify(c));
+  } catch (e) {}
+}
+async function api1(path, opts = {}) {
   opts.headers = Object.assign({ "X-Token": token }, opts.headers || {});
   const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 15000);   // nooit eindeloos wachten
   let r;
@@ -1657,7 +1711,7 @@ async function api(path, opts = {}) {
   if (r.status === 401 && await window.zsEigen401(r)) {
     token = prompt("Wachtwoord voor het dashboard") || "";
     try { localStorage.setItem("zs_token", token); } catch (e) {}
-    return api(path, opts);
+    return api1(path, opts);
   }
   if (r.status >= 500) throw new Error("HTTP " + r.status);   // bijv. 502 tijdens een herstart
   return r.json();
@@ -3988,6 +4042,7 @@ async function loadEvOffer() {
     const cars = o.cars || [];
     $("evFound").textContent = o.via_car ? `${o.car} · laden via de auto · tot ${nl(o.max_kw, 1)} kW` : `Laadpaal ${o.charger || ""} · tot ${nl(o.max_kw, 1)} kW`;
     $("evTitle").textContent = STATUS && STATUS.has_panels ? "Auto laden op zon en goedkope uren" : "Auto laden in de goedkoopste uren";
+    $("evKortSub").textContent = (cars[0] ? cars[0].name + " · " : "") + (STATUS && STATUS.has_panels ? "laten laden op zon en goedkope uren" : "laten laden op de goedkoopste uren");
     const c0 = cars[0];
     $("evoViz").innerHTML = `<div class="evc-pic erin" style="margin:0"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>`;
     $("evCars").innerHTML = cars.map((c) => `<label class="car"><input type="checkbox" value="${esc(c.id)}" checked>
@@ -4178,7 +4233,11 @@ let BUSY = false;
 async function refresh() {
   if (BUSY) return;                          // vorige vraag loopt nog: niet opstapelen
   BUSY = true;
-  try { renderStatus(await api("api/status")); }
+  try {
+    const s = await api("api/status");
+    renderStatus(s);
+    if (Date.now() - SNEL_T > 30000) { SNEL_T = Date.now(); snelBewaar({ status: s }); }
+  }
   catch (e) { $("clock").textContent = "Geen verbinding"; $("live").classList.add("off"); }
   finally { BUSY = false; }
 }
@@ -4190,6 +4249,7 @@ async function refreshCharts() {
     const r = await Promise.allSettled([api("api/today"), api("api/history?days=31"), api("api/prices"),
       api(`api/usage?period=${USE_P}&offset=${USE_OFF}`), api("api/insight"), api("api/coach"), api("api/events"), api("api/vooruit")]);
     const v = (i, d) => (r[i].status === "fulfilled" ? r[i].value : d);
+    if (r.every((x) => x.status === "fulfilled") && USE_P === "day" && !USE_OFF) snelBewaar({ grafiek: r.map((x) => x.value) });
     EVENTS = v(6, EVENTS);
     VOORUIT = v(7, VOORUIT); renderVooruit();
     COACH = v(5, COACH);
@@ -4204,6 +4264,34 @@ async function refreshCharts() {
   } catch (e) { CRETRY = setTimeout(refreshCharts, 5000); }
   finally { CBUSY = 0; }
 }
+(function snelStart() {                       // eerst de laatste stand uit het geheugen, dan de echte
+  const c = snelLees();
+  if (!c) return;
+  try {
+    if (c.grafiek && c.grafiek.length === 8) {
+      [TODAY, MONTH, PRICES, USAGE, INSIGHT, COACH, EVENTS, VOORUIT] = c.grafiek;
+      $("feedBody").closest("section").hidden = !INSIGHT;
+      $("priceSvg").closest("section").hidden = !PRICES;
+      $("useSvg").closest("section").hidden = !USAGE;
+      renderVooruit();
+    }
+    if (c.status) renderStatus(c.status);
+    if (c.grafiek) drawCharts();
+  } catch (e) { console.error("snelStart", e); try { localStorage.removeItem(SNEL); } catch (e2) {} }
+})();
+$("evKort").onclick = () => { $("evOffer").classList.remove("klein"); $("evKort").setAttribute("aria-expanded", "true"); $("evTitle").setAttribute("tabindex", "-1"); $("evTitle").focus(); };
+(function inzMeer() {                        // Inzichten: de zware grafieken achter één knop (keuze onthouden op dit apparaat)
+  const b = $("inzMeerBtn"); if (!b) return;
+  const zet = (aan) => {
+    document.body.classList.toggle("inz-alles", aan);
+    b.textContent = aan ? "Minder tonen" : "Alle grafieken en het logboek tonen"; b.setAttribute("aria-expanded", aan ? "true" : "false");
+    if (aan) try { drawCharts(); } catch (e) {}
+  };
+  let aan = false; try { aan = localStorage.getItem("zs_inz_alles") === "1"; } catch (e) {}
+  if (/^#(s-planning|s-inzicht|logTitle|priceTitle|todayTitle|feedTitle|learnTitle|cmpTitle)/.test(location.hash)) aan = true;   // een link naar zo'n grafiek opent hem
+  zet(aan);
+  b.onclick = () => { aan = !document.body.classList.contains("inz-alles"); try { localStorage.setItem("zs_inz_alles", aan ? "1" : "0"); } catch (e) {} zet(aan); };
+})();
 refresh(); refreshCharts(); setTimeout(loadEvOffer, 800);
 // terug in beeld (app was op de achtergrond): meteen bijwerken
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { refresh(); refreshCharts(); } });
