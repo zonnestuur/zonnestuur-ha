@@ -317,6 +317,8 @@ html, body { overscroll-behavior-y: none; }
   .vb-staven button:focus-visible { outline: 2px solid var(--zs-accent); outline-offset: 2px; border-radius: 6px; }
   .vb-detail { margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--zs-vlak2, rgba(127,127,127,.12)); font-size: 14px; }
   .vb-detail b { margin-right: 6px; }
+  .vb-som { margin: 10px 0 0; font-size: 14px; color: var(--ink-2); }
+  .vb-som b { color: var(--ink); }
   .runrep { margin-top: 8px; font-size: 13px; color: var(--ink-2); display: flex; gap: 6px; align-items: baseline; }
   .runrep b { color: var(--ink); }
   .devtip { margin-top: 8px; font-size: 13px; padding: 8px 10px; border-radius: 10px; background: var(--good-soft); color: var(--ink); }
@@ -2686,6 +2688,7 @@ function verbruikTekenen(box, lev) {
   const D = r.dagen.slice(-VB_N), max = Math.max(0.5, ...D.map((x) => x.kwh));
   const kwh = (v) => nl(v, v >= 10 ? 0 : 1) + " kWh";
   if (VB_SEL < 0 || VB_SEL >= D.length) VB_SEL = D.length - 1;
+  const kostenN = D.reduce((a, x) => a + (x.kosten != null ? x.kosten : 0), 0), heeftKosten = D.some((x) => x.kosten != null);
   const uitleg = { gemeten: "Gemeten aan het apparaat zelf, de hele dag. Dus ook wat hij deed zonder dat Zonnestuur hem aanzette.",
     alleen_aan: "Telt alleen wat hij gebruikte terwijl Zonnestuur hem aan had staan. Wat hij zelf bijwarmde, zit er niet in.",
     meekijken: `Wat ${esc(lev || "je leverancier")} laadde, gemeten aan de laadpaal.`,
@@ -2704,6 +2707,7 @@ function verbruikTekenen(box, lev) {
       <div><span>Gemiddeld</span><b class="num">${r.gemiddeld != null ? kwh(r.gemiddeld) : "–"}</b></div></div>
     <div class="vb-staven n${VB_N}" role="group" aria-label="Verbruik per dag, tik op een dag">${D.map((x, i) => `<button type="button" class="${i === D.length - 1 ? "vb-nu" : ""}${i === VB_SEL ? " sel" : ""}" data-i="${i}" aria-label="${esc(x.label)}: ${kwh(x.kwh)}"><i style="height:${Math.max(x.kwh > 0 ? 3 : 0, x.kwh / max * 100).toFixed(1)}%"></i><span>${VB_N === 14 ? esc(x.label.split(" ")[0]) + "<br>" + esc(x.label.split(" ")[1]) : (D.length - 1 - i) % 5 === 0 ? esc(x.label.split(" ")[1]) : "&nbsp;"}</span></button>`).join("")}</div>
     <p class="vb-detail" id="vbDetail" aria-live="polite">${detail(D[VB_SEL])}</p>
+    ${heeftKosten ? `<p class="vb-som">Deze ${VB_N} dagen: <b class="num">${kwh(D.reduce((a, x) => a + x.kwh, 0))}</b> voor ongeveer <b class="num">${eur(kostenN)}</b>${r.soort === "gemeten" ? ", gerekend met de inkoopprijs van elk uur" : ""}.</p>` : ""}
     <p class="small muted" style="margin:6px 0 0">${uitleg}</p>`;
   box.querySelectorAll(".vb-seg button").forEach((b) => b.onclick = () => { VB_N = Number(b.dataset.n); VB_SEL = -1; try { localStorage.setItem("zs_vb_n", VB_N); } catch (e) {} verbruikTekenen(box, lev); });
   box.querySelectorAll(".vb-staven button").forEach((b) => b.onclick = () => {

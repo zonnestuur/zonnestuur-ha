@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.114.1
+- Verbruik per dag toont nu ook de kosten: bij een warmtepomp met eigen meting per uur tegen de prijs van dat uur, bij een vast contract tegen je vaste prijs.
+- Werkt het echt? zegt alleen nog "werkt echt" als het vermogen ook werkelijk gemeten wordt. Een wasmachine die wacht tot je hem klaarzet, telt niet meer als storing.
+
 ## 0.114.0
 - Werkt het echt? Op de pagina van een apparaat staat een knop "Nu testen". Een boiler of stekker gaat ongeveer tien seconden aan, Zonnestuur meet of hij stroom opneemt en zet hem weer uit. Een warmtepomp, laadpaal of wasmachine wordt daarbij nooit aangezet; daar controleert hij alleen de verbinding.
 - Bijsturen: heb je een apparaat op Direct of Vandaag niet gezet, dan kies je met één tik hoe lang (1, 2 of 4 uur, of tot morgen) en ga je met "Terug naar slim" meteen terug.
