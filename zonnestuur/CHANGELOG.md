@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.118.0
+- Bijsturen vanaf het scherm in huis (Nest Hub): tik op het scherm en je ziet per apparaat de knoppen "2 uur uit", "1 uur aan" en "Terug naar slim". De auto en de warmtepomp kun je vanaf het scherm alleen even uitzetten, niet aanzetten.
+- Een tik op een melding over één apparaat opent nu meteen de pagina van dat apparaat, waar je kunt bijsturen.
+- Inzichten is overzichtelijker: bovenaan wat je dit jaar bespaarde, daaronder de overzichten onder drie vragen: Wat levert het op? Wat deed hij? Wat kan er nog bij?
+- Bij de auto verschenen de prijsstaafjes soms pas na een minuut ("prijs nog niet bekend"). Ze staan er nu meteen.
+- De website laat de app zien zoals hij nu is: het huis, het laden van de auto en de prijzen van vandaag.
+
 ## 0.117.0
 - Bij Inzichten staat nu één groot jaarcijfer: wat Zonnestuur dit jaar bespaarde, met erachter welk deel vrijwel zeker is. Vandaag, deze maand en het totaal staan ernaast.
 

@@ -12,7 +12,7 @@
  *
  * Optioneel bij elke kaart: entity: sensor.zonnestuur
  */
-const ZS_VERSION = "1.13.1";
+const ZS_VERSION = "1.14.0";
 // Waar dit bestand vandaan kwam (bij het laden uit de foutmelding-stapel gelezen: werkt ook als script-module)
 const ZS_SRC = (() => { try { throw new Error("zs"); } catch (e) { const m = String(e.stack || "").match(/(https?:\/\/[^\s)"']*?zonnestuur-cards\.js)/); return m ? m[1] : ""; } })();
 
@@ -403,6 +403,14 @@ const ZS_HUB_CSS = `
   .meer .rij b { font: 700 1.15em/1 "Inter Tight", Inter, sans-serif; font-variant-numeric: tabular-nums; min-width: 3.2em; }
   .meer .rij span { color: var(--ink2); } .meer .rij strong { color: var(--ink); font-weight: 650; display: block; }
   .meer .rij.nu b { color: var(--groen); }
+  .meer.met-doe { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+  .meer .rij.doe > div:nth-child(2) { flex: 1 1 auto; min-width: 0; }
+  .meer .rij.doe strong, .meer .rij.doe span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meer .rij.doe b { min-width: 2.2em; }
+  .meer .doe-k { display: flex; gap: .5em; flex: none; }
+  .meer .doe-k button { font: 650 .78em/1 Inter, sans-serif; color: var(--ink); background: var(--bg); border: 0; border-radius: 99px; padding: .7em .85em; min-height: 44px; box-shadow: 0 0 0 1px var(--lijn); cursor: pointer; white-space: nowrap; }
+  .meer .doe-k button:active { transform: scale(.96); }
+  .meer .doe-ok { font-style: normal; font-weight: 650; color: var(--groen); white-space: nowrap; }
   .meer-kop { display: flex; justify-content: space-between; align-items: baseline; font-size: 2.4vh; font-size: calc(2.4 * var(--u)); color: var(--ink2); }
   .meer-kop b { color: var(--ink); font-weight: 700; }
   .hub.dicht .meer { animation: zsfade .4s ease; }
@@ -501,6 +509,17 @@ class ZonnestuurHubCard extends HTMLElement {
       this.shadowRoot.addEventListener("click", (e) => {
         const k = e.target.closest("[data-radio]");
         if (k) { this._radioKnop(k.dataset.radio === "aan"); return; }
+        // Bijsturen vanaf het scherm: de opdracht gaat via een tekstveld in de koppelmotor naar Zonnestuur
+        const doe = e.target.closest("[data-doe]");
+        if (doe) {
+          const h = this._hass, ent = h && (h.states["sensor.zonnestuur"] || {}).attributes && h.states["sensor.zonnestuur"].attributes.actie;
+          if (ent && h.callService) {
+            h.callService("input_text", "set_value", { entity_id: ent, value: `${doe.dataset.id}|${doe.dataset.doe}|${doe.dataset.uur || ""}|${Date.now() % 100000}` });
+            this._doe = { id: doe.dataset.id, t: Date.now(), tekst: doe.dataset.zeg || "Doorgegeven" };
+          }
+          this._dicht = Date.now() + 30000; this._key = null; this._hass && (this.hass = this._hass);
+          return;
+        }
         if (e.target.closest(".radio") && this._audio) { this._audio.play().catch(() => {}); return; }
         // Dichtbij: een tik ergens op het scherm toont 30 seconden meer; nog een tik = weer rustig
         this._dicht = this._dicht && Date.now() < this._dicht ? 0 : Date.now() + 30000;
@@ -865,9 +884,17 @@ class ZonnestuurHubCard extends HTMLElement {
     if (dicht) {
       // Dichtbij: alles wat Zonnestuur vandaag regelt, per apparaat, en wat de rest doet
       const rijen = plan.slice(0, 6).map((x) => `<div class="rij${x.now ? " nu" : ""}"><b>${wanneer(x)}</b><div><strong>${zsEsc(x.n)}</strong><span>${zsEsc(x.w)}</span></div></div>`);
-      for (const d of (a.devices || []).filter((d) => !gezien.has(d.name)).slice(0, Math.max(0, 6 - rijen.length)))
-        rijen.push(`<div class="rij${d.on ? " nu" : ""}"><b>${d.on ? "aan" : "uit"}</b><div><strong>${zsEsc(d.name)}</strong><span>${zsEsc(d.why || (d.on ? "draait" : "wacht"))}</span></div></div>`);
-      onder = `<div class="meer-kop"><b>Wat Zonnestuur regelt</b><span>tik om te sluiten</span></div><div class="meer">${rijen.join("") || `<div class="rij"><b>—</b><div><strong>Niets gepland</strong><span>Zonnestuur wacht op zon of een goedkoop moment</span></div></div>`}</div>${prijsDeel}`;
+      // Bijsturen: per apparaat even uit, even aan, of terug naar slim (alleen als Zonnestuur het tekstveld kon aanmaken)
+      const kanDoen = !!(a.actie && this._hass && this._hass.states[a.actie]);
+      const bezig = this._doe && Date.now() - this._doe.t < 12000 ? this._doe : null;
+      const knoppen = (d) => !kanDoen ? "" : bezig && bezig.id === d.id ? `<em class="doe-ok">${zsEsc(bezig.tekst)}</em>`
+        : d.mode && d.mode !== "auto" ? `<button type="button" data-doe="auto" data-id="${zsEsc(d.id)}" data-zeg="Weer op slim">Terug naar slim</button>`
+        : `<button type="button" data-doe="off" data-uur="2" data-id="${zsEsc(d.id)}" data-zeg="2 uur uit">2 uur uit</button>${d.kind === "ev" || d.kind === "heatpump" ? "" : `<button type="button" data-doe="on" data-uur="1" data-id="${zsEsc(d.id)}" data-zeg="1 uur aan">1 uur aan</button>`}`;
+      const apparaten = (a.devices || []).slice(0, 3);
+      if (kanDoen) rijen.length = Math.min(rijen.length, Math.max(1, 4 - apparaten.length));   // met knoppen zijn de rijen breder: hoogstens vier
+      for (const d of (kanDoen ? apparaten : (a.devices || []).filter((d) => !gezien.has(d.name))).slice(0, Math.max(0, 6 - rijen.length)))
+        rijen.push(`<div class="rij${d.on ? " nu" : ""}${kanDoen ? " doe" : ""}"><b>${d.on ? "aan" : "uit"}</b><div><strong>${zsEsc(d.name)}</strong><span>${zsEsc(d.mode === "off" ? `door jou uitgezet${d.tot ? " tot " + d.tot : ""}` : d.mode === "on" ? `door jou aangezet${d.tot ? " tot " + d.tot : ""}` : d.why || (d.on ? "draait" : "wacht"))}</span></div>${kanDoen ? `<div class="doe-k">${knoppen(d)}</div>` : ""}</div>`);
+      onder = `<div class="meer-kop"><b>Wat Zonnestuur regelt</b><span>tik om te sluiten</span></div><div class="meer${kanDoen ? " met-doe" : ""}">${rijen.join("") || `<div class="rij"><b>—</b><div><strong>Niets gepland</strong><span>Zonnestuur wacht op zon of een goedkoop moment</span></div></div>`}</div>${prijsDeel}`;
     } else {
       const delen = { info: this._info(a), prijs: prijsDeel, nieuws: this._nieuws() };
       const volg = (Array.isArray(cf.volgorde) && cf.volgorde.length ? cf.volgorde : ["info", "prijs", "nieuws"]).filter((k) => k in delen);

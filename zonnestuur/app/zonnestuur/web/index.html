@@ -1074,14 +1074,17 @@ html, body { overscroll-behavior-y: none; }
   .pagina-kop { grid-column: 1 / -1; margin: 6px 4px 2px; }
   .pagina-kop h1 { font-size: clamp(34px, 4.4vw, 48px); line-height: 1.02; margin: 0 0 6px; }
   .pagina-kop p { margin: 0; color: var(--zs-ink2); max-width: 60ch; }
-  .inzicht-links { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--zs-vlak); border-radius: var(--zs-r);
-    box-shadow: 0 0 0 1px var(--zs-lijn), var(--zs-schaduw); overflow: hidden; }
-  .inzicht-links a { display: grid; gap: 2px; padding: 14px 16px; text-decoration: none; color: inherit; min-height: 64px; }
-  .inzicht-links a + a { border-left: 1px solid var(--zs-lijn); }
-  .inzicht-links b { font-weight: 650; } .inzicht-links span { font-size: 13px; color: var(--zs-ink2); }
-  .inzicht-links a:hover b { text-decoration: underline; }
-  .inzicht-links a:nth-child(4n+1) { border-left: 0; } .inzicht-links a:nth-child(n+5) { border-top: 1px solid var(--zs-lijn); }
-  @media (max-width: 700px) { .inzicht-links { grid-template-columns: 1fr 1fr; } .inzicht-links a:nth-child(odd) { border-left: 0; } .inzicht-links a:nth-child(n+3) { border-top: 1px solid var(--zs-lijn); } }
+  /* 0.118: de overzichten in drie vragen (was acht losse tegels) */
+  .inzicht-links { grid-column: 1 / -1; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; align-items: start; }
+  .il-groep { display: grid; grid-template-columns: 1fr; background: var(--zs-vlak); border-radius: var(--zs-r); box-shadow: 0 0 0 1px var(--zs-lijn), var(--zs-schaduw); overflow: hidden; }
+  .il-groep:first-child { grid-template-columns: 1fr 1fr; }
+  .il-groep h2 { grid-column: 1 / -1; margin: 0; padding: 16px 16px 6px; font: 650 17px/1.2 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; }
+  .il-groep a { display: grid; gap: 2px; align-content: center; padding: 12px 16px; text-decoration: none; color: inherit; min-height: 62px; border-top: 1px solid var(--zs-lijn); }
+  .il-groep:first-child a:nth-of-type(even) { border-left: 1px solid var(--zs-lijn); }
+  .il-groep b { font-weight: 650; } .il-groep span { font-size: 13px; color: var(--zs-ink2); }
+  .il-groep a:hover b { text-decoration: underline; }
+  @media (max-width: 900px) { .inzicht-links { grid-template-columns: 1fr; } }
+  @media (max-width: 420px) { .il-groep:first-child { grid-template-columns: 1fr; } .il-groep:first-child a:nth-of-type(even) { border-left: 0; } }
   /* 0.110: Inzichten kort. De zware grafieken en het logboek staan achter één knop. */
   body.v-inzicht:not(.inz-alles) :is(#s-planning, .c-plan, .c-log, #s-inzicht, .c-today, .c-feed, .c-learn, .c-compare) { display: none !important; }
   .inz-meer { grid-column: 1 / -1; display: flex; justify-content: center; padding: 4px 0 8px; }
@@ -1444,14 +1447,17 @@ html, body { overscroll-behavior-y: none; }
       <div class="card donutkaart" id="donutKaart"><h2 class="sec">Energieverdeling</h2><div class="donut-rij"><div class="donut" id="donut"></div><ul class="dlegenda" id="dLegenda"></ul></div><p class="small muted" id="donutNote"></p></div>
       <div class="inz-tegels"><div class="card inz-t" id="inzBesp"></div><div class="card inz-t" id="inzCo2"></div></div>
     </section>
-    <nav class="inzicht-links adv" aria-label="Overzichten">
-      <a href="opbrengst"><b>Jaaroverzicht</b><span>per maand</span></a><a href="rapport"><b>Weekrapport</b><span>laatste 7 dagen</span></a>
-      <a href="vergelijk"><b>Vergelijken</b><span>met je leverancier</span></a><a href="laadtijdlijn"><b>Laadbeurten</b><span>wanneer en voor welke prijs</span></a>
-      <a href="energielab"><b>Energielab</b><span>wat levert een batterij of auto op</span></a><a href="besluiten"><b>Waarom deed hij dat?</b><span>elk besluit uitgelegd</span></a>
-      <a href="brein"><b>Wat Zonnestuur weet</b><span>geleerd over je huis</span></a><a href="benchmark"><b>Met en zonder sturing</b><span>wat het verschil is</span></a>
-    </nav>
     <section class="card adv delen-buren" id="delenBuren" hidden aria-labelledby="delenKop"></section>
     <section class="card c-bespaard adv" aria-label="Bespaard"><div class="hsave" id="hSave" hidden></div><div class="htips" id="hTips"></div></section>
+    <nav class="inzicht-links adv" aria-label="Overzichten">
+      <div class="il-groep"><h2>Wat levert het op?</h2>
+        <a href="opbrengst"><b>Jaaroverzicht</b><span>per maand, per apparaat</span></a><a href="rapport"><b>Weekrapport</b><span>de laatste 7 dagen</span></a>
+        <a href="benchmark"><b>Met en zonder sturing</b><span>wat het verschil is</span></a><a href="vergelijk"><b>Vergelijken</b><span>met je leverancier</span></a></div>
+      <div class="il-groep"><h2>Wat deed hij?</h2>
+        <a href="besluiten"><b>Waarom deed hij dat?</b><span>elk besluit uitgelegd</span></a><a href="laadtijdlijn"><b>Laadbeurten</b><span>wanneer en voor welke prijs</span></a></div>
+      <div class="il-groep"><h2>Wat kan er nog bij?</h2>
+        <a href="energielab"><b>Energielab</b><span>wat levert een batterij of auto op</span></a><a href="brein"><b>Wat Zonnestuur weet</b><span>geleerd over je huis</span></a></div>
+    </nav>
 
     <!-- Vandaag: nu -->
     <div class="vd nu">
@@ -2947,7 +2953,7 @@ function renderDevices(s) {
   // Alleen opnieuw tekenen als er echt iets veranderd is, en dan zonder de 'verschijn'-animatie:
   // anders lijkt het alsof de pagina elke paar seconden opnieuw laadt.
   for (const w of s.waarnemen || []) { const oc = wrap.querySelector(`[data-id="obs-${CSS.escape(w.id)}"]`); if (oc) obsFill(oc, w); }
-  const sig = JSON.stringify([s.devices, s.batteries, (s.waarnemen || []).map((w) => w.id), s.has_panels, s.contract, Object.keys(PROGS).map((k) => [k, (PROGS[k].programs || []).length, PROGS[k].selected])]);
+  const sig = JSON.stringify([s.devices, s.batteries, (s.waarnemen || []).map((w) => w.id), s.has_panels, s.contract, PRICES ? (PRICES.slots || []).length : 0, Object.keys(PROGS).map((k) => [k, (PROGS[k].programs || []).length, PROGS[k].selected])]);
   if (sig === wrap.dataset.sig) return;
   const again = wrap.dataset.sig !== undefined;
   wrap.dataset.sig = sig;

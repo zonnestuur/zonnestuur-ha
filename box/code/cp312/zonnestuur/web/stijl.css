@@ -371,7 +371,7 @@ h1, .headline, .page-title { font-family: "Inter Tight", "Inter", system-ui, san
 @supports (order: sibling-index()) {
   @media (prefers-reduced-motion: no-preference) {
     /* alleen lijsten die één keer getekend worden: wat elke halve minuut ververst, zou steeds opnieuw binnenschuiven */
-    .inst-lijst > .inst-rij, .inzicht-links > a, body.p-meer .lijst > a.rij {
+    .inst-lijst > .inst-rij, .inzicht-links .il-groep, body.p-meer .lijst > a.rij {
       animation: zs-na-elkaar .5s var(--zs-uit, cubic-bezier(.2, .8, .2, 1)) backwards;
       animation-delay: calc(min(sibling-index(), 10) * 28ms);
     }
