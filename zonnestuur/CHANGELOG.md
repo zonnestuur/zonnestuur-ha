@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.114.0
+- Werkt het echt? Op de pagina van een apparaat staat een knop "Nu testen". Een boiler of stekker gaat ongeveer tien seconden aan, Zonnestuur meet of hij stroom opneemt en zet hem weer uit. Een warmtepomp, laadpaal of wasmachine wordt daarbij nooit aangezet; daar controleert hij alleen de verbinding.
+- Bijsturen: heb je een apparaat op Direct of Vandaag niet gezet, dan kies je met één tik hoe lang (1, 2 of 4 uur, of tot morgen) en ga je met "Terug naar slim" meteen terug.
+- Koppellijst nagelopen tegen de nieuwste koppelmotor: Envertech heeft een nieuwe ingebouwde koppeling, de oude werkt niet meer; bij Hypervolt klopt de beschrijving weer.
+
 ## 0.113.0
 - Verbruik per dag: tik op een apparaat en je ziet onderaan per dag hoeveel stroom het gebruikte (14 of 30 dagen), met vandaag, gisteren en het gemiddelde. Tik op een dag voor de details. Werkt ook bij een auto die je leverancier laadt.
 - Planning toont nu alle apparaten. Wat op dit moment geen uren nodig heeft, staat er ook bij, met de reden (bijvoorbeeld: is al warm genoeg, staat op Vandaag niet, of wordt door je leverancier gestuurd).

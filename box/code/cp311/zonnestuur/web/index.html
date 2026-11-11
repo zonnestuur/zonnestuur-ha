@@ -278,6 +278,22 @@ html, body { overscroll-behavior-y: none; }
   @keyframes hzDamp { 0% { transform: translateY(2px); opacity: 0; } 50% { opacity: .6; } 100% { transform: translateY(-6px); opacity: 0; } }
   .flow.paused .hz * { animation-play-state: paused !important; }
   @media (prefers-reduced-motion: reduce) { .hz * { animation: none !important; } }
+  /* 0.114 bijsturen: hoe lang aan of uit, en met één tik terug */
+  .bijsturen { margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: var(--zs-vlak2, rgba(127,127,127,.12)); font-size: 13.5px; color: var(--ink-2); }
+  .bijsturen b { color: var(--ink); }
+  .bij-knoppen { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .bij-knoppen button { border: 1px solid var(--zs-lijn, var(--line)); background: var(--zs-kaart, var(--card)); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600;
+    padding: 0 12px; min-height: 36px; border-radius: 999px; cursor: pointer; }
+  .bij-knoppen button.terug { margin-left: auto; border-color: transparent; background: none; text-decoration: underline; text-underline-offset: 3px; }
+  .bij-knoppen button:active { transform: scale(.97); }
+  /* 0.114 proefrondje */
+  .proef { margin-top: 14px; }
+  .proef h2 { margin: 0 0 6px; }
+  .proef .uitslag { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0 12px; }
+  .proef .uitslag i { flex: none; width: 12px; height: 12px; border-radius: 50%; margin-top: 5px; background: var(--ink-3); }
+  .proef .uitslag.ja i { background: var(--zs-groen, #16a34a); }
+  .proef .uitslag.nee i { background: var(--t-rood, #dc2626); }
+  .proef .uitslag p { margin: 0; }
   /* 0.113 verbruik per dag op de apparaatpagina */
   .verbruik { margin-top: 14px; }
   .vb-kop { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
@@ -2621,7 +2637,30 @@ function apparaatAlleen(s, wrap) {
   if (!deze) wrap.innerHTML = `<div class="card"><p>Dit apparaat bestaat niet (meer). <a href="apparaten">Naar Apparaten</a></p></div>`;
   else if (d) appHeld(wrap, d);
   if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
+  if (deze && d) proefKlaar(wrap, d);
   if (deze && (d || w)) verbruikKlaar(wrap, d ? d.id : "obs-" + w.id, w ? (w.leverancier || "") : "");
+}
+// ---- 0.114: proefrondje. Laat zien of sturen bewezen werkt en geeft één knop om het nu te testen. Alleen een gewone
+// schakelaar gaat daarbij echt even aan; de server bepaalt dat (warmtepomp, laadpaal en witgoed nooit).
+let PROEF_BEZIG = false, PROEF_NU = null;
+function proefKlaar(wrap, d) {
+  let box = $("proefKaart");
+  if (!box) { box = document.createElement("article"); box.id = "proefKaart"; box.className = "card proef"; wrap.appendChild(box); }
+  if (PROEF_BEZIG) { if (!box.innerHTML) box.innerHTML = `<h2 class="t">Werkt het echt?</h2><p class="small muted">Bezig met testen…</p>`; return; }
+  const r = PROEF_NU || d.proef;
+  const wanneer = r && r.t ? new Date(r.t).toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+  const schakelt = !(d.driver === "ha_start_button" || d.kind === "heatpump" || d.kind === "ev" || d.modulating);
+  box.innerHTML = `<h2 class="t">Werkt het echt?</h2>
+    ${r ? `<div class="uitslag ${r.bewezen ? "ja" : r.ok ? "" : "nee"}"><i></i><p>${esc(r.tekst)}${wanneer ? ` <span class="muted small">(${esc(wanneer)})</span>` : ""}</p></div>`
+        : `<p class="small muted" style="margin:0 0 12px">${schakelt ? "Zonnestuur zet hem ongeveer tien seconden aan, meet of hij stroom opneemt en zet hem weer uit." : "Zonnestuur leest het apparaat uit en zegt of de verbinding klopt. Het apparaat zelf gaat daarbij niet aan."}</p>`}
+    <button type="button" class="btn ghost" id="proefKnop">${r ? "Opnieuw testen" : "Nu testen"}</button>`;
+  $("proefKnop").onclick = async () => {
+    PROEF_BEZIG = true;
+    box.innerHTML = `<h2 class="t">Werkt het echt?</h2><p class="small muted">Bezig met testen… dit duurt hooguit een kwart minuut.</p>`;
+    try { PROEF_NU = await api1(`api/device/${encodeURIComponent(d.id)}/proef`, { method: "POST", body: "{}" }); }
+    catch (e) { PROEF_NU = { ok: false, bewezen: false, tekst: e.message }; }
+    PROEF_BEZIG = false; proefKlaar(wrap, d); setTimeout(refresh, 600);
+  };
 }
 // ---- 0.113: verbruik per dag van dit apparaat (laatste 14 of 30 dagen). Tik op een dag voor het bedrag van die dag.
 let VB = null, VB_T = 0, VB_N = 14, VB_SEL = -1;
@@ -2877,7 +2916,13 @@ function renderDevices(s) {
           : `<button data-mode="on" data-hours="2" class="${d.mode === "on" ? "active" : ""}" title="Meteen aan, 2 uur lang; daarna weer slim">Direct</button>`}
         <button data-mode="off" data-skip="1" class="${d.mode === "off" ? "active" : ""}" title="Tot morgen uit">Vandaag niet</button>
       </div>
-      ${d.mode !== "auto" && d.override_until ? `<div class="small muted" style="margin-top:6px">Door jou ${d.mode === "on" ? "aangezet" : "uitgezet"} tot ${esc(d.override_until.slice(11, 16))}${d.override_until.slice(0, 10) !== s.now.slice(0, 10) ? " (morgen)" : ""}. Daarna weer automatisch.</div>` : ""}`;
+      ${d.mode !== "auto" && !(d.ev && d.ev.cars && d.ev.cars.length) ? `<div class="bijsturen">
+        <span>${d.mode === "on" ? "Door jou aangezet" : "Door jou uitgezet"}${d.override_until ? ` tot <b class="num">${esc(d.override_until.slice(11, 16))}</b>${d.override_until.slice(0, 10) !== s.now.slice(0, 10) ? " (morgen)" : ""}` : ""}. Daarna weer slim.</span>
+        <div class="bij-knoppen" role="group" aria-label="Hoe lang">
+          ${(d.mode === "on" ? [1, 2, 4] : [2, 4]).map((u) => `<button type="button" data-mode="${d.mode}" data-hours="${u}">${u} uur</button>`).join("")}
+          ${d.mode === "off" ? `<button type="button" data-mode="off" data-skip="1">Tot morgen</button>` : ""}
+          <button type="button" class="terug" data-mode="auto">Terug naar slim</button>
+        </div></div>` : ""}`;
     el.querySelectorAll("[data-check]").forEach((b) => b.addEventListener("click", async () => {
       const res = el.querySelector("[data-checkres]"); b.disabled = true; res.textContent = "Even kijken…";
       try { const r = await api(`api/device/${encodeURIComponent(b.dataset.check)}/check`, { method: "POST", body: "{}" }); res.textContent = r.tekst; if (r.online) setTimeout(refresh, 800); }
