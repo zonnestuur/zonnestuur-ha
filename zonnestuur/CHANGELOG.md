@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.115.0
+- De lijst met koppelingen houdt zichzelf bij. Bij Apparaat toevoegen zie je per manier bij hoeveel huizen met Zonnestuur die nu werkt. Werkt een manier bij de meeste huizen niet, dan zakt hij vanzelf in de lijst en krijg je eerst een andere te zien.
+- Daarvoor meldt Zonnestuur één keer per dag welke manieren bij jou werken: zonder naam, adres of de namen van je apparaten. Dat hoort bij "Zonnestuur mag op afstand meekijken" (Hulp); zet je dat uit, dan gaat er niets.
+- "Werkt het echt?" werkt zichzelf bij. Zet Zonnestuur een apparaat aan en gaat het daarna draaien, dan staat dat er vanzelf, met het tijdstip. Je hoeft er niets voor te doen. Dat geldt ook voor de warmtepomp en de laadpaal, die we nooit voor een test schakelen.
+- Blijft een apparaat een half uur stil nadat Zonnestuur het aanzette, dan lees je dat ook, met wat het kan zijn.
+
 ## 0.114.1
 - Verbruik per dag toont nu ook de kosten: bij een warmtepomp met eigen meting per uur tegen de prijs van dat uur, bij een vast contract tegen je vaste prijs.
 - Werkt het echt? zegt alleen nog "werkt echt" als het vermogen ook werkelijk gemeten wordt. Een wasmachine die wacht tot je hem klaarzet, telt niet meer als storing.

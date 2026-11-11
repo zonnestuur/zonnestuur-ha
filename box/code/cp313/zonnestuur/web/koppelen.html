@@ -263,6 +263,9 @@ html, body { overscroll-behavior-y: none; }
   .hoe ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; line-height: 1.45; }
   .hoe-nut { margin: 0 0 14px; font-size: 14.5px; color: var(--ink-2); line-height: 1.45; }
   .hoe .storing { color: var(--warn); font-weight: 600; font-size: 14px; }
+  .hoe .huizen { margin: 0 0 12px; font-size: 14px; font-weight: 600; color: var(--zs-groen, #166534); }
+  .hoe .huizen::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; margin-right: 8px; vertical-align: 1px; }
+  .hoe .huizen.slecht { color: var(--warn); }
   .hoe-go .btn { width: 100%; justify-content: center; min-height: 48px; }
   details.anders { margin: 4px 0 10px; } details.anders > summary { padding: 12px 2px; min-height: 44px; }
   details.anders .hoe { margin-top: 8px; }
@@ -643,10 +646,21 @@ const VOORKEUR = { Fronius: "zonnestuur:fronius", GoodWe: "zonnestuur:goodwe", H
   Zendure: "zonnestuur:bat_zendure", Victron: "zonnestuur:bat_victron", Sungrow: "zonnestuur:sungrow", Shelly: "ha:shelly" };
 const VOORKEUR_TEKST = { "zonnestuur:fronius": "Meestal niets: een Fronius geeft zijn opwek zelf door in je netwerk en Zonnestuur vindt hem.",
   "zonnestuur:goodwe": "Niets: Zonnestuur vindt hem zelf in je netwerk." };
+// Bij hoeveel huizen met Zonnestuur werkt deze manier nu? (telling zonder namen, twee keer per dag opgehaald)
+let KSTAND = {};
+function huizenStand(rt) {
+  const k = (rt.route.startsWith("ha:") ? rt.route : rt.domein ? "ha:" + rt.domein : rt.route).toLowerCase(), t = KSTAND[k];
+  if (!t || !t.n) return null;
+  const slecht = t.n >= 2 && t.goed * 2 < t.n, h = (n) => (n === 1 ? "1 huis" : n + " huizen");
+  return { ...t, slecht, tekst: slecht ? `Bij ${t.n - t.goed} van de ${h(t.n)} met Zonnestuur werkt dit nu niet. Kies liever een andere manier.`
+    : t.goed === t.n ? `Werkt nu bij ${h(t.n)} met Zonnestuur${t.bewezen ? (t.bewezen === t.n ? ", sturen bewezen" : `, bij ${t.bewezen} is het sturen bewezen`) : ""}.`
+    : `Werkt nu bij ${t.goed} van de ${h(t.n)} met Zonnestuur.` };
+}
 function routeScore(rt, r) {
   const L = leek(rt, r), k = L.info.kind;
   return (connected(rt) ? -1000 : 0) + (VOORKEUR[r.merk] === rt.route ? -80 : 0) + (rt.storing ? 500 : 0) + (rt.handmatig ? 400 : 0) + (rt.zeker === false ? 60 : 0) +
-(L.installateur ? 30 : 0) + (L.prijs ? 25 : 0) + (L.lezen ? 15 : 0) + (L.jargon && !L.account ? 5 : 0) +
+((huizenStand(rt) || {}).slecht ? 300 : 0) + ((huizenStand(rt) || {}).bewezen ? -20 : (huizenStand(rt) || {}).goed ? -8 : 0) +
+    (L.installateur ? 30 : 0) + (L.prijs ? 25 : 0) + (L.lezen ? 15 : 0) + (L.jargon && !L.account ? 5 : 0) +
     ({ ha: 0, zonnestuur: 2, hacs: 3, matter: 5, evcc: 36, meten: 9, relais: 9, zigbee: 12, enode: 14 }[k] ?? 10);
 }
 const MERKNAAM = { "Generiek OCPP 1.6J": "Ander merk laadpaal (OCPP)" };
@@ -734,15 +748,16 @@ function sluitMerk() {
   $("t_terug").hidden = !CAT && !$("q").value.trim(); $("t_soort").hidden = !!CAT; render();
 }
 function hoeKaart(r, rt, j, eerste) {
-  const L = leek(rt, r), ri = LIST.indexOf(r);
+  const L = leek(rt, r), ri = LIST.indexOf(r), HS = huizenStand(rt);
   const nut = L.lezen ? "Zonnestuur kan hem zo alleen uitlezen, niet sturen." : (NUT[r.categorie] || "");
   return `<div class="hoe${eerste ? " eerste" : ""}">
     ${eerste ? `<span class="hoe-lbl">${connected(rt) ? "Al gekoppeld" : "Zo koppel je hem"}</span>` : ""}
     <h3>${esc(L.titel)}</h3>
     ${rt.storing ? `<p class="storing">${esc(rt.storing)}</p>` : ""}
+    ${HS ? `<p class="huizen${HS.slecht ? " slecht" : ""}">${esc(HS.tekst)}</p>` : ""}
     ${L.st.length ? `<p class="hoe-nodig">Wat je nodig hebt</p><ul>${L.st.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
     ${nut ? `<p class="hoe-nut">${esc(nut)}</p>` : ""}
-    ${rt.zeker === false ? '<p class="small muted">Nog niet bij een klant getest. Werkt het niet, meld het dan: we helpen je.</p>' : ""}
+    ${rt.zeker === false && !(HS && HS.goed) ? '<p class="small muted">Nog niet bij een klant getest. Werkt het niet, meld het dan: we helpen je.</p>' : ""}
     ${rt.handmatig ? `<p class="small">${esc(rt.uitleg || "Dit kan nog niet met een knop.")}</p>` : ""}
     <div class="hoe-go">${goButton(L.info, ri, j, rt)}</div></div>`;
 }
@@ -1423,6 +1438,7 @@ async function meterAanbod() {
   if (new URLSearchParams(location.search).has("start")) { let gezien = true; try { gezien = localStorage.getItem("zs_welkom") === "1"; localStorage.setItem("zs_welkom", "1"); } catch (e) {}
     if (!gezien) { location.replace("kennismaking?start=1"); return; } }
   try { LIST = await (await fetch("koppellijst.json")).json(); } catch (e) { LIST = []; }
+  api("api/koppelstand").then((k) => { KSTAND = (k && k.routes) || {}; if (MERK) render(); }).catch(() => {});
   const cats = [...new Set(LIST.map((r) => r.categorie))].sort();
   $("cats").innerHTML = `<button class="on" data-c="">Alles</button>` + cats.map((c) => `<button data-c="${esc(c)}">${esc(c)}</button>`).join("");
   $("cats").querySelectorAll("button").forEach((b) => b.onclick = () => { CAT = b.dataset.c; LIMIT = 40; $("cats").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); render(); });
