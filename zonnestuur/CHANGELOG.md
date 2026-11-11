@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.117.0
+- Bij Inzichten staat nu één groot jaarcijfer: wat Zonnestuur dit jaar bespaarde, met erachter welk deel vrijwel zeker is. Vandaag, deze maand en het totaal staan ernaast.
+
 ## 0.116.0
 - Het laden van de auto ziet er mooier uit. De auto staat op een eigen vlak met een grote accubalk: paars is wat erin zit, gearceerd is wat er nog bij komt, het streepje is je doel. Laadt hij, dan loopt er zichtbaar stroom naar de auto en beweegt de arcering.
 - Onder de auto staan de stroomprijzen per uur tot je vertrektijd, met de uren waarin geladen wordt in oranje. Zo zie je in één oogopslag dat hij de goedkoopste uren pakt.

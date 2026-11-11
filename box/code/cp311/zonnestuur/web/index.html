@@ -642,6 +642,9 @@ html, body { overscroll-behavior-y: none; }
            background: var(--card); border: 1px solid var(--card-line); }
   .hsave .big { font: 650 clamp(40px, 5.4vw, 60px)/.95 "Inter Tight", Inter, sans-serif; letter-spacing: -.045em; color: var(--save); font-variant-numeric: tabular-nums; }
   .hsave .lbl { grid-column: 1; font-size: 14px; color: var(--ink-2); }
+  .hsave .lbl { background: none; padding: 0; border-radius: 0; white-space: normal; font-weight: 500; }
+  .hsave .lbl .zeker { white-space: nowrap; }
+  .hsave .lbl .zeker b { color: var(--ink); font-variant-numeric: tabular-nums; }
   .hsave .mini { grid-column: 2; grid-row: 1 / span 2; display: grid; grid-template-columns: repeat(3, auto); gap: 4px 22px; justify-content: end; align-self: center; }
   .hsave .mini span { font-size: 12.5px; color: var(--ink-3); }
   .hsave .mini b { display: block; font: 650 18px/1.2 "Inter Tight", Inter, sans-serif; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -1939,9 +1942,10 @@ function renderSave(s) {
   el.hidden = false;
   const since = V.since ? new Date(V.since) : null, days = since ? Math.max(1, (Date.now() - since) / 864e5) : 0;
   const pace = days >= 7 && V.total.eur > 0 ? V.total.eur / days * 365 : null;
-  el.innerHTML = `<div class="big num">${eur(V.month.eur)}</div>
-    <div class="mini"><div><span>Vandaag</span><b>${eur(V.today.eur)}</b></div><div><span>Dit jaar</span><b>${eur(V.year.eur)}</b></div><div><span>${since ? "Sinds " + since.toLocaleDateString("nl-NL", { day: "numeric", month: "short" }) : "Totaal"}</span><b>${eur(V.total.eur)}</b></div></div>
-    <div class="lbl">bespaard deze maand</div>
+  const zeker = V.year.zeker != null && V.year.marge >= 0.05 && V.year.eur >= 1 ? V.year.zeker : null;
+  el.innerHTML = `<div class="big num">${eur(V.year.eur)}</div>
+    <div class="mini"><div><span>Vandaag</span><b>${eur(V.today.eur)}</b></div><div><span>Deze maand</span><b>${eur(V.month.eur)}</b></div><div><span>${since ? "Sinds " + since.toLocaleDateString("nl-NL", { day: "numeric", month: "short" }) : "Totaal"}</span><b>${eur(V.total.eur)}</b></div></div>
+    <div class="lbl">bespaard dit jaar${zeker != null ? `, <span class="zeker" title="Zonder Zonnestuur had het apparaat op elk moment van de dag kunnen draaien. Dit is het bedrag als dat steeds een gunstig moment was geweest.">waarvan vrijwel zeker <b>${eur(zeker)}</b></span>` : ""}</div>
     ${pace != null ? `<div class="pace">In dit tempo ± <b>${eur(pace).replace(/,\d\d$/, "")}</b> per jaar.${(COACH && (COACH.tips || []).some((t) => t.eur_year > 0)) ? ` Met de tips hieronder kan er ± <b>€ ${nl((COACH.tips || []).reduce((a, t) => a + (t.eur_year || 0), 0))}</b> per jaar bij.` : ""}</div>` : ""}
     ${deelTonen(V) ? `<div class="deel"><span>Blij met Zonnestuur? Vertel het door: veel mensen weten niet dat dit kan.</span>
       <span class="deel-k"><button type="button" class="btn ghost sm" id="deelBtn">Delen</button><a class="btn ghost sm" href="mailto:info@zonnestuur.nl?subject=Mijn%20ervaring%20met%20Zonnestuur">Vertel je ervaring</a><button type="button" class="deel-x" id="deelWeg" aria-label="Niet meer tonen">×</button></span></div>` : ""}`;
