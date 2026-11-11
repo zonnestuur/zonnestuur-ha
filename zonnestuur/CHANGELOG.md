@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.116.0
+- Het laden van de auto ziet er mooier uit. De auto staat op een eigen vlak met een grote accubalk: paars is wat erin zit, gearceerd is wat er nog bij komt, het streepje is je doel. Laadt hij, dan loopt er zichtbaar stroom naar de auto en beweegt de arcering.
+- Onder de auto staan de stroomprijzen per uur tot je vertrektijd, met de uren waarin geladen wordt in oranje. Zo zie je in één oogopslag dat hij de goedkoopste uren pakt.
+- Klaar om, Laden en Kost staan als drie duidelijke blokken. Op de pagina van de auto staat de accu niet meer dubbel.
+- Dezelfde weergave bij een auto die je leverancier laadt (meekijken).
+
 ## 0.115.0
 - De lijst met koppelingen houdt zichzelf bij. Bij Apparaat toevoegen zie je per manier bij hoeveel huizen met Zonnestuur die nu werkt. Werkt een manier bij de meeste huizen niet, dan zakt hij vanzelf in de lijst en krijg je eerst een andere te zien.
 - Daarvoor meldt Zonnestuur één keer per dag welke manieren bij jou werken: zonder naam, adres of de namen van je apparaten. Dat hoort bij "Zonnestuur mag op afstand meekijken" (Hulp); zet je dat uit, dan gaat er niets.

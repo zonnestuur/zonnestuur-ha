@@ -763,6 +763,62 @@ html, body { overscroll-behavior-y: none; }
   .evc-bat > b { position: absolute; top: -4px; bottom: -4px; width: 2px; border-radius: 2px; background: var(--ink); }
   .evc-bat > em { position: absolute; top: -3px; bottom: -3px; width: 2px; border-radius: 2px; background: var(--ink-3); }
   .evc-story { display: grid; margin: 16px 20px 0; border-top: 1px solid var(--card-line); }
+  /* ---- 0.116 laadbeeld: de auto op een eigen podium, grote accu, stroom die loopt ---- */
+  .evc-stage { position: relative; margin: 10px 10px 0; padding: 0 0 16px; border-radius: 24px; overflow: hidden; isolation: isolate;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--e-auto) 13%, var(--zs-vlak2)) 0%, var(--zs-vlak2) 62%); }
+  .evc-stage::before { content: ""; position: absolute; z-index: -1; left: 8%; right: 8%; bottom: 74px; height: 46%; border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 55%, transparent), transparent); opacity: 0; transition: opacity .6s; }
+  .evc-stage.laadt::before { opacity: .55; animation: evcgloed 3.2s ease-in-out infinite; }
+  @keyframes evcgloed { 50% { opacity: .3; } }
+  .evc-stage .evc-hero { padding: 16px 18px 0; }
+  .evc-stage .evc-sub { display: inline-flex; align-items: center; gap: 7px; justify-self: start; margin-top: 4px; padding: 5px 11px 5px 9px; border-radius: 99px;
+    background: color-mix(in srgb, var(--zs-ink) 7%, transparent); font-weight: 600; font-size: 13px; color: var(--ink); }
+  .evc-stage .evc-sub > i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); flex: none; }
+  .evc-stage.erin .evc-sub > i { background: var(--e-auto); }
+  .evc-stage.laadt .evc-sub { background: color-mix(in srgb, var(--glow) 24%, transparent); }
+  .evc-stage.laadt .evc-sub > i { background: var(--glow); box-shadow: 0 0 0 0 color-mix(in srgb, var(--glow) 60%, transparent); animation: evcpuls 1.6s ease-out infinite; }
+  @keyframes evcpuls { to { box-shadow: 0 0 0 9px transparent; } }
+  .evc-stage .evc-soc { font-size: 46px; }
+  .evc-stage .evc-soc small { margin-top: 2px; }
+  .evc-stage .evc-pic { margin: 2px 8px 0; }
+  .evc-stage .evc-pic.los::after { display: none; }
+  .evc-stage.los .evc-pic img { filter: saturate(.75) opacity(.88); }
+  .evc-stroom { position: absolute; left: 9%; right: 9%; bottom: 3%; height: 3px; border-radius: 3px; opacity: 0;
+    background: repeating-linear-gradient(90deg, var(--glow) 0 14px, transparent 14px 30px); background-size: 30px 3px; }
+  .evc-stage.laadt .evc-stroom { opacity: .9; animation: evcstroom .7s linear infinite; }
+  @keyframes evcstroom { to { background-position: 30px 0; } }
+  .evc-accu { margin: 10px 18px 0; }
+  .evc-accu .baan { position: relative; height: 30px; border-radius: 11px; background: color-mix(in srgb, var(--zs-ink) 9%, transparent); overflow: hidden; }
+  .evc-accu .vol { position: absolute; inset: 0 auto 0 0; border-radius: 11px 5px 5px 11px; min-width: 10px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--e-auto) 78%, #fff 0%), var(--e-auto)); transition: width .8s var(--zs-veer, ease); }
+  .evc-accu .bij { position: absolute; top: 0; bottom: 0; opacity: .5;
+    background: repeating-linear-gradient(115deg, var(--e-auto) 0 5px, transparent 5px 12px); background-size: 34px 30px; }
+  .evc-accu.laadt .bij { opacity: .75; animation: evcbij 1.1s linear infinite; }
+  @keyframes evcbij { to { background-position: 34px 0; } }
+  .evc-accu .baan b { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: var(--zs-ink); border-radius: 2px; }
+  .evc-accu .baan em { position: absolute; top: 9px; bottom: 9px; width: 2px; margin-left: -1px; background: var(--ink-3); border-radius: 2px; opacity: .7; }
+  .evc-accu .voet { position: relative; display: flex; justify-content: space-between; gap: 10px; margin-top: 7px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .evc-accu .voet .doel { color: var(--ink); text-align: right; }
+  .evc-strook { margin: 16px 20px 0; }
+  .evc-strook .st-b { display: flex; align-items: flex-end; gap: 3px; height: 64px; }
+  .evc-strook .st-b i { flex: 1 1 0; min-width: 0; border-radius: 5px 5px 2px 2px; background: color-mix(in srgb, var(--zs-ink) 13%, transparent); }
+  .evc-strook .st-b i.laad { background: var(--glow); box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow) 40%, transparent); }
+  .evc-strook .st-t { display: flex; gap: 3px; margin-top: 5px; }
+  .evc-strook .st-t span { flex: 1 1 0; min-width: 0; font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: visible; }
+  .evc-strook .st-l { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12.5px; color: var(--ink-2); }
+  .evc-strook .st-l i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; background: color-mix(in srgb, var(--zs-ink) 16%, transparent); vertical-align: -1px; }
+  .evc-strook .st-l i.laad { background: var(--glow); }
+  .evc-strook .st-k { margin-left: auto; font-weight: 650; color: var(--ink); }
+  .evcard .evc-story { border-top: 0; gap: 8px; margin-top: 14px; }
+  .evcard .evc-q { padding: 12px 14px; border-radius: 16px; background: var(--zs-vlak2); }
+  .evcard .evc-q + .evc-q { border-top: 0; }
+  @media (min-width: 620px) { .evcard .evc-story { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .evcard .evc-q { display: block; } .evcard .evc-q span { display: block; margin-bottom: 6px; } .evcard .evc-q b { font-size: 20px; } }
+  body.v-apparaat .evc-stage { view-transition-name: zs-app; }
+  body.v-vandaag #apparatenBlok .devs .evc-stage { margin: 0; }
+  body.v-vandaag #apparatenBlok .devs .evcard .evc-story, body.v-vandaag #apparatenBlok .devs .evcard .evc-strook { margin-left: 0; margin-right: 0; }
+  @media (prefers-reduced-motion: reduce) { .evc-stage.laadt::before, .evc-stage.laadt .evc-sub > i, .evc-stage.laadt .evc-stroom, .evc-accu.laadt .bij { animation: none; } }
+
   .evc-q { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 0 12px; align-items: baseline; padding: 12px 0; min-width: 0; }
   .evc-q + .evc-q { border-top: 1px solid var(--card-line); }
   .evc-q span { font-size: 13.5px; color: var(--ink-2); font-weight: 600; }
@@ -810,8 +866,8 @@ html, body { overscroll-behavior-y: none; }
   @media (min-width: 1100px) {
     .devs .dev.evcard { grid-column: span 2; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-auto-flow: row dense; column-gap: 6px; align-content: start; }
     .evcard > * { grid-column: 2; } .evcard > .evc-hero, .evcard > .ev-cars, .evcard > .evc-set { grid-column: 1 / -1; }
-    .evcard > .evc-pic { grid-column: 1; grid-row: span 5; align-self: center; margin: 4px 8px 0 12px; }
-    .evcard > .evc-bat { display: none; } .evcard > .evc-story { margin-top: 4px; }
+    .evcard > .evc-stage { grid-column: 1; grid-row: span 7; align-self: start; margin: 12px 8px 12px 12px; }
+    .evcard > .evc-story { grid-template-columns: 1fr; margin-top: 12px; } .evcard > .evc-story .evc-q { display: grid; } .evcard > .evc-story .evc-q span { margin: 0; }
   }
   @media (max-width: 520px) { .evc-q { grid-template-columns: 92px minmax(0, 1fr); } .evc-q b { font-size: 20px; } .evc-go { flex: 1; } }
   /* ---- telefoon: alles op één kolom, compact en zonder horizontaal schuiven ---- */
@@ -2471,15 +2527,45 @@ function gewoonteBlok(g, week, knop) {
   return `<div class="evc-rit on"><div><b>${kop}</b><small>${sub}.</small></div>${actie}</div>`;
 }
 
+// Het laadbeeld (0.116): de accu groot, met wat erbij komt gearceerd en het doel als vlag
+function accuHtml(soc, doel, min, kmNu, laadt) {
+  if (soc == null) return "";
+  const v = Math.max(0, Math.min(100, soc)), d = doel != null ? Math.max(0, Math.min(100, doel)) : null;
+  const bij = d != null && d > v + 1;
+  const kmDoel = bij && kmNu != null && v > 3 ? Math.round(kmNu * d / v) : null;
+  return `<div class="evc-accu${laadt ? " laadt" : ""}" role="img" aria-label="Accu ${Math.round(v)}%${d != null ? `, doel ${Math.round(d)}%` : ""}">
+    <div class="baan"><i class="vol" style="width:${v}%"></i>${bij ? `<i class="bij" style="left:${v}%;width:${d - v}%"></i>` : ""}
+      ${min != null && min > 0 ? `<em style="left:${min}%" title="Altijd minstens ${min}%"></em>` : ""}${d != null ? `<b style="left:${d}%"></b>` : ""}</div>
+    <div class="voet"><span>${kmNu != null ? `± ${kmNu} km` : "nu"}</span>${d != null ? `<span class="doel" style="--x:${d}%">${bij ? `doel ${Math.round(d)}%${kmDoel ? ` · ± ${kmDoel} km` : ""}` : `doel ${Math.round(d)}% gehaald`}</span>` : ""}</div></div>`;
+}
+// Prijsstaafjes van nu tot de klaar-tijd, met de uren waarin geladen wordt gekleurd
+function laadStrook(nowD, end, starts, endT) {
+  const u0 = Math.floor(nowD / 3600e3) * 3600e3, n = Math.ceil((end - u0) / 3600e3);
+  if (!(n >= 2 && n <= 40)) return "";
+  const per = {};
+  (PRICES && PRICES.slots || []).forEach((r) => { const u = Math.floor(r.ts / 3600) * 3600e3; (per[u] = per[u] || []).push(r.all_in); });
+  ((PRICES && PRICES.verwachting && PRICES.verwachting.dagen) || []).forEach((dg) => (dg.uren || []).forEach((r) => { const u = r.ts * 1000; if (!per[u]) per[u] = [r.all_in]; }));
+  const plan = new Set(starts.map((t) => Math.floor(t / 3600e3) * 3600e3));
+  const uren = []; for (let i = 0; i < n; i++) { const u = u0 + i * 3600e3, l = per[u]; uren.push({ u, p: l ? l.reduce((a, v) => a + v, 0) / l.length : null, laad: plan.has(u) }); }
+  const ps = uren.map((x) => x.p).filter((x) => x != null), lo = ps.length ? Math.min(...ps) : 0, hi = ps.length ? Math.max(...ps) : 0;
+  const h = (p) => p == null || hi - lo < 0.005 ? 46 : 26 + 74 * (p - lo) / (hi - lo);
+  const hh = (u) => String(new Date(u).getHours()).padStart(2, "0");
+  const eerste = uren.find((x) => x.laad);
+  const ticks = uren.map((x, i) => (i === 0 ? "nu" : new Date(x.u).getHours() % (n > 20 ? 6 : 3) === 0 ? hh(x.u) : ""));
+  return `<div class="evc-strook" role="img" aria-label="Stroomprijs per uur tot ${esc(endT)}; in de gekleurde uren laadt de auto">
+    <div class="st-b">${uren.map((x) => `<i class="${x.laad ? "laad" : ""}" style="height:${h(x.p).toFixed(0)}%" title="${hh(x.u)}:00${x.p != null ? " · " + eur3(x.p) : ""}${x.laad ? " · laden" : ""}"></i>`).join("")}</div>
+    <div class="st-t">${ticks.map((t) => `<span>${t}</span>`).join("")}</div>
+    <div class="st-l"><span><i class="laad"></i>${eerste ? "laden" : "nog geen laaduren"}</span><span><i></i>${ps.length ? "stroomprijs per uur" : "prijs nog niet bekend"}</span><span class="st-k">klaar ${esc(endT)}</span></div></div>`;
+}
 function obsCard(s, w) {
   // Zelfde laadkaart als wanneer Zonnestuur laadt (auto, kabel, oplichtend lampje), maar de leverancier stuurt.
   // De foto wordt één keer getekend; de cijfers worden elke paar seconden bijgewerkt (obsFill), zonder knipperen.
   const el = document.createElement("article");
   el.className = "card dev evcard is-ev";
   el.dataset.id = "obs-" + w.id;
-  el.innerHTML = `<div class="evc-hero" data-o="hero"></div>
-    <div class="evc-pic" data-o="pic"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>
-    <div data-o="bat"></div><div class="evc-story" data-o="story"></div>
+  el.innerHTML = `<div class="evc-stage" data-o="stage"><div class="evc-hero" data-o="hero"></div>
+    <div class="evc-pic" data-o="pic"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i><i class="evc-stroom"></i></div>
+    <div data-o="bat"></div></div><div class="evc-story" data-o="story"></div>
     <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="laadtijdlijn?bron=ev:${encodeURIComponent(w.id)}">Laadbeurten</a> · <a href="vergelijk">Vergelijking</a></div>
     ${gewoonteBlok(w.gewoonte, null, false)}`;
   obsFill(el, w);
@@ -2494,12 +2580,13 @@ function obsFill(el, w) {
     : w.plug === false ? "Stekker eruit" : `${wie} laadt nu niet`;
   const q = (a, b, c, cls) => `<div class="evc-q"><span>${a}</span><b>${esc(b)}</b><small class="${cls || ""}">${esc(c)}</small></div>`;
   const zs = w.zs || "Zonnestuur rekent elke nacht uit wat hij zelf had gedaan.";
-  el.querySelector('[data-o="hero"]').innerHTML = `<div class="evc-name">${esc(w.naam)}</div><div class="evc-sub">${st}</div>
-    <div class="evc-soc">${w.soc != null ? Math.round(w.soc) + "%" : laadt ? nl(pw / 1000, 1) + "<small>kW</small>" : "–"}${w.soc != null ? `<small>${w.bereik_km != null ? "± " + w.bereik_km + " km" : "accu"}</small>` : ""}</div>
+  el.querySelector('[data-o="hero"]').innerHTML = `<div class="evc-name">${esc(w.naam)}</div><div class="evc-sub"><i></i>${st}</div>
+    <div class="evc-soc">${w.soc != null ? Math.round(w.soc) + "%" : laadt ? nl(pw / 1000, 1) + "<small>kW</small>" : "–"}${w.soc != null ? `<small>accu</small>` : ""}</div>
     ${w.soc != null && w.soc_geschat ? `<div class="evc-oud">Geschat: de auto gaf ${oudTekst(w.soc_oud_u)} geleden ${nl(w.soc_gemeten)}% door. Zonnestuur telt erbij wat er sindsdien geladen is.</div>`
       : w.soc != null && w.soc_oud_u >= 12 ? `<div class="evc-oud">Dit percentage is ${oudTekst(w.soc_oud_u)} oud: ${esc(w.wie)} kreeg sindsdien niets nieuws van de auto. Open de app van je auto om het te verversen.</div>` : ""}`;
   el.querySelector('[data-o="pic"]').className = "evc-pic " + (laadt ? "laadt" : erin ? "erin" : "los");
-  el.querySelector('[data-o="bat"]').innerHTML = w.soc != null ? `<div class="evc-bat" role="img" aria-label="Accu ${Math.round(w.soc)}%"><i style="width:${Math.max(0, Math.min(100, w.soc))}%"></i></div>` : "";
+  el.querySelector('[data-o="stage"]').className = "evc-stage " + (laadt ? "laadt" : erin ? "erin" : "los");
+  el.querySelector('[data-o="bat"]').innerHTML = accuHtml(w.soc, null, null, w.bereik_km, laadt);
   el.querySelector('[data-o="story"]').innerHTML =
     q("Nu", laadt ? `${nl(pw / 1000, 1)} kW` : "Niet aan het laden", `via ${w.wie} · stroom nu ${eur3(w.prijs_nu)} per kWh`)
     + q("Sinds 12:00", `${nl(w.kwh, 1)} kWh`, w.kwh > 0.05 ? `± ${eur(w.kosten)} · klaar om ${w.klaar}` : `nog niets geladen · klaar om ${w.klaar}`)
@@ -2637,6 +2724,7 @@ function apparaatAlleen(s, wrap) {
   document.title = "Zonnestuur " + naam.toLowerCase();
   if ($("appInst")) $("appInst").href = b ? "instellingen?onderdeel=batCard" : w ? "instellingen?onderdeel=obsCard" : `instellingen?apparaat=${encodeURIComponent(APP_ID)}`;
   if (!deze) wrap.innerHTML = `<div class="card"><p>Dit apparaat bestaat niet (meer). <a href="apparaten">Naar Apparaten</a></p></div>`;
+  else if (d && d.kind === "ev" && d.ev) { const oud = $("appHeld"); if (oud) oud.remove(); }   // de laadkaart is zelf het beeld
   else if (d) appHeld(wrap, d);
   if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
   if (deze && d) proefKlaar(wrap, d);
@@ -3252,7 +3340,8 @@ function evCard(s, d) {
   // tijdlijn: van nu tot klaar, met de laaduren
   let tl = "";
   const nowD = new Date(s.now), endT = !reached && (ready || E.done_at);
-  if (endT && E.plan && E.mode !== "vol" && !charging) {
+  let strook = "";
+  if (endT && E.plan && E.mode !== "vol") {
     let end;
     if (vt) end = new Date(vt.at);
     else { end = new Date(nowD); const r0 = (d.ready_times || [])[0] || E.done_at; end.setHours(Number(r0.slice(0, 2)), Number(r0.slice(3, 5)), 0, 0); if (end <= nowD) end.setDate(end.getDate() + 1); }
@@ -3264,7 +3353,8 @@ function evCard(s, d) {
     let nachten = "";
     const m = new Date(nowD); m.setHours(24, 0, 0, 0);
     for (; m < end; m.setDate(m.getDate() + 1)) nachten += `<i class="nacht" style="left:${x(m).toFixed(1)}%" title="${m.toLocaleDateString("nl-NL", { weekday: "long" })}"></i>`;
-    tl = `<div class="evc-tl" role="img" aria-label="Laadmomenten tussen nu en ${esc(endT)}"><i class="rail"></i>${nachten}${blocks}<span class="lb l">nu</span><span class="lb r">${esc(endT)}</span></div>`;
+    strook = laadStrook(+nowD, +end, starts.map((t) => +t), endT);
+    if (!strook && !charging) tl = `<div class="evc-tl" role="img" aria-label="Laadmomenten tussen nu en ${esc(endT)}"><i class="rail"></i>${nachten}${blocks}<span class="lb l">nu</span><span class="lb r">${esc(endT)}</span></div>`;
   }
   // eenmalige vertrektijd: "ik moet pas maandag weg"
   const DAGEN = [];
@@ -3296,12 +3386,15 @@ function evCard(s, d) {
   const mp = E.max_price;
   const priceOpts = [0, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40].map((v) => `<option value="${v}" ${Math.abs(v - mp) < 0.001 ? "selected" : ""}>${v ? "max " + eur(v) : "geen max."}</option>`).join("");
   return `
-    <div class="evc-hero"><div class="evc-name">${esc(car.name)}</div><div class="evc-sub">${esc(st)}</div>
-      <div class="evc-soc">${soc != null ? Math.round(soc) + "%" : "–"}<small>${car.range_km != null ? `± ${car.range_km} km` : "accu"}</small></div></div>
+    <div class="evc-stage ${charging ? "laadt" : plugged ? "erin" : "los"}">
+    <div class="evc-hero"><div class="evc-name">${esc(car.name)}</div><div class="evc-sub"><i></i>${esc(st)}</div>
+      <div class="evc-soc">${soc != null ? Math.round(soc) + "%" : "–"}<small>${soc != null ? "accu" : "onbekend"}</small></div></div>
+    <div class="evc-pic ${charging ? "laadt" : plugged ? "erin" : "los"}"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i><i class="evc-stroom"></i></div>
+    ${accuHtml(soc, tgt, car.min_pct, car.range_km, charging)}
+    </div>
     ${chips}
-    <div class="evc-pic ${charging ? "laadt" : plugged ? "erin" : "los"}"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>
-    ${soc != null ? `<div class="evc-bat" role="img" aria-label="Accu ${Math.round(soc)}%, doel ${tgt}%"><i style="width:${Math.max(0, Math.min(100, soc))}%"></i><em style="left:${car.min_pct}%" title="Altijd minstens ${car.min_pct}%"></em><b style="left:${tgt}%" title="Doel ${tgt}%"></b></div>` : ""}
     ${socHand(car)}
+    ${strook}
     <div class="evc-story">${q(q1)}${q(q2)}${q(q3, saved > 0.05 && !reached && E.mode !== "vol" ? "goed" : "")}</div>
     ${E.trip ? `<div class="evc-why"><b>${esc(E.trip.dag[0].toUpperCase() + E.trip.dag.slice(1))}:</b> ${E.trip.km} km${E.trip.temp != null ? ` bij ${nl(E.trip.temp, 0)} °C` : ""}${E.trip.factor > 1.01 ? ` (${Math.round((E.trip.factor - 1) * 100)}% meer verbruik door het weer)` : ""} = ± ${nl(E.trip.kwh, 1)} kWh. Daarom laden tot ${E.trip.pct}%.${E.trip.te_weinig ? " Dat is je maximum; voor deze rit is het krap." : ""}</div>` : ""}
     ${(() => { if (reached || !(E.need_min > 0) || !E.kw) return "";
