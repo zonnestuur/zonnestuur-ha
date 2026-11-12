@@ -289,6 +289,30 @@ html, body { overscroll-behavior-y: none; }
   /* 0.114 proefrondje */
   .proef { margin-top: 14px; }
   .proef h2 { margin: 0 0 6px; }
+  .evc-vertrek { display: flex; gap: 12px; align-items: flex-start; margin: 14px 20px 0; padding: 12px 14px; border-radius: 16px;
+    background: color-mix(in srgb, var(--zs-amber, #f59e0b) 10%, var(--zs-kaart, transparent)); border: 1px solid color-mix(in srgb, var(--zs-amber, #f59e0b) 30%, transparent); }
+  .evc-vertrek .vt-tekst { flex: 1; min-width: 0; }
+  .evc-vertrek b { display: block; font-size: 15px; }
+  .evc-vertrek small { display: block; color: var(--ink-2, inherit); margin-top: 2px; font-size: 13px; }
+  .evc-vertrek .vt-velden { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-top: 10px; }
+  .evc-vertrek label { flex: 1 1 7em; display: grid; gap: 3px; font-size: 12px; color: var(--ink-2, inherit); }
+  .evc-vertrek input { font: inherit; font-size: 15px; padding: 6px 8px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--zs-vlak2, transparent); color: inherit; min-width: 0; width: 100%; }
+  .evc-vertrek .evc-go { margin: 0; }
+  .slimleer .sl-kop { display: flex; gap: 14px; align-items: center; margin-bottom: 8px; }
+  .slimleer .sl-kop h2 { margin: 0; }
+  .slimleer .sl-kop p { margin: 2px 0 0; }
+  .slimleer .sl-weet { list-style: none; padding: 0; margin: 10px 0 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .slimleer .sl-weet li { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--zs-vlak2, rgba(127,127,127,.12)); }
+  .slimleer .sl-weet li::before { content: "✓ "; color: var(--zs-groen, #16a34a); font-weight: 700; }
+  .slimleer .sl-plan { margin: 6px 0 4px; }
+  .slimleer .sl-bars { display: flex; align-items: flex-end; gap: 2px; height: 56px; }
+  .slimleer .sl-bars i { flex: 1; border-radius: 3px 3px 1px 1px; background: color-mix(in srgb, var(--ink-3, #888) 35%, transparent); min-height: 4px; }
+  .slimleer .sl-bars i.warmt { background: var(--zs-amber, #f59e0b); }
+  .slimleer .sl-bars i.zon { box-shadow: inset 0 0 0 1.5px var(--e-zon, #facc15); }
+  .slimleer .sl-as { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-3, #888); margin-top: 3px; }
+  .slimleer .sl-leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2, inherit); margin-top: 6px; }
+  .slimleer .sl-leg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; background: var(--zs-amber, #f59e0b); }
+  .slimleer .sl-leg i.grijs { background: color-mix(in srgb, var(--ink-3, #888) 35%, transparent); }
   .slimleer .sl-dagen { list-style: none; padding: 0; margin: 10px 0 14px; display: grid; gap: 6px; }
   .slimleer .sl-dagen li { display: grid; grid-template-columns: 4.5em 1fr; gap: 8px; font-size: .92em; }
   .slimleer .check-row small { display: block; margin-top: 2px; }
@@ -823,7 +847,8 @@ html, body { overscroll-behavior-y: none; }
     .evcard .evc-q { display: block; } .evcard .evc-q span { display: block; margin-bottom: 6px; } .evcard .evc-q b { font-size: 20px; } }
   body.v-apparaat .evc-stage { view-transition-name: zs-app; }
   body.v-vandaag #apparatenBlok .devs .evc-stage { margin: 0; }
-  body.v-vandaag #apparatenBlok .devs .evcard .evc-story, body.v-vandaag #apparatenBlok .devs .evcard .evc-strook { margin-left: 0; margin-right: 0; }
+  body.v-vandaag #apparatenBlok .devs .evcard .evc-story, body.v-vandaag #apparatenBlok .devs .evcard .evc-strook,
+  body.v-vandaag #apparatenBlok .devs .evcard .evc-vertrek { margin-left: 0; margin-right: 0; }
   @media (prefers-reduced-motion: reduce) { .evc-stage.laadt::before, .evc-stage.laadt .evc-sub > i, .evc-stage.laadt .evc-stroom, .evc-accu.laadt .bij { animation: none; } }
 
   .evc-q { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 0 12px; align-items: baseline; padding: 12px 0; min-width: 0; }
@@ -2541,6 +2566,21 @@ function gewoonteBlok(g, week, knop) {
   return `<div class="evc-rit on"><div><b>${kop}</b><small>${sub}.</small></div>${actie}</div>`;
 }
 
+// ---- 0.120: vertrektijd vooraan. Het enige wat je hoeft te zeggen is wanneer je wegrijdt; de rest doet Zonnestuur.
+function vertrekBlok(d, car, tgt) {
+  const w = d.ready_week || {}, rt = (d.ready_times || [])[0] || "";
+  const wd = w["0"] || w["1"] || w["2"] || w["3"] || w["4"] || (Object.keys(w).length ? "" : rt) || "";
+  const we = w["5"] || w["6"] || (Object.keys(w).length ? "" : rt) || "";
+  const volgende = d.next_ready ? dagTijd(d.next_ready, (STATUS || {}).now) : "";
+  const kop = wd || we ? `Klaar ${esc(volgende)} op ${Math.round(tgt || car.target_pct || 80)}%` : "Wanneer rijd je weg?";
+  const uitleg = wd || we ? "Zonnestuur rekent uit hoeveel er nog bij moet en laadt in de goedkoopste uren of met zon, precies op tijd."
+    : "Vul in wanneer je meestal wegrijdt. Zonnestuur zorgt dat de auto dan vol genoeg is, in de goedkoopste uren.";
+  return `<div class="evc-vertrek">${window.zsProf ? zsProf({ grootte: 46 }) : ""}<div class="vt-tekst"><b>${kop}</b><small>${uitleg}</small>
+    <div class="vt-velden"><label>Doordeweeks<input type="time" step="900" data-vt="wd" value="${esc(wd)}"></label>
+    <label>Weekend<input type="time" step="900" data-vt="we" value="${esc(we)}"></label>
+    <button class="evc-go" data-vt-ok>Opslaan</button></div></div></div>`;
+}
+
 // Het laadbeeld (0.116): de accu groot, met wat erbij komt gearceerd en het doel als vlag
 function accuHtml(soc, doel, min, kmNu, laadt) {
   if (soc == null) return "";
@@ -2725,7 +2765,20 @@ function homeKaarten(wrap) {
     el.insertAdjacentHTML("beforeend", `<a class="dev-meer" href="apparaat?id=${encodeURIComponent(id)}">Alles over dit apparaat<span class="pijl" aria-hidden="true"></span></a>`);
   });
 }
-function rijen(wrap) { homeKaarten(wrap); }
+function rijen(wrap) { homeKaarten(wrap); profBadges(wrap); }
+// ---- 0.120: het professortje bij elk apparaat dat zelf leert en slim gestuurd wordt
+function profBadges(wrap) {
+  if (!window.zsProfBadge || !STATUS) return;
+  wrap.querySelectorAll(":scope > article[data-id]").forEach((el) => {
+    const d = (STATUS.devices || []).find((x) => x.id === el.dataset.id);
+    const b = !d && (STATUS.batteries || []).find((x) => "bat-" + x.id === el.dataset.id);
+    const slim = d ? d.slim : b && b.online && b.sturing !== "meekijken" && !b.observing
+      ? { aan: true, leert: ["leert de echte capaciteit en het rendement", "kijkt naar de stroomprijs en de zon van morgen"] } : null;
+    const plek = el.querySelector(".evc-name, .dev-name");
+    if (!slim || !plek || plek.querySelector(".zs-slim")) return;
+    plek.insertAdjacentHTML("beforeend", zsProfBadge(slim));
+  });
+}
 // De pagina van één apparaat: alleen die kaart, met de naam als kop
 function apparaatAlleen(s, wrap) {
   const arts = [...wrap.querySelectorAll(":scope > article")];
@@ -2741,36 +2794,59 @@ function apparaatAlleen(s, wrap) {
   else if (d && d.kind === "ev" && d.ev) { const oud = $("appHeld"); if (oud) oud.remove(); }   // de laadkaart is zelf het beeld
   else if (d) appHeld(wrap, d);
   if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
-  if (deze && d && (d.kind === "heatpump" || d.kind === "boiler")) slimKlaar(wrap, d);
+  if (deze && d) slimKlaar(wrap, d);
   if (deze && d) proefKlaar(wrap, d);
   if (deze && (d || w)) verbruikKlaar(wrap, d ? d.id : "obs-" + w.id, w ? (w.leverancier || "") : "");
 }
 // ---- 0.119: zelflerende warmte. Hoe snel koelt het water af, wanneer bijwarmen, hoe warm moet het water bij dit weer.
 let SL = null, SL_T = 0;
 function slimKlaar(wrap, d) {
+  const slim = d.slim || {};
   let box = $("slimKaart");
+  if (!slim.aan && !(slim.leert || []).length) { if (box) box.remove(); return; }
   if (!box) { box = document.createElement("article"); box.id = "slimKaart"; box.className = "card slimleer"; wrap.appendChild(box); }
-  if (SL) slimTekenen(box, d);
+  if (!(d.kind === "heatpump" || d.kind === "boiler")) { slimTekenen(box, d, null); return; }
+  slimTekenen(box, d, SL);
   if (Date.now() - SL_T < 60000) return;
   SL_T = Date.now();
-  api1(`api/zelflerend?dev=${encodeURIComponent(d.id)}`).then((r) => { SL = r; slimTekenen(box, d); }).catch(() => {});
+  api1(`api/zelflerend?dev=${encodeURIComponent(d.id)}`).then((r) => { SL = r; slimTekenen(box, d, SL); }).catch(() => {});
 }
-function slimTekenen(box, d) {
-  const i = (SL.apparaten || []).find((x) => x.id === d.id);
-  if (!i) { box.remove(); return; }
-  const aan = SL.stand === "aan";
+function slimTekenen(box, d, data) {
+  const slim = d.slim || {}, i = data && (data.apparaten || []).find((x) => x.id === d.id);
+  const aan = data && data.stand === "aan";
+  const evZin = "Je hoeft alleen te zeggen wanneer je wegrijdt. Zonnestuur rekent uit hoeveel er bij moet, kijkt naar de prijs van elk uur en de zon, en zorgt dat de auto op tijd vol genoeg is.";
+  const zin = i ? i.tekst : slim.zin || (d.kind === "ev" ? evZin : "Zonnestuur kiest zelf het beste moment: goedkope stroom of eigen zon.");
+  const weet = (slim.leert || []).map((x) => `<li>${esc(x.charAt(0).toUpperCase() + x.slice(1))}</li>`).join("");
+  let plan = "";
+  const v = i && i.vooruit;
+  if (v && v.uren && v.uren.length) {
+    const pr = v.uren.map((u) => u.prijs), lo = Math.min(...pr), hi = Math.max(...pr);
+    const bars = v.uren.map((u) => {
+      const h = hi > lo ? 18 + 82 * (u.prijs - lo) / (hi - lo) : 50, t = String(u.van).slice(11, 16);
+      return `<i class="${u.warmt ? "warmt" : ""}${u.zon ? " zon" : ""}" style="height:${h.toFixed(0)}%" title="${t}: ${nl(u.prijs * 100, 0)} ct${u.buiten != null ? ", buiten " + nl(u.buiten, 0) + " °C" : ""}, water ± ${nl(u.temp, 0)} °C${u.warmt ? ", bijwarmen" : ""}"></i>`;
+    }).join("");
+    const as = [0, 6, 12, 18].filter((k) => v.uren[k]).map((k) => `<span>${String(v.uren[k].van).slice(11, 16)}</span>`).join("");
+    const bt = v.uren.map((u) => u.buiten).filter((x) => x != null);
+    plan = `<div class="sl-plan" role="img" aria-label="Plan voor de komende 24 uur">
+      <div class="sl-bars">${bars}</div><div class="sl-as">${as}</div>
+      <div class="sl-leg"><span><i></i>${aan ? "Bijwarmen" : "Zou bijwarmen"}</span><span><i class="grijs"></i>Stroomprijs per uur</span>${bt.length ? `<span>Buiten ${nl(Math.min(...bt), 0)} tot ${nl(Math.max(...bt), 0)} °C</span>` : ""}<span>Water tussen ${nl(v.onder, 0)} en ${nl(v.tot, 0)} °C</span></div></div>`;
+  }
   const dag = (x) => new Date(x.dag + "T12:00").toLocaleDateString("nl-NL", { weekday: "short", day: "numeric" });
-  const regels = (i.dagboek || []).slice().reverse().map((x) => {
+  const regels = i ? (i.dagboek || []).slice().reverse().map((x) => {
     const st = x.stook_naar != null && x.stook_naar !== x.stook_van ? `water ${x.stook_van} → ${x.stook_naar} °C` : x.kamers ? "water goed zo" : "";
-    const koel = x.te_koel ? `${x.te_koel}× te koel` + (x.voorwarmen_eur > 0 ? `, voorwarmen had € ${x.voorwarmen_eur.toFixed(2).replace(".", ",")} gescheeld` : "") : "niet te koel geworden";
+    const koel = x.te_koel ? `${x.te_koel}× te koel` + (x.voorwarmen_eur > 0 ? `, vooruitdenken had € ${x.voorwarmen_eur.toFixed(2).replace(".", ",")} gescheeld` : "") : "niet te koel geworden";
     return `<li><b>${esc(dag(x))}</b><span>${esc(koel)}${st ? " · " + esc(st) : ""}${x.toegepast ? " (aangepast)" : ""}</span></li>`;
-  }).join("");
-  box.innerHTML = `<h2 class="t">Leert zelf</h2>
-    <p>${esc(i.tekst)}</p>
-    ${i.kamers && i.kamers.length ? `<p class="small muted">Kijkt of ${esc(i.kamers.join(" en "))} warm genoeg ${i.kamers.length > 1 ? "blijven" : "blijft"} en stelt het water daarop bij.</p>` : ""}
-    ${regels ? `<ul class="sl-dagen">${regels}</ul>` : `<p class="small muted">Vanaf morgenochtend staat hier elke dag wat hij geleerd heeft.</p>`}
-    <label class="check-row"><input type="checkbox" id="slAan" ${aan ? "checked" : ""}><span>Zelf bijsturen<small class="muted"> ${aan ? "Hij past de watertemperatuur aan en warmt voor in goedkope uren." : "Nu kijkt hij alleen mee en laat zien wat hij zou doen."}</small></span></label>`;
-  $("slAan").onchange = async (ev) => {
+  }).join("") : "";
+  box.innerHTML = `<div class="sl-kop">${window.zsProf ? zsProf({ grootte: 64 }) : ""}<div><h2 class="t">Denkt met je mee</h2>
+      <p class="small muted">${slim.aan ? "Zonnestuur stuurt dit apparaat zelf slim." : "Staat nu niet op slim sturen."}</p></div></div>
+    <p>${esc(zin)}</p>
+    ${weet ? `<ul class="sl-weet">${weet}</ul>` : ""}
+    ${plan}
+    ${i && i.kamers && i.kamers.length ? `<p class="small muted">Kijkt of ${esc(i.kamers.join(" en "))} warm genoeg ${i.kamers.length > 1 ? "blijven" : "blijft"} en leert daaruit hoe warm het water moet zijn.</p>` : ""}
+    ${i ? (regels ? `<ul class="sl-dagen">${regels}</ul>` : `<p class="small muted">Vanaf morgenochtend staat hier elke dag wat hij geleerd heeft.</p>`) : ""}
+    ${i ? `<label class="check-row"><input type="checkbox" id="slAan" ${aan ? "checked" : ""}><span>Zelf bijsturen<small class="muted"> ${aan ? "Hij warmt vooruit in de goedkoopste uren en past de watertemperatuur aan." : "Nu kijkt hij alleen mee en laat zien wat hij zou doen."}</small></span></label>` : ""}`;
+  const k = $("slAan");
+  if (k) k.onchange = async (ev) => {
     try { await api1("api/zelflerend", { method: "POST", body: JSON.stringify({ stand: ev.target.checked ? "aan" : "meekijken" }) }); SL_T = 0; SL = null; slimKlaar(box.parentNode, d); }
     catch (e) { ev.target.checked = !ev.target.checked; }
   };
@@ -3447,6 +3523,7 @@ function evCard(s, d) {
       const t = E.kw_now ? `laadt nu met ${nl(E.kw_now, 1)} kW (gemeten)` : `gemiddeld ± ${nl(E.kw, 1)} kW tot ${tgt}%`;
       return `<div class="evc-why"><b>Snelheid:</b> ${t}${hoog ? `; boven 80% gaat deze auto naar ± ${nl(hoog, 1)} kW` : ""}. ${geleerd ? "Zonnestuur meet dat bij elke laadbeurt en past de planning steeds aan." : "Zonnestuur leert de echte snelheid van deze auto tijdens het laden."}</div>`; })()}
     ${tl}
+    ${vertrekBlok(d, car, tgt)}
     ${rit}
     ${gast}
     ${gewoonteBlok(d.gewoonte, d.ready_week, true)}
@@ -3502,6 +3579,17 @@ function bindEv(el, d) {
     go({ vertrek: { at: `${dag}T${tijd}`, pct: f.querySelector("[data-rit-pct]").value || null } });
   });
   el.querySelectorAll("[data-rit-uit]").forEach((b) => b.onclick = () => go({ vertrek: null }));
+  el.querySelectorAll("[data-vt-ok]").forEach((b) => b.onclick = async () => {
+    const f = b.closest(".vt-velden"), wd = f.querySelector('[data-vt="wd"]').value, we = f.querySelector('[data-vt="we"]').value;
+    const week = {};
+    [0, 1, 2, 3, 4].forEach((i) => { if (wd) week[i] = wd; });
+    [5, 6].forEach((i) => { if (we) week[i] = we; });
+    b.disabled = true;
+    const r = await api1(`api/device/${encodeURIComponent(d.id)}/ready`, { method: "POST", body: JSON.stringify({ week }) }).catch((e) => ({ ok: false, error: e.message }));
+    b.disabled = false;
+    b.textContent = r && r.ok ? "Opgeslagen" : "Lukte niet";
+    setTimeout(refresh, 500);
+  });
   el.querySelectorAll("[data-gewoonte]").forEach((b) => b.onclick = async () => {
     b.disabled = true;
     const r = await api(`api/device/${encodeURIComponent(d.id)}/gewoonte`, { method: "POST", body: "{}" }).catch(() => null);

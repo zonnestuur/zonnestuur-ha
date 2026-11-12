@@ -1,5 +1,14 @@
 # Wijzigingen
 
+## 0.120.0
+- Nieuw: het professortje. Bij elk apparaat dat Zonnestuur zelf slim stuurt staat een klein professortje met 'Slim'.
+  Op de pagina van het apparaat vertelt hij in 'Denkt met je mee' wat hij al geleerd heeft en wat hij van plan is.
+- Warmtepomp en boiler denken nu 24 uur vooruit: per uur het weer, de stroomprijs en het rendement bij dat weer.
+  Hij kiest de goedkoopste uren om bij te warmen (in goedkope uren ook wat warmer, zodat het vat de dure uren overbrugt)
+  en laat zien wat dat scheelt ten opzichte van wachten tot het water te koel is.
+- Auto: 'Wanneer rijd je weg?' staat nu vooraan op de laadkaart. Vul doordeweeks en weekend een tijd in; Zonnestuur zorgt
+  dat de auto dan vol genoeg is, in de goedkoopste uren of met zon.
+
 ## 0.119.0
 - Nieuw: warmtepomp en boiler leren zelf. Zonnestuur leert hoe snel het water afkoelt, voorspelt wanneer het te koel wordt
   en zoekt het goedkoopste uur om vóór die tijd bij te warmen. Elke ochtend kijkt hij of de kamers gisteren warm genoeg

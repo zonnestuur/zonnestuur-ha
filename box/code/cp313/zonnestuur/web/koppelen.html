@@ -1301,7 +1301,7 @@ function huisTekenen() {
     : `apparaat?id=${encodeURIComponent(d.id)}`;
   const KLEUR = { thermo: "amber", heatpump: "paars", boiler: "blauw", ev: "groen", battery: "groen", zon: "indigo", generic: "grijs" };
   const rijHtml = (href, kind, naam, st) => `<a class="rij link app-rij" href="${href}"><span class="ic vol ${KLEUR[kind] || "grijs"}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[kind] || IC.generic}</svg>${st && st.ok != null ? `<i class="stip ${st.ok ? "ok" : "fout"}"></i>` : ""}</span>
-    <span><b>${esc(naam)}${st && st.ok != null ? `<span class="vh">${st.ok ? " (verbonden)" : " (geen verbinding)"}</span>` : ""}${st && st.label ? ` <i class="lbl ${st.cls}">${esc(st.label)}</i>` : ""}</b><span class="sub">${st ? `${st.kw ? `<span class="kw">${esc(st.kw)}</span>` : ""}${st.extra ? `<span>${esc(st.extra)}</span>` : ""}` : ""}</span></span>${PIJL}</a>`;
+    <span><b>${esc(naam)}${st && st.slim && window.zsProfBadge ? zsProfBadge(st.slim) : ""}${st && st.ok != null ? `<span class="vh">${st.ok ? " (verbonden)" : " (geen verbinding)"}</span>` : ""}${st && st.label ? ` <i class="lbl ${st.cls}">${esc(st.label)}</i>` : ""}</b><span class="sub">${st ? `${st.kw ? `<span class="kw">${esc(st.kw)}</span>` : ""}${st.extra ? `<span>${esc(st.extra)}</span>` : ""}` : ""}</span></span>${PIJL}</a>`;
   const zon = STAND._zon;
   const fout = (d) => (STAND[d.id] && STAND[d.id].ok === false ? 0 : 1);     // apparaten met een probleem bovenaan
   mee.sort((x, y) => fout(x) - fout(y));
@@ -1349,7 +1349,7 @@ async function huisLaden(zoek) {
       else if (d.mode === "off") { label = "Uit"; cls = ""; }
       else if (plan) { label = plan.source === "zon" ? "Wacht op zon" : "Gepland"; cls = "amber"; }
       const extra = car && car.soc != null ? Math.round(car.soc) + "%" : plan && !aan ? "Start om " + tijd(plan.start) : d.reason ? d.reason.charAt(0).toUpperCase() + d.reason.slice(1) : "";
-      STAND[d.id] = { kw: kwt(aan ? d.power_w : 0), label, cls, extra, ok: d.online !== false || (d.reason || "").startsWith("wacht") };
+      STAND[d.id] = { kw: kwt(aan ? d.power_w : 0), label, cls, extra, ok: d.online !== false || (d.reason || "").startsWith("wacht"), slim: d.slim };
     });
     (st.batteries || []).forEach((b) => {
       const p = b.power_w || 0;
