@@ -1,5 +1,8 @@
 # Wijzigingen
 
+## 0.118.1
+- De telling "werkt bij x huizen" rekent wasmachines en drogers nu bij hun merk (ze stonden onder een algemene noemer).
+
 ## 0.118.0
 - Bijsturen vanaf het scherm in huis (Nest Hub): tik op het scherm en je ziet per apparaat de knoppen "2 uur uit", "1 uur aan" en "Terug naar slim". De auto en de warmtepomp kun je vanaf het scherm alleen even uitzetten, niet aanzetten.
 - Een tik op een melding over één apparaat opent nu meteen de pagina van dat apparaat, waar je kunt bijsturen.
