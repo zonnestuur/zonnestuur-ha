@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.121.0
+- Nieuw: elk apparaat heeft een eigen bewegende tekening (warmtepomp, boiler, wasmachine, droger, vaatwasser, airco, stopcontact).
+  Hij beweegt mee met het echte apparaat: de ventilator draait, het water stroomt, de trommel draait, stroom loopt door de kabel.
+  Tik op een bolletje en hij vertelt wat dat onderdeel nu doet, met een knop om bij te sturen. Op Home en op de pagina van het apparaat.
+- Nieuwe uitlegfilm op de website en in de app, met de app zoals hij nu is.
+
 ## 0.120.0
 - Nieuw: het professortje. Bij elk apparaat dat Zonnestuur zelf slim stuurt staat een klein professortje met 'Slim'.
   Op de pagina van het apparaat vertelt hij in 'Denkt met je mee' wat hij al geleerd heeft en wat hij van plan is.

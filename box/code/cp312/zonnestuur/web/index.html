@@ -1421,6 +1421,12 @@ html, body { overscroll-behavior-y: none; }
   .ah-vat.aan .water::before { animation: ahGolf 5s linear infinite; }
   .ah-vat .streep { position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent 0 46px, rgba(255, 255, 255, .14) 46px 47px); }
   @keyframes ahGolf { to { translate: 25% 0; } }
+  .app-held.met-beeld { grid-template-columns: minmax(0, 1fr); overflow-x: clip; overflow-y: visible; container-type: inline-size; }
+  .app-held .ah-beeld { min-width: 0; margin: 4px -6px -8px; }
+  @container (min-width: 620px) { .app-held .ah-beeld { margin: 0; } }
+  @media (min-width: 1000px) { .app-held.met-beeld { align-content: start; } }
+  .dev-beeld { overflow-x: clip; margin: 10px -4px 2px; padding: 8px 6px 0; border-radius: 18px; background: radial-gradient(80% 90% at 50% 100%, color-mix(in srgb, var(--zs-zon, #f59e0b) 12%, transparent), transparent 70%); }
+  .dev-beeld .zb { max-width: 360px; }
   .ah-ring { width: 170px; height: 170px; } .ah-ring circle { fill: none; stroke-width: 14; stroke-linecap: round; }
   .ah-ring .spoor { stroke: var(--zs-vlak2); } .ah-ring .vul { stroke: var(--e-auto); } .ah-ring .doel { fill: var(--zs-ink); stroke: none; }
   .ah-puls { width: 130px; height: 130px; border-radius: 50%; display: grid; place-items: center; background: var(--zs-vlak2); }
@@ -2927,6 +2933,16 @@ function verbruikTekenen(box, lev) {
 }
 // ---- Daglicht (0.99): het hoofdbeeld van een apparaat. Alleen echte gegevens: watertemperatuur als die er is, anders
 // hoeveel hij vandaag al opwarmde; de accu van de auto; anders het vermogen van nu.
+// ---- 0.121: bijsturen vanuit de tekening (zelfde als de knoppen op de kaart)
+async function zetModus(d, mode, uren) {
+  if (d.ev && d.ev.mode === "vol") await evPost(d.id, { mode: "slim" });
+  await api(`api/device/${encodeURIComponent(d.id)}/mode`, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode, hours: uren || null }) });
+  refresh();
+}
+function beeldBinden(el, d) {
+  if (window.zsBeeld) zsBeeld.bind(el, d, STATUS, { mode: (m, u) => zetModus(d, m, u) });
+}
 function appHeld(wrap, d) {
   let el = $("appHeld");
   if (!el) { el = document.createElement("section"); el.id = "appHeld"; el.className = "app-held"; }
@@ -2967,7 +2983,11 @@ function appHeld(wrap, d) {
       : L.laatst ? `Wekelijks heet: ${nl(L.temp || L.doel)} °C op ${dag}` : L.uur != null ? `Vandaag om ${String(L.uur).padStart(2, "0")}:00 wekelijks heet` : "Wekelijks heet staat aan";
     leg = `<span class="ah-chip" title="Tegen legionella: één keer per week naar ${nl(L.doel)} °C"><i class="${L.laatst && !L.mislukt ? "ok" : ""}"></i>${esc(t)}</span>`;
   }
+  const tek = window.zsBeeld && d.kind !== "ev";
+  if (tek) beeld = `<div class="ah-beeld">${zsBeeld.html(d, STATUS, { groot: true })}</div>`;
+  el.classList.toggle("met-beeld", !!tek);
   el.innerHTML = `<div class="ah-tekst"><div class="ah-lbl">${esc(lbl)}</div><div class="ah-groot">${groot}</div>${sub ? `<div class="ah-sub">${esc(sub)}</div>` : ""}${chip}${leg}</div>${beeld}`;
+  if (tek) beeldBinden(el, d);
 }
 // ---- Bediening van de warmtepomp zelf (zoals in de app van het merk), alleen op de apparaatpagina
 let BED_BEZIG = false, BED_T = 0, BED_LAST = null, BED_ZUINIG_OPEN = false;
@@ -3099,6 +3119,7 @@ function renderDevices(s) {
         <div style="min-width:0"><div class="dev-name"><i class="lamp ${d.online || (d.reason || "").startsWith("wacht") ? "ok" : "uit"}" title="${d.online ? "Verbonden" : "Niet bereikbaar"}"></i>${esc(d.name)}</div><div class="dev-state">${esc(korteStand(s, d, state))}</div></div>
         ${running || VIEW !== "vandaag" ? `<div class="dev-power"><div class="v num">${kw(d.power_w)}</div><div class="small muted">kW</div></div>` : ""}
       </div>
+      ${VIEW === "vandaag" && window.zsBeeld ? `<div class="dev-beeld">${zsBeeld.html(d, s, { hint: false })}</div>` : ""}
       ${!d.online && !(d.reason || "").startsWith("wacht") ? `<div class="weg-blok"><b>Niet bereikbaar.</b> Zonnestuur probeert het steeds opnieuw; tot die tijd draait het apparaat zoals het zelf staat.
         <div class="weg-acts"><button class="btn-line" data-check="${esc(d.id)}">Opnieuw verbinden</button><a class="small" href="hulp">Hulp</a></div><p class="small" role="status" data-checkres></p></div>` : ""}
       <div class="strip" role="img" aria-label="Dagplanning">${strip}</div>
@@ -3153,6 +3174,7 @@ function renderDevices(s) {
     if (openEv.has(d.id)) { const dt = el.querySelector("details.ev-edit"); if (dt) dt.open = true; }
     if (d.ev) bindEv(el, d);
     if (d.driver === "ha_start_button") bindProg(el, d);
+    if (VIEW === "vandaag") beeldBinden(el, d);
     el.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", async () => {
       if (d.ev && d.ev.mode === "vol") await evPost(d.id, { mode: "slim" });
       await api(`api/device/${encodeURIComponent(d.id)}/mode`, {
