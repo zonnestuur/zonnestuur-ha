@@ -1,5 +1,12 @@
 # Wijzigingen
 
+## 0.119.0
+- Nieuw: warmtepomp en boiler leren zelf. Zonnestuur leert hoe snel het water afkoelt, voorspelt wanneer het te koel wordt
+  en zoekt het goedkoopste uur om vóór die tijd bij te warmen. Elke ochtend kijkt hij of de kamers gisteren warm genoeg
+  waren en leert zo per soort weer hoe warm het water écht moet zijn (zo koel mogelijk = zuiniger).
+- Staat eerst op meekijken: op de apparaatpagina ('Leert zelf') zie je elke dag wat hij anders had gedaan en wat dat
+  had gescheeld. Met 'Zelf bijsturen' gaat hij het ook echt doen (hoogstens 1 °C per dag, tussen 35 en 55 °C).
+
 ## 0.118.1
 - De telling "werkt bij x huizen" rekent wasmachines en drogers nu bij hun merk (ze stonden onder een algemene noemer).
 

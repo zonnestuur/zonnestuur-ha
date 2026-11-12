@@ -289,6 +289,10 @@ html, body { overscroll-behavior-y: none; }
   /* 0.114 proefrondje */
   .proef { margin-top: 14px; }
   .proef h2 { margin: 0 0 6px; }
+  .slimleer .sl-dagen { list-style: none; padding: 0; margin: 10px 0 14px; display: grid; gap: 6px; }
+  .slimleer .sl-dagen li { display: grid; grid-template-columns: 4.5em 1fr; gap: 8px; font-size: .92em; }
+  .slimleer .check-row small { display: block; margin-top: 2px; }
+  .slimleer .sl-dagen b { font-weight: 600; color: var(--ink-2, inherit); }
   .proef .uitslag { display: flex; gap: 10px; align-items: flex-start; margin: 8px 0 12px; }
   .proef .uitslag i { flex: none; width: 12px; height: 12px; border-radius: 50%; margin-top: 5px; background: var(--ink-3); }
   .proef .uitslag.ja i { background: var(--zs-groen, #16a34a); }
@@ -2737,8 +2741,39 @@ function apparaatAlleen(s, wrap) {
   else if (d && d.kind === "ev" && d.ev) { const oud = $("appHeld"); if (oud) oud.remove(); }   // de laadkaart is zelf het beeld
   else if (d) appHeld(wrap, d);
   if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
+  if (deze && d && (d.kind === "heatpump" || d.kind === "boiler")) slimKlaar(wrap, d);
   if (deze && d) proefKlaar(wrap, d);
   if (deze && (d || w)) verbruikKlaar(wrap, d ? d.id : "obs-" + w.id, w ? (w.leverancier || "") : "");
+}
+// ---- 0.119: zelflerende warmte. Hoe snel koelt het water af, wanneer bijwarmen, hoe warm moet het water bij dit weer.
+let SL = null, SL_T = 0;
+function slimKlaar(wrap, d) {
+  let box = $("slimKaart");
+  if (!box) { box = document.createElement("article"); box.id = "slimKaart"; box.className = "card slimleer"; wrap.appendChild(box); }
+  if (SL) slimTekenen(box, d);
+  if (Date.now() - SL_T < 60000) return;
+  SL_T = Date.now();
+  api1(`api/zelflerend?dev=${encodeURIComponent(d.id)}`).then((r) => { SL = r; slimTekenen(box, d); }).catch(() => {});
+}
+function slimTekenen(box, d) {
+  const i = (SL.apparaten || []).find((x) => x.id === d.id);
+  if (!i) { box.remove(); return; }
+  const aan = SL.stand === "aan";
+  const dag = (x) => new Date(x.dag + "T12:00").toLocaleDateString("nl-NL", { weekday: "short", day: "numeric" });
+  const regels = (i.dagboek || []).slice().reverse().map((x) => {
+    const st = x.stook_naar != null && x.stook_naar !== x.stook_van ? `water ${x.stook_van} → ${x.stook_naar} °C` : x.kamers ? "water goed zo" : "";
+    const koel = x.te_koel ? `${x.te_koel}× te koel` + (x.voorwarmen_eur > 0 ? `, voorwarmen had € ${x.voorwarmen_eur.toFixed(2).replace(".", ",")} gescheeld` : "") : "niet te koel geworden";
+    return `<li><b>${esc(dag(x))}</b><span>${esc(koel)}${st ? " · " + esc(st) : ""}${x.toegepast ? " (aangepast)" : ""}</span></li>`;
+  }).join("");
+  box.innerHTML = `<h2 class="t">Leert zelf</h2>
+    <p>${esc(i.tekst)}</p>
+    ${i.kamers && i.kamers.length ? `<p class="small muted">Kijkt of ${esc(i.kamers.join(" en "))} warm genoeg ${i.kamers.length > 1 ? "blijven" : "blijft"} en stelt het water daarop bij.</p>` : ""}
+    ${regels ? `<ul class="sl-dagen">${regels}</ul>` : `<p class="small muted">Vanaf morgenochtend staat hier elke dag wat hij geleerd heeft.</p>`}
+    <label class="check-row"><input type="checkbox" id="slAan" ${aan ? "checked" : ""}><span>Zelf bijsturen<small class="muted"> ${aan ? "Hij past de watertemperatuur aan en warmt voor in goedkope uren." : "Nu kijkt hij alleen mee en laat zien wat hij zou doen."}</small></span></label>`;
+  $("slAan").onchange = async (ev) => {
+    try { await api1("api/zelflerend", { method: "POST", body: JSON.stringify({ stand: ev.target.checked ? "aan" : "meekijken" }) }); SL_T = 0; SL = null; slimKlaar(box.parentNode, d); }
+    catch (e) { ev.target.checked = !ev.target.checked; }
+  };
 }
 // ---- 0.114: proefrondje. Laat zien of sturen bewezen werkt en geeft één knop om het nu te testen. Alleen een gewone
 // schakelaar gaat daarbij echt even aan; de server bepaalt dat (warmtepomp, laadpaal en witgoed nooit).
