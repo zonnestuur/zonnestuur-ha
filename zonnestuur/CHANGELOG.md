@@ -1,5 +1,13 @@
 # Wijzigingen
 
+## 0.122.0
+- Nieuw: de auto als bewegende tekening, met laadpaal, kabel en accu. Laadt hij, dan brandt de lamp van de paal groen,
+  loopt de stroom door de kabel en gaan de koplampen aan. Tik op de auto, de accu, de paal of de kabel voor uitleg.
+  Ook bij een auto die door je leverancier wordt geladen (meekijken).
+- Warm water: de temperatuur komt nu van bovenin het vat (daar tap je uit) als die sensor er is. Na het douchen zakt
+  het water onderin snel, terwijl er boven nog genoeg warm water is.
+- Opgeruimd: het grootste programmabestand is in delen gesplitst en een paar kleine fouten zijn weg.
+
 ## 0.121.0
 - Nieuw: elk apparaat heeft een eigen bewegende tekening (warmtepomp, boiler, wasmachine, droger, vaatwasser, airco, stopcontact).
   Hij beweegt mee met het echte apparaat: de ventilator draait, het water stroomt, de trommel draait, stroom loopt door de kabel.

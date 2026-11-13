@@ -1252,6 +1252,8 @@ html, body { overscroll-behavior-y: none; }
   body.v-vandaag #apparatenBlok .devs > article .fact.more, body.v-vandaag #apparatenBlok .devs > article .runrep { display: none !important; }
   body.v-vandaag #apparatenBlok .devs .evc-pic { max-height: 150px; overflow: hidden; }
   body.v-vandaag #apparatenBlok .devs .evc-pic img { max-height: 150px; width: auto; margin: 0 auto; display: block; }
+  body.v-vandaag #apparatenBlok .devs .evc-pic { max-height: none; overflow: visible; }
+  .evc-pic .zb { max-width: none; }
   body.v-vandaag #apparatenBlok .devs .seg { margin-top: 10px; }
   .dev-meer { display: flex; align-items: center; justify-content: space-between; margin: 12px -4px -4px; padding: 10px 4px 2px; border-top: 1px solid var(--zs-lijn);
     color: var(--zs-ink2); font-size: 14px; font-weight: 600; text-decoration: none; min-height: 32px; }
@@ -2617,6 +2619,13 @@ function laadStrook(nowD, end, starts, endT) {
     <div class="st-t">${ticks.map((t) => `<span>${t}</span>`).join("")}</div>
     <div class="st-l"><span><i class="laad"></i>${eerste ? "laden" : "nog geen laaduren"}</span><span><i></i>${ps.length ? "stroomprijs per uur" : "prijs nog niet bekend"}</span><span class="st-k">klaar ${esc(endT)}</span></div></div>`;
 }
+// 0.122: wat de autotekening per onderdeel vertelt
+function evBeeldInfo(d, car, soc, tgt, charging, plugged) {
+  const E = d.ev || {};
+  return { naam: car.name, soc, doel: tgt, km: car.range_km, laadt: charging, erin: plugged, kw: (d.power_w || 0) / 1000,
+    klaar: d.next_ready ? String(d.next_ready).slice(11, 16) : E.done_at || null, plan: E.plan || [], need_kwh: E.need_kwh,
+    prijs: STATUS && STATUS.price_now, zon: /zon/.test(d.reason || "") };
+}
 function obsCard(s, w) {
   // Zelfde laadkaart als wanneer Zonnestuur laadt (auto, kabel, oplichtend lampje), maar de leverancier stuurt.
   // De foto wordt één keer getekend; de cijfers worden elke paar seconden bijgewerkt (obsFill), zonder knipperen.
@@ -2624,7 +2633,7 @@ function obsCard(s, w) {
   el.className = "card dev evcard is-ev";
   el.dataset.id = "obs-" + w.id;
   el.innerHTML = `<div class="evc-stage" data-o="stage"><div class="evc-hero" data-o="hero"></div>
-    <div class="evc-pic" data-o="pic"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i><i class="evc-stroom"></i></div>
+    <div class="evc-pic" data-o="pic"></div>
     <div data-o="bat"></div></div><div class="evc-story" data-o="story"></div>
     <div class="evc-why">${esc(w.wie)} stuurt het laden; Zonnestuur kijkt alleen mee. <a href="laadtijdlijn?bron=ev:${encodeURIComponent(w.id)}">Laadbeurten</a> · <a href="vergelijk">Vergelijking</a></div>
     ${gewoonteBlok(w.gewoonte, null, false)}`;
@@ -2644,7 +2653,15 @@ function obsFill(el, w) {
     <div class="evc-soc">${w.soc != null ? Math.round(w.soc) + "%" : laadt ? nl(pw / 1000, 1) + "<small>kW</small>" : "–"}${w.soc != null ? `<small>accu</small>` : ""}</div>
     ${w.soc != null && w.soc_geschat ? `<div class="evc-oud">Geschat: de auto gaf ${oudTekst(w.soc_oud_u)} geleden ${nl(w.soc_gemeten)}% door. Zonnestuur telt erbij wat er sindsdien geladen is.</div>`
       : w.soc != null && w.soc_oud_u >= 12 ? `<div class="evc-oud">Dit percentage is ${oudTekst(w.soc_oud_u)} oud: ${esc(w.wie)} kreeg sindsdien niets nieuws van de auto. Open de app van je auto om het te verversen.</div>` : ""}`;
-  el.querySelector('[data-o="pic"]').className = "evc-pic " + (laadt ? "laadt" : erin ? "erin" : "los");
+  const pic = el.querySelector('[data-o="pic"]');
+  pic.className = "evc-pic " + (laadt ? "laadt" : erin ? "erin" : "los");
+  const ai = { naam: w.naam, soc: w.soc, km: w.bereik_km, laadt, erin, kw: pw / 1000, klaar: w.klaar, wie: w.wie, prijs: w.prijs_nu, zon: w.zon };
+  const sl = [laadt, erin, w.soc != null ? Math.round(w.soc) : "", w.zon, Math.round(pw / 500)].join("|");
+  if (pic._sl !== sl) {
+    pic._sl = sl;
+    pic.innerHTML = window.zsBeeld ? zsBeeld.autoHtml(ai, { hint: VIEW !== "vandaag" }) : '<img src="img/auto.webp" alt="" width="1200" height="480" decoding="async">';
+    if (window.zsBeeld) zsBeeld.bindAuto(pic, ai);
+  }
   el.querySelector('[data-o="stage"]').className = "evc-stage " + (laadt ? "laadt" : erin ? "erin" : "los");
   el.querySelector('[data-o="bat"]').innerHTML = accuHtml(w.soc, null, null, w.bereik_km, laadt);
   el.querySelector('[data-o="story"]').innerHTML =
@@ -3532,7 +3549,7 @@ function evCard(s, d) {
     <div class="evc-stage ${charging ? "laadt" : plugged ? "erin" : "los"}">
     <div class="evc-hero"><div class="evc-name">${esc(car.name)}</div><div class="evc-sub"><i></i>${esc(st)}</div>
       <div class="evc-soc">${soc != null ? Math.round(soc) + "%" : "–"}<small>${soc != null ? "accu" : "onbekend"}</small></div></div>
-    <div class="evc-pic ${charging ? "laadt" : plugged ? "erin" : "los"}"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i><i class="evc-stroom"></i></div>
+    <div class="evc-pic ${charging ? "laadt" : plugged ? "erin" : "los"}" data-info="${esc(JSON.stringify(evBeeldInfo(d, car, soc, tgt, charging, plugged)))}">${window.zsBeeld ? zsBeeld.autoHtml(evBeeldInfo(d, car, soc, tgt, charging, plugged), { hint: VIEW !== "vandaag" }) : '<img src="img/auto.webp" alt="" width="1200" height="480" decoding="async">'}</div>
     ${accuHtml(soc, tgt, car.min_pct, car.range_km, charging)}
     </div>
     ${chips}
@@ -3576,6 +3593,8 @@ function evCard(s, d) {
     </div></details>`;
 }
 function bindEv(el, d) {
+  const pic = el.querySelector(".evc-pic[data-info]");
+  if (pic && window.zsBeeld) { try { zsBeeld.bindAuto(pic, JSON.parse(pic.dataset.info)); } catch (e) { /* tekening zonder tikken */ } }
   const E = d.ev, car = E.cars.find((c) => c.id === E.active) || E.cars[0];
   const go = async (body) => { const r = await evPost(d.id, body); if (r && r.ok === false) alert(r.error); refresh(); };
   el.querySelectorAll("[data-evadd]").forEach((b) => b.onclick = () => go({ add_cars: b.dataset.evadd.split(",") }));
@@ -4420,7 +4439,7 @@ async function loadEvOffer() {
     $("evTitle").textContent = STATUS && STATUS.has_panels ? "Auto laden op zon en goedkope uren" : "Auto laden in de goedkoopste uren";
     $("evKortSub").textContent = (cars[0] ? cars[0].name + " · " : "") + (STATUS && STATUS.has_panels ? "laten laden op zon en goedkope uren" : "laten laden op de goedkoopste uren");
     const c0 = cars[0];
-    $("evoViz").innerHTML = `<div class="evc-pic erin" style="margin:0"><img src="img/auto.webp" alt="" width="1200" height="480" decoding="async"><i class="evc-led"></i></div>`;
+    $("evoViz").innerHTML = `<div class="evc-pic erin" style="margin:0">${window.zsBeeld ? zsBeeld.autoHtml({ naam: c0 ? c0.name : "Auto", soc: c0 ? c0.soc : null, erin: true }, { hint: false }) : '<img src="img/auto.webp" alt="" width="1200" height="480" decoding="async">'}</div>`;
     $("evCars").innerHTML = cars.map((c) => `<label class="car"><input type="checkbox" value="${esc(c.id)}" checked>
       <span class="nm">${esc(c.name)}</span>${c.soc != null ? `<span class="soc num">${Math.round(c.soc)}%</span>` : "<span></span>"}
       <select aria-label="Model van ${esc(c.name)}">${MODELS.map((m) => `<option value="${m.key}" ${m.key === c.model ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select></label>`).join("");

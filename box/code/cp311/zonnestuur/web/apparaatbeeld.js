@@ -45,6 +45,14 @@
 @keyframes zbGolf{to{transform:translateX(-40px)}}
 @keyframes zbHint{0%{transform:scale(1);opacity:.8}70%,100%{transform:scale(2.3);opacity:0}}
 @keyframes zbIn{from{opacity:0;transform:translateY(6px) scale(.97)}}
+.zb .lak{fill:color-mix(in srgb,var(--e-auto,#8b5cf6) 52%,var(--zs-kaart,#fff))} .zb .ruit{fill:color-mix(in srgb,#7dd3fc 45%,var(--zs-kaart,#fff))}
+.zb .wiel{fill:var(--zs-ink,#1f2937)} .zb .naaf{fill:var(--zs-vlak2,#e5e7eb)}
+.zb .accu-bg{fill:var(--zs-vlak2,#eef1f4);stroke:var(--zs-ink,#1f2937);stroke-width:1.5}
+.zb .accu-vol{fill:var(--e-auto,#8b5cf6)} .zb.aan .accu-vol{animation:zbGloei 2.2s ease-in-out infinite}
+.zb .accu-bij{fill:url(#zbArc);opacity:.6}
+.zb .led{fill:#94a3b8} .zb.erin .led{fill:#38bdf8} .zb.aan .led{fill:#22c55e;animation:zbGloei 1.4s ease-in-out infinite}
+.zb .bliksem{opacity:0} .zb.aan .bliksem{opacity:1;animation:zbGloei 1.4s ease-in-out infinite}
+.zb .lamp-v{fill:#fde68a;opacity:.25} .zb.aan .lamp-v{opacity:.9}
 @media (prefers-reduced-motion:reduce){.zb *,.zb-bel{animation:none!important}}
 `;
   function stijl() {
@@ -246,6 +254,64 @@ ${hot("stekker", 86, 60, "Stopcontact")}${hot("apparaat", 288, 72, "Wat hij van 
 </svg>`;
   }
 
+  // ---------- de auto met laadpaal (viewBox 400×160, past in het laadbeeld) ----------
+  // i = {naam, soc, doel, km, laadt, erin, kw, klaar, plan[], need_kwh, prijs, zon, wie}
+  function auto(i) {
+    const soc = i.soc != null ? Math.max(0, Math.min(100, i.soc)) : null, doel = i.doel != null ? Math.max(0, Math.min(100, i.doel)) : null;
+    const kabel = i.erin ? "M58 90C82 146 102 128 112 98" : "M58 90C70 126 44 132 44 108";
+    return `<svg viewBox="0 0 400 160">
+<defs><pattern id="zbArc" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="var(--e-auto,#8b5cf6)"/></pattern></defs>
+<ellipse class="schaduw" cx="242" cy="147" rx="146" ry="6"/><path class="grond" d="M8 147H392"/>
+<!-- laadpaal -->
+${i.zon ? `<g><circle cx="44" cy="20" r="10" fill="#fcd34d" class="ink" stroke-width="1.5"/>${[0, 60, 120, 180, 240, 300].map((a) => { const r = a * Math.PI / 180; return `<path d="M${(44 + Math.cos(r) * 14).toFixed(1)} ${(20 + Math.sin(r) * 14).toFixed(1)}L${(44 + Math.cos(r) * 19).toFixed(1)} ${(20 + Math.sin(r) * 19).toFixed(1)}" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>`; }).join("")}</g>` : ""}
+<rect class="romp ink" x="26" y="42" width="36" height="104" rx="11"/>
+<rect class="disp" x="32" y="52" width="24" height="15" rx="4"/><circle class="led" cx="44" cy="59.5" r="3.6"/>
+<path class="bliksem" d="M46 73l-6 9h5l-3 8 8-11h-5z" fill="#facc15" stroke="var(--zs-ink,#1f2937)" stroke-width=".8"/>
+<rect class="zacht" x="34" y="120" width="20" height="18" rx="5"/>
+<!-- kabel -->
+<path d="${kabel}" fill="none" stroke="var(--zs-ink,#1f2937)" stroke-width="4.5" stroke-linecap="round"/>
+<path d="${kabel}" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
+${i.erin ? "" : `<rect x="38" y="100" width="12" height="9" rx="2.5" class="romp ink" stroke-width="1.5"/>`}
+<circle class="vonk" r="3.6" fill="#facc15" style="offset-path:path('${kabel}')"/>
+<circle class="vonk" r="3.6" fill="#facc15" style="offset-path:path('${kabel}');animation-delay:.55s"/>
+<circle class="vonk" r="3.6" fill="#facc15" style="offset-path:path('${kabel}');animation-delay:1.1s"/>
+<!-- auto -->
+<path class="lak ink" d="M104 126V104Q106 92 120 89L170 84Q186 66 210 58Q226 52 262 52H300Q322 53 338 66L362 86Q378 90 381 102L382 122Q382 128 375 128H342A22 22 0 0 0 298 128H184A22 22 0 0 0 140 128H112Q104 128 104 126Z"/>
+<path class="ruit ink" stroke-width="1.6" d="M186 84Q198 69 214 63Q228 59 254 59V84Z"/><path class="ruit ink" stroke-width="1.6" d="M262 59H296Q316 60 330 72L343 84H262Z"/>
+<path class="ink" d="M258 60V100" fill="none" stroke-width="1.6"/><path class="ink" d="M236 92h10M274 92h10" stroke-width="2.4"/>
+<rect x="368" y="94" width="12" height="8" rx="3" class="lamp-v ink" stroke-width="1.2"/><rect x="104" y="98" width="7" height="10" rx="2" fill="#f87171" class="ink" stroke-width="1.2"/>
+<rect x="110" y="93" width="8" height="9" rx="2" class="romp ink" stroke-width="1.3"/>
+<g transform="translate(196 96)"><rect class="romp ink" x="0" y="0" width="34" height="17" rx="4" stroke-width="1.5"/><rect class="ink" x="34" y="5" width="3.5" height="7" rx="1" fill="var(--zs-ink,#1f2937)"/>
+${soc != null ? `<rect class="accu-vol" x="3" y="3" width="${(28 * soc / 100).toFixed(1)}" height="11" rx="2"/>` : ""}<path class="bliksem" d="M19 2l-6 8h4l-2 6 7-9h-4z" fill="#facc15" stroke="var(--zs-ink,#1f2937)" stroke-width=".7"/></g>
+<circle class="wiel" cx="162" cy="128" r="18"/><circle class="naaf" cx="162" cy="128" r="7"/>
+<circle class="wiel" cx="320" cy="128" r="18"/><circle class="naaf" cx="320" cy="128" r="7"/>
+${hot("auto", 300, 50, "De auto")}${hot("accu", 214, 104, "De accu")}${hot("paal", 62, 46, "De laadpaal")}${hot("plan", 88, 132, "Wanneer hij laadt")}
+</svg>`;
+  }
+  function autoDelen(i) {
+    const nlp = (v) => Math.round(v) + "%";
+    const plan = (i.plan || []).length ? `Laadt in de goedkoopste uren: ${i.plan.length > 2 ? i.plan[0] + " tot " + i.plan[i.plan.length - 1] : i.plan.join(" en ")}.` : "";
+    const stuurt = i.wie ? `${i.wie} stuurt het laden; Zonnestuur kijkt mee en rekent uit wat het zelf had gedaan.` : "";
+    return {
+      auto: [i.naam || "De auto", (i.soc != null ? `De accu is ${nlp(i.soc)} vol` + (i.km ? `, genoeg voor ± ${Math.round(i.km)} km.` : ".") : "Het percentage van de accu is niet bekend.")
+        + (i.doel != null && i.klaar ? ` Doel: ${nlp(i.doel)} om ${i.klaar}.` : ""), null],
+      accu: ["De accu", i.doel != null && i.soc != null && i.doel > i.soc
+        ? `Het gestreepte stuk moet er nog bij: van ${nlp(i.soc)} naar ${nlp(i.doel)}${i.need_kwh ? `, ± ${nl(i.need_kwh, 1)} kWh` : ""}. Het streepje is het doel.`
+        : i.soc != null ? "Vol genoeg voor je volgende rit." : "Zodra de auto zijn percentage doorgeeft, staat het hier.", null],
+      paal: ["De laadpaal", i.laadt ? `Laadt nu met ${nl(i.kw || 0, 1)} kW${i.zon ? " op je eigen zonnestroom" : ""}.` + (i.prijs != null ? ` Stroom kost nu ${nl(i.prijs * 100, 0)} cent per kWh.` : "")
+        : i.erin ? "De stekker zit erin. Hij wacht op een goedkoop uur of op zon." : "De stekker zit er niet in.", null],
+      plan: ["Wanneer hij laadt", stuurt || plan || (i.klaar ? `Zonnestuur zorgt dat hij om ${i.klaar} vol genoeg is, in de goedkoopste uren of met zon.` : "Zeg wanneer je wegrijdt; Zonnestuur zorgt dat hij dan vol genoeg is."), null],
+    };
+  }
+  function autoHtml(i, o) {
+    stijl();
+    o = o || {};
+    let hint = "";
+    try { if (o.hint !== false && !localStorage.getItem("zs_zb_hint")) hint = `<div class="zb-hint">Tik op een bolletje</div>`; } catch (e) { /* geen opslag */ }
+    return `<div class="zb auto${i.laadt ? " aan" : ""}${i.erin ? " erin" : ""}" role="group" aria-label="Tekening van ${esc(i.naam || "de auto")} bij de laadpaal">${auto(i)}${hint}</div>`;
+  }
+  function bindAuto(root, i) { bind(root, { id: "auto", name: i.naam }, null, { delen: autoDelen(i) }); }
+
   function html(d, s, o) {
     stijl();
     o = o || {};
@@ -263,7 +329,7 @@ ${hot("stekker", 86, 60, "Stopcontact")}${hot("apparaat", 288, 72, "Wat hij van 
     const el = root.matches && root.matches(".zb") ? root : root.querySelector(".zb");
     if (!el || el._zb) return;
     el._zb = true;
-    const dl = delen(d, s) || {};
+    const dl = opts.delen || delen(d, s) || {};
     const sluit = () => { el.querySelectorAll(".zb-bel").forEach((b) => b.remove()); el.querySelectorAll(".hot.open").forEach((h) => h.classList.remove("open")); };
     const open = (h) => {
       const was = h.classList.contains("open");
@@ -306,5 +372,5 @@ ${hot("stekker", 86, 60, "Stopcontact")}${hot("apparaat", 288, 72, "Wat hij van 
     });
   }
 
-  window.zsBeeld = { html, bind, soortVan };
+  window.zsBeeld = { html, bind, soortVan, autoHtml, bindAuto };
 })();
