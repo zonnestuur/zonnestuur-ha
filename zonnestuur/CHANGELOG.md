@@ -1,5 +1,14 @@
 # Wijzigingen
 
+## 0.123.0
+- Nieuw: de thuisbatterij heeft nu ook een bewegende tekening op zijn eigen pagina. Je ziet hoe vol hij is en of de stroom
+  van de zon of het net komt, of naar je huis gaat. Tik op de batterij, de stroomlijn of het huis voor uitleg.
+- Laadt er een gastauto, dan staat die nu bovenaan de laadkaart (hoeveel kWh erin zit en wanneer hij klaar is) in plaats
+  van je eigen auto.
+- Opgelost: het uitlegwolkje bij een bolletje in de tekening ging na een paar seconden vanzelf dicht. Het blijft nu open
+  tot je het zelf sluit, en de cijfers erin lopen gewoon mee.
+- Opgelost: een paar knoppen (zoals 'Nu testen' en 'Alle grafieken tonen') waren te klein om goed aan te tikken.
+
 ## 0.122.0
 - Nieuw: de auto als bewegende tekening, met laadpaal, kabel en accu. Laadt hij, dan brandt de lamp van de paal groen,
   loopt de stroom door de kabel en gaan de koplampen aan. Tik op de auto, de accu, de paal of de kabel voor uitleg.

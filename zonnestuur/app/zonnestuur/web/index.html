@@ -2620,6 +2620,13 @@ function laadStrook(nowD, end, starts, endT) {
     <div class="st-l"><span><i class="laad"></i>${eerste ? "laden" : "nog geen laaduren"}</span><span><i></i>${ps.length ? "stroomprijs per uur" : "prijs nog niet bekend"}</span><span class="st-k">klaar ${esc(endT)}</span></div></div>`;
 }
 // 0.122: wat de autotekening per onderdeel vertelt
+// Voortgang van de gastauto: hoeveel van de afgesproken kWh zit erin
+function gastBaan(G, pct, laadt) {
+  const v = pct == null ? 0 : pct;
+  return `<div class="evc-accu${laadt ? " laadt" : ""}" role="img" aria-label="Gastauto: ${nl(G.geladen, 1)} van ${nl(G.kwh, 0)} kWh geladen">
+    <div class="baan"><i class="vol" style="width:${v}%"></i>${v < 99 ? `<i class="bij" style="left:${v}%;width:${100 - v}%"></i>` : ""}<b style="left:100%"></b></div>
+    <div class="voet"><span>${nl(G.geladen, 1)} kWh</span><span class="doel" style="--x:100%">${v >= 99 ? "klaar" : `nog ${nl(Math.max(0, G.kwh - G.geladen), 1)} kWh`}</span></div></div>`;
+}
 function evBeeldInfo(d, car, soc, tgt, charging, plugged) {
   const E = d.ev || {};
   return { naam: car.name, soc, doel: tgt, km: car.range_km, laadt: charging, erin: plugged, kw: (d.power_w || 0) / 1000,
@@ -2816,6 +2823,7 @@ function apparaatAlleen(s, wrap) {
   if (!deze) wrap.innerHTML = `<div class="card"><p>Dit apparaat bestaat niet (meer). <a href="apparaten">Naar Apparaten</a></p></div>`;
   else if (d && d.kind === "ev" && d.ev) { const oud = $("appHeld"); if (oud) oud.remove(); }   // de laadkaart is zelf het beeld
   else if (d) appHeld(wrap, d);
+  else if (b && b.online && window.zsBeeld && zsBeeld.batHtml) batHeld(wrap, b, s);
   if (d && d.driver === "sprsun") bedieningKlaar(wrap, d);
   if (deze && d) slimKlaar(wrap, d);
   if (deze && d) proefKlaar(wrap, d);
@@ -2959,6 +2967,19 @@ async function zetModus(d, mode, uren) {
 }
 function beeldBinden(el, d) {
   if (window.zsBeeld) zsBeeld.bind(el, d, STATUS, { mode: (m, u) => zetModus(d, m, u) });
+}
+// Thuisbatterij: tekening met cellen en waar de stroom heen gaat (0.123)
+function batHeld(wrap, b, s) {
+  let el = $("appHeld");
+  if (!el) { el = document.createElement("section"); el.id = "appHeld"; el.className = "app-held met-beeld"; }
+  wrap.prepend(el);
+  const sl = [Math.round(b.soc || 0), Math.round((b.power_w || 0) / 100), b.action, b.next && b.next.start].join("|");
+  if (el._sl === sl) return;                                   // niet elke paar seconden opnieuw tekenen (bolletje blijft open)
+  el._sl = sl;
+  const pw = b.power_w || 0, kwv = Math.abs(pw) / 1000;
+  const sub = pw > 30 ? `Laadt ${kwv.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} kW` : pw < -30 ? `Levert ${kwv.toLocaleString("nl-NL", { maximumFractionDigits: 1 })} kW` : b.action === "save" ? "Houdt vast voor straks" : "Rust";
+  el.innerHTML = `<div class="ah-tekst"><div class="ah-lbl">Batterij</div><div class="ah-groot">${b.soc == null ? "–" : Math.round(b.soc)}<u>%</u></div><div class="ah-sub">${esc(sub)}</div></div><div class="ah-beeld">${zsBeeld.batHtml(b, s)}</div>`;
+  zsBeeld.bindBat(el, b, s);
 }
 function appHeld(wrap, d) {
   let el = $("appHeld");
@@ -3462,25 +3483,29 @@ function dagTijd(iso, now) {
   return t.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" }) + " " + hm;
 }
 function evCard(s, d) {
-  const E = d.ev, car = E.cars.find((c) => c.id === E.active) || E.cars[0];
+  const E = d.ev, G = E.gast || null, eigen = E.cars.find((c) => c.id === E.active) || E.cars[0];
+  // gastauto: die hangt nu aan de lader, dus die staat bovenaan (niet je eigen auto)
+  const car = G ? { id: "gast", name: "Gastauto", soc: null, target_pct: null, range_km: null, plug: eigen.plug, kw: eigen.kw, min_pct: null, handmatig: false, gast: true } : eigen;
+  const gPct = G && G.kwh > 0 ? Math.max(0, Math.min(100, G.geladen / G.kwh * 100)) : null;
   const vt = E.vertrek || null;
-  const soc = car.soc, tgt = Math.round(E.target ?? ((vt && vt.pct) || car.target_pct));
+  const soc = car.soc, tgt = G ? 100 : Math.round(E.target ?? ((vt && vt.pct) || car.target_pct));
   const plugged = car.plug === true || (car.plug == null && d.on), charging = d.on && (d.power_w || 0) > 50;
-  const ready = vt ? dagTijd(vt.at, s.now) : eersteKlaar(d, s.now);
-  const reached = soc != null && !(E.need_min > 0);
+  const ready = G && G.klaar ? dagTijd(G.klaar, s.now) : vt ? dagTijd(vt.at, s.now) : eersteKlaar(d, s.now);
+  const reached = G ? !(E.need_min > 0) : soc != null && !(E.need_min > 0);
   const st = charging ? `Laadt nu met ${nl((d.power_w || 0) / 1000, 1)} kW` : plugged ? "Stekker erin" : car.plug === false ? "Stekker eruit" : "Wacht op de auto";
   const chips = E.cars.length > 1 ? `<div class="ev-cars" role="group" aria-label="Welke auto hangt aan de lader?">${E.cars.map((c) =>
     `<button class="ev-car ${c.id === car.id ? "on" : ""}" data-evcar="${esc(c.id)}">${esc(c.name)}<small>${c.soc != null ? Math.round(c.soc) + "%" : "?"}</small></button>`).join("")}</div>` : "";
   // 1. klaar om
   let q1;
-  if (reached) q1 = ["Klaar", "Al klaar", `${Math.round(soc)}%${car.range_km != null ? ` · ± ${car.range_km} km` : ""}`];
+  if (G) q1 = reached ? ["Klaar", "Al klaar", `${nl(G.kwh, 0)} kWh geladen`] : ["Klaar om", G.klaar ? dagTijd(G.klaar, s.now) : E.done_at || "binnen een dag", `${nl(G.kwh, 0)} kWh voor de gast`];
+  else if (reached) q1 = ["Klaar", "Al klaar", `${Math.round(soc)}%${car.range_km != null ? ` · ± ${car.range_km} km` : ""}`];
   else if (E.short) q1 = ["Klaar om", E.short.ready, `± ${E.short.pct}%: meer past er niet in`];
   else if (E.mode === "vol") { const t = new Date(Date.now() + (E.need_min || 0) * 60e3);
     q1 = ["Vol om", E.need_min ? t.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) : "zo snel mogelijk", `${tgt}%`]; }
   else q1 = ["Klaar om", ready || E.done_at || "–", `${tgt}%${car.range_km != null && soc ? ` · ± ${Math.round(car.range_km * tgt / Math.max(1, soc))} km` : ""}`];
   // 2. wanneer laden
   let q2;
-  if (reached) q2 = ["Laden", "Niet nodig", `doel van ${tgt}% gehaald`];
+  if (reached) q2 = ["Laden", "Niet nodig", G ? "de gastauto heeft zijn kWh" : `doel van ${tgt}% gehaald`];
   else if (charging) q2 = ["Laden", "Nu", `${nl(E.need_kwh || 0, 1)} kWh te gaan · ${hm(E.need_min || 0)}`];
   else if (!plugged && car.plug === false) q2 = ["Laden", "Steek de stekker erin", `dan laadt hij ${nl(E.need_kwh || 0, 1)} kWh in de goedkope uren`];
   else if (E.mode === "vol") q2 = ["Laden", "Nu meteen", `${nl(E.need_kwh || 0, 1)} kWh · ${hm(E.need_min || 0)}`];
@@ -3488,7 +3513,7 @@ function evCard(s, d) {
     const a = E.plan_iso ? dagTijd(E.plan_iso[0], s.now) : E.plan[0], z = E.done_iso ? dagTijd(E.done_iso, s.now) : E.done_at;
     const days = new Set((E.plan_iso || []).map((x) => x.slice(0, 10))).size;
     q2 = ["Laadt", days > 1 ? `vanaf ${a}` : `${a}–${E.done_at}`, `${hm(E.need_min || 0)} laden${days > 1 ? `, verdeeld over ${days} dagen` : rg.length > 1 ? `, in ${rg.length} delen` : ""} · klaar ${z}`]; }
-  else q2 = ["Laden", soc == null ? "Onbekend" : "Wordt gepland", soc == null ? "accupercentage onbekend" : "zodra de prijzen er zijn"];
+  else q2 = ["Laden", soc == null && !G ? "Onbekend" : "Wordt gepland", soc == null && !G ? "accupercentage onbekend" : "zodra de prijzen er zijn"];
   // 3. kosten
   const saved = E.cost != null && E.cost_direct != null ? E.cost_direct - E.cost : 0;
   let q3;
@@ -3503,7 +3528,8 @@ function evCard(s, d) {
   let strook = "";
   if (endT && E.plan && E.mode !== "vol") {
     let end;
-    if (vt) end = new Date(vt.at);
+    if (G && G.klaar) end = new Date(G.klaar);
+    else if (vt) end = new Date(vt.at);
     else { end = new Date(nowD); const r0 = (d.ready_times || [])[0] || E.done_at; end.setHours(Number(r0.slice(0, 2)), Number(r0.slice(3, 5)), 0, 0); if (end <= nowD) end.setDate(end.getDate() + 1); }
     const span = end - nowD, x = (t) => Math.max(0, Math.min(100, (t - nowD) / span * 100));
     const starts = (E.plan_iso || []).map((i) => new Date(i)).sort((a, b) => a - b);
@@ -3528,7 +3554,6 @@ function evCard(s, d) {
       <button class="evc-go" data-rit-ok>Opslaan</button></div>
       <p class="small muted" style="margin:6px 0 0">Zonnestuur laadt dan alleen in de goedkoopste of zonnigste uren tot dat moment, ook over meerdere dagen. Voor de dagen waarvan de prijs nog niet bekend is, gebruikt hij de verwachting uit het weer.</p></details>`;
   // gastauto (idee: EnergyWizard): een auto die niet van jou is, een vast aantal kWh
-  const G = E.gast || null;
   const gast = G ? `<div class="evc-rit on"><div><b>Gastauto: ${nl(G.geladen, 1)} van ${nl(G.kwh, 0)} kWh geladen</b><small>${G.klaar ? `klaar om ${esc(dagTijd(G.klaar, s.now))}, ` : ""}in de goedkoopste uren.</small></div><button class="evc-lnk" data-gast-uit>Stoppen</button></div>`
     : `<details class="evc-rit"><summary>Laadt er een gastauto? <span>Kies hoeveel</span></summary>
       <div class="rit-f"><label>Hoeveel<select data-gast-kwh>${[5, 10, 15, 20, 30, 40].map((v) => `<option value="${v}" ${v === 10 ? "selected" : ""}>${v} kWh (± ${v * 6} km)</option>`).join("")}</select></label>
@@ -3548,23 +3573,23 @@ function evCard(s, d) {
   return `
     <div class="evc-stage ${charging ? "laadt" : plugged ? "erin" : "los"}">
     <div class="evc-hero"><div class="evc-name">${esc(car.name)}</div><div class="evc-sub"><i></i>${esc(st)}</div>
-      <div class="evc-soc">${soc != null ? Math.round(soc) + "%" : "–"}<small>${soc != null ? "accu" : "onbekend"}</small></div></div>
-    <div class="evc-pic ${charging ? "laadt" : plugged ? "erin" : "los"}" data-info="${esc(JSON.stringify(evBeeldInfo(d, car, soc, tgt, charging, plugged)))}">${window.zsBeeld ? zsBeeld.autoHtml(evBeeldInfo(d, car, soc, tgt, charging, plugged), { hint: VIEW !== "vandaag" }) : '<img src="img/auto.webp" alt="" width="1200" height="480" decoding="async">'}</div>
-    ${accuHtml(soc, tgt, car.min_pct, car.range_km, charging)}
+      <div class="evc-soc">${G ? nl(G.geladen, 1) : soc != null ? Math.round(soc) + "%" : "–"}<small>${G ? `van ${nl(G.kwh, 0)} kWh` : soc != null ? "accu" : "onbekend"}</small></div></div>
+    <div class="evc-pic ${charging ? "laadt" : plugged ? "erin" : "los"}" data-info="${esc(JSON.stringify(evBeeldInfo(d, car, G ? gPct : soc, tgt, charging, plugged)))}">${window.zsBeeld ? zsBeeld.autoHtml(evBeeldInfo(d, car, G ? gPct : soc, tgt, charging, plugged), { hint: VIEW !== "vandaag" }) : '<img src="img/auto.webp" alt="" width="1200" height="480" decoding="async">'}</div>
+    ${G ? gastBaan(G, gPct, charging) : accuHtml(soc, tgt, car.min_pct, car.range_km, charging)}
     </div>
-    ${chips}
-    ${socHand(car)}
+    ${G ? "" : chips}
+    ${G ? "" : socHand(car)}
     ${strook}
     <div class="evc-story">${q(q1)}${q(q2)}${q(q3, saved > 0.05 && !reached && E.mode !== "vol" ? "goed" : "")}</div>
     ${E.trip ? `<div class="evc-why"><b>${esc(E.trip.dag[0].toUpperCase() + E.trip.dag.slice(1))}:</b> ${E.trip.km} km${E.trip.temp != null ? ` bij ${nl(E.trip.temp, 0)} °C` : ""}${E.trip.factor > 1.01 ? ` (${Math.round((E.trip.factor - 1) * 100)}% meer verbruik door het weer)` : ""} = ± ${nl(E.trip.kwh, 1)} kWh. Daarom laden tot ${E.trip.pct}%.${E.trip.te_weinig ? " Dat is je maximum; voor deze rit is het krap." : ""}</div>` : ""}
     ${(() => { if (reached || !(E.need_min > 0) || !E.kw) return "";
       const sn = E.snelheid || [], geleerd = sn.filter((v) => v != null).length, hoog = [sn[8], sn[9]].find((v) => v != null);
-      const t = E.kw_now ? `laadt nu met ${nl(E.kw_now, 1)} kW (gemeten)` : `gemiddeld ± ${nl(E.kw, 1)} kW tot ${tgt}%`;
+      const t = E.kw_now ? `laadt nu met ${nl(E.kw_now, 1)} kW (gemeten)` : `gemiddeld ± ${nl(E.kw, 1)} kW${G ? "" : ` tot ${tgt}%`}`;
       return `<div class="evc-why"><b>Snelheid:</b> ${t}${hoog ? `; boven 80% gaat deze auto naar ± ${nl(hoog, 1)} kW` : ""}. ${geleerd ? "Zonnestuur meet dat bij elke laadbeurt en past de planning steeds aan." : "Zonnestuur leert de echte snelheid van deze auto tijdens het laden."}</div>`; })()}
     ${tl}
-    ${vertrekBlok(d, car, tgt)}
+    ${G ? gast : `${vertrekBlok(d, car, tgt)}
     ${rit}
-    ${gast}
+    ${gast}`}
     ${gewoonteBlok(d.gewoonte, d.ready_week, true)}
     <div class="evc-act">${go}${skip}</div>
     <div class="evc-why"><a href="laadtijdlijn?bron=dev:${encodeURIComponent(d.id)}">Laadbeurten: wanneer geladen en wat het kostte</a></div>

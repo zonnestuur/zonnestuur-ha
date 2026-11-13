@@ -53,6 +53,8 @@
 .zb .led{fill:#94a3b8} .zb.erin .led{fill:#38bdf8} .zb.aan .led{fill:#22c55e;animation:zbGloei 1.4s ease-in-out infinite}
 .zb .bliksem{opacity:0} .zb.aan .bliksem{opacity:1;animation:zbGloei 1.4s ease-in-out infinite}
 .zb .lamp-v{fill:#fde68a;opacity:.25} .zb.aan .lamp-v{opacity:.9}
+.zb .cel{fill:var(--e-bat,#14b8a6)} .zb .cel.leeg{fill:var(--zs-vlak2,#eef1f4)} .zb.aan .cel.top{animation:zbGloei 1.6s ease-in-out infinite}
+.zb .mast{fill:none;stroke:var(--zs-ink,#1f2937);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 @media (prefers-reduced-motion:reduce){.zb *,.zb-bel{animation:none!important}}
 `;
   function stijl() {
@@ -312,6 +314,72 @@ ${hot("auto", 300, 50, "De auto")}${hot("accu", 214, 104, "De accu")}${hot("paal
   }
   function bindAuto(root, i) { bind(root, { id: "auto", name: i.naam }, null, { delen: autoDelen(i) }); }
 
+  // ---------- thuisbatterij (0.123): kast met cellen; stroom van zon of net erin, naar het huis of net eruit ----------
+  // b = batterij uit /api/status (soc, power_w, action, capacity_kwh, kwh, min_soc, target_soc, next, observing, leverancier, gemeten)
+  function batInfo(b, s) {
+    const pw = b.power_w || 0, laadt = pw > 30, levert = pw < -30;
+    // zelfde uitleg als de kaart eronder: 'charge' = van het net, anders van de zon (als er panelen zijn)
+    const bron = laadt ? (b.action === "charge" || !(s && s.has_panels) ? "net" : "zon") : null;
+    const naar = levert ? (b.action === "export" ? "net" : "huis") : null;
+    return { pw, laadt, levert, bron, naar, kw: Math.abs(pw) / 1000, soc: b.soc == null ? null : Math.max(0, Math.min(100, b.soc)) };
+  }
+  function batterij(b, s) {
+    const i = batInfo(b, s), soc = i.soc == null ? 0 : i.soc, n = 5, vol = Math.round(soc / 100 * n * 2) / 2;
+    const cellen = Array.from({ length: n }, (_, k) => { const j = n - 1 - k, y = 32 + k * 21;
+      const f = Math.max(0, Math.min(1, vol - j)), top = f > 0 && f < 1 || (f === 1 && Math.ceil(vol) - 1 === j);
+      return `<rect class="cel leeg" x="143" y="${y}" width="34" height="16" rx="4"/>${f > 0 ? `<rect class="cel${top ? " top" : ""}" x="143" y="${y + 16 * (1 - f)}" width="34" height="${16 * f}" rx="4"/>` : ""}`; }).join("");
+    const zonPad = "M72 52Q112 52 134 76", netPad = "M74 118Q106 118 134 104", huisPad = "M186 92Q220 92 244 104";
+    const vonk = (pad, terug) => [0, .5, 1].map((t) => `<circle class="vonk" r="3.6" fill="#facc15" style="offset-path:path('${pad}');animation-delay:${t}s${terug ? ";animation-direction:reverse" : ""}"/>`).join("");
+    const actief = (i.laadt && i.bron === "zon") || (i.levert && i.naar === "huis") || (i.laadt && i.bron === "net") || (i.levert && i.naar === "net");
+    return `<svg viewBox="0 0 320 160">
+${grond(30, 300)}
+<!-- zon -->
+<g opacity="${i.bron === "zon" ? 1 : .45}"><circle cx="58" cy="44" r="13" fill="#fcd34d" class="ink" stroke-width="1.6"/>${[0, 60, 120, 180, 240, 300].map((a) => { const r = a * Math.PI / 180; return `<path d="M${(58 + Math.cos(r) * 18).toFixed(1)} ${(44 + Math.sin(r) * 18).toFixed(1)}L${(58 + Math.cos(r) * 23).toFixed(1)} ${(44 + Math.sin(r) * 23).toFixed(1)}" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>`; }).join("")}</g>
+<!-- net: hoogspanningsmast -->
+<g opacity="${i.bron === "net" || i.naar === "net" ? 1 : .45}"><path class="mast" d="M48 146L58 96L68 146M51 128H65M54 112H62M44 104H72M47 96H69M58 96V88"/></g>
+<path d="${zonPad}" fill="none" stroke="var(--zs-ink,#1f2937)" stroke-opacity="${i.bron === "zon" ? .9 : .2}" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 7"/>
+<path d="${netPad}" fill="none" stroke="var(--zs-ink,#1f2937)" stroke-opacity="${i.bron === "net" || i.naar === "net" ? .9 : .2}" stroke-width="3" stroke-linecap="round"/>
+<path d="${huisPad}" fill="none" stroke="var(--zs-ink,#1f2937)" stroke-opacity="${i.naar === "huis" ? .9 : .2}" stroke-width="3" stroke-linecap="round"/>
+${i.laadt && i.bron === "zon" ? vonk(zonPad) : ""}${i.laadt && i.bron === "net" ? vonk(netPad) : ""}${i.levert && i.naar === "net" ? vonk(netPad, true) : ""}${i.levert && i.naar === "huis" ? vonk(huisPad) : ""}
+<!-- batterijkast -->
+<rect class="romp ink" x="132" y="18" width="56" height="128" rx="12"/>
+${cellen}
+<text class="klein" x="160" y="14" text-anchor="middle">${i.soc == null ? "?" : nl(i.soc) + "%"}</text>
+<!-- huis -->
+<path class="romp ink" d="M244 146V98L276 72L308 98V146Z"/><rect class="romp2 ink" x="266" y="118" width="20" height="28" rx="3"/>
+<rect class="lamp-v ink" x="254" y="102" width="14" height="12" rx="2" stroke-width="1.4" style="opacity:${i.naar === "huis" ? .95 : .3}"/>
+${actief ? `<text class="klein" x="${i.naar === "huis" ? 214 : 104}" y="${i.naar === "huis" ? 84 : i.bron === "zon" ? 50 : 132}" text-anchor="middle">${nl(i.kw, 1)} kW</text>` : ""}
+${hot("accu", 186, 26, "De batterij")}${hot("stroom", i.naar === "huis" ? 222 : 100, i.naar === "huis" ? 96 : i.bron === "net" || i.naar === "net" ? 116 : 62, "Wat hij nu doet")}${hot("plan", 300, 76, "Wat hij van plan is")}
+</svg>`;
+  }
+  function batDelen(b, s) {
+    const i = batInfo(b, s), wie = b.observing ? (b.leverancier || "Je leverancier") : "Zonnestuur";
+    const BACT = { auto: "zelf gebruiken", save: "vasthouden voor de dure uren", charge: "laden van het net", export: "stroom verkopen", idle: "wachten op de middagzon", manual: "met de hand bediend" };
+    const kwh = b.kwh != null ? ` Er zit ± ${nl(b.kwh, 1)} van de ${nl(b.capacity_kwh || 0, 1)} kWh in.` : "";
+    const gm = b.gemeten || {};
+    const geleerd = gm.cap ? ` Gemeten: ± ${nl(gm.cap, 1)} kWh bruikbaar${gm.eff ? `, rendement ${Math.round(gm.eff * 100)}%` : ""}.` : " Zonnestuur meet bij elke volle lading hoeveel er echt in past.";
+    const nu = i.laadt ? `Laadt ${nl(i.kw, 1)} kW ${i.bron === "net" ? "van het net, omdat de stroom nu goedkoop is" : "van je eigen zonnestroom, die anders het net op gaat"}.`
+      : i.levert ? (i.naar === "net" ? `Verkoopt ${nl(i.kw, 1)} kW aan het net, omdat de stroom nu veel oplevert.` : `Levert ${nl(i.kw, 1)} kW aan je huis, zodat je minder stroom koopt.`)
+      : b.action === "save" ? "Houdt de stroom vast voor de dure uren straks." : "Rust: laden of leveren levert nu niets op.";
+    const nx = b.next;
+    const plan = nx ? `${b.observing ? "Zonnestuur zou" : "Straks"} om ${nx.start}: ${BACT[nx.action] || nx.action}${nx.action === "charge" && nx.soc ? ` tot ${Math.round(nx.soc)}%` : ""}${nx.why ? ` (${nx.why})` : ""}.`
+      : "De komende uren gewoon zelf gebruiken: laden of vasthouden levert nu te weinig op.";
+    return {
+      accu: [b.name || "Thuisbatterij", (i.soc == null ? "Het laadniveau is niet bekend." : `${nl(i.soc)}% vol.`) + kwh + (b.min_soc ? ` Zonnestuur laat hem nooit onder ${Math.round(b.min_soc)}% zakken.` : "") + geleerd, null],
+      stroom: ["Wat hij nu doet", (b.observing ? `${wie} stuurt. ` : "") + nu, null],
+      plan: ["Wat hij van plan is", plan, null],
+    };
+  }
+  function batHtml(b, s, o) {
+    stijl();
+    o = o || {};
+    const i = batInfo(b, s);
+    let hint = "";
+    try { if (o.hint !== false && !localStorage.getItem("zs_zb_hint")) hint = `<div class="zb-hint">Tik op een bolletje</div>`; } catch (e) { /* geen opslag */ }
+    return `<div class="zb bat${i.laadt || i.levert ? " aan" : ""}" role="group" aria-label="Tekening van ${esc(b.name || "de thuisbatterij")}">${batterij(b, s)}${hint}</div>`;
+  }
+  function bindBat(root, b, s) { bind(root, { id: "bat-" + b.id, name: b.name }, s, { delen: batDelen(b, s) }); }
+
   function html(d, s, o) {
     stijl();
     o = o || {};
@@ -324,14 +392,17 @@ ${hot("auto", 300, 50, "De auto")}${hot("accu", 214, 104, "De accu")}${hot("paal
     return `<div class="zb${aan ? " aan" : ""}${o.groot ? " groot" : ""}" data-zb="${esc(d.id)}" role="group" aria-label="Tekening van ${esc(d.name)}">${svg}${hint}</div>`;
   }
 
+  const OPEN = {};
   function bind(root, d, s, opts) {
     opts = opts || {};
     const el = root.matches && root.matches(".zb") ? root : root.querySelector(".zb");
     if (!el || el._zb) return;
     el._zb = true;
+    // de kaart wordt elke paar seconden opnieuw getekend: onthoud per apparaat welk wolkje open stond
+    const host = OPEN, sleutel = String(d.id);
     const dl = opts.delen || delen(d, s) || {};
-    const sluit = () => { el.querySelectorAll(".zb-bel").forEach((b) => b.remove()); el.querySelectorAll(".hot.open").forEach((h) => h.classList.remove("open")); };
-    const open = (h) => {
+    const sluit = () => { delete host[sleutel]; el.querySelectorAll(".zb-bel").forEach((b) => b.remove()); el.querySelectorAll(".hot.open").forEach((h) => h.classList.remove("open")); };
+    const open = (h, stil) => {
       const was = h.classList.contains("open");
       sluit();
       if (was) return;
@@ -345,7 +416,9 @@ ${hot("auto", 300, 50, "De auto")}${hot("accu", 214, 104, "De accu")}${hot("paal
       bel.className = "zb-bel"; bel.setAttribute("role", "dialog"); bel.setAttribute("aria-label", titel);
       bel.innerHTML = `<button class="dicht" aria-label="Sluiten">×</button><b>${esc(titel)}</b>${esc(tekst)}` +
         (knoppen && opts.mode ? `<div class="zb-knoppen">${knoppen.map(([t, m, u, h1]) => `<button data-m="${m}" data-u="${u || ""}" class="${h1 && d.mode !== "auto" ? "hoofd" : ""}">${esc(t)}</button>`).join("")}</div>` : "");
+      if (stil) bel.style.animation = "none";
       el.appendChild(bel);
+      host[sleutel] = h.dataset.hot;
       // plaats bij het bolletje, binnen de tekening
       const r = el.getBoundingClientRect(), c = h.querySelector(".ring").getBoundingClientRect();
       const bw = bel.offsetWidth, bh = bel.offsetHeight;
@@ -370,7 +443,9 @@ ${hot("auto", 300, 50, "De auto")}${hot("accu", 214, 104, "De accu")}${hot("paal
       if (h && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(h); }
       if (e.key === "Escape") sluit();
     });
+    const weer = host[sleutel] && el.querySelector(`.hot[data-hot="${host[sleutel]}"]`);
+    if (weer) requestAnimationFrame(() => open(weer, true));      // na verversen: zelfde wolkje weer open, met de nieuwe cijfers
   }
 
-  window.zsBeeld = { html, bind, soortVan, autoHtml, bindAuto };
+  window.zsBeeld = { html, bind, soortVan, autoHtml, bindAuto, batHtml, bindBat };
 })();

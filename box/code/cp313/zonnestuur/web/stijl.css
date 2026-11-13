@@ -49,6 +49,10 @@ h2.t, .card h2.t, .sec, .card h2 { font-family: "Inter Tight", "Inter", system-u
 .sec-head h2 { font: 740 clamp(28px, 3.4vw, 40px)/1.05 "Inter Tight", "Inter", sans-serif !important; letter-spacing: -.03em !important; word-spacing: .08em; }
 
 /* ---- knoppen: inkt als hoofdknop, omlijnd als tweede keus ---- */
+/* basis voor knoppen zonder eigen opmaak (0.123: 'Nu testen' en 'Alle grafieken tonen' waren 17 px hoog);
+   :where() = geen voorrang, dus elke eigen regel van een pagina gaat voor */
+:where(.btn) { font: inherit; font-size: 15px; line-height: 1.2; padding: 11px 20px; min-height: 44px; border-radius: 999px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
 .btn { background: var(--zs-ink) !important; color: var(--zs-dag) !important; box-shadow: none; border: 0; font-weight: 650; }
 .btn:hover { transform: translateY(-1px); }
 .btn.ghost, .btn.uit { background: transparent !important; color: var(--zs-ink) !important; box-shadow: inset 0 0 0 1.5px var(--zs-ink); }
