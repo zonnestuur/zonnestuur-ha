@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.124.0
+- Nieuw: Zonnestuur leert per uur van de dag hoeveel warm water er gebruikt wordt (douchen, afwassen, of bij een buffervat de
+  vloerverwarming), apart voor werkdagen en het weekend. Daarna warmt hij vóór die momenten op in een goedkoop uur, in plaats van
+  achteraf tegen dagprijs. Na een paar dagen staat op de pagina van het apparaat wanneer jullie het meeste gebruiken.
+- Nieuw: op Planning de knop 'Klopt dit plan niet?'. Je schrijft kort wat er niet klopt en de melding gaat met het plan erbij naar ons.
+
 ## 0.123.0
 - Nieuw: de thuisbatterij heeft nu ook een bewegende tekening op zijn eigen pagina. Je ziet hoe vol hij is en of de stroom
   van de zon of het net komt, of naar je huis gaat. Tik op de batterij, de stroomlijn of het huis voor uitleg.

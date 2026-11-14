@@ -2873,6 +2873,7 @@ function slimTekenen(box, d, data) {
     <p>${esc(zin)}</p>
     ${weet ? `<ul class="sl-weet">${weet}</ul>` : ""}
     ${plan}
+    ${i && i.gebruik && i.gebruik.zin ? `<p class="small sl-gebruik">${esc(i.gebruik.zin)}</p>` : ""}
     ${i && i.kamers && i.kamers.length ? `<p class="small muted">Kijkt of ${esc(i.kamers.join(" en "))} warm genoeg ${i.kamers.length > 1 ? "blijven" : "blijft"} en leert daaruit hoe warm het water moet zijn.</p>` : ""}
     ${i ? (regels ? `<ul class="sl-dagen">${regels}</ul>` : `<p class="small muted">Vanaf morgenochtend staat hier elke dag wat hij geleerd heeft.</p>`) : ""}
     ${i ? `<label class="check-row"><input type="checkbox" id="slAan" ${aan ? "checked" : ""}><span>Zelf bijsturen<small class="muted"> ${aan ? "Hij warmt vooruit in de goedkoopste uren en past de watertemperatuur aan." : "Nu kijkt hij alleen mee en laat zien wat hij zou doen."}</small></span></label>` : ""}`;

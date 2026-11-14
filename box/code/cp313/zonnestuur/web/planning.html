@@ -42,6 +42,10 @@
   /* 0.113: apparaten die nu niet in het plan zitten staan er wel bij, met de reden */
   a.rij.rust { display: grid; text-decoration: none; color: inherit; }
   a.rij.rust > span { color: var(--ink-3, var(--zs-ink3)); }
+  .klopt-niet summary { cursor: pointer; font-weight: 650; min-height: 24px; }
+  .klopt-niet textarea { width: 100%; box-sizing: border-box; font: inherit; margin: 6px 0 10px; padding: 10px 12px; border-radius: 12px;
+    border: 1.5px solid var(--zs-lijn); background: transparent; color: inherit; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 </style>
 <link rel="stylesheet" href="stijl.css">
 </head>
@@ -93,8 +97,27 @@ async function laad(nu) {
     ${(p.niet_gepland || []).map((a) => `<a class="rij rust" href="apparaat?id=${encodeURIComponent(a.id)}"><b>${esc(a.naam)}</b><span>nu niets te plannen</span><small>${esc(a.reden)}</small></a>`).join("")}
     ${p.batterij ? `<div class="rij"><b>Thuisbatterij</b><span>${kwh(p.batterij.soc_kwh)} van ${kwh(p.batterij.cap_kwh)}</span><small>Levert ${kwh(S.batterij_uit_kwh)} in deze periode.</small></div>` : ""}
     <p class="hint">Berekend ${dagUur(p.t)} in ${String(p.rekentijd_s).replace(".", ",")} s. <button class="btn ghost small" type="button" id="opnieuw">Nu opnieuw rekenen</button></p></section>`;
+  h += `<details class="kaart klopt-niet" id="kloptNiet"><summary>Klopt dit plan niet?</summary>
+    <p class="hint">Vertel wat je anders verwacht, bijvoorbeeld "de boiler staat op een duur uur" of "de auto is te laat vol". Je melding gaat met dit plan erbij naar Zonnestuur, zodat we zien wat er misging.</p>
+    <label for="kn_tekst" class="vh">Wat klopt er niet?</label>
+    <textarea id="kn_tekst" rows="3" placeholder="Wat klopt er niet?"></textarea>
+    <button class="btn" type="button" id="kn_stuur">Melding versturen</button></details>`;
   $("inhoud").innerHTML = h;
   $("opnieuw").onclick = () => laad(true);
+  $("kn_stuur").onclick = () => kloptNiet(p);
+}
+// 0.124: 'Klopt dit plan niet?' (naar evcc: meldknop bij een onlogisch plan). Gaat via Probleem melden, met het plan erbij.
+async function kloptNiet(p) {
+  const t = $("kn_tekst").value.trim();
+  if (!t) { melding("Schrijf eerst kort wat er niet klopt"); $("kn_tekst").focus(); return; }
+  const kort = { t: p.t, apparaten: (p.apparaten || []).map((a) => ({ id: a.id, kwh: a.kwh, klaar: a.klaar, uren: (p.uren_per_apparaat || {})[a.id] })),
+    niet_gepland: p.niet_gepland, kosten: [p.gezamenlijk && p.gezamenlijk.kosten_eur, p.apart && p.apart.kosten_eur, p.zonder && p.zonder.kosten_eur],
+    prijzen: (p.uren || []).map((u) => [String(u.uur).slice(11, 16), u.prijs]) };
+  try {
+    const r = await api("api/melding", { method: "POST", body: JSON.stringify({ soort: "probleem", tekst: "Planning klopt niet: " + t + "\n\nPlan:\n" + JSON.stringify(kort).slice(0, 3000) }) });
+    melding(r.ok === false ? "Versturen lukte niet" : "Bedankt, je melding is verstuurd");
+    $("kn_tekst").value = ""; $("kloptNiet").open = false;
+  } catch (e) { melding(e.message); }
 }
 function grafiek(p, ids) {
   const U = p.uren, W = Math.max(320, Math.min(640, (document.querySelector("main").clientWidth || 640) - 70)), H = 220, L = 30, B = 24, T = 8, n = U.length, bw = (W - L - 6) / n;
