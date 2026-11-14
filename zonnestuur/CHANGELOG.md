@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.125.0
+- Nieuw: Zonnestuur houdt rekening met sneeuw op de zonnepanelen. Na een sneeuwbui verwacht hij minder zonnestroom, tot de sneeuw
+  er volgens het weer (zon en temperatuur) af is gegleden. Apparaten wachten dan niet meer op zon die niet komt. Op Home staat
+  'sneeuw op de panelen' zolang dat zo is.
+
 ## 0.124.0
 - Nieuw: Zonnestuur leert per uur van de dag hoeveel warm water er gebruikt wordt (douchen, afwassen, of bij een buffervat de
   vloerverwarming), apart voor werkdagen en het weekend. Daarna warmt hij vóór die momenten op in een goedkoop uur, in plaats van
