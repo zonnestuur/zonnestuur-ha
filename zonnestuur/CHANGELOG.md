@@ -1,5 +1,9 @@
 # Wijzigingen
 
+## 0.128.0
+- Meer eigen zon zelf gebruiken: is er te weinig zon over voor een heel apparaat, dan rekent Zonnestuur uit of nu aanzetten met een beetje stroom van het net erbij goedkoper is dan straks alles van het net halen. Staat eerst op meekijken; aanzetten kan bij Sturing.
+- Nieuw bij Sturing: 'Wat liep er nog weg?' laat per dag zien hoeveel zon naar het net ging en hoeveel daarvan je eigen apparaten hadden kunnen gebruiken.
+
 ## 0.127.0
 - Veiliger: een andere website kan niets meer vragen aan of wijzigen in jouw Zonnestuur, ook niet als je geen wachtwoord hebt ingesteld.
 - Een S2-apparaat kan niet meer worden overgenomen door een ander apparaat met dezelfde naam.

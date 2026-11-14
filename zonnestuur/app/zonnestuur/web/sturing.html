@@ -40,6 +40,13 @@
   .keuze b { font-weight: 650; } .keuze span span { display: block; font-size: 13px; color: var(--zs-ink2); }
   @media (max-width: 520px) { .keuze { padding-left: 16px; } }
   .keuze.los { padding: 14px 16px 6px; }
+  .zon-regel { margin: 0; padding: 4px 16px 10px 70px; font-size: 14px; color: var(--zs-ink2); }
+  .zon-dag { display: grid; grid-template-columns: 92px 70px minmax(0, 1fr); gap: 10px; align-items: center; padding: 6px 16px 6px 70px; font-size: 14px; }
+  .zon-dag .s { color: var(--zs-ink2); font-size: 13px; }
+  .zon-balk { height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--zs-ink2) 22%, transparent); overflow: hidden; }
+  .zon-balk i { display: block; height: 100%; background: var(--e-zon, #f5a623); border-radius: 999px; }
+  .zon-dag:last-child { padding-bottom: 16px; }
+  @media (max-width: 520px) { .zon-regel, .zon-dag { padding-left: 16px; } .zon-dag { grid-template-columns: 74px 44px minmax(0, 1fr); } }
   .keuze label.stop:has(input:checked) { box-shadow: 0 0 0 1.5px #f87171; background: color-mix(in srgb, #f87171 12%, transparent); }
   .uitleg { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; margin: 22px 0 0; padding: 16px; border-radius: 18px;
     background: color-mix(in srgb, var(--zs-knop) 14%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--zs-knop) 30%, transparent); font-size: 14.5px; }
@@ -115,6 +122,24 @@ function teken() {
     </div>
     <p class="s" style="margin:6px 4px 0;font-size:13px;color:var(--zs-ink2)">Zelf aan- of uitzetten bij een apparaat kan altijd, ook in alleen advies en bij de noodstop.</p>
   </div>`;
+  if (ZON && ZON.panelen) {
+    const W = ZON.weglek, M = ZON.meekijken, nl = (v, n) => Number(v).toFixed(n == null ? 1 : n).replace(".", ",");
+    h += `<h2 id="zon">Eigen zon zelf gebruiken</h2><div class="lijst">
+      <div class="rij" style="--k:#fbbf24;cursor:default"><span class="ic">${svg("zon")}</span><span><b>Zon met een beetje net erbij</b><span class="s">Staat er te weinig zon over voor een heel apparaat, dan kan het toch slim zijn om het nu aan te zetten: de rest van het net erbij is vaak goedkoper dan straks alles van het net halen. Zonnestuur rekent dat elke ronde uit.</span></span><span></span></div>
+      <div class="keuze" role="radiogroup" aria-label="Zon met een beetje net erbij">
+        ${[["aan", "Aan", "Zonnestuur zet het apparaat aan zodra dat goedkoper is dan wachten"],
+           ["meekijken", "Eerst meekijken", "Zonnestuur schakelt er nog niet op, maar telt wat het had opgeleverd"],
+           ["uit", "Uit", "Apparaten gaan pas aan als er bijna genoeg zon is voor het hele apparaat"]]
+          .map(([v, t, u]) => `<label><input type="radio" name="bijmengen" value="${v}" ${ZON.stand === v ? "checked" : ""}><span><b>${t}</b><span>${u}</span></span></label>`).join("")}
+      </div>
+      ${(ZON.nu || []).map((x) => `<p class="zon-regel">${esc(x.tekst)}</p>`).join("")}
+      ${M ? `<p class="zon-regel"><b>Meekijken, laatste twee weken:</b> op ${M.dagen} ${M.dagen === 1 ? "dag" : "dagen"} had dit ${nl(M.kwh)} kWh eigen zon extra gebruikt en ongeveer € ${nl(M.eur, 2)} gescheeld.</p>` : ""}
+      ${W ? `<div class="rij" style="--k:#34d399;cursor:default"><span class="ic">${svg("geld")}</span><span><b>Wat liep er nog weg?</b><span class="s">${esc(W.zin)}</span></span><span></span></div>
+        ${W.dagen.filter((d) => d.terug_kwh >= 0.2).slice(0, 7).map((d) => `<div class="zon-dag"><span>${new Date(d.dag + "T12:00").toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" })}</span>
+          <span class="zon-balk" title="${nl(d.terug_kwh)} kWh teruggeleverd"><i style="width:${Math.round(100 * d.had_gekund_kwh / Math.max(0.1, d.terug_kwh))}%"></i></span>
+          <span>${nl(d.terug_kwh)} kWh terug${d.had_gekund_kwh >= 0.1 ? `, ${nl(d.had_gekund_kwh)} had gekund` : ""}${d.apparaten.length ? ` <span class="s">(${esc(d.apparaten.map((a) => a.naam + ": " + a.waarom).join("; "))})</span>` : ""}</span></div>`).join("")}` : ""}
+    </div>`;
+  }
   if (B) {
     h += `<h2>Thuisbatterij</h2><div class="lijst">
       <div class="rij" style="--k:#34d399;cursor:default"><span class="ic">${svg("bat")}</span><span><b>Wat wil je met de batterij?</b><span class="s">Zonnestuur rekent elk kwartier uit wat het meeste oplevert.</span></span><span></span></div>
@@ -169,6 +194,10 @@ function teken() {
     catch (e) { melding(e.message); }
   };
   $("inhoud").querySelectorAll('input[name="doel"]').forEach((i) => i.onchange = () => bewaar("bat.goal", i.value, i));
+  $("inhoud").querySelectorAll('input[name="bijmengen"]').forEach((i) => i.onchange = async () => {
+    try { const r = await api("api/zonbrein", { method: "POST", body: JSON.stringify({ stand: i.value }) }); ZON.stand = i.value; melding(r.tekst); }
+    catch (e) { melding(e.message); teken(); }
+  });
   $("inhoud").querySelectorAll('input[name="autonomie"]').forEach((i) => i.onchange = async () => {
     if (i.value === "stop" && !confirm("Noodstop: Zonnestuur stuurt dan niets meer en geeft alles terug aan de apparaten zelf. Doorgaan?")) { teken(); return; }
     try { const r = await api("api/autonomie", { method: "POST", body: JSON.stringify({ stand: i.value }) }); CFG.autonomie = i.value; melding(r.tekst); teken(); }
@@ -196,9 +225,9 @@ async function bewaar(k, v, el) {
   try { await api("api/config", { method: "POST", body: JSON.stringify(C) }); CFG = C; melding("Bewaard"); }
   catch (e) { melding(e.message); if (el.type === "checkbox") el.checked = !v; else teken(); }
 }
-let DIM = null;
+let DIM = null, ZON = null;
 let GRENZEN = null;
-(async () => { try { [CFG, DIM, GRENZEN] = await Promise.all([api("api/config"), api("api/dimmen").catch(() => null), api("api/grenzen").catch(() => null)]); teken(); } catch (e) { $("inhoud").innerHTML = `<p>${esc(e.message)}</p>`; } })();
+(async () => { try { [CFG, DIM, GRENZEN, ZON] = await Promise.all([api("api/config"), api("api/dimmen").catch(() => null), api("api/grenzen").catch(() => null), api("api/zonbrein").catch(() => null)]); teken(); } catch (e) { $("inhoud").innerHTML = `<p>${esc(e.message)}</p>`; } })();
 </script>
 </body>
 </html>
