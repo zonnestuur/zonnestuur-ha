@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.129.0
+- Zon met een beetje net erbij staat nu standaard aan.
+- Extra heet stoken op zon: gaat er zon naar het net terwijl de boiler of het vat al warm is, dan stookt Zonnestuur door tot een paar graden heter (boiler 60 °C, warmtepomp 3 graden boven boost; nooit boven wat het apparaat toestaat). Die warmte gaat de nacht in.
+- Zelf bijsturen: elke ochtend kijkt Zonnestuur wat er gisteren aan zon wegliep en past zich aan, alleen na bewijs en binnen veilige grenzen. Wat hij aanpast staat bij Sturing.
+
 ## 0.128.0
 - Meer eigen zon zelf gebruiken: is er te weinig zon over voor een heel apparaat, dan rekent Zonnestuur uit of nu aanzetten met een beetje stroom van het net erbij goedkoper is dan straks alles van het net halen. Staat eerst op meekijken; aanzetten kan bij Sturing.
 - Nieuw bij Sturing: 'Wat liep er nog weg?' laat per dag zien hoeveel zon naar het net ging en hoeveel daarvan je eigen apparaten hadden kunnen gebruiken.
