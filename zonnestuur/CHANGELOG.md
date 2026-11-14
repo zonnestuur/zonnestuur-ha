@@ -1,5 +1,11 @@
 # Wijzigingen
 
+## 0.126.0
+- Nieuw: Zonnestuur spreekt S2, de Europese norm (EN 50491-12-2) om warmtepompen, boilers, laadpalen en batterijen slim te
+  sturen. Heeft je apparaat een S2-instelling, vul dan het adres in dat bij Apparaten → Meer → 'Apparaat met S2' staat. Het
+  apparaat verschijnt daarna bij 'Verbonden via S2' en doet met één tik mee. Bij een boiler gaat de watertemperatuur ook mee
+  in het leren. Zet je Zonnestuur stil, dan regelt het apparaat zichzelf weer.
+
 ## 0.125.0
 - Nieuw: Zonnestuur houdt rekening met sneeuw op de zonnepanelen. Na een sneeuwbui verwacht hij minder zonnestroom, tot de sneeuw
   er volgens het weer (zon en temperatuur) af is gegleden. Apparaten wachten dan niet meer op zon die niet komt. Op Home staat

@@ -178,6 +178,11 @@ html, body { overscroll-behavior-y: none; }
   .pijl, .rij-uit > summary::after, .rij-uit.knop::after { width: 8px; height: 8px; border-right: 2px solid var(--ink-3); border-top: 2px solid var(--ink-3); transform: rotate(45deg); margin-right: 4px; }
   .rij-uit > summary::after { content: ""; transform: rotate(135deg); transition: transform .18s; } .rij-uit[open] > summary::after { transform: rotate(-45deg); }
   .rij-uit.knop::after { content: ""; }
+  .s2-uitleg { padding: 4px 16px 14px 70px; font-size: 14.5px; }
+  .s2-uitleg p { margin: 6px 0; } .s2-adres { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .s2-uitleg code { font-size: 13.5px; padding: 3px 7px; border-radius: 8px; background: var(--chip); overflow-wrap: anywhere; }
+  @media (max-width: 520px) { .s2-uitleg { padding-left: 16px; }
+    #s2Nieuw .rij { grid-template-columns: 40px minmax(0, 1fr); } #s2Nieuw .rij .btn { grid-column: 2; justify-self: start; margin-top: 8px; } }
   .rij-uit #state { padding: 0 16px 16px 70px; }
   @media (max-width: 520px) { .rij-uit #state { padding-left: 16px; } }
   .plusrij .ic { background: var(--ink); color: var(--card-solid); }
@@ -318,6 +323,9 @@ html, body { overscroll-behavior-y: none; }
     <p class="groep-uitleg">Eén tik en het doet mee.</p><div class="lijst" id="stappen"></div></section>
   <section class="card" id="meterKaart" hidden></section>
 
+  <section class="groep gevonden" id="s2Kaart" hidden><h2>Verbonden via S2</h2>
+    <p class="groep-uitleg">Deze apparaten meldden zich bij Zonnestuur. Ze doen pas mee als je ze toevoegt.</p><div class="lijst" id="s2Nieuw"></div></section>
+
   <section class="groep" id="meeKaart"><h2>Je apparaten</h2><div class="lijst" id="mee"></div></section>
 
   <section class="groep" id="basisKaart"><h2>Je huis</h2><p class="groep-uitleg">Wat Zonnestuur nodig heeft om goed te kunnen plannen.</p><div class="lijst" id="basis"></div></section>
@@ -328,6 +336,8 @@ html, body { overscroll-behavior-y: none; }
     <div class="lijst">
       <details class="rij-uit" id="beheer"><summary><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><span><b>Gekoppelde merken</b><span class="sub">Welke merken gekoppeld zijn, en ontkoppelen</span></span></summary>
         <section id="state"></section></details>
+      <details class="rij-uit" id="s2Uitleg"><summary><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg></span><span><b>Apparaat met S2</b><span class="sub" id="s2Sub">De Europese norm om apparaten slim te sturen</span></span></summary>
+        <div class="s2-uitleg" id="s2Blok"></div></details>
       <button type="button" class="rij-uit knop" id="matterAltijd"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM18 14h2M14 18v2"/></svg></span><span><b>Matter-apparaat</b><span class="sub">Scan de QR-code met het Matter-logo; het merk maakt niet uit</span></span></button>
     </div>
   </section>
@@ -1433,6 +1443,38 @@ async function meterAanbod() {
     catch (e) { k.insertAdjacentHTML("beforeend", `<p class="err">${esc(e.message)}</p>`); }
   };
 }
+// ---- S2 (0.126): apparaten die de Europese norm EN 50491-12-2 spreken melden zich zelf bij Zonnestuur
+let S2 = null;
+async function s2Laden() {
+  try { S2 = await api("api/s2"); } catch (e) { return; }
+  const nieuw = (S2.apparaten || []).filter((a) => !a.apparaat);
+  $("s2Kaart").hidden = !nieuw.length;
+  $("s2Nieuw").innerHTML = nieuw.map((a) => `<div class="rij"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[a.soort] || IC.generic}</svg></span>
+    <span><b>${esc(a.naam)}</b><span class="sub">${esc([a.merk, a.model].filter(Boolean).join(" "))}${a.merk || a.model ? " · " : ""}${a.verbonden ? s2Kan(a) : "niet meer verbonden"}</span></span>
+    <button class="btn" type="button" data-s2="${esc(a.resource_id)}"${a.verbonden ? "" : " disabled"}>Toevoegen</button></div>`).join("");
+  $("s2Nieuw").querySelectorAll("[data-s2]").forEach((b) => b.onclick = async () => {
+    b.disabled = true; b.textContent = "Bezig…";
+    try { const r = await api("api/s2/toevoegen", { method: "POST", body: JSON.stringify({ resource_id: b.dataset.s2 }) });
+      location.href = "apparaat?id=" + encodeURIComponent(r.id); }
+    catch (e) { b.disabled = false; b.textContent = "Toevoegen"; alertNiet(e.message); }
+  });
+  const mee = (S2.apparaten || []).filter((a) => a.apparaat).length;
+  $("s2Sub").textContent = mee ? `${mee} ${mee === 1 ? "apparaat doet" : "apparaten doen"} mee via S2` : "De Europese norm om apparaten slim te sturen";
+  $("s2Blok").innerHTML = S2.uit_gezet ? `<p>S2 staat uit. <button class="btn ghost" type="button" id="s2Aan">S2 aanzetten</button></p>` :
+    `<p>Heeft je warmtepomp, boiler, laadpaal of batterij een S2-instelling (soms 'energiebeheer', 'EMS' of 'CEM')? Vul daar dit adres in:</p>
+    <p class="s2-adres"><code id="s2Adres">${esc(S2.adres)}</code> <button class="btn ghost" type="button" id="s2Kopie">Kopiëren</button></p>
+    <p class="small muted">Vraagt het apparaat om een token of wachtwoord, gebruik dan: <code>${esc(S2.token)}</code></p>
+    <p class="small muted">Daarna verschijnt het apparaat hierboven bij 'Verbonden via S2' en voeg je het met één tik toe.</p>`;
+  const k = $("s2Kopie"); if (k) k.onclick = () => { try { navigator.clipboard.writeText(S2.adres); k.textContent = "Gekopieerd"; } catch (e) { /* oude browser */ } };
+  const aan = $("s2Aan"); if (aan) aan.onclick = async () => { await api("api/s2", { method: "POST", body: JSON.stringify({ aan: true }) }); s2Laden(); };
+}
+function s2Kan(a) {
+  if (a.regelvorm === "alleen meten") return "Zonnestuur kan dit apparaat alleen meten";
+  if (a.temperatuur != null) return `${Math.round(a.temperatuur)} °C, Zonnestuur kan het aan en uit zetten`;
+  return "Zonnestuur kan het aan en uit zetten";
+}
+function alertNiet(t) { const p = document.createElement("p"); p.className = "small let-op"; p.textContent = t || "Toevoegen lukte niet"; $("s2Nieuw").append(p); }
+
 (async () => {
   // eerste start: één keer per browser eerst het korte welkom (overdag, 's nachts, beginnen)
   if (new URLSearchParams(location.search).has("start")) { let gezien = true; try { gezien = localStorage.getItem("zs_welkom") === "1"; localStorage.setItem("zs_welkom", "1"); } catch (e) {}
@@ -1463,11 +1505,12 @@ async function meterAanbod() {
   if (location.hash === "#toevoegen") openToevoegen("");
   if (qp.get("q")) { const rs = rijen(), q = qp.get("q").toLowerCase(); const r = rs.find((x) => x.merk.toLowerCase() === q) || (rs.length === 1 ? rs[0] : null); if (r) openMerk(r); }   // vanuit het eerste instellen: meteen dat merk
   await load();
+  s2Laden();
   let later = false; try { later = sessionStorage.getItem("zs_start_later") === "1"; } catch (e) {}
   if (!later) startKaart();
   huisLaden(true);
   // nieuwe vondsten van de koppelmotor (en een motor die nog opstart) vanzelf bijwerken
-  setInterval(() => { if ($("panel").hidden && !document.hidden) { load(); huisLaden(false); } }, 30000);
+  setInterval(() => { if ($("panel").hidden && !document.hidden) { load(); huisLaden(false); s2Laden(); } }, 30000);
   const m = location.hash.match(/^#enode-(\w+)/); if (m) enodeChoose(m[1]);
 })();
 </script>
