@@ -1,5 +1,10 @@
 # Wijzigingen
 
+## 0.127.0
+- Veiliger: een andere website kan niets meer vragen aan of wijzigen in jouw Zonnestuur, ook niet als je geen wachtwoord hebt ingesteld.
+- Een S2-apparaat kan niet meer worden overgenomen door een ander apparaat met dezelfde naam.
+- Teksten nagelopen en kleine taalfouten verbeterd.
+
 ## 0.126.0
 - Nieuw: Zonnestuur spreekt S2, de Europese norm (EN 50491-12-2) om warmtepompen, boilers, laadpalen en batterijen slim te
   sturen. Heeft je apparaat een S2-instelling, vul dan het adres in dat bij Apparaten → Meer → 'Apparaat met S2' staat. Het
